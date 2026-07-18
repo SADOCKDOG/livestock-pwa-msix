@@ -4209,4 +4209,27 @@ body.glow-tarjetas-off .status-badge {
   .more-sheet-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* ── Tipografía de tablas/listados: la app usa tamaños pensados para
+     dedo/pantalla pequeña; en escritorio se lee de más lejos y hay sitio
+     de sobra, así que se sube ligeramente sin perder densidad. ── */
+  #app-content table,
+  #app-content .table-scroll td,
+  #app-content .table-scroll th {
+    font-size: 0.95rem;
+  }
+  #app-content .badge,
+  #app-content .chip,
+  #app-content small:not(.s-lbl):not(.wizard-label) {
+    font-size: 0.8rem;
+  }
+
+  /* ── Modales/wizards: algo más anchos para aprovechar el espacio en
+     formularios largos, sin llegar a ocupar toda la ventana. ── */
+  .wizard-card {
+    max-width: 620px;
+  }
+  .modal-val-wrap {
+    max-width: 760px;
+  }
 }
