@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+:root {
+  /* Paleta común base */
+  --tinta: #111827;
+  --gris: #4b5563;
+  --linea: #e5e7eb;
+  --fondo: #ffffff;
+  --suave: #f9fafb;
+  --blanco: #ffffff;
+  
+  /* Valores por defecto de acento (personalizables en el body de cada archivo) */
+  --acento: #c9851f;
+  --acento-claro: #f59e0b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--tinta);
+  background: var(--fondo);
+  margin: 0;
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Cabecera unificada y premium */
+.portada {
+  text-align: center;
+  padding: 60px 24px 50px;
+  background: linear-gradient(160deg, #0b0f19 0%, #1f2937 100%);
+  color: #fff;
+  border-bottom: 6px solid var(--acento);
+  position: relative;
+  overflow: hidden;
+}
+
+.portada::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 60%);
+  pointer-events: none;
+}
+
+.portada .logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.portada .logo-svg {
+  width: 58px;
+  height: 58px;
+  fill: none;
+  stroke: var(--acento-claro);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.3));
+}
+
+.portada h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin: 10px 0 8px;
+  color: #ffffff;
+  letter-spacing: -0.025em;
+}
+
+.portada .sub {
+  font-size: 1.1rem;
+  color: #9ca3af;
+  margin: 0 auto;
+  max-width: 600px;
+  font-weight: 300;
+}
+
+.portada .badge {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 40px;
+  color: var(--acento-claro);
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Títulos de sección */
+h2.modulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--tinta);
+  margin: 0 0 16px;
+  padding-top: 6px;
+  border-left: 5px solid var(--acento);
+  padding-left: 14px;
+  letter-spacing: -0.015em;
+}
+
+p.intro-mod {
+  font-size: 1.05rem;
+  color: var(--gris);
+  margin-bottom: 24px;
+}
+
+/* Listas de pasos estandarizadas */
+ol.pasos {
+  padding-left: 0;
+  counter-reset: paso;
+  list-style: none;
+  margin: 20px 0;
+}
+
+ol.pasos > li {
+  position: relative;
+  padding: 14px 16px 14px 54px;
+  margin-bottom: 14px;
+  background: var(--suave);
+  border-radius: 12px;
+  border: 1px solid var(--linea);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+ol.pasos > li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+ol.pasos > li::before {
+  counter-increment: paso;
+  content: counter(paso);
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--acento);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Contenedores de imágenes */
+figure {
+  margin: 32px auto;
+  text-align: center;
+  max-width: 340px;
+}
+
+figure img {
+  max-width: 100%;
+  border: 4px solid var(--tinta);
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+figure img:hover {
+  transform: scale(1.02);
+}
+
+figcaption {
+  font-size: .8rem;
+  color: var(--gris);
+  margin-top: 12px;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.seccion {
+  padding: 48px 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.seccion:last-of-type {
+  border-bottom: none;
+}
+
+.ruta {
+  color: var(--acento);
+  font-weight: 700;
+}
+
+/* Cadena de workflow premium para Wizards */
+.workflow-stepper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 28px 0;
+  padding: 20px;
+  background: #0f172a;
+  border-radius: 16px;
+  border: 1px solid var(--acento);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  overflow-x: auto;
+}
+
+.workflow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  min-width: 110px;
+  position: relative;
+  padding: 0 10px;
+}
+
+.workflow-step-num {
+  width: 28px;
+  height: 28px;
+  background: var(--acento-claro);
+  color: #0f172a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+}
+
+.workflow-step-title {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+
+.workflow-step-desc {
+  color: #94a3b8;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.workflow-arrow {
+  color: var(--acento-claro);
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0 8px;
+}
+
+/* Pie de página */
+.pie-manual {
+  margin-top: 48px;
+  padding: 32px 0;
+  text-align: center;
+  color: #9ca3af;
+  font-size: .8rem;
+  border-top: 1px solid var(--linea);
+}
+
+@media (max-width: 640px) {
+  .workflow-stepper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .workflow-step {
+    flex-direction: row;
+    text-align: left;
+    min-width: unset;
+    gap: 12px;
+  }
+  .workflow-step-num {
+    margin-bottom: 0;
+  }
+  .workflow-arrow {
+    display: none;
+  }
+  .portada h1 {
+    font-size: 1.8rem;
+  }
+}

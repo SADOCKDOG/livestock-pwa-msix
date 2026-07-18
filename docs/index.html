@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <script>
+      // Sandbox Guard Ultra-Robustecido para entornos iframe restringidos (Open Design Desktop)
+      // Evita de forma síncrona caídas críticas al consultar serviceWorker e indexedDB
+      try {
+        var _testSW = navigator.serviceWorker;
+      } catch (e) {
+        console.warn("[Sandbox Guard] navigator.serviceWorker bloqueado en sandbox. Redefiniendo de forma segura...");
+        try {
+          Object.defineProperty(navigator, 'serviceWorker', {
+            get: function() { return undefined; },
+            configurable: true
+          });
+        } catch (err) {
+          try {
+            Object.defineProperty(Navigator.prototype, 'serviceWorker', {
+              get: function() { return undefined; },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (err2) {
+            console.error("[Sandbox Guard] No se pudo redefinir serviceWorker en el prototipo:", err2);
+          }
+        }
+      }
+
+      try {
+        var _testIDB = window.indexedDB;
+      } catch (e) {
+        console.warn("[Sandbox Guard] window.indexedDB bloqueado en sandbox. Redefiniendo para evitar caídas síncronas...");
+        try {
+          Object.defineProperty(window, 'indexedDB', {
+            get: function() { return undefined; },
+            configurable: true
+          });
+        } catch (err) {
+          console.error("[Sandbox Guard] No se pudo redefinir indexedDB de forma segura:", err);
+        }
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover"
+    />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https:; worker-src 'self' blob:;" />
+    <!-- Livestock Manager uses Warm Orange (#d97706) -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Livestock Manager</title>
+    <link rel="stylesheet" href="css/design-tokens.css?v=5.3.15" />
+    <link rel="stylesheet" href="css/styles.css?v=6.28.48" />
+    <link rel="stylesheet" href="css/layout.css?v=1.0.1" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/Icono de aplicación.png" />
+
+    <!-- Identidad tipográfica: Inter (cuerpo) · Archivo Expanded (títulos) · IBM Plex Mono (datos) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@700;900&family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;600;700;800;900&display=swap"
+    />
+
+    <!-- Librerías Críticas Locales para Android -->
+    <script src="js/app-version.js?v=6.28"></script>
+    <script src="js/module-colors.js?v=6.28"></script>
+    <script src="js/idb-local.js?v=6.28"></script>
+
+    <!-- Librerías Externas vía CDN -->
+    <!-- xlsx.js, html2pdf.js y chart.js (~1.3MB combinados) se cargan bajo demanda desde
+         App._ensureXLSX() / App._ensureHtml2Pdf() / App._ensureChartJs() en app.js,
+         solo al exportar o al abrir una vista con gráficos. -->
+  </head>
+  <body>
+    <header id="main-header" role="banner">
+      <!-- Left: Logo (Centrado en su columna) -->
+      <div class="header-logo-container" onclick="App.route('/')">
+          <img src="icons/Logo aplicación.png" alt="Livestock Manager" id="app-logo" />
+      </div>
+
+        <!-- Center: Interactive Route Pill (centrado exacto en el header) -->
+         <div id="header-context">
+            <span id="header-route-icon" data-icon="home"></span>
+        </div>
+
+        <!-- Right: Viñeta de Finca (REGA con haz de luz) -->
+        <div class="flex items-center gap-10 justify-end" style="justify-self: end; display: flex; align-items: flex-end; padding-bottom: 8px;">
+            <div id="finca-badge" class="rega-badge-container" onclick="App.route('/fincas')" style="margin-left: 4px;">
+                <span id="nombre-finca-header">Cargando...</span>
+            </div>
+        </div>
+      <!-- Dropdown del Header -->
+      <div id="header-dropdown-menu" class="header-dropdown-overlay" onclick="App._toggleHeaderDropdown()">
+        <div class="header-dropdown-content" role="dialog" aria-modal="true" aria-label="Accesos rápidos" onclick="event.stopPropagation()">
+            <div class="header-dropdown-grid" id="header-dropdown-grid">
+                <!-- Se puebla dinámicamente en app.js -->
+            </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="app-content" role="main" aria-live="polite">
+      <div class="loader">Iniciando aplicación...</div>
+      <div id="startup-rescue">
+        <p>El inicio está tardando más de lo esperado...</p>
+        <button
+          class="btn btn-primary"
+          onclick="location.reload()"
+        >
+          Forzar Reinicio
+        </button>
+      </div>
+    </main>
+
+    <div id="error-diag"></div>
+
+    <script>
+      // Global error diagnostic for Android
+      window.onerror = function(msg, url, line, col, err) {
+        const diag = document.getElementById('error-diag');
+        if (diag) {
+          diag.style.display = 'block';
+          diag.innerHTML = 'Se ha producido un error. Pulsa para continuar.\n\n<small style="opacity:0.5">Detalles técnicos disponibles en consola</small>';
+          diag.onclick = () => diag.style.display = 'none';
+        }
+        console.error('[Error]', msg, '\nArchivo:', url, '\nLínea:', line, '\nCol:', col, '\nStack:', err?.stack);
+        return true;
+      };
+      window.addEventListener('unhandledrejection', function(e) {
+        const diag = document.getElementById('error-diag');
+        if (diag) {
+          diag.style.display = 'block';
+          diag.innerHTML = 'Se ha producido un error. Pulsa para continuar.\n\n<small style="opacity:0.5">Detalles técnicos disponibles en consola</small>';
+          diag.onclick = () => diag.style.display = 'none';
+        }
+        console.error('[Promise]', e.reason?.message || e.reason, '\nStack:', e.reason?.stack);
+      });
+      // Rescue timer
+      setTimeout(() => {
+        const content = document.getElementById("app-content");
+        if (content && content.innerText.includes("Iniciando aplicación")) {
+          document.getElementById("startup-rescue").style.display = "block";
+        }
+      }, 8000);
+    </script>
+
+    <!-- ============================
+    BOTTOM NAV: 5 items + "Más"
+    ============================ -->
+    <div class="bottom-nav-wrap" id="bottomNavWrap">
+    <nav class="bottom-nav" id="bottomNav" aria-label="Navegación principal">
+      <a href="#/" class="nav-item" id="nav-home" data-icon="home">
+        <span class="label">Inicio</span>
+      </a>
+      <a href="#/animales" class="nav-item" id="nav-animales" data-icon="animales">
+        <span class="label">Animales</span>
+      </a>
+      <a href="#/rebanos" class="nav-item" id="nav-rebanos" data-icon="rebanos">
+        <span class="label">Rebaños</span>
+      </a>
+      <a href="#/ganaderia" class="nav-item" id="nav-produccion" data-icon="registros">
+        <span class="label">GeGan</span>
+      </a>
+      <a href="#/explotacion" class="nav-item" id="nav-explotacion" data-icon="informes">
+        <span class="label">ExPro</span>
+      </a>
+      <a href="#/comercializacion" class="nav-item" id="nav-comercializacion" data-icon="comercial">
+        <span class="label">CoMer</span>
+      </a>
+      <a class="nav-item" id="nav-more" role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" onclick="App._toggleMenuNavegacion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();App._toggleMenuNavegacion();}" data-icon="mas">
+        <span class="label">Más</span>
+      </a>
+    </nav>
+    </div>
+
+    <!-- ============================
+    BOTTOM SHEET "MÁS"
+    ============================ -->
+    <div id="nav-more-sheet" class="more-sheet-overlay" onclick="App._toggleMenuNavegacion()">
+      <div class="more-sheet" role="dialog" aria-modal="true" aria-labelledby="more-sheet-title" onclick="event.stopPropagation()">
+        <div class="more-sheet-handle"></div>
+        <div class="more-sheet-title" id="more-sheet-title">Navegación</div>
+        <div class="more-sheet-grid">
+          <!-- Nota: Zonas/Silos/Fitosanitario/Gastos/Proveedores (tabs de ExPro), Leche/Cárnico/Híbrido
+               (tabs de GeGan) y Comercial/Compradores/Contratos/Transportistas (entrada y tabs de CoMer)
+               se han retirado de este menú por estar ya accesibles desde la barra de pestañas de su
+               pilar (ExPro/GeGan/CoMer, ya presentes en la navegación inferior) — evita duplicar accesos. -->
+          <h3 class="more-sheet-section-title mb-4 mt-6 text-xs font-black uppercase tracking-wider" style="color: var(--c-success); border-bottom: 1px solid color-mix(in srgb, var(--c-success) 20%, transparent); padding-bottom: 2px;">INFORMES Y DOCUMENTACIÓN</h3>
+          <a href="#/informes" class="more-sheet-item" onclick="App._toggleMenuNavegacion()" data-icon="informes">
+            <span>Informes</span>
+          </a>
+          <a href="#/informes" class="more-sheet-item" onclick="App._toggleMenuNavegacion(); setTimeout(()=>InformesView._cambiarTab('ventas'),100)" data-icon="libroVentas">
+            <span>Libro Ventas</span>
+          </a>
+          <a href="#/informes" class="more-sheet-item" onclick="App._toggleMenuNavegacion(); setTimeout(()=>InformesView._cambiarTab('rega'),100)" data-icon="informeRega">
+            <span>Informe REGA</span>
+          </a>
+          <a href="#/informes" class="more-sheet-item" onclick="App._toggleMenuNavegacion(); setTimeout(()=>InformesView._cambiarTab('exportar'),100)" data-icon="exportacion">
+            <span>Exportación Oficial</span>
+          </a>
+          <a href="#/cuaderno" class="more-sheet-item" onclick="App._toggleMenuNavegacion()" data-icon="cuaderno">
+            <span>Cuaderno Digital</span>
+          </a>
+          <a href="#/documentos" class="more-sheet-item" onclick="App._toggleMenuNavegacion()" data-icon="documento">
+            <span>Documentos DIMOE</span>
+          </a>
+          <a href="#/manuales" class="more-sheet-item" onclick="App._toggleMenuNavegacion()" data-icon="libro">
+            <span>Manuales</span>
+          </a>
+
+          <!-- HERRAMIENTAS Y AJUSTES -->
+          <h3 class="more-sheet-section-title mb-4 mt-6 text-xs font-black uppercase tracking-wider" style="color: var(--c-info); border-bottom: 1px solid color-mix(in srgb, var(--c-info) 20%, transparent); padding-bottom: 2px;">HERRAMIENTAS Y AJUSTES</h3>
+          <a href="#/ajustes" class="more-sheet-item" onclick="App._toggleMenuNavegacion()" data-icon="ajustes">
+            <span>Ajustes</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+    // ============================================
+    // Sombra de scroll universal (reutilizable)
+    // ============================================
+    // Uso: window.enableScrollShadows(containerElement)
+    window.enableScrollShadows = function(el) {
+      if (!el) return;
+      function updateShadows() {
+        var max = el.scrollWidth - el.clientWidth;
+        var atStart = el.scrollLeft <= 4;
+        var atEnd = el.scrollLeft >= max - 4;
+        if (atStart) el.removeAttribute('data-ss-start');
+        else el.setAttribute('data-ss-start', '');
+        if (atEnd) el.removeAttribute('data-ss-end');
+        else el.setAttribute('data-ss-end', '');
+      }
+      el.addEventListener('scroll', updateShadows);
+      window.addEventListener('resize', updateShadows);
+      updateShadows();
+    };
+    </script>
+
+    <!-- Modo de publicación (FREE / PREMIUM) — se genera automáticamente en build:free / build:premium -->
+    <script src="js/mode-config.js?v=6.28"></script>
+    <script>if (typeof FREE_MODE === 'undefined') { window.FREE_MODE = false; }</script>
+
+    <!-- Scripts locales de Livestock Manager Premium (Orden de Dependencia Crítico) -->
+    <script src="js/db.js?v=6.28"></script>
+    <script src="js/error-handler.js?v=6.28"></script>
+    <script src="js/icons.js?v=6.28.1"></script>
+    <script src="js/crypto.js?v=6.28"></script>
+    <script src="js/catalogo-sanitario.js?v=6.28"></script>
+
+    <!-- Lector de códigos de barras QR (Web): carga diferida bajo demanda
+         (~366KB) desde App._ensureHtml5Qrcode() en app.js, no en cada arranque.
+         Sigue disponible offline: precacheado por el Service Worker. -->
+
+    <!-- Servicios del Sistema (Capa de Infraestructura) -->
+    <script src="js/services/event-bus.js?v=6.28"></script>
+    <script src="js/services/cache-service.js?v=6.28"></script>
+    <script src="js/services/alertas-service.js?v=6.28"></script>
+    <script src="js/services/balance-service.js?v=6.28"></script>
+    <script src="js/services/comunidades-service.js?v=6.28"></script>
+    <script src="js/services/pdf-service.js?v=6.31"></script>
+    <script src="js/services/export-service.js?v=6.28"></script>
+
+    <!-- Vistas Modulares -->
+    <script src="js/views/dashboard-view.js?v=6.28.20"></script>
+    <script src="js/views/produccion-view.js?v=6.28.2"></script>
+    <script src="js/views/ajustes-view.js?v=6.30"></script>
+
+    <!-- Helpers de UI -->
+    <script src="js/views/helpers/modo-contexto.js?v=6.30"></script>
+    <script src="js/views/helpers/calidad-leche.js?v=6.28"></script>
+    <script src="js/ui-utils.js?v=1.0.0"></script>
+
+    <!-- 1º Inyectar el Motor de Reglas y Trazabilidad Oficial (Validaciones y Albaranes) -->
+    <script src="js/trazabilidad.js?v=6.28.5"></script>
+
+    <!-- 2º Inyectar el Motor de Inteligencia Analítica (Cálculo de Fórmulas y Márgenes) -->
+    <script src="js/analitica.js?v=6.28"></script>
+
+    <!-- 3º Inyectar el Gestor Jerárquico de Modelos de Datos -->
+    <script src="js/fincas.js?v=6.31"></script>
+    <script src="js/adsgs.js?v=6.28"></script>
+    <script src="js/rebanos.js?v=6.28"></script>
+    <script src="js/animales.js?v=6.28"></script>
+    <script src="js/pesajes.js?v=6.28"></script>
+    <script src="js/pesajes-ui.js?v=6.28"></script>
+    <script src="js/produccion-ui.js?v=6.28"></script>
+
+    <!-- 4º Inyectar los Controladores Operativos Diario (Vida y Alimentación) -->
+    <script src="js/produccion.js?v=6.28"></script>
+    <script src="js/gastos.js?v=6.28"></script>
+    <script src="js/sanitarios.js?v=6.28"></script>
+    <script src="js/reproduccion.js?v=6.28"></script>
+
+    <!-- 5º Inyectar los Módulos de Onboarding, Backups y Formularios de UI -->
+    <script src="js/export_reco.js?v=6.28.22"></script>
+    <script src="js/importador.js?v=6.28"></script>
+    <script src="js/asistente-configuracion.js?v=6.28.20"></script>
+    <script src="js/modal-manager.js?v=6.28"></script>
+    <script src="js/services/document-viewer.js?v=6.31.1"></script>
+    <script src="js/wizard-manager.js?v=6.28.1"></script>
+    <script src="js/snapshot-service.js?v=6.28"></script>
+
+    <!-- Wizards extraídos (deben cargar antes de app.js) -->
+    <script src="js/views/wizards/wizard-traslado.js?v=6.28.18"></script>
+    <script src="js/views/wizards/wizard-tratamiento.js?v=6.28.18"></script>
+    <script src="js/views/wizards/wizard-finca.js?v=6.30"></script>
+    <script src="js/views/wizards/wizard-crotales.js?v=6.31"></script>
+    <script src="js/views/wizards/wizard-guia-movimiento.js?v=6.31"></script>
+    <script src="js/views/wizards/wizard-censo.js?v=6.31.1"></script>
+    <script src="js/views/wizards/wizard-albaran-leche.js?v=6.28.6"></script>
+    <script src="js/views/wizards/wizard-gasto.js?v=6.28"></script>
+    <script src="js/views/wizards/wizard-venta-masiva.js?v=6.28"></script>
+
+    <!-- Helpers modales -->
+    <script src="js/views/helpers/ayuda.js?v=6.28"></script>
+
+    <!-- Gestor de compras IAP (Google Play Billing) -->
+    <script src="js/purchase-manager.js?v=6.28"></script>
+
+    <!-- Gestor de modo Free/Premium -->
+    <script src="js/premium-manager.js?v=6.28"></script>
+
+    <!-- 5bº Módulos de Compradores, Proveedores, Contratos y Transportistas -->
+    <script src="js/compradores.js?v=6.28"></script>
+    <script src="js/proveedores.js?v=6.28"></script>
+    <script src="js/contratos.js?v=6.28"></script>
+    <script src="js/transportistas.js?v=6.28.5"></script>
+    <script src="js/movimientos.js?v=6.28"></script>
+    <script src="js/saneamientos.js?v=6.28"></script>
+    <script src="js/pedidos-crotales.js?v=6.28"></script>
+    <script src="js/notificaciones-rega.js?v=6.28"></script>
+    <script src="js/liquidacion.js?v=6.28"></script>
+
+    <!-- 6º Arrancar el Controlador de la Aplicación (Orquestador Central) -->
+    <script src="js/app.js?v=6.31"></script>
+
+    <!-- Herramientas de QA/E2E (solo en desarrollo): se cargan bajo demanda,
+         no en cada arranque en producción. Activar una vez con
+         localStorage.setItem('lm_qa_tools','1') y recargar. -->
+    <script>
+      if (window.localStorage && localStorage.getItem('lm_qa_tools') === '1') {
+        ['js/e2e-test-suite.js?v=6.28', 'js/qa-test-runner.js?v=6.28', 'js/qa-diagnostico.js?v=6.28', 'js/qa-siggan.js?v=6.28.4', 'js/qa-premium.js?v=6.31']
+          .forEach((src) => {
+            const s = document.createElement('script');
+            s.src = src;
+            document.body.appendChild(s);
+          });
+      }
+    </script>
+
+    <script>
+      window.isNative = !!window.Capacitor;
+      try {
+        if (!window.isNative && navigator.serviceWorker && typeof navigator.serviceWorker.register === 'function') {
+          window.addEventListener("load", () => {
+            try {
+              navigator.serviceWorker
+                .register("./sw.js")
+                .then((reg) => console.log("SW OK"))
+                .catch((err) => console.error("SW Error:", err));
+            } catch (err) {
+              console.warn("Error al registrar el Service Worker:", err);
+            }
+          });
+        }
+      } catch (e) {
+        console.warn("Service Worker no disponible o bloqueado por el sandbox del entorno:", e.message);
+      }
+
+    </script>
+
+</body>
+</html>

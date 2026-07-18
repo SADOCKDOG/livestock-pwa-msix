@@ -1,0 +1,97 @@
+/* css/layout.css - Estilos estructurales extraídos de index.html (Premium OLED) */
+
+#main-header {
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header-logo-container {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-self: center;
+}
+
+#app-logo {
+    height: 32px;
+    width: auto;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 6px var(--header-neon-color, rgba(197, 250, 80, 0.5)));
+}
+
+#header-context {
+    cursor: pointer;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border, #444);
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px -2px var(--header-neon-color, transparent);
+    transition: box-shadow 0.3s ease;
+}
+
+#header-route-icon {
+    color: var(--header-neon-color, var(--text-s));
+    display: flex;
+    align-items: center;
+}
+
+#nombre-finca-header {
+    color: var(--p-gold);
+    text-shadow: 0 0 6px rgba(255, 230, 0, 0.6);
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#startup-rescue {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+#startup-rescue p {
+    color: var(--text-s);
+}
+
+#startup-rescue button {
+    background: var(--c-orange);
+}
+
+#error-diag {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg);
+    z-index: 99999;
+    padding: 20px;
+    color: var(--c-danger);
+    font-family: monospace;
+    font-size: var(--fs-sm);
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+/* Modificadores del menú desplegable inferior */
+.more-sheet-item.border-info { border-left: 3px solid var(--c-info) !important; }
+.more-sheet-item.border-warning { border-left: 3px solid var(--p-gold) !important; }
+.more-sheet-item.border-accent { border-left: 3px solid var(--c-accent) !important; }
+.more-sheet-item.border-success { border-left: 3px solid var(--c-success) !important; }
+.more-sheet-item.border-purple { border-left: 3px solid var(--c-purple) !important; }

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejemplo Práctico: Ovino de Carne · Guía Premium v4.8.7 · Livestock Manager</title>
+  <link rel="stylesheet" href="estilo-manuales.css">
+</head>
+<body style="--acento: #c9851f; --acento-claro: #e0a83a;"><header class="portada">
+    <div class="logo-container">
+      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+    </div>
+    <h1>Ejemplo Práctico: Ovino de Carne</h1>
+    <p class="sub">Creación y gestión completa de una explotación de ovejas para carne · Guía v4.8.7</p>
+    <div class="badge">GUÍA PASO A PASO · v4</div>
+  </header>
+
+<div class="wrap"><section class="seccion"><h2 class="modulo">Sobre esta guía</h2>
+ <p class="intro-mod">Este manual te guiará en la creación de una <strong>explotación de ovino de carne</strong> desde cero,
+ paso a paso, con todos los campos que debes rellenar y capturas de pantalla de cada pantalla.
+ Seguiremos el caso práctico de la <strong>explotación "Cortijo San Pedro"</strong> en la Sierra de Cádiz,
+ con 150 ovejas de raza <strong>Merina</strong> para producción cárnica.</p>
+ <p class="intro-mod">Cada sección corresponde a una pantalla de la aplicación. Los datos de ejemplo aparecen en
+ <span class="campo">texto así</span> para que puedas adaptarlos a tu explotación real.</p>
+
+ <div class="indice"><h3>Índice</h3>
+ <ol><li><a href="#inicio">Pantalla de inicio / bienvenida</a></li>
+ <li><a href="#crear-finca">Crear la explotación (ficha de finca)</a></li>
+ <li><a href="#ajustes">️ Ajustes adicionales de la finca</a></li>
+ <li><a href="#zonas">️ Crear zonas / parcelas</a></li>
+ <li><a href="#rebanos">Crear el rebaño de carne</a></li>
+ <li><a href="#animales-alta">Dar de alta los animales</a></li>
+ <li><a href="#animales-scan">Uso del escáner de crotales</a></li>
+ <li><a href="#pesajes">️ Registro de pesajes</a></li>
+ <li><a href="#sanidad">Gestión sanitaria y tratamientos</a></li>
+ <li><a href="#compradores">Alta de compradores</a></li>
+ <li><a href="#comercializacion">Comercialización de carne</a></li>
+ <li><a href="#albaran">Albarán y documentos</a></li></ol></div>
+
+ <div class="resumen-ejemplo"><h4>Datos del ejemplo</h4>
+ <table><tr><th>Campo</th><th>Valor</th></tr>
+ <tr><td>Nombre explotación</td><td>Cortijo San Pedro</td></tr>
+ <tr><td>Especie</td><td>Ovino</td></tr>
+ <tr><td>Raza</td><td>Merina</td></tr>
+ <tr><td>Tipo de producción</td><td>Carne</td></tr>
+ <tr><td>Nº de animales</td><td>150</td></tr>
+ <tr><td>Rebaños</td><td>1 (madres) + 1 (cebo)</td></tr>
+ <tr><td>Zonas</td><td>3 parcelas de pasto + 1 estabulación</td></tr>
+ <tr><td>Sistema</td><td>Extensivo</td></tr>
+ <tr><td>Comunidad Autónoma</td><td>Andalucía</td></tr></table></div></section>
+
+ <!-- ============================================================= -->
+ <!-- 1. PANTALLA DE INICIO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="inicio"><span class="fase-tag">Paso 1</span>
+ <h2 class="modulo">Pantalla de inicio / bienvenida</h2>
+ <p class="intro-mod">Al abrir la aplicación por primera vez (o tras borrar los datos) aparece la pantalla de bienvenida
+ con cuatro opciones. Como vamos a crear una explotación nueva, seleccionamos la opción
+ <strong>Nueva Finca</strong>.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Pulsa <kbd>Nueva Finca</kbd></strong> en la pantalla de inicio.</li>
+ <li>Si ya tienes una explotación creada y quieres crear otra, ve a
+ <span class="ruta">Más → Ajustes → Datos de la Finca → Cambiar Finca</span>
+ y pulsa <kbd>NUEVA FINCA</kbd>.</li></ol>
+
+ <div class="nota">Si es la primera vez que usas la app, también puedes pulsar
+ <strong>"Cargar Demo CHAMORRO"</strong> para explorar con datos de ejemplo antes de crear tu propia finca.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 2. CREAR LA FINCA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="crear-finca"><span class="fase-tag">Paso 2</span>
+ <h2 class="modulo">Crear la explotación (ficha de finca)</h2>
+ <p class="intro-mod">Se abre el formulario de <strong>nueva explotación</strong>. Es la ficha principal de la finca,
+ con todos los datos legales y de configuración. Rellena cada campo con atención:
+ los datos de REGA y comunidad autónoma determinan la normativa aplicable.</p>
+
+ 
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Campos del formulario</h3>
+ <ol class="pasos"><li><strong>Nombre de la explotación</strong><br><span class="campo">Cortijo San Pedro</span> — Nombre comercial o legal de la explotación.</li>
+ <li><strong>Propietario / Razón Social</strong><br><span class="campo">Antonio García López</span> — Nombre del titular o razón social si es una sociedad.</li>
+ <li><strong>NIF / CIF</strong><br><span class="campo">12345678A</span> — NIF del titular o CIF de la sociedad.</li>
+ <li><strong>Dirección de la explotación</strong><br><span class="campo">Ctra. A-372 km 15, 11670 El Bosque, Cádiz</span> — Dirección postal completa.</li>
+ <li><strong>Teléfono de contacto</strong><br><span class="campo">655 123 456</span></li>
+ <li><strong>Correo electrónico</strong><br><span class="campo">antonio@cortijosanpedro.es</span></li>
+ <li><strong>Código REGA</strong><br><span class="campo">ES1101200001</span> — Código oficial de Registro de Explotaciones Ganaderas.
+ <div class="info-tecnica" style="margin:4px 0 0;">El REGA se solicita en la Oficina Comarcal Agraria (OCA) de tu provincia. Sin él no puedes dar de alta animales oficialmente.</div></li>
+ <li><strong>CEA</strong><br><span class="campo">11/012/00001</span> — Código de la Comunidad Autónoma (opcional pero recomendado).</li>
+ <li><strong>Comunidad Autónoma</strong><br><span class="campo">Andalucía</span> — Selecciona del desplegable. Determina la plataforma oficial (SIGGAN en Andalucía, BADIGEX en Extremadura…).</li>
+ <li><strong>Provincia</strong><br><span class="campo">Cádiz</span></li>
+ <li><strong>Municipio</strong><br><span class="campo">El Bosque</span></li>
+ <li><strong>Tipo de Explotación</strong><br><span class="campo">Carne</span> — Selecciona del desplegable: <em>Carne / Leche / Mixto / Ibérico</em>.
+ Para este ejemplo, elige <strong>Carne</strong>.</li>
+ <li><strong>Sistema de Explotación</strong><br><span class="campo">Extensivo</span> — <em>Intensivo / Extensivo / Semiextensivo</em>.
+ Para ganado ovino de carne en la Sierra, <strong>Extensivo</strong> es lo habitual.</li></ol>
+
+ <div class="aviso">️ El <strong>código REGA</strong> es obligatorio para la identificación oficial de los animales.
+ Si aún no tienes uno, puedes dejar este campo vacío y rellenarlo más tarde en
+ <span class="ruta">Ajustes → Ficha de Finca</span>, pero no podrás exportar documentos oficiales sin él.</div>
+
+ <p style="margin-top:14px;">Cuando hayas rellenado todos los campos, pulsa <kbd>GUARDAR</kbd>.
+ La aplicación te redirigirá al panel principal.</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 3. AJUSTES ADICIONALES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="ajustes"><span class="fase-tag">Paso 3</span>
+ <h2 class="modulo">️ Ajustes adicionales de la finca</h2>
+ <p class="intro-mod">Una vez creada la finca, conviene completar algunos datos adicionales antes de registrar ganado.
+ Accede desde <span class="ruta">Más → Ajustes</span>.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Completar datos ADSG</strong> (si procede)<br>Rellena los campos de la Agrupación de Defensa Sanitaria:
+ <ul class="subpasos"><li><span class="campo">ADSG Sierra de Cádiz</span> — Nombre de la ADSG</li>
+ <li><span class="campo">CA-001</span> — Código de la ADSG</li>
+ <li><span class="campo">María Sánchez Ruiz</span> — Veterinario/a de la ADSG</li>
+ <li><span class="campo">28/12345</span> — Nº colegiado</li>
+ <li><span class="campo">23456789B</span> — NIF del veterinario</li>
+ <li><span class="campo">31/12/2026</span> — Fecha de vencimiento del convenio</li></ul></li>
+ <li><strong>Especies y tipos de producción</strong><br>Verifica que en <span class="ruta">Ajustes → Especies</span> está configurada la especie
+ <strong>Ovino</strong> con los tipos de producción <strong>Carne</strong>.
+ Normalmente viene por defecto, pero puedes añadir tipos personalizados si lo necesitas.</li>
+ <li><strong>Copia de seguridad</strong><br>Aprovecha para hacer una primera copia: pulsa <kbd>Exportar Backup</kbd>.
+ Guarda el archivo en un lugar seguro (Google Drive, email, etc.).</li></ol>
+
+ <div class="tip">La ADSG es voluntaria pero muy recomendable. Si tu explotación está asociada a una ADSG,
+ la app usará esos datos en los documentos oficiales (solicitud de crotales, DIMOE, etc.).</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 4. ZONAS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="zonas"><span class="fase-tag">Paso 4</span>
+ <h2 class="modulo">️ Crear zonas / parcelas</h2>
+ <p class="intro-mod">Las zonas son las parcelas físicas donde se ubican los rebaños. Para una explotación extensiva
+ de ovino de carne necesitarás varias parcelas de pasto y una zona de estabulación / manejo.
+ Accede desde <span class="ruta">Más → Zonas</span>.</p>
+
+ 
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Crear cada zona</h3>
+ <ol class="pasos"><li>Pulsa <kbd>Nueva Zona</kbd>.</li>
+ <li>Rellena los campos para la primera parcela:
+ <ul class="subpasos"><li><strong>Nombre:</strong> <span class="campo">Parcela Norte 42ha</span></li>
+ <li><strong>Superficie (ha):</strong> <span class="campo">42</span></li>
+ <li><strong>Aforo máximo:</strong> <span class="campo">120</span> — máximo de animales que admite</li>
+ <li><strong>Uso principal:</strong> <span class="campo">Pasto</span></li>
+ <li><strong>Descripción (opcional):</strong> <span class="campo">Pastizal natural con encinas</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>. La nueva zona aparecerá en el listado.</li>
+ <li>Repite para crear el resto de parcelas del ejemplo:
+ <ul class="subpasos"><li><span class="campo">Parcela Sur 28ha</span> — Pasto, aforo 80</li>
+ <li><span class="campo">Parcela Este 15ha</span> — Barbecho, aforo 40</li>
+ <li><span class="campo">Nave de Estabulación</span> — Estabulación, aforo 200</li></ul></li></ol>
+
+ <div class="nota">El aforo máximo se valida automáticamente: la app no permitirá trasladar más animales
+ de los que la zona admite.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 5. REBAÑOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="rebanos"><span class="fase-tag">Paso 5</span>
+ <h2 class="modulo">Crear el rebaño de carne</h2>
+ <p class="intro-mod">Los rebaños agrupan animales de la misma especie y finalidad. Para una explotación de carne
+ necesitarás al menos dos rebaños: <strong>madres (reproductoras)</strong> y
+ <strong>cebo (recría)</strong>. Accede desde <span class="ruta">Rebaños</span> en la barra inferior.</p>
+
+ 
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Rebaño 1: Madres reproductoras</h3>
+ <ol class="pasos"><li>Pulsa <kbd></kbd> en la esquina superior derecha.</li>
+ <li>Rellena:
+ <ul class="subpasos"><li><strong>Nombre:</strong> <span class="campo">Madres Merinas</span></li>
+ <li><strong>Especie:</strong> <span class="campo">Ovino</span></li>
+ <li><strong>Tipo:</strong> <span class="campo">Madres</span></li>
+ <li><strong>Zona:</strong> <span class="campo">Parcela Norte 42ha</span></li>
+ <li><strong>Capacidad:</strong> <span class="campo">120</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>.</li></ol>
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Rebaño 2: Cebo / Recría</h3>
+ <ol class="pasos"><li>Pulsa <kbd></kbd> de nuevo.</li>
+ <li>Rellena:
+ <ul class="subpasos"><li><strong>Nombre:</strong> <span class="campo">Corderos Cebo</span></li>
+ <li><strong>Especie:</strong> <span class="campo">Ovino</span></li>
+ <li><strong>Tipo:</strong> <span class="campo">Cebo</span></li>
+ <li><strong>Zona:</strong> <span class="campo">Nave de Estabulación</span></li>
+ <li><strong>Capacidad:</strong> <span class="campo">80</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>.</li></ol>
+
+ <div class="tip">Al crear un rebaño, la app te ofrece poblarlo inmediatamente. Si ya tienes los crotales,
+ puedes usar la <strong>carga masiva</strong>. Si no, puedes ir añadiendo animales uno a uno
+ desde la ficha del rebaño.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 6. ALTA DE ANIMALES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="animales-alta"><span class="fase-tag">Paso 6</span>
+ <h2 class="modulo">Dar de alta los animales</h2>
+ <p class="intro-mod">El registro individual de cada animal es el núcleo de la trazabilidad. Puedes dar de alta
+ los animales de uno en uno o usar la carga masiva desde el rebaño. Aquí veremos el alta
+ individual detallada. Accede desde <span class="ruta">Animales</span> en la barra inferior.</p>
+
+ 
+
+ <ol class="pasos"><li>Pulsa <kbd>NUEVO</kbd> en la barra superior.</li>
+ <li><strong>Nº de CROTAL</strong> — Campo principal, identificador único oficial.<br><span class="campo">ES011234567890</span><br>Formato: <strong>ES</strong> + 2 dígitos de CC.AA. + 10 dígitos de identificación individual.
+ <div class="info-tecnica" style="margin:4px 0 0;">Para ovino en Andalucía: <code>ES 01 XXXXXXXXXX</code> (14 caracteres).
+ Los crotales los asigna y fabrica la ADSG o la OCA. No los inventes.</div>
+ <div style="margin-top:6px; background:#1e1e1e; border-radius:8px; padding:8px 12px; border:1px solid #333;"><strong>Para usar el escáner neón</strong>, pulsa el botón <span class="btn-ejemplo">SCAN</span>
+ en el formulario. Apunta la cámara al código QR o barras. El código se rellenará automáticamente.</div></li>
+ <li><strong>CHIP (RFID / NFC)</strong> — Opcional<br><span class="campo">724 01 1234567890</span><br>Código del transpondedor electrónico si el crotal tiene chip (ISO 11784/11785).
+ <div class="info-tecnica" style="margin:4px 0 0;">Los crotales electrónicos usan RFID LF (134.2 kHz), NO compatibles con NFC de móvil.
+ Si tu lector Bluetooth externo captura el chip, puedes introducir el código manualmente.</div></li>
+ <li><strong>Especie</strong><br><span class="campo">Ovino</span> — Selecciona del desplegable.</li>
+ <li><strong>Sexo</strong><br><span class="campo">Hembra (H)</span> — <em>Hembra / Macho / Castrado</em>.
+ Para el rebaño de madres, todas son hembras.</li>
+ <li><strong>Raza</strong><br><span class="campo">Merina</span> — Selecciona del desplegable o escribe si no aparece.</li>
+ <li><strong>Rebaño</strong><br><span class="campo">Madres Merinas</span> — Selecciona el rebaño de destino.
+ La lista se filtra automáticamente por especie.</li>
+ <li><strong>Fecha de nacimiento</strong><br><span class="campo">15/03/2025</span> — Usa el selector de fecha.</li>
+ <li><strong>Tipo de alta</strong><br><span class="campo">Nacimiento</span> — <em>Nacimiento / Compra</em>.</li>
+ <li><strong>Peso inicial (kg)</strong><br><span class="campo">42.5</span> — Peso vivo en el momento del alta.</li>
+ <li><strong>Fecha de identificación</strong><br><span class="campo">15/03/2025</span> — Fecha en que se colocó el crotal.</li>
+ <li><strong>Tipo de identificación</strong><br><span class="campo">Completa (EID + Visual)</span> — <em>Completa / Solo Visual / Matadero</em>.
+ Para animales con crotal electrónico + visual, elige "Completa".</li>
+ <li><strong>Notificado a REGA</strong><br>Marca esta casilla si ya has comunicado el alta a la base de datos oficial (SIGGAN).</li>
+ <li><strong>Notas / Observaciones</strong> — Opcional<br><span class="campo">Cordera de reposición, madre: Merina 001</span></li></ol>
+
+ <p>Pulsa <kbd>GUARDAR</kbd>. El animal aparecerá en el listado con estado <strong>activo</strong>
+ y se vinculará automáticamente a su rebaño y zona.</p>
+
+ <div class="tip">Después de guardar, puedes repetir el proceso para cada animal. Para altas masivas,
+ desde la ficha del rebaño pulsa <kbd>Cargar Animales</kbd> e introduce varios crotales
+ separados por comas o en lotes.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 7. ESCÁNER DE CROTALES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="animales-scan"><span class="fase-tag">Paso 7</span>
+ <h2 class="modulo">Uso del escáner de crotales</h2>
+ <p class="intro-mod">El botón <span class="btn-ejemplo">SCAN</span> en el formulario de alta de animal permite
+ leer el código impreso en el crotal usando la cámara del dispositivo. Es más rápido y evita
+ errores de escritura.</p>
+
+ 
+
+ <ol class="pasos"><li>En el formulario de alta de animal, localiza el campo <strong>Nº CROTAL</strong>.</li>
+ <li>Pulsa el botón <span class="btn-ejemplo">SCAN</span> situado a la derecha del campo.
+ <div class="aviso" style="margin:6px 0;">️ La primera vez, el sistema pedirá <strong>permiso de cámara</strong>. Concede el permiso
+ para poder escanear. Si lo deniegas, deberás activarlo manualmente en
+ <em>Ajustes del dispositivo → Apps → Livestock Manager → Permisos → Cámara</em>.</div></li>
+ <li>La cámara se activará automáticamente. Apunta al código impreso en el crotal:
+ <ul class="subpasos"><li><strong>Código QR</strong> — Algunos crotales electrónicos incluyen un QR con el código completo.</li>
+ <li><strong>Código de barras 1D</strong> — El número del crotal codificado en Code 128 o similar.</li>
+ <li><strong>Código numérico</strong> — Si el crotal solo tiene texto impreso, introdúcelo manualmente.</li></ul></li>
+ <li>Cuando el código sea reconocido, el escáner se cerrará automáticamente y el campo
+ <strong>Nº CROTAL</strong> se rellenará con el valor leído.</li>
+ <li>El campo se validará en tiempo real: si el código empieza por "ES" (formato oficial español),
+ el borde se pondrá <span style="color:var(--oro);">dorado</span>.</li></ol>
+
+ <div class="nota">El escáner lee <strong>códigos QR</strong> y <strong>códigos de barras 1D</strong>
+ (Code 128, EAN, Data Matrix, PDF 417, etc.). No todos los crotales tienen código imprimible;
+ los crotales visuales tradicionales solo muestran texto, por lo que deberás escribir el número
+ manualmente.</div>
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Sobre el botón NFC</h3>
+ <p>El botón <span class="btn-ejemplo" style="background:#555;">NFC</span> intenta leer
+ <strong>tags NFC estándar (13.56 MHz)</strong> — como los de tarjetas o pegatinas inteligentes.
+ <strong>No puede leer los chips electrónicos de los crotales ganaderos</strong>, que funcionan
+ a 134.2 kHz (LF RFID). Para leer el chip electrónico del crotal necesitas un
+ <strong>lector RFID Bluetooth externo</strong> (Allflex ISOMAX, Datamars).</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 8. PESAJES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="pesajes"><span class="fase-tag">Paso 8</span>
+ <h2 class="modulo">️ Registro de pesajes</h2>
+ <p class="intro-mod">El control de peso es fundamental en una explotación de carne para conocer la ganancia media
+ diaria (GMD) y determinar el momento óptimo de venta. Accede desde
+ <span class="ruta">Registros → Producción</span> o desde la ficha individual del animal.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Pesaje individual</strong> desde la ficha del animal:
+ <ul class="subpasos"><li>Abre la lista de animales y pulsa sobre el animal que quieras pesar.</li>
+ <li>En la ficha del animal, pulsa <kbd>REGISTRO / PESADA</kbd>.</li>
+ <li>Introduce el peso actual: <span class="campo">48.2</span> kg.</li>
+ <li>Opcionalmente añade notas: <span class="campo">Buena condición corporal</span>.</li>
+ <li>Pulsa <kbd>Guardar</kbd>. La app calculará la GMD automáticamente.</li></ul></li>
+ <li><strong>Pesaje múltiple</strong> — Gestor de Pesada Industrial:
+ <ul class="subpasos"><li>Desde <span class="ruta">Registros → Producción</span>, pulsa <kbd>Pesada Múltiple</kbd>.</li>
+ <li>Selecciona el rebaño <span class="campo">Corderos Cebo</span>.</li>
+ <li>Aparecerá la lista de animales del rebaño. Ve pesando uno a uno e introduciendo el peso.</li>
+ <li>Pulsa <kbd>ENTER</kbd> para pasar al siguiente animal.</li>
+ <li>Al terminar, pulsa <kbd>Finalizar</kbd>. Todos los pesos quedan registrados.</li></ul></li></ol>
+
+ <div class="info-tecnica">La app calcula automáticamente:
+ <strong>Ganancia Media Diaria (GMD)</strong> = (peso actual - peso anterior) / días transcurridos.
+ También muestra proyecciones de peso y alertas de bajo rendimiento.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 9. SANIDAD -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="sanidad"><span class="fase-tag">Paso 9</span>
+ <h2 class="modulo">Gestión sanitaria y tratamientos</h2>
+ <p class="intro-mod">La app permite registrar tratamientos sanitarios (desparasitaciones, vacunaciones, antibióticos)
+ y controla automáticamente los periodos de supresión. Accede desde la ficha del animal o desde
+ <span class="ruta">Rebaños → [rebaño] → Tratamientos</span>.</p>
+
+ 
+
+ <ol class="pasos"><li>Pulsa <kbd>TRATAMIENTO</kbd> desde la ficha del animal o del rebaño.</li>
+ <li>Rellena:
+ <ul class="subpasos"><li><strong>Medicamento:</strong> <span class="campo">Closantel 5% (Desparasitante)</span></li>
+ <li><strong>Dosis:</strong> <span class="campo">2.5 ml</span></li>
+ <li><strong>Vía:</strong> <span class="campo">Subcutánea</span></li>
+ <li><strong>Fecha de aplicación:</strong> <span class="campo">01/04/2025</span></li>
+ <li><strong>Periodo de supresión carne:</strong> <span class="campo">28 días</span></li>
+ <li><strong>Periodo de supresión leche:</strong> (no aplica para carne)</li>
+ <li><strong>Veterinario responsable:</strong> <span class="campo">María Sánchez Ruiz</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>.</li></ol>
+
+ <div class="aviso"><strong>Regla de seguridad alimentaria:</strong> si intentas comercializar un animal
+ que está dentro del periodo de supresión, la app lo bloqueará automáticamente y mostrará
+ el motivo del bloqueo.</div>
+
+ <p style="margin-top:12px;">Puedes consultar los tratamientos activos y los periodos de supresión vigentes desde
+ <span class="ruta">Más → Trazabilidad → Alertas Sanitarias</span>.</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 10. COMPRADORES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="compradores"><span class="fase-tag">Paso 10</span>
+ <h2 class="modulo">Alta de compradores</h2>
+ <p class="intro-mod">Antes de realizar una venta, debes dar de alta al comprador. Accede desde
+ <span class="ruta">Más → Compradores</span>.</p>
+
+ 
+
+ <ol class="pasos"><li>Pulsa <kbd>Nuevo</kbd>.</li>
+ <li>Rellena:
+ <ul class="subpasos"><li><strong>Nombre / Razón Social:</strong> <span class="campo">Carnicerías La Sierra S.L.</span></li>
+ <li><strong>NIF / CIF:</strong> <span class="campo">B12345678</span> — Obligatorio y único</li>
+ <li><strong>Tipo:</strong> <span class="campo">Carne</span> — Carne / Leche / Híbrido</li>
+ <li><strong>Teléfono:</strong> <span class="campo">956 123 456</span></li>
+ <li><strong>Población:</strong> <span class="campo">Arcos de la Frontera</span></li>
+ <li><strong>Condiciones de pago:</strong> <span class="campo">30 días</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>.</li></ol>
+
+ <div class="tip">Puedes dar de alta tantos compradores como necesites: carnicerías, mataderos,
+ cooperativas, particulares, etc.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 11. COMERCIALIZACIÓN -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="comercializacion"><span class="fase-tag">Paso 11</span>
+ <h2 class="modulo">Comercialización de carne</h2>
+ <p class="intro-mod">Llegado el momento de vender, registra la operación en la app. Se generan automáticamente
+ el albarán, el DIMOE y se actualiza el estado del animal. Accede desde
+ <span class="ruta">Más → Comercialización</span>.</p>
+
+ 
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Registrar una venta de carne</h3>
+ <ol class="pasos"><li>En la pestaña <strong>Carne</strong>, pulsa <kbd>NUEVA VENTA</kbd>.</li>
+ <li>El wizard tiene varios pasos. Ve completándolos:
+ <ul class="subpasos"><li><strong>Animal:</strong> Selecciona el animal a vender.
+ <span class="campo">Cordero #6 (crotal: ES011234567895)</span></li>
+ <li><strong>Comprador:</strong> <span class="campo">Carnicerías La Sierra S.L.</span></li>
+ <li><strong>Matadero:</strong> <span class="campo">Matadero Comarcal de Arcos (12.00345/CA)</span></li>
+ <li><strong>Peso vivo:</strong> <span class="campo">52.0</span> kg — Peso del animal en vivo</li>
+ <li><strong>Peso canal:</strong> <span class="campo">25.8</span> kg — Peso de la canal limpia</li>
+ <li><strong>Clasificación SEUROP:</strong> <span class="campo">R</span> — Conformación de la canal</li>
+ <li><strong>Precio base (€/kg):</strong> <span class="campo">6.50</span></li>
+ <li><strong>Gastos transporte:</strong> <span class="campo">15.00 €</span></li>
+ <li><strong>Gastos matanza:</strong> <span class="campo">8.00 €</span></li>
+ <li><strong>IVA (%):</strong> <span class="campo">10</span> — Tipo reducido agroalimentario</li>
+ <li><strong>Retención REAGP (%):</strong> <span class="campo">1</span></li></ul></li>
+ <li>La app calcula automáticamente:
+ <ul class="subpasos"><li><strong>Rendimiento canal:</strong> <span class="campo">49.6%</span> = (25.8 / 52.0) × 100</li>
+ <li><strong>Importe bruto:</strong> <span class="campo">167.70 €</span></li></ul></li>
+ <li>Revisa que todo es correcto y pulsa <kbd>Confirmar Venta</kbd>.</li></ol>
+
+ <div class="aviso">La app comprobará automáticamente que el animal <strong>no está en periodo de supresión</strong>
+ sanitaria y que el <strong>peso canal no supera el peso vivo</strong>. Si algo no es válido,
+ la venta se bloqueará con el motivo.</div>
+
+ <div class="info-tecnica"><strong>¿Qué es SEUROP?</strong> Es la clasificación europea de canales:
+ <strong>S</strong> (Superior) → <strong>E</strong> (Excelente) → <strong>U</strong> (Muy buena) →
+ <strong>R</strong> (Buena) → <strong>O</strong> (Mediana) → <strong>P</strong> (Inferior).
+ Para ovino Merina extensivo, lo habitual es R u O.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 12. ALBARÁN Y DOCUMENTOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="albaran"><span class="fase-tag">Paso 12</span>
+ <h2 class="modulo">Albarán y documentos generados</h2>
+ <p class="intro-mod">Al confirmar la venta, la app genera automáticamente varios documentos. Puedes consultarlos
+ desde <span class="ruta">Más → Documentos</span> y desde el detalle de la venta.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Albarán de venta</strong> — Documento con:
+ <ul class="subpasos"><li>Cabecera: vendedor (tu finca), comprador, fecha y nº de albarán.</li>
+ <li>Trazabilidad: código ICA, nº de guía, matadero, animal.</li>
+ <li>Desglose económico: peso, rendimiento, IVA, retención y total.</li></ul></li>
+ <li><strong>DIMOE (Documento de Identificación y Movimiento Oficial Electrónico)</strong>
+ — Se genera automáticamente y queda registrado en la sección de documentos legales.</li>
+ <li><strong>Estado del animal</strong> — Pasa automáticamente a <strong>vendido</strong>
+ y se registra la fecha de baja.</li>
+ <li>Puedes <strong>descargar el PDF</strong> del albarán desde el detalle de la venta
+ pulsando <kbd>DESCARGAR PDF</kbd>. El PDF se puede compartir, enviar por email o imprimir.</li></ol>
+
+ <div class="tip">Todos los documentos generados se almacenan en la sección
+ <span class="ruta">Más → Documentos</span> y puedes consultarlos en cualquier momento
+ filtrando por tipo (DIMOE, Factura, Certificado, DIB).</div></section>
+
+ <!-- ============================================================= -->
+ <!-- CIERRE -->
+ <!-- ============================================================= -->
+ <section class="seccion" style="text-align:center; color:var(--gris-claro); font-size:.85rem; border-bottom:none;"><div style="background:var(--suave); border-radius:14px; padding:24px; margin-bottom:20px; text-align:left;"><h3 style="margin:0 0 12px; color:var(--carne);">Resumen del flujo completo</h3>
+ <ol style="padding-left:18px; line-height:2;"><li><strong>Inicio</strong> — Pulsa "Nueva Finca"</li>
+ <li><strong>Crear finca</strong> — Rellena REGA, CCAA, tipo Carne, sistema Extensivo</li>
+ <li>️ <strong>Ajustes</strong> — Completa ADSG, especies y copia de seguridad</li>
+ <li>️ <strong>Zonas</strong> — Crea parcelas de pasto y estabulación</li>
+ <li><strong>Rebaños</strong> — Madres + Cebo, asigna zona y capacidad</li>
+ <li><strong>Animales</strong> — Da de alta con crotal SCAN, rellena especie, raza, rebaño</li>
+ <li>️ <strong>Pesajes</strong> — Registra pesos periódicamente para controlar la GMD</li>
+ <li><strong>Sanidad</strong> — Registra tratamientos y respeta supresiones</li>
+ <li><strong>Compradores</strong> — Da de alta al comprador</li>
+ <li><strong>Venta</strong> — Registra la venta con peso canal, SEUROP y precio</li>
+ <li><strong>Documentos</strong> — Albarán PDF y DIMOE generados automáticamente</li></ol></div>
+
+ <p>© Livestock Manager Premium — Ejemplo práctico de ovino de carne.<br>Datos de ejemplo: Cortijo San Pedro, raza Merina, sistema extensivo, Cádiz.</p>
+ <p><a href="index.html" style="color:var(--carne);">← Volver al Manual de Usuario general</a></p></section></div></body></html>

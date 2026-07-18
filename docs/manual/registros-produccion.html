@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registros de Producción · Guía Premium v4.8.7 · Livestock Manager</title>
+  <link rel="stylesheet" href="estilo-manuales.css">
+</head>
+<body style="--acento: #c9851f; --acento-claro: #e0a83a;"><header class="portada">
+    <div class="logo-container">
+      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+    </div>
+    <h1>Registros de Producción</h1>
+    <p class="sub">Guía completa de registro de producción Cárnica y Láctea paso a paso · Guía v4.8.7</p>
+    <div class="badge">MANUAL TÉCNICO · Todos los flujos de trabajo</div>
+  </header>
+
+<div class="wrap"><section class="seccion"><h2 class="modulo">Sobre este manual</h2>
+ <p class="intro-mod">Este manual documenta <strong>todos los pasos</strong> de los registros de producción disponibles
+ en Livestock Manager, tanto para producción <strong>Cárnica (️)</strong> como para producción
+ <strong>Láctea ()</strong>. Cada flujo se describe con los formularios, campos y procesos
+ que aparecen en la aplicación.</p>
+
+ <p class="intro-mod">El acceso a todos los registros de producción se realiza desde
+ <span class="ruta">Registros → Producción</span> en la barra inferior, o desde
+ <span class="ruta">Registros → Producción</span> directamente.</p>
+
+ 
+
+ <div class="tabs-ej"><span class="tab-ej carne">️ Cárnica</span>
+ <span class="tab-ej leche">Láctea</span></div>
+
+ <div class="indice"><h3>Índice</h3>
+ <ol><li><a href="#vista-general">Vista general de producción</a></li>
+ <li><a href="#asistente">Asistente de registro maestro</a></li>
+ <li class="carne-li"><strong style="color:var(--carne);">️ BLOQUE CÁRNICO</strong></li>
+ <li><a href="#carne-individual">Pesada individual</a></li>
+ <li><a href="#carne-lote">Pesaje por lote</a></li>
+ <li><a href="#carne-logistica">Pesaje con logística (expedición)</a></li>
+ <li><a href="#carne-gmd">GMD y proyecciones</a></li>
+ <li><a href="#carne-venta">Venta masiva / matadero</a></li>
+ <li><a href="#carne-seurop">Clasificación SEUROP</a></li>
+ <li class="leche-li"><strong style="color:var(--leche);">BLOQUE LÁCTEO</strong></li>
+ <li><a href="#leche-individual">Control lechero individual</a></li>
+ <li><a href="#leche-lote">Control lechero de lote</a></li>
+ <li><a href="#leche-tanque">Expedición de tanque (wizard completo 6 pasos)</a></li>
+ <li><a href="#leche-analiticas">Parámetros de laboratorio</a></li>
+ <li><a href="#leche-frio">Cadena de frío e inhibidores</a></li>
+ <li><a href="#leche-precio">Cálculo de precio y MOFA</a></li>
+ <li><a href="#leche-liquidaciones">Liquidaciones y MOFA</a></li>
+ <li><a href="#documentos">Documentos generados</a></li></ol></div></section>
+
+ <!-- ============================================================= -->
+ <!-- 1. VISTA GENERAL -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="vista-general"><span class="fase-tag">Visión general</span>
+ <h2 class="modulo">1. Vista general de producción</h2>
+ <p class="intro-mod">Al acceder a <span class="ruta">Registros → Producción</span> (o desde el icono ️ en la barra inferior),
+ la app carga todos los registros de la finca activa y los organiza en dos pestañas:
+ <strong>️ Cárnica</strong> y <strong>Láctea</strong>.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Pestaña Cárnica — KPIs superiores:</strong>
+ <ul class="subpasos"><li><strong>Total kg</strong> — Suma de todos los pesos registrados</li>
+ <li><strong>Pesadas</strong> — Número total de registros de pesaje</li></ul></li>
+ <li><strong>Pestaña Láctea — KPIs superiores:</strong>
+ <ul class="subpasos"><li><strong>Total litros</strong> — Suma de todos los volúmenes registrados</li>
+ <li><strong>Registros</strong> — Número de controles lecheros</li>
+ <li><strong>Extracto seco medio</strong> — Media de (grasa + proteína) del periodo</li></ul></li>
+ <li><strong>Botón Registrar ...</strong> — Abre el Asistente de Registro Maestro para el tipo correspondiente.</li>
+ <li><strong>Lista de registros</strong> — Muestra los últimos 20 registros ordenados por fecha.
+ Pulsa uno para editar valor, fecha o eliminar el registro.</li></ol>
+
+ <div class="nota">Los datos se cargan desde el <strong>Libro Maestro de Eventos</strong> (<code>registro_eventos</code>)
+ que unifica todos los registros de pesaje, producción y expediciones en una sola estructura.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 2. ASISTENTE MAESTRO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="asistente"><span class="fase-tag">Núcleo del sistema</span>
+ <h2 class="modulo">2. Asistente de registro maestro</h2>
+ <p class="intro-mod">El asistente de registro unifica la entrada de datos para todos los tipos de producción.
+ Se abre desde el botón de la vista de producción o directamente al pulsar
+ <kbd>Registrar Cárnica</kbd> o <kbd>Registrar Láctea</kbd>.</p>
+
+ 
+
+ <h3 style="margin:18px 0 10px; font-size:1rem;">Estructura del asistente (3 pasos comunes)</h3>
+
+ <div class="grid-pasos"><div class="card-paso"><div class="num">1</div>
+ <h5>Seleccionar área</h5>
+ <p>Elige entre Cárnica (kg), Láctea (L), Venta Masiva o Gasto.</p></div>
+ <div class="card-paso"><div class="num">2</div>
+ <h5>Seleccionar modalidad</h5>
+ <p>Individual, Lote o Tanque (solo en leche).</p></div>
+ <div class="card-paso"><div class="num">3</div>
+ <h5>Buscar entidad</h5>
+ <p>Selecciona el animal o rebaño por nombre, crotal o raza.</p></div></div>
+
+ <ol class="pasos"><li><strong>Paso 1 — Seleccionar área:</strong> Aparecen 4 opciones en cuadrícula:
+ <ul class="subpasos"><li><strong>️ Producción Cárnica (kg)</strong> — Pesos y pesajes de animales</li>
+ <li><strong>Producción Láctea (L)</strong> — Control lechero y producción</li>
+ <li><strong>Venta Masiva / Matadero</strong> — Expediciones y ventas (abre wizard específico)</li>
+ <li><strong>Gasto Analítico</strong> — Registro de gastos (abre wizard específico)</li></ul></li>
+ <li><strong>Paso 2 — Seleccionar modalidad:</strong>
+ <ul class="subpasos"><li><em>Si elegiste Cárnica:</em> Pesada Individual | Pesaje por Lote</li>
+ <li><em>Si elegiste Láctea:</em> Control Individual | Control de Lote | Expedición de Tanque</li>
+ <li>Si eliges "Expedición de Tanque", se abre directamente el wizard de albarán de leche.</li></ul></li>
+ <li><strong>Paso 3 — Buscar entidad:</strong>
+ <ul class="subpasos"><li>Campo de búsqueda: introduce nombre, crotal o raza</li>
+ <li>Lista filtrable con selector circular ()</li>
+ <li>Para individual: aparecen animales. Para lote: aparecen rebaños</li>
+ <li>Si es leche individual, solo muestra hembras (Vacas, Ovejas, Cabras)</li></ul></li>
+ <li>Al completar el paso 3, se abre el <strong>Gestor de Pesajes</strong> con el contexto preseleccionado.</li></ol>
+
+ <div class="tip">También puedes saltarte los pasos 1-2 preseleccionando el tipo desde la vista de producción:
+ el botón de la pestaña Cárnica abre directamente el asistente en modo <code>carne</code>.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- BLOQUE CÁRNICO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="bloque-carne" style="border-bottom:3px solid var(--carne); padding-bottom:10px;"><h2 style="margin:0; color:var(--carne); font-size:1.8rem;">️ BLOQUE CÁRNICO</h2>
+ <p class="intro-mod">Todos los flujos de registro de producción cárnica: pesajes individuales, por lote,
+ expediciones, GMD y comercialización.</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 3. PESADA INDIVIDUAL -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="carne-individual"><span class="fase-tag carne">Paso 1 — Cárnica</span>
+ <h2 class="modulo carne">️ Pesada individual (por animal)</h2>
+ <p class="intro-mod">Registra el peso de un animal concreto. El flujo abre el Gestor de Pesajes con el animal
+ preseleccionado. Se usa para seguimiento de crecimiento individual, controles sanitarios
+ o preparación para venta.</p>
+
+ 
+
+ <ol class="pasos"><li>Desde el asistente: selecciona <strong>️ Cárnica → Pesada Individual → el animal</strong>.</li>
+ <li>Se abre la pantalla del Gestor de Pesajes con los siguientes elementos:</li></ol>
+
+ <h3 style="margin:14px 0 8px; font-size:1rem;">Campos del formulario</h3>
+ <table class="parametros"><tr><th style="width:30%;">Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+ <tr><td>Animal a pesar</td>
+ <td>Nº de crotal del animal seleccionado</td>
+ <td><span class="campo">ES011234567891</span></td></tr>
+ <tr><td>Fecha de pesada</td>
+ <td>Fecha del registro (por defecto hoy)</td>
+ <td><span class="campo">15/05/2025</span></td></tr>
+ <tr><td>️ Peso (KG)</td>
+ <td>Campo gigante para introducir el peso</td>
+ <td><span class="campo">45.5</span></td></tr>
+ <tr><td>Zona actual</td>
+ <td>Zona donde está el animal (automático)</td>
+ <td><span class="campo">Pastizal Alto</span></td></tr>
+ <tr><td>Tipo explotación</td>
+ <td>Tipo del rebaño (automático)</td>
+ <td><span class="campo">Madres / Cebo</span></td></tr>
+ <tr><td>Historial</td>
+ <td>Peso anterior registrado</td>
+ <td><span class="campo">42.0 kg</span></td></tr></table>
+
+ <ol class="pasos" start="3"><li>Introduce el peso en el campo central (formato numérico, 1 decimal).</li>
+ <li>Pulsa <kbd>GUARDAR PESADA</kbd> o pulsa <kbd>Enter</kbd>.</li>
+ <li>La app registra el evento en el Libro Maestro y muestra toast de confirmación.</li>
+ <li>Pulsa <kbd>FINALIZAR PESADAS</kbd> para cerrar y volver a la vista de producción.</li></ol>
+
+ <div class="nota">Si es la <strong>primera pesada</strong> (alta del animal), el asistente muestra un selector
+ de rebaño obligatorio para asociar el animal antes de registrar el peso.</div>
+
+ <div class="info-tecnica"><strong>Datos guardados internamente:</strong> entidad_id (animal), tipo_entidad ('animal'),
+ valor_neto (peso kg), motivo_tarea ('control'), unidad ('kg'), rol_contable ('INVENTARIO'),
+ snap_zona y snap_especie del momento. También se guarda en <code>produccion_carne</code>
+ para compatibilidad con informes antiguos.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 4. PESAJE POR LOTE -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="carne-lote"><span class="fase-tag carne">Paso 2 — Cárnica</span>
+ <h2 class="modulo carne">Pesaje por lote (rebaño completo)</h2>
+ <p class="intro-mod">Permite pesar varios animales del mismo rebaño de forma secuencial y rápida,
+ ideal para pesadas rutinarias de control de engorde.</p>
+
+ 
+
+ <ol class="pasos"><li>Desde el asistente: <strong>️ Cárnica → Pesaje por Lote → selecciona el rebaño</strong>.</li>
+ <li>Se abre el Gestor de Pesajes. La pantalla cambia ligeramente:</li></ol>
+
+ <h3 style="margin:14px 0 8px; font-size:1rem;">Elementos específicos del modo lote</h3>
+ <table class="parametros"><tr><th style="width:30%;">Elemento</th><th>Descripción</th></tr>
+ <tr><td>Panel de animales</td><td>Lista de todos los animales del rebaño con columnas: Animal, Peso Anterior, Peso Actual</td></tr>
+ <tr><td>️ Navegación</td><td>Al guardar un peso, avanza automáticamente al siguiente animal sin peso registrado</td></tr>
+ <tr><td>️ Campo peso</td><td>Campo numérico gigante con atajo Enter para guardar</td></tr>
+ <tr><td>Indicador</td><td>Animal actual se muestra con borde resaltado en la lista</td></tr>
+ <tr><td>Progreso</td><td>Los animales pesados aparecen con su peso en verde en la columna "Actual"</td></tr></table>
+
+ <ol class="pasos" start="3"><li>El primer animal aparece seleccionado automáticamente (borde izquierdo resaltado).</li>
+ <li>Introduce el peso y pulsa <kbd>GUARDAR PESADA</kbd> (o <kbd>Enter</kbd>).</li>
+ <li>La app guarda y avanza automáticamente al siguiente animal sin pesar.</li>
+ <li>Repite hasta completar todos los animales del lote.</li>
+ <li>Cuando todos tienen peso, muestra " Lote completado".</li>
+ <li>Pulsa <kbd>FINALIZAR PESADAS</kbd> para cerrar.</li></ol>
+
+ <div class="tip">Puedes saltar animales pulsando directamente sobre otro en la lista (no es necesario pesar en orden).
+ También puedes re-pesar un animal ya registrado pulsando sobre él.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 5. PESAJE CON LOGÍSTICA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="carne-logistica"><span class="fase-tag carne">Paso 3 — Cárnica</span>
+ <h2 class="modulo carne">Pesaje con logística (expedición / matadero)</h2>
+ <p class="intro-mod">Cuando el motivo es <strong>expedición</strong> (venta a matadero), el Gestor de Pesajes
+ muestra campos adicionales de báscula y logística para capturar todos los datos
+ necesarios para el DIMOE y la clasificación SEUROP.</p>
+
+ 
+
+ <ol class="pasos"><li>El formulario se abre igual que un pesaje individual o por lote, pero con el motivo
+ <strong>expedición</strong> pre-seleccionado (se accede desde Venta Masiva / Matadero).</li>
+ <li>Aparecen los siguientes <strong>campos adicionales</strong>:</li></ol>
+
+ <h3 style="margin:14px 0 8px; font-size:1rem;">Sección de logística (expediciones)</h3>
+ <table class="parametros"><tr><th style="width:30%;">Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+ <tr><td>Bruto (kg)</td><td>Peso bruto en báscula (animal + vehículo)</td><td><span class="campo">650</span></td></tr>
+ <tr><td>Tara (kg)</td><td>Peso del vehículo / jaula vacío</td><td><span class="campo">150</span></td></tr>
+ <tr><td>️ Neto real</td><td>Bruto - Tara (calculado automáticamente)</td><td><span class="campo">500 kg</span></td></tr>
+ <tr><td>Matrícula</td><td>Matrícula del vehículo de transporte</td><td><span class="campo">1234 ABC</span></td></tr>
+ <tr><td>Precio (€/kg Canal)</td><td>Precio de liquidación por kg canal</td><td><span class="campo">5.50</span></td></tr>
+ <tr><td>Fecha pesada</td><td>Fecha de la operación</td><td><span class="campo">15/05/2025</span></td></tr></table>
+
+ <ol class="pasos" start="3"><li>Introduce bruto y tara — el neto se recalcula en tiempo real.</li>
+ <li>Rellena matrícula del vehículo y precio de liquidación.</li>
+ <li>Guarda cada animal. El registro se marca con <code>rol_contable: 'VENTA'</code> y <code>motivo_tarea: 'expedicion'</code>.</li>
+ <li>Al finalizar, el animal pasa a estado <strong>vendido</strong> automáticamente y se genera el DIMOE.</li></ol>
+
+ <div class="aviso">️ En modo expedición se aplican reglas de <strong>seguridad alimentaria</strong>:
+ no se puede comercializar un animal en periodo de supresión sanitaria.
+ La app bloquea la venta si detecta un tratamiento activo con periodo de retiro.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 6. GMD Y PROYECCIONES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="carne-gmd"><span class="fase-tag carne">Paso 4 — Cárnica</span>
+ <h2 class="modulo carne">GMD y proyecciones de peso</h2>
+ <p class="intro-mod">De cada pesaje, la app calcula automáticamente la <strong>Ganancia Media Diaria (GMD)</strong>
+ y ofrece proyecciones de peso para ayudar a planificar la fecha óptima de venta.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Cálculo de GMD:</strong>
+ <div class="info-tecnica" style="margin:8px 0;"><code>GMD = (Peso actual - Peso anterior) / (Fecha actual - Fecha anterior) en días</code><br>Ejemplo: (45.5 kg - 42.0 kg) / 30 días = <strong>0.117 kg/día</strong> (117 g/día)</div></li>
+ <li><strong>Historial de pesajes:</strong> Desde la ficha del animal puedes ver la evolución:
+ <ul class="subpasos"><li>Tabla cronológica de todos los pesajes registrados</li>
+ <li>GMD calculada entre cada par de pesajes consecutivos</li>
+ <li>Gráfico de evolución del peso (si está disponible en la vista)</li></ul></li>
+ <li><strong>Proyecciones:</strong> La app puede estimar el peso futuro del animal basándose
+ en la GMD media histórica, útil para planificar la fecha de venta al peso objetivo.</li></ol>
+
+ <div class="tip">Una GMD baja puede indicar problemas de alimentación, enfermedad o estrés.
+ Revisa las condiciones del animal si la GMD está por debajo de lo esperado para su raza y edad.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 7. VENTA MASIVA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="carne-venta"><span class="fase-tag carne">Paso 5 — Cárnica</span>
+ <h2 class="modulo carne">Venta masiva / matadero</h2>
+ <p class="intro-mod">El wizard de venta masiva permite registrar una expedición completa al matadero con múltiples animales,
+ datos del comprador y generación automática de albarán y DIMOE.</p>
+
+ 
+
+ <ol class="pasos" start="1"><li>Desde el asistente, selecciona <strong>Venta Masiva / Matadero</strong> (o desde <span class="ruta">Comercialización → Carne</span>).</li>
+ <li>Se abre el wizard de venta masiva (gestionado por <code>VentaMasivaWizard</code>).</li>
+ <li>Los pasos del wizard son:
+ <ul class="subpasos"><li><strong>Seleccionar animal(es)</strong> — Busca y selecciona uno o varios animales por crotal</li>
+ <li><strong>Datos del comprador</strong> — Selecciona el comprador registrado</li>
+ <li><strong>Datos del matadero / transporte</strong> — Matrícula, transportista</li>
+ <li><strong>Peso vivo y peso canal</strong> — Pesos individuales por animal</li>
+ <li><strong>Clasificación SEUROP</strong> — Conformación y engrasamiento</li>
+ <li><strong>Gastos asociados</strong> — Transporte, matanza, IVA, retención</li>
+ <li><strong>Resumen</strong> — Importe total, rendimiento canal y confirmación</li></ul></li></ol>
+
+ <div class="nota">Al confirmar, los animales pasan a estado <strong>vendido</strong> y se generan automáticamente
+ el <strong>albarán</strong> y el <strong>DIMOE</strong> correspondiente. Puedes consultarlos en
+ <span class="ruta">Más → Documentos</span>.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 8. SEUROP -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="carne-seurop"><span class="fase-tag carne">Criterio técnico</span>
+ <h2 class="modulo carne">Clasificación SEUROP</h2>
+ <p class="intro-mod">Durante la venta de carne, la app solicita la <strong>clasificación SEUROP</strong> de la canal,
+ necesaria para la documentación oficial de matadero y la liquidación.</p>
+
+ 
+
+ <table class="parametros"><tr><th>Conformación</th><th>Letra</th><th>Descripción</th></tr>
+ <tr><td>Superior</td><td><strong>S</strong></td><td>Perfiles ultraconvexos, desarrollo muscular excepcional</td></tr>
+ <tr><td>Excelente</td><td><strong>E</strong></td><td>Perfiles convexos, desarrollo muscular fuerte</td></tr>
+ <tr><td>Muy buena</td><td><strong>U</strong></td><td>Perfiles convexos en conjunto, desarrollo muscular bueno</td></tr>
+ <tr><td>Buena</td><td><strong>R</strong></td><td>Perfiles rectilíneos, desarrollo muscular medio</td></tr>
+ <tr><td>Media</td><td><strong>O</strong></td><td>Perfiles rectilíneos a cóncavos, desarrollo muscular ligero</td></tr>
+ <tr><td>Baja</td><td><strong>P</strong></td><td>Perfiles cóncavos, desarrollo muscular pobre</td></tr></table>
+
+ <p style="margin:14px 0 0;"><strong>Engrasamiento</strong> (1-5):</p>
+ <table class="parametros"><tr><th>Grado</th><th>Descripción</th></tr>
+ <tr><td>1 — Bajo</td><td>Sin grasa visible o muy escasa</td></tr>
+ <tr><td>2 — Lígero</td><td>Grasa ligera, músculo casi siempre visible</td></tr>
+ <tr><td>3 — Medio</td><td>Grasa moderada, músculo generalmente visible</td></tr>
+ <tr><td>4 — Alto</td><td>Grasa espesa, músculo con manchas de grasa</td></tr>
+ <tr><td>5 — Muy alto</td><td>Grasa muy espesa, músculo apenas visible</td></tr></table></section>
+
+ <!-- ============================================================= -->
+ <!-- BLOQUE LÁCTEO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="bloque-leche" style="border-bottom:3px solid var(--leche); padding-bottom:10px;"><h2 style="margin:0; color:var(--leche); font-size:1.8rem;">BLOQUE LÁCTEO</h2>
+ <p class="intro-mod">Todos los flujos de registro de producción láctea: control individual, control de lote y
+ expedición completa de tanque con los 6 pasos del wizard.</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 9. CONTROL LECHERO INDIVIDUAL -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="leche-individual"><span class="fase-tag leche">Paso 1 — Láctea</span>
+ <h2 class="modulo leche">Control lechero individual</h2>
+ <p class="intro-mod">Registra la producción de leche de un solo animal (vaca, oveja o cabra).
+ Se muestra la producción anterior para referencia y se pueden introducir
+ parámetros de calidad opcionales (grasa y proteína).</p>
+
+ 
+
+ <ol class="pasos"><li>Desde el asistente: <strong>Láctea → Control Individual → selecciona la hembra</strong>.</li>
+ <li>Se abre el Gestor de Pesajes en modo leche individual.</li></ol>
+
+ <h3 style="margin:14px 0 8px; font-size:1rem;">Campos del formulario (Modo Leche)</h3>
+ <table class="parametros"><tr><th style="width:30%;">Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+ <tr><td>Animal</td><td>Nº de crotal de la hembra</td><td><span class="campo">ES011234567891</span></td></tr>
+ <tr><td>Fecha del control</td><td>Fecha del registro</td><td><span class="campo">15/05/2025</span></td></tr>
+ <tr><td>Volumen (L)</td><td>Campo gigante para litros</td><td><span class="campo">2.5</span></td></tr>
+ <tr><td>Grasa (%)</td><td>Opción: porcentaje de grasa</td><td><span class="campo">6.8</span></td></tr>
+ <tr><td>Proteína (%)</td><td>Opción: porcentaje de proteína</td><td><span class="campo">5.7</span></td></tr>
+ <tr><td>Producción anterior</td><td>Último valor registrado</td><td><span class="campo">2.2 L</span></td></tr></table>
+
+ <ol class="pasos" start="3"><li>Introduce los litros producidos.</li>
+ <li>Opcionalmente, introduce % de grasa y proteína si dispones de analítica individual.</li>
+ <li>Pulsa <kbd>GUARDAR REGISTRO</kbd> (o <kbd>Enter</kbd>).</li></ol>
+
+ <div class="info-tecnica">Los datos de leche individual se guardan en dos sitios simultáneamente:
+ en la tabla cifrada <code>produccion_leche</code> (con vacaId, fecha, cantidad_litros,
+ analisis_grasa_proteina) y en el Libro Maestro de Eventos (<code>registro_eventos</code>)
+ con unidad 'L' y motivo_tarea 'produccion_leche'.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 10. CONTROL LECHERO DE LOTE -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="leche-lote"><span class="fase-tag leche">Paso 2 — Láctea</span>
+ <h2 class="modulo leche">Control lechero de lote</h2>
+ <p class="intro-mod">Permite registrar la producción de todas las hembras de un rebaño de forma secuencial,
+ similar al pesaje por lote de cárnica pero con unidad en litros y campos de calidad.</p>
+
+ 
+
+ <ol class="pasos"><li>Desde el asistente: <strong>Láctea → Control de Lote → selecciona el rebaño lechero</strong>.</li>
+ <li>Se abre el Gestor de Pesajes en modo lote lechero. Características específicas:
+ <ul class="subpasos"><li>La lista solo muestra <strong>hembras</strong> (sexo = H) de especies lecheras (Vacas, Ovejas, Cabras)</li>
+ <li>Las columnas son: Animal / Anterior (L) / Actual (L)</li>
+ <li>Aparecen campos extra de <strong>grasa (%)</strong> y <strong>proteína (%)</strong> por animal</li>
+ <li>La unidad cambia a <strong>L</strong> (litros) y el color a <strong>amarillo (#fbbf24)</strong></li></ul></li>
+ <li>Registra los litros de cada animal, grasa y proteína opcional, y guarda.</li>
+ <li>La app avanza automáticamente a la siguiente hembra sin registrar.</li>
+ <li>Al completar todas, muestra " Control lechero completado".</li></ol>
+
+ <div class="tip">Si tu explotación tiene muchas hembras, prioriza el registro de las más productivas.
+ Puedes saltar animales que no estén en producción seleccionando otro directamente en la lista.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 11. EXPEDICIÓN DE TANQUE (WIZARD COMPLETO) -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="leche-tanque"><span class="fase-tag leche">Paso 3 — Láctea</span>
+ <h2 class="modulo leche">Expedición de tanque (wizard completo 6 pasos)</h2>
+ <p class="intro-mod">El flujo más completo de producción láctea. Registra una salida de leche del tanque
+ con todos los datos obligatorios: recogida, cadena de frío, analítica de laboratorio,
+ precio y MOFA. Se accede desde <span class="ruta">Láctea → Expedición de Tanque</span>
+ o desde <span class="ruta">Más → Control Lechero → Wizard</span>.</p>
+
+ 
+
+ <h3 style="margin:18px 0 10px; font-size:1.1rem;">Los 6 pasos del wizard de albarán de leche</h3>
+
+ <!-- Paso 1 -->
+ <h4 style="color:var(--leche); margin:18px 0 6px;">Paso 1 — Datos generales</h4>
+ 
+ <table class="parametros"><tr><th>Campo</th><th>Ejemplo</th><th>Obligatorio</th></tr>
+ <tr><td>Fecha recogida</td><td><span class="campo">15/05/2025</span></td><td>Sí</td></tr>
+ <tr><td>Comunidad Autónoma</td><td><span class="campo">Andalucía</span></td><td>Sí</td></tr>
+ <tr><td>Nº Contrato lácteo</td><td><span class="campo">CT-2026-001</span></td><td>Sí (obligatorio RD 752/2011)</td></tr>
+ <tr><td>Código ADSG</td><td><span class="campo">ADSG-18-012</span></td><td>Opcional</td></tr></table>
+
+ <!-- Paso 2 -->
+ <h4 style="color:var(--leche); margin:18px 0 6px;">Paso 2 — Recogida (cisterna, letra Q, INFOLAC)</h4>
+ <table class="parametros"><tr><th>Campo</th><th>Ejemplo</th><th>Detalle</th></tr>
+ <tr><td>Matrícula cisterna</td><td><span class="campo">1234 ABC</span></td><td>Matrícula del camión cisterna</td></tr>
+ <tr><td>Nº Muestra Letra Q</td><td><span class="campo">M-2025-0515-001</span></td><td>Código del bote muestra para laboratorio</td></tr>
+ <tr><td>Nº INFOLAC</td><td><span class="campo">INFOLAC-0001</span></td><td>Registro en base de datos de entregas</td></tr>
+ <tr><td>Nº Muestreo oficial</td><td><span class="campo">LIGAL-2025-001</span></td><td>Número de muestreo oficial LIGAL</td></tr></table>
+
+ <p><strong>️ Alerta de retención:</strong> El wizard verifica automáticamente si alguna hembra
+ tiene leche retenida por periodo de supresión. Si hay animales bloqueados:</p>
+ <ul class="subpasos"><li>Muestra lista de animales con leche no apta y el motivo</li>
+ <li>Requiere confirmación expresa de que la leche contaminada fue separada del tanque</li>
+ <li>Si no se confirma, no permite avanzar al siguiente paso</li></ul>
+
+ <!-- Paso 3 -->
+ <h4 style="color:var(--leche); margin:18px 0 6px;">Paso 3 — Cadena de frío e inhibidores</h4>
+ 
+ <table class="parametros"><tr><th>Campo</th><th>Ejemplo</th><th>Umbral legal</th></tr>
+ <tr><td>Hora ordeño</td><td><span class="campo">07:30</span></td><td>—</td></tr>
+ <tr><td>Hora carga</td><td><span class="campo">10:00</span></td><td>—</td></tr>
+ <tr><td>️ Temp. de carga (ºC)</td><td><span class="campo">4.2</span></td><td>≤ 6 °C (ideal &lt; 4°C)</td></tr>
+ <tr><td>️ Certificado cadena de frío</td><td>Check</td><td>Obligatorio: enfriar de 37°C a &lt;4°C en &lt;2h</td></tr>
+ <tr><td>Certificado inhibidores</td><td>Check</td><td>Obligatorio: ausencia absoluta de biocidas</td></tr></table>
+
+ <div class="aviso"><strong>ALERTA SANITARIA:</strong> Si la temperatura supera los 6°C, la app muestra
+ una alerta y bloquea la operación hasta que se justifique. La leche con inhibidores
+ (antibióticos positivos) no puede comercializarse bajo ningún concepto.</div>
+
+ <!-- Paso 4 -->
+ <h4 style="color:var(--leche); margin:18px 0 6px;">Paso 4 — Laboratorio (resultados analíticos)</h4>
+ 
+ <table class="parametros"><tr><th>Campo</th><th>Ejemplo</th><th>Umbral LIGAL (ovino)</th></tr>
+ <tr><td>Materia grasa (%)</td><td><span class="campo">6.80</span></td><td>≥ 5.5%</td></tr>
+ <tr><td>Proteína (%)</td><td><span class="campo">5.70</span></td><td>≥ 4.5%</td></tr>
+ <tr><td>Extracto seco calculado</td><td><span class="campo">12.50%</span></td><td>Calculado automáticamente (Grasa + Proteína)</td></tr>
+ <tr><td>Recuento bacterias (UFC/mL)</td><td><span class="campo">15000</span></td><td>≤ 50.000 UFC/mL</td></tr>
+ <tr><td>Células somáticas (cel/mL)</td><td><span class="campo">350000</span></td><td>≤ 500.000 cel/mL</td></tr>
+ <tr><td>Antibióticos</td><td><span class="campo">No detectados</span></td><td>Negativo obligatorio</td></tr>
+ <tr><td>Fecha análisis</td><td><span class="campo">15/05/2025</span></td><td>—</td></tr>
+ <tr><td>Nº Boletín</td><td><span class="campo">BOL-2025-0515</span></td><td>—</td></tr>
+ <tr><td>Laboratorio</td><td><span class="campo">LIGAL</span></td><td>Oficial / Otro</td></tr></table>
+
+ <div class="info-tecnica">El <strong>extracto seco</strong> se calcula en tiempo real: al escribir grasa o proteína,
+ el campo "Extracto Seco Calculado" se actualiza automáticamente con la suma.</div>
+
+ <!-- Paso 5 -->
+ <h4 style="color:var(--leche); margin:18px 0 6px;">Paso 5 — Precio y liquidación</h4>
+ 
+ <table class="parametros"><tr><th>Campo</th><th>Ejemplo</th><th>Fórmula</th></tr>
+ <tr><td>Volumen recogido (L)</td><td><span class="campo">420</span></td><td>—</td></tr>
+ <tr><td>Precio base (€/L)</td><td><span class="campo">0.4500</span></td><td>Según contrato</td></tr>
+ <tr><td>Precio extracto seco (€/punto)</td><td><span class="campo">0.0450</span></td><td>Por cada punto % de extracto seco</td></tr>
+ <tr><td>Primas / Penalizaciones (€)</td><td><span class="campo">15.00</span></td><td>Prima por calidad, penalización por defectos</td></tr>
+ <tr><td>Tasa INLAC (€)</td><td><span class="campo">0.0012</span></td><td>Tasa obligatoria por litro</td></tr></table>
+
+ <p><strong>Calculado automáticamente:</strong></p>
+ <table class="parametros"><tr><th>Concepto</th><th>Fórmula</th><th>Ejemplo</th></tr>
+ <tr><td>Precio final unitario</td><td>Precio base + (ExtractoSeco × PrecioES) - Tasa + Primas</td><td><span class="campo">1.0040 €/L</span></td></tr>
+ <tr><td>Importe total</td><td>Volumen × Precio final</td><td><span class="campo">421.68 €</span></td></tr></table>
+
+ <!-- Paso 6 -->
+ <h4 style="color:var(--leche); margin:18px 0 6px;">Paso 6 — MOFA y resumen final</h4>
+ 
+ <table class="parametros"><tr><th>Campo</th><th>Ejemplo</th><th>Detalle</th></tr>
+ <tr><td>Coste alimentación diario (€/día)</td><td><span class="campo">45.00</span></td><td>Coste diario de alimentación del rebaño</td></tr>
+ <tr><td>Coste alimentación periodo (€)</td><td><span class="campo">135.00</span></td><td>Coste del periodo entre entregas</td></tr>
+ <tr><td><strong>MOFA</strong></td><td><span class="campo">286.68 €</span></td><td>Importe total - Coste alimentación</td></tr></table>
+
+ <div class="aviso" style="margin-top:10px;">️ Si el MOFA es negativo, la app muestra una advertencia: "El coste de alimentación
+ supera los ingresos. Revisa la ración o el precio de venta."</div>
+
+ <h4 style="color:var(--leche); margin:18px 0 6px;">Resumen final del wizard</h4>
+ 
+ <p>Al confirmar, la app guarda todos los datos en <code>comercializacion_leche</code>,
+ genera la estructura de albarán, registra en el Libro Maestro de Eventos y abre
+ automáticamente el PDF del albarán para compartir o imprimir.</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 12. ANALÍTICAS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="leche-analiticas"><span class="fase-tag leche">Panel de seguimiento</span>
+ <h2 class="modulo leche">Parámetros de laboratorio</h2>
+ <p class="intro-mod">La pestaña <strong>Analíticas</strong> del Control Lechero muestra la evolución
+ de los parámetros de calidad y los compara con los umbrales de referencia.</p>
+
+ 
+
+ <ol class="pasos"><li>Accede desde <span class="ruta">Más → Control Lechero → Analíticas</span>.</li>
+ <li>Visualiza los indicadores:
+ <ul class="subpasos"><li><strong>Evolución de grasa (%)</strong> — Línea temporal de los últimos resultados</li>
+ <li><strong>Evolución de proteína (%)</strong> — Tendencia del contenido proteico</li>
+ <li><strong>Recuento de células somáticas</strong> — Indicador de mamitis subclínica</li>
+ <li><strong>Recuento de gérmenes</strong> — Indicador de higiene de ordeño</li>
+ <li><strong>Estado de antibióticos</strong> — Alerta si positivo en alguna entrega</li></ul></li></ol>
+
+ <table class="parametros"><tr><th>Parámetro</th><th>Umbral (ovino)</th><th>Umbral (vacuno)</th><th>Umbral (caprino)</th></tr>
+ <tr><td>Grasa</td><td>≥ 5.5%</td><td>≥ 3.5%</td><td>≥ 3.5%</td></tr>
+ <tr><td>Proteína</td><td>≥ 4.5%</td><td>≥ 3.0%</td><td>≥ 2.8%</td></tr>
+ <tr><td>Células somáticas</td><td>≤ 500.000/ml</td><td>≤ 400.000/ml</td><td>≤ 1.000.000/ml</td></tr>
+ <tr><td>Gérmenes</td><td>≤ 50.000 UFC/ml</td><td>≤ 50.000 UFC/ml</td><td>≤ 50.000 UFC/ml</td></tr>
+ <tr><td>Antibióticos</td><td>Negativo</td><td>Negativo</td><td>Negativo</td></tr></table></section>
+
+ <!-- ============================================================= -->
+ <!-- 13. CADENA DE FRÍO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="leche-frio"><span class="fase-tag leche">Control de calidad</span>
+ <h2 class="modulo leche">️ Cadena de frío e inhibidores</h2>
+ <p class="intro-mod">La legislación exige control riguroso de la cadena de frío y la ausencia de inhibidores
+ en la leche destinada a consumo humano. La app gestiona ambos aspectos en el paso 3 del wizard.</p>
+
+ <ol class="pasos"><li><strong>Cadena de frío legal:</strong> La leche debe enfriarse de 37°C (temperatura de ordeño)
+ a menos de 4°C en menos de 2 horas. El wizard registra:
+ <ul class="subpasos"><li>Hora de ordeño</li>
+ <li>Hora de carga en cisterna</li>
+ <li>Temperatura de carga (medición real)</li>
+ <li>Certificado de cumplimiento (checkbox legal)</li></ul></li>
+ <li><strong>Inhibidores (antibióticos):</strong> Es obligatorio certificar la ausencia absoluta de
+ inhibidores o biocidas en la leche. Si el test de laboratorio fue positivo:
+ <ul class="subpasos"><li>Se marca "Antibióticos detectados" en el paso 4</li>
+ <li>La app cambia el estado analítico a <strong>"Alerta Crítica"</strong></li>
+ <li>Se bloquea la comercialización de esa leche</li>
+ <li>Se activa una alerta de trazabilidad para investigar el animal causante</li></ul></li></ol></section>
+
+ <!-- ============================================================= -->
+ <!-- 14. PRECIO Y MOFA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="leche-precio"><span class="fase-tag leche">Cálculo automático</span>
+ <h2 class="modulo leche">Cálculo de precio y MOFA</h2>
+ <p class="intro-mod">El wizard de leche calcula automáticamente el precio final y el MOFA en función de
+ los parámetros introducidos. Todos los campos económicos se recalculan en tiempo real.</p>
+
+ <ol class="pasos"><li><strong>Precio final unitario:</strong>
+ <div class="info-tecnica" style="margin:6px 0;"><code>Precio = PrecioBase + (ExtractoSeco% × PrecioPorPuntoES) - TasaINLAC + PrimasPenalizaciones</code></div></li>
+ <li><strong>Importe total:</strong>
+ <div class="info-tecnica" style="margin:6px 0;"><code>ImporteTotal = VolumenLitros × PrecioFinal</code></div></li>
+ <li><strong>MOFA (Margen Sobre Alimentación):</strong>
+ <div class="info-tecnica" style="margin:6px 0;"><code>MOFA = ImporteTotal - CosteAlimentacionPeriodo</code></div>
+ <p>Indica si el precio de venta cubre el coste de alimentación del rebaño durante el periodo.
+ Un MOFA positivo significa margen bruto positivo.</p></li></ol>
+
+ <div class="tip">Los precios base y de extracto seco se cargan por defecto desde la configuración de
+ la Comunidad Autónoma seleccionada en el paso 1, pero puedes ajustarlos manualmente
+ si tu contrato tiene condiciones diferentes.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 15. LIQUIDACIONES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="leche-liquidaciones"><span class="fase-tag leche">Histórico</span>
+ <h2 class="modulo leche">Liquidaciones y MOFA</h2>
+ <p class="intro-mod">La pestaña <strong>Liquidaciones</strong> del Control Lechero muestra el histórico
+ económico de todas las entregas registradas, con su desglose de primas, tasas e importe total.</p>
+
+ 
+
+ <ol class="pasos"><li>Accede desde <span class="ruta">Más → Control Lechero → Liquidaciones</span>.</li>
+ <li>Cada entrega muestra:
+ <ul class="subpasos"><li><strong>Fecha</strong> de recogida</li>
+ <li><strong>Volumen (L)</strong> entregado</li>
+ <li><strong>Precio final</strong> unitario</li>
+ <li><strong>Primas / Penalizaciones</strong> aplicadas</li>
+ <li><strong>Importe total</strong> de la entrega</li>
+ <li><strong>MOFA</strong> del periodo</li></ul></li>
+ <li><strong>Pestaña MOFA:</strong> Muestra la evolución del margen sobre alimentación
+ a lo largo del tiempo, permitiendo identificar tendencias y ajustar la estrategia
+ de alimentación o negociación de precios.</li></ol></section>
+
+ <!-- ============================================================= -->
+ <!-- 16. DOCUMENTOS GENERADOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="documentos"><span class="fase-tag">Documentación</span>
+ <h2 class="modulo">Documentos generados</h2>
+ <p class="intro-mod">Al completar cada registro de producción se generan los documentos correspondientes:</p>
+
+ <table class="parametros"><tr><th>Operación</th><th>Documentos generados</th><th>Dónde consultarlos</th></tr>
+ <tr><td>️ Pesada individual / lote</td>
+ <td>Registro en Libro Maestro + Historial del animal</td>
+ <td><span class="ruta">Animales → ficha → Historial</span></td></tr>
+ <tr><td>Expedición carne (venta masiva)</td>
+ <td>Albarán PDF + DIMOE</td>
+ <td><span class="ruta">Más → Documentos</span></td></tr>
+ <tr><td>Control lechero (individual/lote)</td>
+ <td>Registro en producción lechera + Libro Maestro</td>
+ <td><span class="ruta">Más → Control Lechero → Producción</span></td></tr>
+ <tr><td>Expedición de tanque (leche)</td>
+ <td>Albarán PDF + Registro en comercialización</td>
+ <td><span class="ruta">Más → Documentos</span></td></tr>
+ <tr><td>Todos los registros</td>
+ <td>Cuaderno digital exportable a PDF</td>
+ <td><span class="ruta">Más → Cuaderno Digital</span></td></tr>
+ <tr><td>Informes</td>
+ <td>Balance, rentabilidad, censo (PDF / Excel)</td>
+ <td><span class="ruta">Más → Informes</span></td></tr></table>
+
+ <div class="nota" style="margin-top:16px;">Todos los documentos se pueden <strong>compartir</strong> (email, WhatsApp, Google Drive)
+ o <strong>imprimir</strong> directamente desde la app usando el menú nativo del dispositivo.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- CIERRE -->
+ <!-- ============================================================= -->
+ <section class="seccion" style="border-bottom:none; text-align:center; color:var(--gris-claro); font-size:.85rem;"><div class="tabs-ej" style="justify-content:center;"><span class="tab-ej carne">️ 5 pasos de producción cárnica</span>
+ <span class="tab-ej leche">6 pasos en wizard de leche</span></div>
+
+ <div style="background:var(--suave); border-radius:14px; padding:20px; margin:20px 0; text-align:left;"><h3 style="margin:0 0 12px;">Resumen de flujos documentados</h3>
+
+ <h4 style="color:var(--carne); margin:12px 0 6px;">️ Producción Cárnica</h4>
+ <ol style="padding-left:18px; line-height:1.8; font-size:.9rem;"><li><strong>Pesada individual</strong> — Peso de un animal concreto + fecha</li>
+ <li><strong>Pesaje por lote</strong> — Pesada secuencial de todo un rebaño</li>
+ <li><strong>Expedición</strong> — Pesaje con báscula, bruto/tara, matrícula y precio canal</li>
+ <li><strong>GMD y proyecciones</strong> — Ganancia media diaria y estimación de peso futuro</li>
+ <li><strong>SEUROP</strong> — Clasificación de conformación y engrasamiento de la canal</li>
+ <li><strong>Venta masiva</strong> — Wizard completo con selección múltiple de animales y DIMOE</li></ol>
+
+ <h4 style="color:var(--leche); margin:12px 0 6px;">Producción Láctea</h4>
+ <ol style="padding-left:18px; line-height:1.8; font-size:.9rem;"><li><strong>Control individual</strong> — Litros por animal + grasa y proteína opcional</li>
+ <li><strong>Control de lote</strong> — Todas las hembras del rebaño secuencialmente</li>
+ <li><strong>Expedición de tanque</strong> — Wizard completo de 6 pasos:
+ <br>① Datos generales (fecha, CCAA, contrato, ADSG)
+ <br>② Recogida (cisterna, letra Q, INFOLAC, alertas de retención)
+ <br>③ Cadena de frío (temperatura, inhibidores)
+ <br>④ Laboratorio (grasa, proteína, bacterias, somáticas, antibióticos)
+ <br>⑤ Precio y liquidación (volumen, precio base, extracto seco, primas, INLAC)
+ <br>⑥ MOFA y resumen final (coste alimentación, margen, resumen completo)</li>
+ <li><strong>Analíticas</strong> — Panel de seguimiento de parámetros vs umbrales</li>
+ <li><strong>Liquidaciones y MOFA</strong> — Histórico económico y margen sobre alimentación</li></ol></div>
+
+ <p>© Livestock Manager Premium — Manual de registros de producción.<br>Todos los flujos documentados corresponden a la versión v4 con motor de pesajes y wizard de leche.</p>
+ <p><a href="index.html" style="color:#2563eb;">← Volver al Manual de Usuario general</a><br><a href="ejemplo-ovino-carne.html" style="color:#ef4444;">Ejemplo práctico: Ovino de Carne</a> ·
+ <a href="ejemplo-ovino-leche.html" style="color:#3b82f6;">Ejemplo práctico: Ovino de Leche</a></p></section></div></body></html>

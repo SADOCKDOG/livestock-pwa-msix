@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contratos · Guía Premium v4.8.7 · Livestock Manager</title>
+  <link rel="stylesheet" href="estilo-manuales.css">
+</head>
+<body style="--acento: #8b5cf6; --acento-claro: #a78bfa;"><header class="portada">
+    <div class="logo-container">
+      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+    </div>
+    <h1>Contratos</h1>
+    <p class="sub">Acuerdos Comerciales y Condiciones de Venta — Guía paso a paso · Guía v4.8.7</p>
+    <div class="badge">MANUAL PRÁCTICO · Gestión de contratos comerciales</div>
+  </header>
+
+<div class="wrap"><section class="seccion"><h2 class="modulo">Sobre este manual</h2>
+ <p class="intro-mod">Este manual documenta el <strong>módulo de Contratos</strong> de Livestock Manager.
+ Los contratos registran los acuerdos comerciales con compradores: condiciones de venta,
+ tipos de producto (carne/leche/mixto), períodos de vigencia, IVA y precios pactados.</p>
+ <p class="intro-mod">Los contratos aparecen automáticamente en las <strong>liquidaciones</strong> de ventas,
+ en los <strong>análisis de precios</strong> y en el detalle de cada comprador para garantizar
+ que todas las operaciones respetan los términos acordados.</p>
+
+ <div class="indice"><h3>Índice</h3>
+ <ol><li><a href="#que-es">¿Qué es un contrato?</a></li>
+ <li><a href="#acceso">Acceso a Contratos</a></li>
+ <li><a href="#crear">Crear un nuevo contrato</a></li>
+ <li><a href="#campos">Campos y estructura</a></li>
+ <li><a href="#tipos">Tipos de contrato: carne, leche, mixto</a></li>
+ <li><a href="#precios">Tabla de precios en el contrato</a></li>
+ <li><a href="#vigencia">Vigencia y alertas</a></li>
+ <li><a href="#liquidaciones">Contratos en liquidaciones</a></li>
+ <li><a href="#analisis">Contratos en análisis de precios</a></li>
+ <li><a href="#ejemplos">Ejemplos del seed data</a></li></ol></div></section>
+
+ <!-- ============================================================= -->
+ <!-- 1. QUÉ ES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="que-es"><span class="fase-tag">Introducción</span>
+ <h2 class="modulo">1. ¿Qué es un contrato?</h2>
+ <p class="intro-mod">Un <strong>contrato</strong> es un acuerdo formalizado con un comprador que especifica:
+ <ul><li>El tipo de producto (carne, leche o ambos)</li>
+ <li>El período de validez (fecha inicio / fecha fin)</li>
+ <li>Las condiciones comerciales (IVA aplicable)</li>
+ <li>Los precios pactados por categoría o tipo de animal</li></ul></p>
+ <p>Los contratos permiten:
+ <ul><li><strong>Registrar acuerdos a largo plazo</strong> con clientes habituales</li>
+ <li><strong>Comparar precios pactados vs. precios reales</strong> en cada venta</li>
+ <li><strong>Automatizar cálculos</strong> de ingresos en liquidaciones</li>
+ <li><strong>Garantizar trazabilidad</strong> de los términos comerciales</li></ul></p>
+
+ <div class="nota"><strong>Nota:</strong> Un comprador puede tener <strong>varios contratos activos</strong>
+ simultáneamente si negocia diferentes condiciones para distintos productos o períodos.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 2. ACCESO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="acceso"><span class="fase-tag">Inicio</span>
+ <h2 class="modulo">2. Acceso a Contratos</h2>
+ <p class="intro-mod">Accede al módulo de contratos desde <span class="ruta">Registros → Comercialización → pestaña Contratos</span>,
+ o desde la <span class="ruta">ficha de un comprador</span> pulsando el botón <kbd>Contrato</kbd>.</p>
+
+ <p>Desde la pantalla principal de Contratos puedes:</p>
+ <ul><li>Ver el <strong>listado de todos los contratos</strong> registrados</li>
+ <li>Filtrar por <strong>estado</strong>: activos, vencidos, próximos a vencer</li>
+ <li><strong>Registrar un nuevo contrato</strong> pulsando el botón <kbd>Contrato</kbd></li>
+ <li>Consultar el <strong>detalle completo</strong> de cada contrato (vigencia, precios, condiciones)</li></ul>
+
+ <div class="tip"><strong>Tip:</strong> Puedes acceder rápidamente a los contratos de un comprador desde su ficha
+ en <span class="ruta">Más → Compradores</span>. Cada comprador muestra sus contratos activos.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 3. CREAR -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="crear"><span class="fase-tag">Flujo</span>
+ <h2 class="modulo">3. Crear un nuevo contrato</h2>
+ <p class="intro-mod">El flujo de creación es sencillo: selecciona el comprador, define el tipo de producto
+ y las fechas de vigencia, y especifica los precios pactados.</p>
+
+ <ol class="pasos"><li><strong>Comprador:</strong> Selecciona el comprador (debe estar dado de alta en <span class="ruta">Más → Compradores</span>)</li>
+ <li><strong>Número de contrato:</strong> Asigna un código único (ej: CT-2026-001) para referencia</li>
+ <li><strong>Tipo de contrato:</strong> Elige si es para carne, leche o ambos (mixto)</li>
+ <li><strong>Fechas:</strong> Especifica la fecha de inicio y fin de validez</li>
+ <li><strong>IVA:</strong> Indica el porcentaje de IVA aplicable (ej: 21%, 10% reducido)</li>
+ <li><strong>Condiciones:</strong> Describe condiciones especiales (transporte, calidad, bonificaciones)</li>
+ <li><strong>Precios:</strong> Define los precios por categoría (tabla de precios)</li></ol>
+
+ <div class="aviso"><strong>️ Importante:</strong> Un contrato solo puede tener un estado: activo o vencido.
+ Si necesitas cambiar los precios antes de la fecha de fin, crea un nuevo contrato
+ con fecha de inicio actual.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 4. CAMPOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="campos"><span class="fase-tag">Estructura</span>
+ <h2 class="modulo">4. Campos y estructura del contrato</h2>
+ <p class="intro-mod">Cada contrato almacena información comercial y logística. Los campos se organizan
+ en dos grupos: <strong>datos básicos</strong> y <strong>tabla de precios</strong>.</p>
+
+ <h4>Datos básicos del contrato</h4>
+ <table class="parametros"><tr><th>Campo</th><th>Tipo</th><th>Obligatorio</th><th>Descripción</th></tr>
+ <tr><td><span class="campo">compradorId</span></td><td>Ref. Comprador</td><td>Sí</td><td>Referencia al comprador asignado</td></tr>
+ <tr><td><span class="campo">numero_contrato</span></td><td>Texto</td><td>Sí</td><td>Código único (ej: CT-2026-001)</td></tr>
+ <tr><td><span class="campo">tipo</span></td><td>Enum</td><td>Sí</td><td>carne | leche | mixto</td></tr>
+ <tr><td><span class="campo">fecha_inicio</span></td><td>Fecha</td><td>Sí</td><td>Fecha de vigencia inicial</td></tr>
+ <tr><td><span class="campo">fecha_fin</span></td><td>Fecha</td><td>Sí</td><td>Fecha de vigencia final</td></tr>
+ <tr><td><span class="campo">iva_pct</span></td><td>Número</td><td>Sí</td><td>Porcentaje de IVA (ej: 21)</td></tr>
+ <tr><td><span class="campo">condiciones</span></td><td>Texto</td><td>No</td><td>Términos especiales del acuerdo</td></tr></table>
+
+ <h4>Tabla de precios (subarray)</h4>
+ <table class="parametros"><tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+ <tr><td><span class="campo">categoria</span></td><td>Texto</td><td>Categoría de animal o producto (ej: "Cordero", "Vaca Lechera")</td></tr>
+ <tr><td><span class="campo">precio_unitario</span></td><td>Decimal</td><td>Precio por kg o unidad (sin IVA)</td></tr>
+ <tr><td><span class="campo">moneda</span></td><td>Enum</td><td>EUR (por defecto)</td></tr></table>
+
+ <div class="info-tecnica"><strong>Nota técnica:</strong> Los precios se guardan sin IVA. Al liquidar una venta,
+ el sistema aplica automáticamente el IVA del contrato vigente.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 5. TIPOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="tipos"><span class="fase-tag">Categorías</span>
+ <h2 class="modulo">5. Tipos de contrato: carne, leche, mixto</h2>
+ <p class="intro-mod">El <strong>tipo de contrato</strong> determina qué productos pueden facturarse bajo este acuerdo.</p>
+
+ <table class="parametros"><tr><th>Tipo</th><th>Descripción</th><th>Uso típico</th></tr>
+ <tr><td><span class="campo">Carne</span></td><td>Solo para ventas de animales vivos o canales de carne</td><td>Carnicerías, mataderos, exportación cárnica</td></tr>
+ <tr><td><span class="campo">Leche</span></td><td>Solo para ventas de leche (albaranes lecheros)</td><td>Quesería, industria láctea, cooperativas</td></tr>
+ <tr><td><span class="campo">Mixto</span></td><td>Para venta de ambos productos bajo el mismo contrato</td><td>Grandes compradores multiproducto</td></tr></table>
+
+ <div class="nota"><strong>Nota:</strong> Un contrato "Mixto" permite facturar tanto carne como leche,
+ pero cada línea de venta se asocia a su tipo específico dentro del contrato.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 6. PRECIOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="precios"><span class="fase-tag">Detalle</span>
+ <h2 class="modulo">6. Tabla de precios en el contrato</h2>
+ <p class="intro-mod">La <strong>tabla de precios</strong> es la estructura central del contrato.
+ Especifica los precios pactados para cada categoría de producto.</p>
+
+ <h4>¿Por qué una tabla de precios?</h4>
+ <ul><li>Permite negociar <strong>diferentes precios</strong> por categoría (cordero vs. vaca, leche de calidad estándar vs. ecológica)</li>
+ <li>Facilita <strong>comparativas precio-pactado vs. precio-real</strong> en liquidaciones</li>
+ <li><strong>Automatiza cálculos</strong> en informes de rentabilidad</li>
+ <li>Crea <strong>trazabilidad</strong> de los términos comerciales a lo largo del tiempo</li></ul>
+
+ <div class="panel-ejemplo"><h4>Ejemplo: Tabla de precios para Cárnicas Extremeñas</h4>
+ <table><tr><th>Categoría</th><th>Precio sin IVA</th><th>Moneda</th></tr>
+ <tr><td>Cordero 18-24 kg</td><td>3,20 €</td><td>EUR</td></tr>
+ <tr><td>Cordero 24-28 kg</td><td>3,05 €</td><td>EUR</td></tr>
+ <tr><td>Vaca adulta</td><td>2,80 €</td><td>EUR</td></tr></table></div>
+
+ <div class="tip"><strong>Tip:</strong> Es recomendable tener una línea de precio por cada categoría o "corte" de producto.
+ Esto permite negociar granularmente y comparar exactamente con las facturas reales.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 7. VIGENCIA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="vigencia"><span class="fase-tag">Estados</span>
+ <h2 class="modulo">7. Vigencia y alertas</h2>
+ <p class="intro-mod">El sistema automáticamente determina el estado de un contrato según su fecha de fin
+ y genera alertas cuando está próximo a vencer.</p>
+
+ <h4>Estados del contrato</h4>
+ <table class="parametros"><tr><th>Estado</th><th>Condición</th><th>Indicación visual</th></tr>
+ <tr><td><span class="ok">Activo</span></td><td>Hoy está entre fecha_inicio y fecha_fin</td><td>Etiqueta verde, icono</td></tr>
+ <tr><td><span class="ok">Próximo a vencer</span></td><td>Vence en menos de 30 días</td><td>Etiqueta naranja, icono</td></tr>
+ <tr><td><span class="alert">Vencido</span></td><td>La fecha_fin ha pasado</td><td>Etiqueta roja, icono</td></tr></table>
+
+ <div class="aviso"><strong>️ Alertas de vigencia:</strong> El sistema muestra una alerta en rojo
+ si intentas facturar bajo un contrato vencido. Comprueba regularmente la fecha de fin.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 8. LIQUIDACIONES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="liquidaciones"><span class="fase-tag">Integración</span>
+ <h2 class="modulo">8. Contratos en liquidaciones</h2>
+ <p class="intro-mod">Cuando liquidas una venta (Venta Masiva o Albarán de Leche), el sistema
+ selecciona automáticamente el contrato vigente del comprador y aplica sus precios.</p>
+
+ <ol class="pasos"><li><strong>Al seleccionar comprador:</strong> El sistema busca contratos vigentes</li>
+ <li><strong>Aplica automáticamente:</strong> Los precios del contrato a cada línea de venta</li>
+ <li><strong>Calcula IVA:</strong> Según el porcentaje especificado en el contrato</li>
+ <li><strong>Muestra comparativa:</strong> Precio pactado vs. precio final liquidado</li>
+ <li><strong>Guarda referencia:</strong> El número de contrato aparece en la factura</li></ol>
+
+ <div class="info-tecnica"><strong>En la liquidación:</strong> Aparece un campo "Contrato" mostrando el número
+ del contrato utilizado. Si el comprador no tiene contrato vigente, puedes registrar
+ los precios manualmente o crear un contrato rápido.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 9. ANÁLISIS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="analisis"><span class="fase-tag">Análisis</span>
+ <h2 class="modulo">9. Contratos en análisis de precios</h2>
+ <p class="intro-mod">El módulo de <strong>Informes</strong> integra los contratos para ofrecer un análisis
+ detallado de la negociación y el cumplimiento de precios.</p>
+
+ <h4>Análisis disponibles</h4>
+ <ul><li><strong>Precio pactado vs. real:</strong> Comparativa de lo acordado en contrato vs. lo facturado realmente</li>
+ <li><strong>Histórico de precios:</strong> Evolución de precios con el mismo comprador a lo largo del tiempo</li>
+ <li><strong>Rentabilidad por categoría:</strong> Margen de beneficio diferenciado por tipo de producto</li>
+ <li><strong>Alertas de desviación:</strong> Si el precio real se desvía significativamente del pactado</li></ul>
+
+ <div class="tip"><strong>Tip:</strong> Usar contratos permite detectar cuándo un precio negociado es muy bajo
+ comparado con el resto de compradores. Esto ayuda a renegociar mejores términos.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 10. EJEMPLOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="ejemplos"><span class="fase-tag">Ejemplos</span>
+ <h2 class="modulo">10. Ejemplos del seed data</h2>
+ <p class="intro-mod">El seed data de demostración incluye dos contratos reales para que veas cómo se estructura
+ un acuerdo comercial típico.</p>
+
+ <h4>Contrato 1: Cárnicas Extremeñas (Carne)</h4>
+ <div class="panel-ejemplo"><table><tr><th>Campo</th><th>Valor</th></tr>
+ <tr><td><strong>Número</strong></td><td>CT-2026-001</td></tr>
+ <tr><td><strong>Comprador</strong></td><td>Cárnicas Extremeñas, S.L.</td></tr>
+ <tr><td><strong>Tipo</strong></td><td>Carne</td></tr>
+ <tr><td><strong>Vigencia</strong></td><td>01/01/2026 - 31/12/2026</td></tr>
+ <tr><td><strong>IVA</strong></td><td>21 %</td></tr>
+ <tr><td><strong>Condiciones</strong></td><td>Mínimo 500 kg/entrega. Transporte a cargo del comprador.</td></tr>
+ <tr><td><strong>Precios:</strong></td><td></td></tr>
+ <tr><td>· Cordero 18-24 kg</td><td>3,20 €/kg</td></tr>
+ <tr><td>· Cordero 24-28 kg</td><td>3,05 €/kg</td></tr>
+ <tr><td>· Vaca adulta</td><td>2,80 €/kg</td></tr></table></div>
+
+ <h4>Contrato 2: Lácteos La Serena (Leche)</h4>
+ <div class="panel-ejemplo"><table><tr><th>Campo</th><th>Valor</th></tr>
+ <tr><td><strong>Número</strong></td><td>CT-2026-002</td></tr>
+ <tr><td><strong>Comprador</strong></td><td>Lácteos La Serena, S.L.</td></tr>
+ <tr><td><strong>Tipo</strong></td><td>Leche</td></tr>
+ <tr><td><strong>Vigencia</strong></td><td>01/01/2026 - 30/06/2026</td></tr>
+ <tr><td><strong>IVA</strong></td><td>10 % (reducido)</td></tr>
+ <tr><td><strong>Condiciones</strong></td><td>Recogida cada 2 días. Bonificación +0,02€ si grasa >3,8%. Almacenamiento 4°C.</td></tr>
+ <tr><td><strong>Precios:</strong></td><td></td></tr>
+ <tr><td>· Leche estándar</td><td>0,38 €/litro</td></tr>
+ <tr><td>· Leche ecológica</td><td>0,48 €/litro</td></tr></table></div>
+
+ <div class="nota"><strong>Nota:</strong> Estos ejemplos muestran cómo estructurar contratos en la práctica.
+ Puedes usarlos como referencia para crear los tuyos propios.</div></section>
+
+ <section class="seccion" id="capturas"><span class="fase-tag">Capturas</span>
+ <h2 class="modulo">11. Capturas reales en app (demo CHAMORRO)</h2>
+ <p class="intro-mod">Capturas del flujo de contratos dentro de la ficha del comprador.</p>
+
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Comprador</div>
+        <div class="workflow-step-desc">Vincular a cliente registrado</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Condiciones</div>
+        <div class="workflow-step-desc">Periodo de vigencia e IVA</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Tarifa</div>
+        <div class="workflow-step-desc">Precios base y primas de calidad</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Comprador</div>
+        <div class="workflow-step-desc">Vincular a cliente registrado</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Condiciones</div>
+        <div class="workflow-step-desc">Periodo de vigencia e IVA</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Tarifa</div>
+        <div class="workflow-step-desc">Precios base y primas de calidad</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Comprador</div>
+        <div class="workflow-step-desc">Vincular a cliente registrado</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Condiciones</div>
+        <div class="workflow-step-desc">Periodo de vigencia e IVA</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Tarifa</div>
+        <div class="workflow-step-desc">Precios base y primas de calidad</div>
+      </div>
+    </div>
+    </section>
+
+ <div class="text-center text-gray text-xs" style="margin-top:28px; padding-bottom:30px; text-align:center; color:#999; font-size:.75rem;">Livestock Manager v4.7.0 · Manual de Contratos · Acuerdos Comerciales</div></div></body></html>

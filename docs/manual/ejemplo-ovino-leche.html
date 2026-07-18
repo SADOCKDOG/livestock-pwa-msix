@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejemplo Práctico: Ovino de Leche · Guía Premium v4.8.7 · Livestock Manager</title>
+  <link rel="stylesheet" href="estilo-manuales.css">
+</head>
+<body style="--acento: #c9851f; --acento-claro: #e0a83a;"><header class="portada">
+    <div class="logo-container">
+      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+    </div>
+    <h1>Ejemplo Práctico: Ovino de Leche</h1>
+    <p class="sub">Creación y gestión completa de una explotación de ovejas para producción láctea · Guía v4.8.7</p>
+    <div class="badge">GUÍA PASO A PASO · v4</div>
+  </header>
+
+<div class="wrap"><section class="seccion"><h2 class="modulo">Sobre esta guía</h2>
+ <p class="intro-mod">Este manual te guiará en la creación de una <strong>explotación de ovino de leche</strong> desde cero,
+ paso a paso. Seguiremos el caso práctico de la <strong>Quesería "Los Llanos"</strong> en la provincia
+ de Granada, con 200 ovejas de raza <strong>Manchega</strong> para producción de leche destinada a
+ queso artesano.</p>
+ <p class="intro-mod">La gestión de una explotación láctea incluye aspectos adicionales respecto a la de carne:
+ control de calidad de la leche, analíticas, parámetros de grasa y proteína, recuento de células
+ somáticas y la liquidación mensual con la industria.</p>
+
+ <div class="indice"><h3>Índice</h3>
+ <ol><li><a href="#inicio">Pantalla de inicio</a></li>
+ <li><a href="#crear-finca">Crear la explotación (ficha de finca)</a></li>
+ <li><a href="#ajustes-lacteo">️ Ajustes y paquete lácteo</a></li>
+ <li><a href="#zonas">️ Crear zonas / parcelas</a></li>
+ <li><a href="#rebanos">Crear el rebaño de leche</a></li>
+ <li><a href="#animales-alta">Dar de alta los animales (con SCAN)</a></li>
+ <li><a href="#animales-scan">Uso del escáner de crotales</a></li>
+ <li><a href="#ordeno">Gestión de ordeño y producción</a></li>
+ <li><a href="#analiticas">Analíticas de leche</a></li>
+ <li><a href="#liquidaciones">Liquidaciones y MOFA</a></li>
+ <li><a href="#compradores">Alta de comprador de leche</a></li>
+ <li><a href="#comercializacion">Comercialización de leche</a></li>
+ <li><a href="#albaran">Albarán y documentos</a></li>
+ <li><a href="#trazabilidad-lactea">Trazabilidad y bloqueos sanitarios</a></li></ol></div>
+
+ <div class="resumen-ejemplo"><h4>Datos del ejemplo</h4>
+ <table><tr><th>Campo</th><th>Valor</th></tr>
+ <tr><td>Nombre explotación</td><td>Quesería Los Llanos</td></tr>
+ <tr><td>Especie</td><td>Ovino</td></tr>
+ <tr><td>Raza</td><td>Manchega</td></tr>
+ <tr><td>Tipo de producción</td><td>Leche</td></tr>
+ <tr><td>Nº de animales</td><td>200</td></tr>
+ <tr><td>Rebaños</td><td>1 (ordeño) + 1 (secado/reposo)</td></tr>
+ <tr><td>Zonas</td><td>2 pastos + sala de ordeño + estabulación</td></tr>
+ <tr><td>Sistema</td><td>Semiextensivo</td></tr>
+ <tr><td>Comunidad Autónoma</td><td>Andalucía</td></tr>
+ <tr><td>Contrato lácteo</td><td>Quesería artesanal (transformación propia)</td></tr></table></div></section>
+
+ <!-- ============================================================= -->
+ <!-- 1. INICIO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="inicio"><span class="fase-tag">Paso 1</span>
+ <h2 class="modulo">Pantalla de inicio</h2>
+ <p class="intro-mod">Al abrir la aplicación por primera vez, aparece la pantalla de bienvenida.
+ Selecciona <strong>Nueva Finca</strong> para empezar a crear tu explotación láctea.</p>
+
+ 
+
+ <ol class="pasos"><li>Pulsa <kbd>Nueva Finca</kbd>.</li>
+ <li>Si ya tienes otra explotación, ve a <span class="ruta">Más → Ajustes → Cambiar Finca → NUEVA FINCA</span>.</li></ol></section>
+
+ <!-- ============================================================= -->
+ <!-- 2. CREAR FINCA LÁCTEA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="crear-finca"><span class="fase-tag">Paso 2</span>
+ <h2 class="modulo">Crear la explotación (ficha de finca)</h2>
+ <p class="intro-mod">Rellena la ficha de la finca con los datos de tu explotación láctea. Presta especial atención
+ al tipo de explotación: selecciona <strong>Leche</strong> para que la app active los módulos
+ específicos de control lechero.</p>
+
+ 
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Campos del formulario</h3>
+ <ol class="pasos"><li><strong>Nombre:</strong> <span class="campo">Quesería Los Llanos</span></li>
+ <li><strong>Propietario:</strong> <span class="campo">María Jiménez Torres</span></li>
+ <li><strong>NIF / CIF:</strong> <span class="campo">87654321B</span></li>
+ <li><strong>Dirección:</strong> <span class="campo">Camino del Molino s/n, 18193, Granada</span></li>
+ <li><strong>Teléfono:</strong> <span class="campo">958 123 456</span></li>
+ <li><strong>Email:</strong> <span class="campo">maria@queserialosllanos.es</span></li>
+ <li><strong>Código REGA:</strong> <span class="campo">ES1801200002</span></li>
+ <li><strong>CEA:</strong> <span class="campo">18/012/00002</span></li>
+ <li><strong>Comunidad Autónoma:</strong> <span class="campo">Andalucía</span></li>
+ <li><strong>Provincia:</strong> <span class="campo">Granada</span></li>
+ <li><strong>Municipio:</strong> <span class="campo">Loja</span></li>
+ <li><strong>Tipo de Explotación:</strong>
+ <span class="campo">Leche</span> ← <strong>IMPORTANTE:</strong> elige "Leche" para que
+ la app active el control lechero, analíticas, liquidaciones y alertas de calidad.</li>
+ <li><strong>Sistema de Explotación:</strong>
+ <span class="campo">Semiextensivo</span> — Pasto con suplementación en sala.</li></ol>
+
+ <p>Pulsa <kbd>GUARDAR</kbd> al terminar.</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 3. AJUSTES LÁCTEOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="ajustes-lacteo"><span class="fase-tag">Paso 3</span>
+ <h2 class="modulo">️ Ajustes y paquete lácteo</h2>
+ <p class="intro-mod">Una vez creada la finca con tipo <strong>Leche</strong>, la app activa automáticamente
+ el módulo de control lechero. Accede desde <span class="ruta">Más → Ajustes</span>
+ para completar la configuración específica.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Completar ficha de finca</strong> con datos de ADSG (como en el manual de carne,
+ pasos 3.1 a 3.6).</li>
+ <li><strong>Paquete Lácteo</strong> — Sección específica que aparece cuando el tipo de explotación es "Leche":
+ <ul class="subpasos"><li><strong>Contrato lácteo obligatorio:</strong> Número de contrato con la industria o
+ declaración de transformación propia. <span class="campo">TRANSFORMACIÓN PROPIA</span></li>
+ <li><strong>INFOLAC:</strong> Código de registro en la base de datos de entregas de leche.
+ <span class="campo">ES1801200002-LECHE</span></li>
+ <li><strong>Entregas directas al consumidor (litros/año):</strong> <span class="campo">0</span></li>
+ <li><strong>Transformación propia (litros/año):</strong> <span class="campo">85000</span></li></ul></li>
+ <li><strong>Configurar especies</strong> — Verifica que <strong>Ovino</strong> está presente
+ con tipo de producción <strong>Leche</strong>. Añade el tipo si no aparece.</li>
+ <li><strong>Copia de seguridad:</strong> Exporta un primer backup.</li></ol>
+
+ <div class="aviso">️ El <strong>contrato lácteo</strong> es obligatorio por ley (Real Decreto 752/2011).
+ Si transformas tu propia leche, selecciona "Transformación propia". Si vendes a una industria,
+ introduce el número de contrato.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 4. ZONAS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="zonas"><span class="fase-tag">Paso 4</span>
+ <h2 class="modulo">️ Crear zonas / parcelas</h2>
+ <p class="intro-mod">Para una explotación láctea semiextensiva necesitarás pastos para el rebaño y una zona de
+ estabulación con sala de ordeño. Accede desde <span class="ruta">Más → Zonas</span>.</p>
+
+ 
+
+ <ol class="pasos"><li>Pulsa <kbd>Nueva Zona</kbd>. Crea las siguientes zonas:
+ <ul class="subpasos"><li><span class="campo">Pastizal Alto 30ha</span> — Pasto, aforo 120</li>
+ <li><span class="campo">Pastizal Bajo 20ha</span> — Pasto, aforo 80</li>
+ <li><span class="campo">Nave Ordeño / Estabulación</span> — Estabulación, aforo 250</li>
+ <li><span class="campo">Parcela Descanso Sanitario</span> — Cuarentena, aforo 30</li></ul></li></ol>
+
+ <div class="tip">La zona de "Descanso Sanitario" es útil para aislar animales en tratamiento o periodo de secado.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 5. REBAÑO LECHE -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="rebanos"><span class="fase-tag">Paso 5</span>
+ <h2 class="modulo">Crear el rebaño de leche</h2>
+ <p class="intro-mod">En una explotación láctea es recomendable tener dos rebaños: el de ordeño (hembras en producción)
+ y el de secado / reposo. Accede desde <span class="ruta">Rebaños</span>.</p>
+
+ 
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Rebaño 1: Ordeño (producción activa)</h3>
+ <ol class="pasos"><li>Pulsa <kbd></kbd>.</li>
+ <li>Rellena:
+ <ul class="subpasos"><li><strong>Nombre:</strong> <span class="campo">Ovejas Ordeño</span></li>
+ <li><strong>Especie:</strong> <span class="campo">Ovino</span></li>
+ <li><strong>Tipo:</strong> <span class="campo">Madres</span></li>
+ <li><strong>Zona:</strong> <span class="campo">Nave Ordeño / Estabulación</span></li>
+ <li><strong>Capacidad:</strong> <span class="campo">180</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>.</li></ol>
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Rebaño 2: Secado / Reposo</h3>
+ <ol class="pasos"><li>Pulsa <kbd></kbd>.</li>
+ <li>Rellena:
+ <ul class="subpasos"><li><strong>Nombre:</strong> <span class="campo">Ovejas Secado</span></li>
+ <li><strong>Especie:</strong> <span class="campo">Ovino</span></li>
+ <li><strong>Tipo:</strong> <span class="campo">Secado</span></li>
+ <li><strong>Zona:</strong> <span class="campo">Pastizal Alto 30ha</span></li>
+ <li><strong>Capacidad:</strong> <span class="campo">50</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>.</li></ol>
+
+ <div class="nota">El rebaño de secado es para las ovejas que no están en producción activa
+ (periodo de secado entre lactaciones). La app permite mover animales entre rebaños
+ según su estado productivo.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 6. ALTA DE ANIMALES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="animales-alta"><span class="fase-tag">Paso 6</span>
+ <h2 class="modulo">Dar de alta los animales (con SCAN)</h2>
+ <p class="intro-mod">El registro individual es el núcleo de la trazabilidad, especialmente en producción láctea
+ donde cada animal tiene un historial sanitario que afecta a la calidad de la leche.
+ Accede desde <span class="ruta">Animales</span>.</p>
+
+ 
+
+ <ol class="pasos"><li>Pulsa <kbd>NUEVO</kbd>.</li>
+ <li><strong>Nº de CROTAL</strong> — Identificador oficial.<br><span class="campo">ES011234567891</span>
+ <div style="margin-top:6px; background:#fef3e8; border-radius:8px; padding:8px 12px; border:1px solid #f0d5b8;"><strong></strong> Pulsa el botón <span class="btn-ejemplo">SCAN</span> junto al campo
+ para leer el código QR/barras del crotal con la cámara.
+ <a href="#animales-scan">Ver detalle →</a></div></li>
+ <li><strong>Especie:</strong> <span class="campo">Ovino</span></li>
+ <li><strong>Sexo:</strong> <span class="campo">Hembra (H)</span> — Todas las ovejas de leche son hembras</li>
+ <li><strong>Raza:</strong> <span class="campo">Manchega</span></li>
+ <li><strong>Rebaño:</strong> <span class="campo">Ovejas Ordeño</span></li>
+ <li><strong>Fecha de nacimiento:</strong> <span class="campo">15/09/2024</span></li>
+ <li><strong>Tipo de alta:</strong> <span class="campo">Nacimiento</span></li>
+ <li><strong>Peso inicial:</strong> <span class="campo">38.0 kg</span></li>
+ <li><strong>Fecha identificación:</strong> <span class="campo">15/09/2024</span></li>
+ <li><strong>Tipo identificación:</strong> <span class="campo">Completa (EID + Visual)</span></li></ol>
+
+ <div class="info-tecnica">La raza <strong>Manchega</strong> es una de las más apreciadas para producción de leche de oveja
+ en España, con una producción media de 150-200 litros por lactación y un alto contenido en grasa
+ (6-7%) y proteína (5-6%), ideal para la elaboración de queso manchego D.O.P.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 7. ESCÁNER CROTALES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="animales-scan"><span class="fase-tag">Paso 7</span>
+ <h2 class="modulo">Uso del escáner de crotales</h2>
+ <p class="intro-mod">El botón <span class="btn-ejemplo">SCAN</span> está disponible tanto en el formulario de
+ alta como en el de edición de animales. Permite leer automáticamente el código impreso en el crotal.</p>
+
+ 
+
+ <ol class="pasos"><li>En el formulario de alta (o edición), localiza el campo <strong>Nº CROTAL</strong>.</li>
+ <li>Pulsa el botón <span class="btn-ejemplo">SCAN</span> a la derecha del campo.</li>
+ <li>Concede permiso de cámara si es la primera vez.</li>
+ <li>Apunta la cámara al código del crotal. El escáner reconoce:
+ <ul class="subpasos"><li><strong>QR (2D)</strong> — En crotales electrónicos modernos</li>
+ <li><strong>Code 128 / EAN (1D)</strong> — En crotales con código de barras</li>
+ <li><strong>Data Matrix</strong> — En crotales de alta densidad</li></ul></li>
+ <li>Al detectar el código, el campo se rellena automáticamente y se valida el formato.</li></ol>
+
+ <div class="nota"><strong>Límite de caracteres:</strong> El campo de crotal acepta máximo 16 caracteres,
+ que es el formato oficial español: ES (2) + 2 CCAA + 10/12 dígitos individuales.</div>
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Sobre el botón NFC en explotaciones lácteas</h3>
+ <p>El botón <span class="btn-ejemplo" style="background:#555;">NFC</span> no puede leer
+ los chips electrónicos de los crotales (134.2 kHz), pero sí puede leer <strong>tags NFC
+ (13.56 MHz)</strong> como pegatinas inteligentes o tarjetas de proximidad. En una explotación
+ láctea puedes usar tags NFC para:</p>
+ <ul class="subpasos"><li>Identificar cubos de ordeño o lotes de leche</li>
+ <li>Identificar puntos de recogida en la sala de ordeño</li>
+ <li>Control de acceso a la nave de ordeño</li></ul>
+ <p>Para leer el chip del crotal necesitas un lector RFID Bluetooth externo (Allflex, Datamars).</p></section>
+
+ <!-- ============================================================= -->
+ <!-- 8. GESTIÓN DE ORDEÑO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="ordeno"><span class="fase-tag">Paso 8</span>
+ <h2 class="modulo">Gestión de ordeño y producción</h2>
+ <p class="intro-mod">El registro de la producción diaria de leche es esencial para controlar la rentabilidad
+ y la salud del rebaño. Accede desde <span class="ruta">Más → Control Lechero</span>.
+ La pantalla tiene cinco pestañas: <strong>Wizard, Producción, Analíticas, Liquidaciones y MOFA</strong>.</p>
+
+ 
+
+ <h3 style="margin:20px 0 10px; font-size:1.1rem;">Registrar una entrega de leche</h3>
+ <ol class="pasos"><li>En la pestaña <strong>Wizard</strong>, pulsa <kbd>NUEVA ENTREGA</kbd>.</li>
+ <li>El asistente tiene 6 pasos. Complétalos en orden:
+ <ul class="subpasos"><li><strong>Paso 1 — Fecha y CCAA</strong><br>Fecha de recogida: <span class="campo">15/05/2025</span><br>CCAA de recogida: <span class="campo">Andalucía</span></li>
+
+ <li><strong>Paso 2 — Cisterna y transporte</strong><br>Matrícula cisterna: <span class="campo">1234 ABC</span><br>Transportista: (selecciona uno dado de alta previamente)<br>Temperatura de carga: <span class="campo">4.2 °C</span> (debe ser ≤ 6 °C)<br>Nº Muestra Letra Q: <span class="campo">M-2025-0515-001</span></li>
+
+ <li><strong>Paso 3 — Cadena de frío</strong><br>Temperatura en recogida: <span class="campo">4.2 °C</span><br>Temperatura en llegada: <span class="campo">4.5 °C</span><br>Tiempo desde ordeño: <span class="campo">3 h</span></li>
+
+ <li><strong>Paso 4 — Laboratorio (analítica)</strong><br>Grasa (%): <span class="campo">6.8</span><br>Proteína (%): <span class="campo">5.7</span><br>Extracto seco (%): calculado automáticamente: <span class="campo">12.5</span><br>Células somáticas (×1000/ml): <span class="campo">350</span> (límite: ≤ 500)<br>Gérmenes (UFC/ml): <span class="campo">15000</span> (límite: ≤ 50000)<br>Antibióticos: <span class="campo">Negativo</span> ← ¡obligatorio!</li>
+
+ <li><strong>Paso 5 — Precio y liquidación</strong><br>Cantidad (litros): <span class="campo">420</span><br>Precio base (€/litro): <span class="campo">1.85</span><br>Primas / penalizaciones (€): <span class="campo">+15.00</span> (prima por calidad)</li>
+
+ <li><strong>Paso 6 — MOFA</strong><br>Coste alimentación (€/litro): <span class="campo">0.72</span><br>MOFA calculado: <span class="campo">1.13 €/litro</span></li></ul></li>
+ <li>Revisa el resumen y pulsa <kbd>Confirmar Entrega</kbd>.</li></ol>
+
+ <div class="info-tecnica"><strong>Parámetros de referencia para leche de oveja (RD 752/2011):</strong><br>Grasa: &gt; 5.5% | Proteína: &gt; 4.5% | Células somáticas: &lt; 500.000/ml |
+ Gérmenes: &lt; 50.000 UFC/ml | Antibióticos: Negativo</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 9. ANALÍTICAS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="analiticas"><span class="fase-tag">Paso 9</span>
+ <h2 class="modulo">Analíticas de leche</h2>
+ <p class="intro-mod">La pestaña <strong>Analíticas</strong> del Control Lechero muestra la evolución de los
+ parámetros de calidad y los compara con los umbrales de referencia (LIGAL).</p>
+
+ 
+
+ <ol class="pasos"><li>Desde <span class="ruta">Más → Control Lechero → Analíticas</span>, consulta:
+ <ul class="subpasos"><li><strong>Evolución de grasa y proteína</strong> — Gráfico de las últimas entregas</li>
+ <li><strong>Recuento de células somáticas</strong> — Indicador de mamitis subclínica</li>
+ <li><strong>Recuento de gérmenes</strong> — Indicador de higiene de ordeño</li>
+ <li><strong>Umbrales LIGAL</strong> — Límites legales para cada parámetro</li></ul></li>
+ <li>Interpreta los resultados con la tabla de referencia:</li></ol>
+
+ <table class="parametros"><tr><th>Parámetro</th><th>Valor actual</th><th>Umbral LIGAL</th><th>Estado</th></tr>
+ <tr><td>Grasa</td><td>6.8%</td><td>≥ 4.5%</td><td class="ok">OK</td></tr>
+ <tr><td>Proteína</td><td>5.7%</td><td>≥ 4.0%</td><td class="ok">OK</td></tr>
+ <tr><td>Extracto seco</td><td>12.5%</td><td>—</td><td class="ok">OK</td></tr>
+ <tr><td>Células somáticas</td><td>350.000/ml</td><td>≤ 500.000/ml</td><td class="ok">OK</td></tr>
+ <tr><td>Gérmenes</td><td>15.000 UFC/ml</td><td>≤ 50.000 UFC/ml</td><td class="ok">OK</td></tr>
+ <tr><td>Antibióticos</td><td>Negativo</td><td>Negativo</td><td class="ok">OK</td></tr></table>
+
+ <div class="aviso">Si el test de <strong>antibióticos</strong> es positivo, la app marcará el estado como
+ <strong>"Alerta"</strong> y bloqueará la comercialización de esa leche. Además, activará
+ una alerta de trazabilidad para investigar el animal o animales causantes.</div>
+
+ <div class="tip">Un recuento alto de células somáticas (&gt; 500.000) indica posibles mamitis en el rebaño.
+ Revisa los tratamientos sanitarios y las condiciones de ordeño.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 10. LIQUIDACIONES -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="liquidaciones"><span class="fase-tag">Paso 10</span>
+ <h2 class="modulo">Liquidaciones y MOFA</h2>
+ <p class="intro-mod">La pestaña <strong>Liquidaciones</strong> desglosa el importe económico de cada entrega,
+ y la pestaña <strong>MOFA</strong> calcula el Margen Sobre el Coste de Alimentación.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Liquidaciones:</strong> Cada entrega registrada aparece con su desglose:
+ <ul class="subpasos"><li>Volumen entregado (litros)</li>
+ <li>Precio base + primas/penalizaciones</li>
+ <li>Tasa INLAC aplicada</li>
+ <li>Importe total de la entrega</li></ul></li>
+ <li><strong>MOFA (Margen sobre alimentación):</strong>
+ <ul class="subpasos"><li>Se calcula automáticamente: <em>Precio venta - Coste alimentación por litro</em></li>
+ <li>Para este ejemplo: <span class="campo">1.85 €/L - 0.72 €/L = 1.13 €/L</span></li>
+ <li>Un MOFA positivo indica que el precio de venta cubre el coste de alimentación</li></ul></li></ol></section>
+
+ <!-- ============================================================= -->
+ <!-- 11. COMPRADOR LECHE -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="compradores"><span class="fase-tag">Paso 11</span>
+ <h2 class="modulo">Alta de comprador de leche</h2>
+ <p class="intro-mod">Para vender la leche debes tener el comprador registrado. Accede desde
+ <span class="ruta">Más → Compradores</span>.</p>
+
+ 
+
+ <ol class="pasos"><li>Pulsa <kbd>Nuevo</kbd>.</li>
+ <li>Rellena:
+ <ul class="subpasos"><li><strong>Nombre / Razón Social:</strong> <span class="campo">Central Lechera de Granada S.A.</span></li>
+ <li><strong>NIF / CIF:</strong> <span class="campo">A98765432</span></li>
+ <li><strong>Tipo:</strong> <span class="campo">Leche</span> — Fundamental para filtrar en las operaciones</li>
+ <li><strong>Teléfono:</strong> <span class="campo">958 987 654</span></li>
+ <li><strong>Población:</strong> <span class="campo">Granada</span></li>
+ <li><strong>Condiciones de pago:</strong> <span class="campo">45 días fecha factura</span></li></ul></li>
+ <li>Pulsa <kbd>Guardar</kbd>.</li></ol>
+
+ <div class="tip">Si transformas tu propia leche para hacer queso, puedes crear un comprador con tu propia
+ razón social y tipo "Híbrido" para registrar las operaciones de transformación.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 12. COMERCIALIZACIÓN LECHE -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="comercializacion"><span class="fase-tag">Paso 12</span>
+ <h2 class="modulo">Comercialización de leche</h2>
+ <p class="intro-mod">Registra la venta de leche desde <span class="ruta">Más → Comercialización → pestaña Leche</span>.
+ El proceso genera automáticamente el albarán con todos los datos fiscales y sanitarios.</p>
+
+ 
+
+ <ol class="pasos"><li>En la pestaña <strong>Leche</strong>, pulsa <kbd>NUEVA VENTA</kbd>.</li>
+ <li>Completa el formulario:
+ <ul class="subpasos"><li><strong>Fecha:</strong> <span class="campo">15/05/2025</span></li>
+ <li><strong>Comprador:</strong> <span class="campo">Central Lechera de Granada S.A.</span></li>
+ <li><strong>Cantidad (litros):</strong> <span class="campo">420</span></li>
+ <li><strong>Precio base (€/L):</strong> <span class="campo">1.85</span></li>
+ <li><strong>Primas / Penalizaciones (€):</strong> <span class="campo">15.00</span></li>
+ <li><strong>Matrícula cisterna:</strong> <span class="campo">1234 ABC</span></li>
+ <li><strong>Nº Muestra Letra Q:</strong> <span class="campo">M-2025-0515-001</span></li>
+ <li><strong>Certificado inhibidores:</strong> Ausencia declarada</li>
+ <li><strong>Tasa INLAC:</strong> <span class="campo">0.003 €/L</span></li></ul></li>
+ <li>La app calcula automáticamente:
+ <ul class="subpasos"><li><strong>Total bruto:</strong> <span class="campo">792.24 €</span> = (420 × 1.85) + 15 - (420 × 0.003)</li>
+ <li><strong>Estado analítica:</strong> <span class="campo ok">Completado</span></li></ul></li>
+ <li>Pulsa <kbd>Confirmar Venta</kbd>.</li></ol>
+
+ <div class="aviso"><strong>Leche con alerta:</strong> Si el laboratorio detectó antibióticos,
+ el estado analítico será <strong>"Alerta"</strong> y el total bruto se bloqueará a 0 €,
+ impidiendo la comercialización hasta que se resuelva la incidencia.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 13. ALBARÁN -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="albaran"><span class="fase-tag">Paso 13</span>
+ <h2 class="modulo">Albarán y documentos generados</h2>
+ <p class="intro-mod">Al confirmar la venta se genera un albarán con toda la información fiscal y de trazabilidad.
+ Puedes descargarlo en PDF y compartirlo con el comprador.</p>
+
+ 
+
+ <ol class="pasos"><li>El albarán incluye:
+ <ul class="subpasos"><li><strong>Cabecera:</strong> vendedor, comprador, fecha, nº de albarán</li>
+ <li><strong>Trazabilidad láctea:</strong> matrícula cisterna, muestra Letra Q,
+ temperatura de carga, certificado de ausencia de inhibidores</li>
+ <li><strong>Económico:</strong> volumen, precio base, tasa INLAC, primas,
+ estado analítico y total bruto</li></ul></li>
+ <li>Desde el detalle de la venta, pulsa <kbd>DESCARGAR PDF</kbd> para obtener el documento.
+ El PDF se puede compartir por email, WhatsApp, Google Drive, etc.</li>
+ <li>Todos los documentos generados se almacenan en <span class="ruta">Más → Documentos</span>
+ y se pueden consultar en cualquier momento.</li></ol></section>
+
+ <!-- ============================================================= -->
+ <!-- 14. TRAZABILIDAD LÁCTEA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="trazabilidad-lactea"><span class="fase-tag">Paso 14</span>
+ <h2 class="modulo">Trazabilidad y bloqueos sanitarios en leche</h2>
+ <p class="intro-mod">En producción láctea, la trazabilidad sanitaria es especialmente crítica porque los
+ tratamientos medicamentosos pueden pasar a la leche. La app controla automáticamente
+ los <strong>periodos de supresión</strong> y bloquea la comercialización si hay algún
+ riesgo para la seguridad alimentaria.</p>
+
+ 
+
+ <ol class="pasos"><li><strong>Bloqueo por periodo de supresión:</strong> Si un animal ha recibido un tratamiento
+ con tiempo de espera para leche, la app lo registra y bloquea su leche hasta que pase
+ el periodo.</li>
+ <li><strong>Bloqueo permanente:</strong> Algunos medicamentos tienen
+ <span class="campo">prohibidoLeche = true</span> o un tiempo de espera de 999 días.
+ Si un animal recibe estos tratamientos, su leche queda bloqueada de forma permanente
+ y el animal debe ser apartado del rebaño de ordeño.</li>
+ <li><strong>¿Cómo consultarlo?</strong> Desde <span class="ruta">Más → Trazabilidad</span>
+ puedes ver:
+ <ul class="subpasos"><li>Alertas sanitarias activas (animales en periodo de supresión)</li>
+ <li>Histórico de tratamientos por animal</li>
+ <li>Estado de notificación REGA de cada animal</li></ul></li></ol>
+
+ <div class="aviso">️ Cuando registres un tratamiento sanitario, asegúrate de rellenar el campo
+ <strong>"Prohibido para leche"</strong> y los <strong>periodos de espera</strong>
+ (carne y leche) según la ficha técnica del medicamento. La app no puede adivinarlos.</div>
+
+ <div class="info-tecnica"><strong>Regla de trazabilidad en leche:</strong> Si un medicamento tiene
+ <code>prohibidoLeche = true</code>, la app bloquea la comercialización de leche
+ de ese animal de forma permanente. El animal debe ser <strong>trasladado al rebaño
+ de secado/baja</strong> o eliminado del circuito de ordeño.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- CIERRE -->
+ <!-- ============================================================= -->
+ <section class="seccion" style="text-align:center; color:var(--gris-claro); font-size:.85rem; border-bottom:none;"><div style="background:var(--suave); border-radius:14px; padding:24px; margin-bottom:20px; text-align:left;"><h3 style="margin:0 0 12px; color:#2a6496;">Resumen del flujo completo (ovino de leche)</h3>
+ <ol style="padding-left:18px; line-height:2;"><li><strong>Inicio</strong> — Pulsa "Nueva Finca"</li>
+ <li><strong>Crear finca</strong> — REGA, CCAA, tipo <strong>Leche</strong>, sistema Semiextensivo</li>
+ <li>️ <strong>Ajustes</strong> — Rellena el paquete lácteo (contrato, INFOLAC)</li>
+ <li>️ <strong>Zonas</strong> — Pastos + nave de ordeño + cuarentena</li>
+ <li><strong>Rebaños</strong> — Ordeño + Secado</li>
+ <li><strong>Animales</strong> — Alta con crotal SCAN, raza Manchega</li>
+ <li><strong>Ordeño</strong> — Registra entregas con analítica completa</li>
+ <li><strong>Analíticas</strong> — Controla grasa, proteína, somáticas y antibióticos</li>
+ <li><strong>Liquidaciones</strong> — Revisa importes y MOFA</li>
+ <li><strong>Comprador</strong> — Da de alta a la central lechera</li>
+ <li><strong>Venta</strong> — Registra la venta con todos los parámetros de calidad</li>
+ <li><strong>Documentos</strong> — Albarán PDF con trazabilidad Letra Q</li></ol></div>
+
+ <p>© Livestock Manager Premium — Ejemplo práctico de ovino de leche.<br>Datos de ejemplo: Quesería Los Llanos, raza Manchega, sistema semiextensivo, Granada.</p>
+ <p><a href="index.html" style="color:#2a6496;">← Volver al Manual de Usuario general</a></p></section></div></body></html>

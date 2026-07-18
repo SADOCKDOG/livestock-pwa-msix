@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Livestock Manager · Guía Premium v4.8.7 · Livestock Manager</title>
+  <link rel="stylesheet" href="estilo-manuales.css">
+</head>
+<body style="--acento: #1e3a8a; --acento-claro: #3b82f6;"><!-- PORTADA -->
+ <div class="cover-page"><div class="cover-title">Livestock Manager</div>
+ <div class="cover-subtitle">Dossier de Adaptación al Sistema SIGGAN y Cuaderno Digital Oficial</div>
+ <div class="cover-meta"><p><strong>Normativa de Referencia:</strong> RD 787/2023 y RD 1749/1998</p>
+ <p><strong>Ámbito Técnico:</strong> Cumplimiento de Trazabilidad e Integridad Ganadera</p>
+ <p><strong>Fecha de Publicación:</strong> 29 de junio de 2026</p></div></div>
+
+ <div class="container"><!-- SECCIÓN 1: INTRODUCCIÓN Y MARCO LEGAL -->
+ <div class="page-break"><!-- CABECERA RUNNING -->
+ <div class="page-header-block"><div class="header-logo-wrap"><div class="header-text-wrap"><span class="header-title-text">Livestock Manager Premium</span>
+ <span class="header-dev-text">Cumplimiento Normativo SIGGAN / BADIGEX</span></div></div>
+ <div class="header-license-text"><span>Código de Módulo: LM-SIGGAN-v4</span><br><span>© 2026 Todos los derechos reservados</span></div></div>
+
+ <div class="section-title">1. Marco Legal y Adaptación al Sistema SIGGAN</div>
+ <p>El <strong>Sistema Integrado de Gestión Ganadera (SIGGAN)</strong> es la plataforma tecnológica oficial para el control sanitario, de movimientos y de censo de la ganadería en España. Su fin es garantizar la trazabilidad de los alimentos de origen animal «desde la granja a la mesa».</p>
+ 
+ <div class="highlight-box"><p><strong>Livestock Manager</strong> ha sido específicamente diseñado para cumplir con las exigencias del Real Decreto 787/2023 (sobre ordenación y registro de explotaciones ganaderas) y el Real Decreto 1749/1998 (sobre control de tratamientos veterinarios). La aplicación actúa como un puente digital inmediato, automatizando las validaciones requeridas antes del reporte oficial.</p></div>
+
+ <p>La aplicación permite parametrizar las reglas de control de acuerdo con la Comunidad Autónoma activa de la explotación ganadera:</p>
+ <ul><li><strong>Andalucía (SIGGAN):</strong> Integración de validaciones específicas de sanidad pecuaria, códigos de desinsectación de vehículos obligatorios y catálogos de vacunas oficiales de la Junta de Andalucía.</li>
+ <li><strong>Extremadura (BADIGEX):</strong> Adaptación de los formatos de declaración de censo y libros oficiales en base a los criterios de registro de la Junta de Extremadura.</li></ul></div>
+
+ <!-- SECCIÓN 2: PILARES DE INTEGRACIÓN -->
+ <div class="page-break"><!-- CABECERA RUNNING -->
+ <div class="page-header-block"><div class="header-logo-wrap"><div class="header-text-wrap"><span class="header-title-text">Livestock Manager Premium</span>
+ <span class="header-dev-text">Cumplimiento Normativo SIGGAN / BADIGEX</span></div></div>
+ <div class="header-license-text"><span>Código de Módulo: LM-SIGGAN-v4</span><br><span>© 2026 Todos los derechos reservados</span></div></div>
+
+ <div class="section-title">2. Pilares de Integración en Livestock Manager</div>
+ <p>La adaptación al sistema SIGGAN se asienta sobre cuatro pilares operativos integrados directamente en el núcleo funcional del software:</p>
+
+ <!-- Pilar 1: Validación REGA -->
+ <div class="feature-card"><div class="feature-header"><div class="feature-name">I. Validación y Normalización REGA</div>
+ <div class="feature-tag">Seguridad</div></div>
+ <p>El código REGA (Registro de Explotaciones Ganaderas) es el identificador oficial único de cada explotación. Livestock Manager incorpora un motor de validación regulada en tiempo real:</p>
+ <ul><li><strong>Normalización Sintáctica:</strong> Elimina espacios, guiones o puntos intermedios (ej: <code>ES 06.123.0000123</code> se sanitiza automáticamente a <code>ES061230000123</code>).</li>
+ <li><strong>Comprobación Estructural:</strong> Valida el formato oficial: prefijo de país (ES) + 2 dígitos de código INE de provincia + 3 dígitos de código de municipio + 7 dígitos secuenciales de explotación.</li>
+ <li><strong>Coherencia Territorial:</strong> El motor verifica que el código INE de la provincia del REGA se corresponda con la Comunidad Autónoma activa configurada para la finca.</li></ul></div>
+
+ <!-- Pilar 2: Trazabilidad Crotales -->
+ <div class="feature-card"><div class="feature-header"><div class="feature-name">II. Trazabilidad Estricta de Crotales</div>
+ <div class="feature-tag">Trazabilidad</div></div>
+ <p>Cada animal debe identificarse bajo la norma comunitaria de crotales oficiales. La aplicación valida el formato en la ficha técnica:</p>
+ <ul><li>El crotal debe coincidir exactamente con la expresión regular oficial <code>/^[A-Z]{2}\d{12}$/</code> (Código de país + 12 dígitos).</li>
+ <li>El sistema otorga feedback visual al tester/usuario (dorado para códigos nacionales, rojo para otros países europeos habilitados, gris para entradas incompletas).</li></ul></div></div>
+
+ <!-- SECCIÓN 3: LIBROS DE REGISTRO OFICIALES -->
+ <div class="page-break"><!-- CABECERA RUNNING -->
+ <div class="page-header-block"><div class="header-logo-wrap"><div class="header-text-wrap"><span class="header-title-text">Livestock Manager Premium</span>
+ <span class="header-dev-text">Cumplimiento Normativo SIGGAN / BADIGEX</span></div></div>
+ <div class="header-license-text"><span>Código de Módulo: LM-SIGGAN-v4</span><br><span>© 2026 Todos los derechos reservados</span></div></div>
+
+ <div class="section-title">3. Los Libros Oficiales del Cuaderno Digital</div>
+ <p>El módulo <strong>Cuaderno Digital</strong> de Livestock Manager consolida los cinco libros de registro indispensables que la normativa exige presentar ante inspectores o exportar a las bases de datos de SIGGAN:</p>
+
+ <table><thead><tr><th style="width: 25%">Libro Oficial</th>
+ <th style="width: 45%">Datos Críticos Registrados</th>
+ <th style="width: 30%">Mapeo en la Aplicación</th></tr></thead>
+ <tbody><tr><td><strong>Libro de Explotación</strong></td>
+ <td>Censo simplificado clasificado por especie, clasificación zootécnica y categoría productiva.</td>
+ <td>Módulo Cuaderno > Sección 1 (Finca) y Sección 2 (Censo).</td></tr>
+ <tr><td><strong>Libro de Movimientos</strong></td>
+ <td>Registro exhaustivo de entradas, salidas, muertes e intercambios. Nº de guía oficial y REGA origen/destino.</td>
+ <td>Módulo Cuaderno > Sección 3 (Movimientos) / Wizard Guía de Movimiento.</td></tr>
+ <tr><td><strong>Libro de Tratamientos Veterinarios</strong></td>
+ <td>Diagnóstico, medicamento, dosis, vía de administración, veterinario (nº colegiado y receta), y periodo de supresión.</td>
+ <td>Módulo Cuaderno > Sección 4 (Sanidad) / Wizard Tratamiento Veterinario.</td></tr>
+ <tr><td><strong>Libro de Saneamiento</strong></td>
+ <td>Campañas de saneamiento obligatorias (ej. Tuberculosis). Resultados de animales examinados y positivos.</td>
+ <td>Módulo Cuaderno > Sección 5 (Reproducción y Campañas) / Saneamientos.</td></tr>
+ <tr><td><strong>Registro de Producción</strong></td>
+ <td>Pesajes técnicos individuales y grupales, junto a las entregas comerciales de leche y controles de grasa/proteína.</td>
+ <td>Módulo Cuaderno > Sección 6 (Producción) / Wizards Pesadas y Albaranes.</td></tr></tbody></table>
+
+ <div class="alert-banner alert-success"><strong>Automatización de Tiempos de Supresión:</strong> Al registrar un tratamiento veterinario, si el medicamento tiene periodos de espera en carne o leche, el sistema bloquea inmediatamente al animal para venta masiva y muestra una alerta visual en el Dashboard general hasta que expire el plazo.</div></div>
+
+ <!-- SECCIÓN 4: EXPORTACIONES Y FORMATOS -->
+ <div class="page-break"><!-- CABECERA RUNNING -->
+ <div class="page-header-block"><div class="header-logo-wrap"><div class="header-text-wrap"><span class="header-title-text">Livestock Manager Premium</span>
+ <span class="header-dev-text">Cumplimiento Normativo SIGGAN / BADIGEX</span></div></div>
+ <div class="header-license-text"><span>Código de Módulo: LM-SIGGAN-v4</span><br><span>© 2026 Todos los derechos reservados</span></div></div>
+
+ <div class="section-title">4. Formatos de Exportación y Conectividad Oficial</div>
+ <p>Para asegurar que los datos registrados sirvan de cara a trámites oficiales con la administración de agricultura y ganadería, Livestock Manager incorpora formatos de descarga estándar en su <strong>Centro de Informes</strong>:</p>
+
+ <div class="feature-card"><div class="feature-header"><div class="feature-name">Exportaciones Normalizadas del Sistema</div>
+ <div class="feature-tag">Formatos</div></div>
+ <ul><li><strong>Censo Oficial REGA (CSV):</strong> Estructura plana de censo animal a fecha seleccionada, lista para ser cargada de forma masiva en el portal ganadero regional.</li>
+ <li><strong>Libro de Movimientos SIA (CSV):</strong> Reporte detallado de entradas/salidas adaptado a las columnas y especificaciones del Sistema de Información de Animales (SIA) del ministerio.</li>
+ <li><strong>Ficha de Explotación REGA (XML):</strong> Exportación en formato de marcado de metadatos de la finca para importar los datos estructurados en herramientas de gestión de la administración pública.</li>
+ <li><strong>Cuaderno Digital Consolidado (PDF):</strong> Documento formal con diseño A4 limpio, optimizado para impresión física o envío directo vía email a inspectores oficiales o ADSG de zona.</li></ul></div>
+
+ <div class="alert-banner alert-info">ℹ️ **ADSG (Agrupación de Defensa Sanitaria Ganadera)**: Los datos sanitarios del veterinario asignado (nombre, NIF, colegiado) se pre-cargan automáticamente desde los ajustes de la finca activa al iniciar el asistente de tratamientos sanitarios, minimizando errores tipográficos humanos.</div>
+
+ <p style="text-align: center; margin-top: 50px; font-weight: 700; font-size: 12pt; color: var(--primary-dark);">Livestock Manager Premium — Trazabilidad Garantizada de acuerdo a Normas SIGGAN</p></div></div></body></html>
