@@ -1,1 +1,1 @@
-window.FREE_MODE = true;
+window.FREE_MODE = false;
