@@ -1,4 +1,4 @@
-const CACHE_NAME = 'corcho-v6.31.5-desktop-audit-fix';
+const CACHE_NAME = 'corcho-v6.31.6-desktop-sidebar-nav';
 const ASSETS = [
   './',
   './index.html',

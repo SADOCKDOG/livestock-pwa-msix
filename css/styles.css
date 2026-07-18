@@ -4124,13 +4124,16 @@ body.glow-tarjetas-off .status-badge {
 
 /* ============================================
    ESCRITORIO (≥1024px) — Microsoft Store / ventanas anchas
-   Ver AUDITORIA-DESKTOP-UI-UX.md (puntos 1-2). Todo el resto del CSS es
+   Ver AUDITORIA-DESKTOP-UI-UX.md (puntos 1-4). Todo el resto del CSS es
    mobile-first; este bloque es la única adaptación a pantallas anchas.
+   Reutiliza los mismos elementos/clases que móvil (.nav-item, .more-sheet-*,
+   controlados por app.js vía toggle de clases) — no se toca ni HTML ni JS,
+   solo se reposicionan con CSS.
    ============================================ */
 @media (min-width: 1024px) {
   main#app-content {
     max-width: 1400px;
-    margin-left: auto;
+    margin-left: 84px; /* deja hueco a la sidebar de navegación */
     margin-right: auto;
     padding-left: 32px;
     padding-right: 32px;
@@ -4139,4 +4142,71 @@ body.glow-tarjetas-off .status-badge {
   /* Activa la rejilla real de 12 columnas del "Registro rápido de actividad"
      (ver .grid-cols-12 más arriba, que en móvil se queda en 1 columna). */
   .grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+
+  /* Marco decorativo (haz de luz lateral): alinear con el área de contenido
+     en vez de solaparse con la sidebar. */
+  body::after {
+    left: 84px;
+  }
+
+  /* ── Sidebar de navegación (reutiliza nav.bottom-nav / .nav-item) ──
+     En móvil es una barra inferior fija horizontal; aquí pasa a ser una
+     columna fija a la izquierda, debajo del header. */
+  .bottom-nav-wrap {
+    position: fixed;
+    top: 63px;
+    left: 0;
+    bottom: 0;
+    width: 84px;
+    z-index: 1500;
+  }
+
+  nav.bottom-nav {
+    position: static;
+    height: 100%;
+    width: 84px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 4px;
+    padding: 20px 0 12px;
+    border-top: none;
+    border-right: 1px solid var(--header-neon-color, #FFFFFF);
+    box-shadow:
+        5px 0 16px -3px color-mix(in srgb, var(--header-neon-color, #FFFFFF) var(--haz-intensity, 60%), transparent),
+        inset -6px 0 14px -6px color-mix(in srgb, var(--haz-luz-color, var(--header-neon-color, #FFFFFF)) var(--haz-intensity, 60%), transparent);
+  }
+
+  .nav-item {
+    flex: none;
+    padding: 10px 0;
+  }
+
+  /* ── Menú "Más": de bottom-sheet a pop-over anclado junto a la sidebar ── */
+  .more-sheet-overlay {
+    inset: auto;
+    left: 84px;
+    bottom: 16px;
+    top: auto;
+    right: auto;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    align-items: flex-end;
+    justify-content: flex-start;
+  }
+
+  .more-sheet {
+    width: 360px;
+    max-width: 360px;
+    max-height: min(85vh, 640px);
+    margin-left: 12px;
+    border-radius: var(--r-xl);
+    border: 1px solid var(--border);
+    animation: none; /* el slide-up desde abajo no encaja en un pop-over lateral */
+  }
+
+  .more-sheet-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
