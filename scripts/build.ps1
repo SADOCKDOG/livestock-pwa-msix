@@ -9,7 +9,7 @@ if (Test-Path $docs) {
 }
 New-Item -ItemType Directory -Path $docs | Out-Null
 
-$items = @("index.html", "manifest.webmanifest", "sw.js", "css", "js", "icons", "manual")
+$items = @("index.html", "manifest.webmanifest", "sw.js", "privacy-policy.html", "css", "js", "icons", "manual")
 foreach ($item in $items) {
     $src = Join-Path $root $item
     if (Test-Path $src) {

@@ -3,3 +3,6 @@ node_modules/
 *.msixbundle
 *.appxbundle
 .DS_Store
+
+# Paquetes generados por PWABuilder (binarios, regenerables, no van a git)
+store-packages/
