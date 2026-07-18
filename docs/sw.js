@@ -1,4 +1,4 @@
-const CACHE_NAME = 'corcho-v6.31.4-msix-premium-free';
+const CACHE_NAME = 'corcho-v6.31.5-desktop-audit-fix';
 const ASSETS = [
   './',
   './index.html',

@@ -1166,6 +1166,15 @@ label {
    la fila entera fuera de la pantalla en móvil sin posibilidad de scroll. */
 .grid-cols-2 > *, .grid-cols-3 > * { min-width: 0; }
 
+/* Clase referenciada en dashboard-view.js (Registro rápido de actividad) pero
+   nunca definida: por defecto cae a 1 columna (siempre fue así en móvil, sin
+   efecto visible ahí); en escritorio (ver bloque @media min-width:1024px más
+   abajo) pasa a 12 columnas reales para aprovechar el ancho disponible. */
+.grid-cols-12   { grid-template-columns: 1fr; }
+.col-span-3     { grid-column: span 3; }
+.col-span-4     { grid-column: span 4; }
+.col-span-6     { grid-column: span 6; }
+
 /* ── Gaps ── */
 .gap-4   { gap: 4px; }
 .gap-6   { gap: 6px; }
@@ -4111,4 +4120,23 @@ body.glow-tarjetas-off .status-badge {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================
+   ESCRITORIO (≥1024px) — Microsoft Store / ventanas anchas
+   Ver AUDITORIA-DESKTOP-UI-UX.md (puntos 1-2). Todo el resto del CSS es
+   mobile-first; este bloque es la única adaptación a pantallas anchas.
+   ============================================ */
+@media (min-width: 1024px) {
+  main#app-content {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  /* Activa la rejilla real de 12 columnas del "Registro rápido de actividad"
+     (ver .grid-cols-12 más arriba, que en móvil se queda en 1 columna). */
+  .grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
 }
