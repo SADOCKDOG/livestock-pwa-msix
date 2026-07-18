@@ -1,0 +1,205 @@
+/**
+ * design-tokens.css — FUENTE ÚNICA de tokens de diseño (estándar Cork Manager).
+ * Normativa: .agent/AGENTS.md · Se carga ANTES de styles.css en index.html.
+ * Mapa de colores de módulo en JS: js/module-colors.js (window.MODULE_COLORS).
+ */
+/* stylelint-disable color-no-hex */
+
+:root {
+    /* ── MARCA ── */
+    --p-cork: #8B7355;        /* Tierra seca - marrón polvoriento de corrales */
+    --p-cork-dark: #6D5B42;
+    --p-gold: #FFB300;        /* Oro Premium - Amarillo oro brillante (identificadores y REGA) */
+    --p-gold-dark: #CC8F00;
+
+    /* ── BASE OLED (Dark Pro — contraste de datos neón) ── */
+    --bg: #0C0C0C;            /* Graphite Ultra Dark */
+    --surface: #1E1E1E;       /* Tarjetas Dark Pro */
+    --surface-light: #2A2A2A; /* Elevación / Sub-superficies */
+    --surface-input: #121212;
+    --surface-card: #111111;  /* Cards estándar */
+    --surface-dark: #1a1a1a;  /* Secciones oscuras */
+    --border: #27272A;        /* Borde sutil */
+    --border-subtle: #222222; /* Borde más tenue */
+    --border-input: #27272A;
+
+    /* ── FAMILIAS TIPOGRÁFICAS (identidad) ──
+       body Inter · títulos Archivo Expanded · datos/identificadores IBM Plex Mono */
+    --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Archivo Expanded', 'Inter', sans-serif;
+    --font-mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', 'Fira Code', monospace;
+
+    /* ── TEXTO ── */
+    --text-p: #FFF;        /* Pure White */
+    --text-s: #B1B1B1;        /* Gris Acero (Numeros, texto y viñetas.jpg) */
+    --text-d: #777;        /* Deshabilitado / placeholder */
+
+    /* ── COLORES AMBIENTALISTAS (Rancho) ── */
+    --c-tierra: #8B7355;     /* Tierra seca - corrales y senderos */
+    --c-pasto: #6B8E23;      /* Pasto seco - pastizales */
+    --c-cielo: #FF8C42;      /* Cielo atardecer - altas horas */
+    --c-sangre: #8B0000;     /* Sangre de bodega - alertas críticas */
+    --c-papel: #F8F4E9;      /* Papel de campo - cuadernos y registros */
+    --c-sombra: #2D2D26;     /* Sombra de corral - profundidad y elevación */
+
+    /* ── SEMÁNTICA (única fuente de verdad para datos/estados) ── */
+    --c-success: #CCFF00;     /* Verde Lima Neón - Éxito / Zonas / Carne */
+    --c-warning: #FFD600;     /* Amarillo Neón - Alertas / Warning */
+    --c-danger:  #FF4444;     /* Rojo Neón - Peligro / Gastos */
+    --c-info:    #3b82f6;     /* Azul Neón - Info / Leche / Listas */
+    --c-accent:  #7EEFEF;     /* Acento / Genética (Cyan Claro de apoyo) */
+    --c-blue-accent: #4FADF5; /* Azul UI (badges, bordes) */
+    --c-red-accent:  #E8555F; /* Rojo UI (badges, alertas) */
+
+    /* ── COLORES DE MÓDULO (Tricolor corporativo simplificado) ── */
+    --c-orange: #F97316;      /* Naranja Neón - Animales / Cuaderno Digital */
+    --c-purple: #A855F7;      /* Violeta Neón - Proveedores / Manuales / Documentos-Trámites */
+    --c-pink:   #EC4899;      /* Rosa Neón - Transportistas / Logística */
+
+    /* ── TIPOGRAFÍA (escala semántica única) ── */
+    --fs-display: 1.6rem;     /* KPI grande / cifra destacada */
+    --fs-h1:   1.25rem;       /* título de card */
+    --fs-h2:   1.05rem;       /* subtítulo de sección */
+    --fs-body: 0.95rem;       /* texto e inputs */
+    --fs-sm:   0.85rem;       /* secundario */
+    --fs-label:0.75rem;       /* labels (uppercase) */
+    --fs-tiny: 0.65rem;       /* metadatos */
+
+    /* ── ESPACIADO (escala base 4px) ── */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --touch-min: 50px;
+    --tap-gap: 8px;
+
+    /* ── RADIOS ── */
+    --r-2xs:  2px;            /* Scrollbars, tiny elements */
+    --r-3xs:  3px;
+    --r-xs:   4px;            /* Elementos mínimos */
+    --r-sm:   8px;            /* chips / inputs internos */
+    --r-md:   14px;           /* inputs / botones */
+    --r-lg:   16px;           /* cards */
+    --r-xl:   20px;           /* Cards grandes */
+    --r-pill: 28px;           /* botón principal / FAB */
+    --radius: 16px;           /* alias legacy = --r-lg */
+
+    /* ── SOMBRAS ── */
+    --shadow-md: 0 4px 20px rgb(0 0 0 / 50%);
+
+    /* ── SAFE AREAS (Android vertical) ── */
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── MODO CLARO (Light Pro) ──
+   Activado vía body[data-modo="claro"] (AjustesView._toggleTema / ConfigSistemaView).
+   Solo redefine superficie/texto/sombras; los colores semánticos (--c-success, --c-danger…)
+   y de módulo se mantienen para no romper el contraste ni la identidad visual. */
+body[data-modo="claro"] {
+    --bg: #F4F3EF;            /* Papel de campo claro */
+    --surface: #FFFFFF;
+    --surface-light: #ECEAE4;
+    --surface-input: #FFFFFF;
+    --border: #D8D5CC;
+    --border-input: #C9C6BC;
+
+    --text-p: #1A1A18;
+    --text-s: #55534C;
+    --text-d: #9A968A;
+    --shadow-md: 0 4px 20px rgb(0 0 0 / 12%);
+}
+
+/* Componentes con color de texto/fondo fijo pensado solo para OLED negro
+   (glow blanco sobre negro, overlay rgba(0,0,0,X) como "tarjeta oscura").
+   Sin este override quedan ilegibles sobre fondo claro. */
+body[data-modo="claro"] .section-header-neon,
+body[data-modo="claro"] .section-header-theme {
+    color: var(--text-p) !important;
+    text-shadow: none;
+}
+body[data-modo="claro"] .kpi-pill,
+body[data-modo="claro"] .section-header,
+body[data-modo="claro"] .filter-pill {
+    background: var(--surface-light);
+}
+body[data-modo="claro"] .wizard-check-label {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: var(--border);
+    color: var(--text-s);
+}
+body[data-modo="claro"] .wizard-check-label:has(input:checked) {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-p);
+}
+body[data-modo="claro"] .card-registro-quick .quick-title {
+    color: var(--text-p) !important;
+}
+/* .text-white es la utilidad de título más usada del proyecto (290 usos en js/views/*)
+   y siempre asume fondo OLED negro. Redirigirla a --text-p corrige la inmensa
+   mayoría de cabeceras/títulos ilegibles en modo claro de una sola vez. */
+body[data-modo="claro"] .text-white {
+    color: var(--text-p);
+}
+/* Sistema de Formularios Unificado (.form-input/.premium-input/.form-select, css/styles.css)
+   usa fondo translúcido blanco (rgba(255,255,255,X)) + texto #fff, pensado solo para
+   canvas OLED negro: sobre fondo claro el input queda casi invisible y el texto ilegible. */
+body[data-modo="claro"] .form-input,
+body[data-modo="claro"] .premium-input,
+body[data-modo="claro"] .form-select {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--border-input);
+    color: var(--text-p);
+}
+body[data-modo="claro"] .form-input::placeholder,
+body[data-modo="claro"] .premium-input::placeholder {
+    color: var(--text-d);
+}
+body[data-modo="claro"] .form-label,
+body[data-modo="claro"] label {
+    color: var(--text-s);
+}
+body[data-modo="claro"] .rebaño-tab,
+body[data-modo="claro"] .gasto-tab {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--text-s);
+}
+body[data-modo="claro"] .rebaño-tab:hover,
+body[data-modo="claro"] .gasto-tab:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-p);
+}
+/* .detail-value/.empty-state-*: no tienen fondo propio, heredan la superficie
+   adaptable de la .card contenedora — el texto claro fijo queda ilegible sobre
+   fondo claro. Verificado: sin fondo propio en css/styles.css (.detail-row,
+   .empty-state no declaran background). */
+body[data-modo="claro"] .detail-value {
+    color: var(--text-p);
+}
+body[data-modo="claro"] .detail-label,
+body[data-modo="claro"] .empty-state-text {
+    color: var(--text-s);
+}
+body[data-modo="claro"] .empty-state-search {
+    color: var(--text-d);
+}
+/* Utilidades genéricas .text-888/aaa/etc (css/styles.css ~línea 1000-2735):
+   sin componente propio, se usan sueltas sobre cualquier superficie adaptable. */
+body[data-modo="claro"] .text-gray,
+body[data-modo="claro"] .text-999,
+body[data-modo="claro"] .text-777,
+body[data-modo="claro"] .text-aaa,
+body[data-modo="claro"] .text-ccc,
+body[data-modo="claro"] .text-gray-400,
+body[data-modo="claro"] .text-zinc-200 {
+    color: var(--text-s);
+}
+body[data-modo="claro"] .text-gray-500,
+body[data-modo="claro"] .text-333,
+body[data-modo="claro"] .text-444,
+body[data-modo="claro"] .text-555,
+body[data-modo="claro"] .text-neutral {
+    color: var(--text-d);
+}

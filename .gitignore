@@ -1,0 +1,6 @@
+docs/
+node_modules/
+*.msix
+*.msixbundle
+*.appxbundle
+.DS_Store

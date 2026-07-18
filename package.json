@@ -1,0 +1,10 @@
+{
+  "name": "livestock-pwa-msix",
+  "version": "1.0.0",
+  "description": "PWA/MSIX packaging project for Livestock Manager (Microsoft Store) — independent of the Capacitor/Android project.",
+  "private": true,
+  "scripts": {
+    "build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1",
+    "serve": "npx --yes http-server . -p 8080 -c-1"
+  }
+}

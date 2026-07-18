@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proveedores · Guía Premium v4.8.7 · Livestock Manager</title>
+  <link rel="stylesheet" href="estilo-manuales.css">
+</head>
+<body style="--acento: #10b981; --acento-claro: #34d399;"><header class="portada">
+    <div class="logo-container">
+      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+    </div>
+    <h1>Proveedores</h1>
+    <p class="sub">Trazabilidad de Costes — Guía completa paso a paso · Guía v4.8.7</p>
+    <div class="badge">MANUAL PRÁCTICO · Gestión de proveedores y gastos analíticos</div>
+  </header>
+
+<div class="wrap"><section class="seccion"><h2 class="modulo">Sobre este manual</h2>
+ <p class="intro-mod">Este manual documenta el <strong>módulo de Proveedores</strong> de Livestock Manager.
+ Un proveedor es la empresa o autónomo de quien se compran insumos, servicios o suministros
+ para la explotación. Registrar los proveedores permite asociar cada gasto a su origen,
+ obteniendo una trazabilidad completa de los costes.</p>
+ <p class="intro-mod">Los proveedores se clasifican por <strong>categorías</strong> que se corresponden con las
+ categorías contables de gastos (alimentación, sanidad, amortización…). Esto permite filtrar
+ el proveedor adecuado al registrar un gasto y analizar el gasto por proveedor en los informes.</p>
+
+ <div class="indice"><h3>Índice</h3>
+ <ol><li><a href="#acceso">Acceso a Proveedores</a></li>
+ <li><a href="#formulario">Formulario de alta</a></li>
+ <li><a href="#categorias">Categorías de proveedor</a></li>
+ <li><a href="#gastos">Asociar un gasto a un proveedor</a></li>
+ <li><a href="#ficha">Ficha de proveedor</a></li>
+ <li><a href="#ejemplo">Ejemplo con datos demo</a></li></ol></div></section>
+
+ <!-- ============================================================= -->
+ <!-- 1. ACCESO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="acceso"><span class="fase-tag">Inicio</span>
+ <h2 class="modulo">1. Acceso a Proveedores</h2>
+ <p class="intro-mod">Accede al módulo de proveedores desde <span class="ruta">Más → Proveedores</span> en la
+ barra de navegación inferior.</p>
+
+ <p>Desde la pantalla principal puedes:</p>
+ <ul><li>Ver los <strong>KPIs</strong> de proveedores activos y gasto total asociado</li>
+ <li>Buscar por nombre, NIF/CIF o ciudad</li>
+ <li>Filtrar por estado (activos / inactivos)</li>
+ <li><strong>Registrar un nuevo proveedor</strong> pulsando <kbd>Nuevo</kbd></li>
+ <li>Pulsar sobre cualquier proveedor para ver su ficha con el historial de gastos</li></ul></section>
+
+ <!-- ============================================================= -->
+ <!-- 2. FORMULARIO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="formulario"><span class="fase-tag wizard">Formulario</span>
+ <h2 class="modulo">2. Formulario de alta de proveedor</h2>
+ <p class="intro-mod">Se abre pulsando <kbd>Nuevo</kbd> o <kbd>️ Editar</kbd> desde la ficha del proveedor.</p>
+
+ <h4>Campos del formulario</h4>
+ <table class="parametros"><tr><th>Campo</th><th>Obligatorio</th><th>Descripción</th></tr>
+ <tr><td><span class="campo">Nombre / Razón Social</span></td><td class="ok">Sí</td><td>Nombre completo de la empresa o autónomo</td></tr>
+ <tr><td><span class="campo">NIF/CIF</span></td><td>No</td><td>Identificación fiscal. Si se introduce, debe ser único en el sistema.</td></tr>
+ <tr><td><span class="campo">Dirección</span></td><td>No</td><td>Dirección postal completa</td></tr>
+ <tr><td><span class="campo">Código Postal</span></td><td>No</td><td>CP de la localidad del proveedor</td></tr>
+ <tr><td><span class="campo">Ciudad</span></td><td>No</td><td>Localidad del proveedor</td></tr>
+ <tr><td><span class="campo">Provincia</span></td><td>No</td><td>Provincia del proveedor</td></tr>
+ <tr><td><span class="campo">Teléfono</span></td><td>No</td><td>Teléfono de contacto</td></tr>
+ <tr><td><span class="campo">Email</span></td><td>No</td><td>Correo electrónico de contacto</td></tr>
+ <tr><td><span class="campo">Categorías</span></td><td>No</td><td>Una o varias categorías de suministro (ver sección 3)</td></tr>
+ <tr><td><span class="campo">Condiciones de Pago</span></td><td>No</td><td>Ej: "30 días", "al contado", "60 días fin de mes"</td></tr>
+ <tr><td><span class="campo">Notas</span></td><td>No</td><td>Observaciones adicionales</td></tr>
+ <tr><td><span class="campo">Activo</span></td><td>No</td><td>Checkbox para activar/desactivar el proveedor (por defecto: activado)</td></tr></table>
+
+ <ol class="pasos"><li><strong>Pulsa</strong> <kbd>Nuevo</kbd> en la pantalla de Proveedores</li>
+ <li><strong>Introduce</strong> el nombre del proveedor (obligatorio)</li>
+ <li><strong>Añade</strong> el NIF/CIF si lo tienes disponible</li>
+ <li><strong>Selecciona</strong> las categorías de suministro que apliquen</li>
+ <li><strong>Rellena</strong> los datos de contacto y ubicación opcionales</li>
+ <li><strong>Pulsa</strong> <kbd>GUARDAR</kbd> para registrar el proveedor</li></ol></section>
+
+ <!-- ============================================================= -->
+ <!-- 3. CATEGORÍAS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="categorias"><span class="fase-tag categoria">Categorías</span>
+ <h2 class="modulo">3. Categorías de proveedor</h2>
+ <p class="intro-mod">Las categorías de proveedor se corresponden con las <strong>categorías contables de gastos</strong>.
+ Un proveedor puede tener una o varias categorías asignadas.</p>
+
+ <table class="parametros"><tr><th>Categoría</th><th>Valor interno</th><th>Icono</th><th>Tipo de suministro típico</th></tr>
+ <tr><td><span class="campo">Alimentación</span></td><td><code>Alimentacion</code></td><td></td><td>Piensos, forrajes, cereales, suplementos minerales</td></tr>
+ <tr><td><span class="campo">Sanidad</span></td><td><code>Sanidad</code></td><td></td><td>Medicamentos, vacunas, material veterinario, honorarios veterinarios</td></tr>
+ <tr><td><span class="campo">Fitosanitarios</span></td><td><code>Fitosanitarios</code></td><td></td><td>Herbicidas, pesticidas, abonos, semillas tratadas</td></tr>
+ <tr><td><span class="campo">Electricidad</span></td><td><code>Electricidad</code></td><td></td><td>Comercializadoras de electricidad, gas, combustibles</td></tr>
+ <tr><td><span class="campo">Personal</span></td><td><code>Personal</code></td><td></td><td>Agencias de trabajo temporal, asesorías laborales</td></tr>
+ <tr><td><span class="campo">Amortización</span></td><td><code>Amortizacion</code></td><td></td><td>Proveedores de maquinaria, instalaciones, vehículos, talleres</td></tr></table>
+
+ <div class="tabs-ej"><span class="tab-ej ali">Alimentación</span>
+ <span class="tab-ej sani">Sanidad</span>
+ <span class="tab-ej fito">Fitosanitarios</span>
+ <span class="tab-ej elec">Electricidad</span>
+ <span class="tab-ej pers">Personal</span>
+ <span class="tab-ej amor">Amortización</span></div>
+
+ <div class="tip"><strong>Tip:</strong> Un proveedor puede pertenecer a varias categorías. Por ejemplo, una
+ cooperativa que vende tanto piensos como productos fitosanitarios puede tener marcadas
+ las categorías <strong>Alimentación</strong> y <strong>Fitosanitarios</strong> simultáneamente.</div>
+
+ <div class="info-tecnica"><strong>Nota técnica:</strong> Los valores internos son sensibles a mayúsculas/minúsculas y
+ deben coincidir exactamente: <code>Alimentacion</code> (sin tilde), <code>Sanidad</code>,
+ <code>Fitosanitarios</code>, <code>Electricidad</code>, <code>Personal</code>,
+ <code>Amortizacion</code> (sin tilde).</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 4. GASTOS -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="gastos"><span class="fase-tag">Gastos</span>
+ <h2 class="modulo">4. Asociar un gasto a un proveedor</h2>
+ <p class="intro-mod">Al registrar un gasto desde <span class="ruta">Registros → Gastos → Gasto</span>,
+ el wizard ofrece un campo opcional para seleccionar el proveedor asociado.</p>
+
+ <ol class="pasos"><li><strong>Abre</strong> el wizard de gasto pulsando <kbd>Gasto</kbd></li>
+ <li><strong>Selecciona</strong> la categoría contable del gasto (Alimentación, Sanidad, etc.)</li>
+ <li>En el campo <span class="campo">Proveedor</span>, <strong>selecciona</strong> el proveedor de la lista desplegable</li>
+ <li>La lista muestra los proveedores activos <strong>filtrados por la categoría seleccionada</strong> (si tienes categorías asignadas)</li>
+ <li><strong>Completa</strong> el resto del gasto (concepto, importe, rebaño/zona) y guarda</li></ol>
+
+ <div class="nota"><strong>Nota:</strong> El campo de proveedor es opcional. Si no seleccionas ninguno, el gasto
+ se registra igualmente pero sin trazabilidad de proveedor. Para un análisis completo de costes
+ por proveedor en los informes, es recomendable asociar siempre el proveedor al gasto.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 5. FICHA -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="ficha"><span class="fase-tag maestro">Ficha</span>
+ <h2 class="modulo">5. Ficha de proveedor</h2>
+ <p class="intro-mod">Pulsa sobre un proveedor en el listado para abrir su ficha detallada.</p>
+
+ <h4>La ficha muestra:</h4>
+ <table class="parametros"><tr><th>Sección</th><th>Contenido</th></tr>
+ <tr><td><span class="campo">KPIs</span></td><td>Total de gastos (nº y €), gasto último año, gasto promedio por operación</td></tr>
+ <tr><td><span class="campo">Datos de contacto</span></td><td>NIF, dirección, teléfono, email, condiciones de pago</td></tr>
+ <tr><td><span class="campo">Categorías</span></td><td>Etiquetas de las categorías asignadas al proveedor</td></tr>
+ <tr><td><span class="campo">Historial de gastos</span></td><td>Lista de todos los gastos asociados, ordenados por fecha descendente</td></tr>
+ <tr><td><span class="campo">Desglose por categoría</span></td><td>Total gastado en cada categoría contable para este proveedor</td></tr></table>
+
+ <div class="tip"><strong>Tip:</strong> El desglose por categoría de la ficha es especialmente útil para
+ proveedores multiservicio: puedes ver exactamente cuánto les has comprado en piensos,
+ cuánto en sanidad y cuánto en otros conceptos.</div></section>
+
+ <!-- ============================================================= -->
+ <!-- 6. EJEMPLO -->
+ <!-- ============================================================= -->
+ <section class="seccion" id="ejemplo"><span class="fase-tag">Ejemplo</span>
+ <h2 class="modulo">6. Ejemplo con la demo CHAMORRO</h2>
+ <p class="intro-mod">La demo <strong>CHAMORRO</strong> incluye 3 proveedores precargados, cada uno con una
+ categoría distinta:</p>
+
+ <div class="panel-ejemplo"><h4>Proveedores de la demo CHAMORRO</h4>
+ <table><tr><th>Nombre</th><th>NIF/CIF</th><th>Categoría</th><th>Ciudad</th><th>Provincia</th></tr>
+ <tr><td>Piensos El Trébol SA</td><td>A65432109</td><td>Alimentacion</td><td>Zafra</td><td>Badajoz</td></tr>
+ <tr><td>Farmacia Veterinaria VetPlus</td><td>B54321098</td><td>Sanidad</td><td>Badajoz</td><td>Badajoz</td></tr>
+ <tr><td>Maquinaria Agrícola La Vega</td><td>B43210987</td><td>Amortizacion</td><td>Plasencia</td><td>Cáceres</td></tr></table></div>
+
+ <p>En la demo, estos proveedores aparecen asociados a los siguientes gastos:</p>
+ <ul><li><strong>Piensos El Trébol SA</strong> — asociado a "Pienso concentrado vacuno" (2.340,50 €), "Paja para cama y lecho" (680 €) y "Pienso lactancia corderos" (540 €)</li>
+ <li><strong>Farmacia Veterinaria VetPlus</strong> — asociado a "Vacunación trimestral" (425 €) y "Veterinario revisión rebaño" (260 €)</li>
+ <li><strong>Maquinaria Agrícola La Vega</strong> — asociado a "Gasoil tractor" (320,75 €) y "Mantenimiento valla parcela norte" (890 €)</li></ul>
+
+ <div class="panel-ejemplo"><h4>Resumen de gastos por proveedor (demo)</h4>
+ <table><tr><th>Proveedor</th><th>Nº gastos</th><th>Total (€)</th><th>Categoría</th></tr>
+ <tr><td>Piensos El Trébol SA</td><td>3</td><td>3.560,50</td><td>Alimentación</td></tr>
+ <tr><td>Farmacia Veterinaria VetPlus</td><td>2</td><td>685,00</td><td>Sanidad</td></tr>
+ <tr><td>Maquinaria Agrícola La Vega</td><td>2</td><td>1.210,75</td><td>Amortización</td></tr></table></div></section>
+
+ <section class="seccion" id="capturas"><span class="fase-tag">Capturas</span>
+ <h2 class="modulo">7. Capturas reales en app (demo CHAMORRO)</h2>
+ <p class="intro-mod">Flujo visual del módulo de proveedores con datos reales de gasto de la demo.</p>
+
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Registro</div>
+        <div class="workflow-step-desc">Datos fiscales (NIF/Dirección)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Validación</div>
+        <div class="workflow-step-desc">REGA/Bienestar del vehículo</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Operación</div>
+        <div class="workflow-step-desc">Uso en comercialización/gastos</div>
+      </div>
+    </div>
+    </section>
+
+ <div class="pie-manual">Livestock Manager Premium · v4.8.7 · Guía del Usuario Oficial</div></div></body></html>

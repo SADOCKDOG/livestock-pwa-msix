@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Animales · Guía Premium v4.8.7 · Livestock Manager</title>
+  <link rel="stylesheet" href="estilo-manuales.css">
+</head>
+<body style="--acento: #c9851f; --acento-claro: #e0a83a;"><header class="portada">
+    <div class="logo-container">
+      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+    </div>
+    <h1>Gestión de Animales</h1>
+    <p class="sub">Control del Censo · Guía v4.8.7</p>
+    <div class="badge">MANUAL 360° · Gestión Individual y por Lote</div>
+  </header>
+
+<div class="wrap">
+
+    <figure style="margin:24px auto; text-align:center; max-width:320px;">
+      <img src="img/sc_test_animales_btn.png" alt="Listado de Animales" style="max-width:100%; border:3px solid #1a1a1a; border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,.15);">
+      <figcaption style="font-size:.82rem; color:#777; margin-top:8px; font-style:italic;">Consola del censo con el listado completo de cabezas de ganado.</figcaption>
+    </figure>
+    <section class="seccion"><h2 class="modulo">Introducción al Módulo de Animales</h2>
+ <p class="intro-mod">La gestión de <strong>Animales</strong> es el corazón de Livestock Manager. En la versión 4.8.0 Premium, hemos rediseñado el listado y las fichas para ofrecer una visión 360° de cada individuo, integrando trazabilidad, sanidad y producción en una sola interfaz.</p>
+
+ <div class="indice"><h3>Índice de Animales</h3>
+ <ol><li><a href="#hub">Acceso desde Hub Ganadería</a></li>
+ <li><a href="#listado">Listado Maestro de Animales</a></li>
+ <li><a href="#filtros">Búsqueda y Filtros de Especie</a></li>
+ <li><a href="#alta">Alta Individual (Wizard Premium)</a></li>
+ <li><a href="#escaner">Uso de Escáner y NFC</a></li>
+ <li><a href="#ficha">Ficha Animal 360°</a></li>
+ <li><a href="#trazabilidad">Trazabilidad y SIGGAN</a></li></ol></div></section>
+
+ <!-- ============================================================= -->
+ <section class="seccion" id="hub"><span class="fase-tag hub">Hub Ganadería</span>
+ <h2 class="modulo hub">1. Acceso al Hub</h2>
+ <p class="intro-mod">La puerta de entrada a tus animales es el Hub de <span class="ruta">Ganadería</span> en la barra inferior.</p>
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Identificación</div>
+        <div class="workflow-step-desc">Escanear o escribir Crotal (ES+12)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Censo</div>
+        <div class="workflow-step-desc">Especie, Raza, Sexo y Edad</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Ubicación</div>
+        <div class="workflow-step-desc">Asignar a Zona y Rebaño</div>
+      </div>
+    </div>
+    </section>
+
+ <!-- ============================================================= -->
+ <section class="seccion" id="listado"><span class="fase-tag animal">Listado Maestro</span>
+ <h2 class="modulo">2. Listado de Todos los Animales</h2>
+ <p class="intro-mod">El listado muestra todos los animales registrados con indicadores visuales de estado y especie.</p>
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Identificación</div>
+        <div class="workflow-step-desc">Escanear o escribir Crotal (ES+12)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Censo</div>
+        <div class="workflow-step-desc">Especie, Raza, Sexo y Edad</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Ubicación</div>
+        <div class="workflow-step-desc">Asignar a Zona y Rebaño</div>
+      </div>
+    </div>
+    
+ <ol class="pasos"><li><strong>Tarjetas de Animal</strong>: Cada tarjeta es un resumen vivo. El color del borde izquierdo indica el estado sanitario o comercial.</li>
+ <li><strong>Resumen por Especie</strong>: Los badges superiores indican cuántas cabezas tienes de cada especie (Vacas, Ovejas, etc.).</li>
+ <li><strong>Acceso a Ficha</strong>: Pulsa sobre cualquier tarjeta para abrir la visión detallada del animal.</li></ol></section>
+
+ <!-- ============================================================= -->
+ <section class="seccion" id="filtros"><span class="fase-tag">Inteligencia</span>
+ <h2 class="modulo">3. Búsqueda y Filtros Inteligentes</h2>
+ <p class="intro-mod">Gestionar cientos de animales es fácil con las herramientas de filtrado neón.</p>
+ <ol class="pasos"><li><strong>Buscador Global</strong>: Escribe el crotal (incluso solo los últimos números), la raza o el nombre del rebaño. El listado se filtra en tiempo real.</li>
+ <li><strong>Selector de Especie</strong>: Usa el desplegable dorado a la derecha para filtrar por especie y limpiar la vista.</li>
+ <li><strong>Estados</strong>: Filtra rápidamente para ver solo los animales vendidos o los que están en la explotación (activos).</li></ol></section>
+
+ <!-- ============================================================= -->
+ <section class="seccion" id="alta"><span class="fase-tag">Registro</span>
+ <h2 class="modulo">4. Alta de Animal (Wizard Premium)</h2>
+ <p class="intro-mod">El nuevo asistente de alta garantiza que no olvides ningún dato legal.</p>
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Identificación</div>
+        <div class="workflow-step-desc">Escanear o escribir Crotal (ES+12)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Censo</div>
+        <div class="workflow-step-desc">Especie, Raza, Sexo y Edad</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Ubicación</div>
+        <div class="workflow-step-desc">Asignar a Zona y Rebaño</div>
+      </div>
+    </div>
+    
+ <ol class="pasos"><li><strong>Validación de Crotal</strong>: Introduce el número. Si el formato es ES + 12 dígitos, el campo brilla en dorado. Si el animal ya existe, la app te avisará.</li>
+ <li><strong>Asociación de Rebaño</strong>: Es obligatorio asociar el animal a un rebaño existente para que herede su ubicación (Zona).</li>
+ <li><strong>Datos de Producción</strong>: Indica peso inicial y fecha de nacimiento para activar el cálculo automático de GMD (Ganancia Media Diaria).</li></ol></section>
+
+ <!-- ============================================================= -->
+ <section class="seccion" id="escaner"><span class="fase-tag">Tecnología</span>
+ <h2 class="modulo">5. Captura Rápida: SCAN y NFC</h2>
+ <p class="intro-mod">No pierdas tiempo tecleando en el campo. Usa la tecnología integrada.</p>
+ <ol class="pasos"><li><strong>SCAN (Cámara)</strong>: Pulsa <kbd>SCAN</kbd> para activar la cámara. Lee códigos de barras o QR impresos en los crotales.</li>
+ <li><strong>NFC (Lectura de Chip)</strong>: Pulsa <kbd>NFC</kbd> para leer tags de proximidad compatibles (13.56 MHz).</li></ol>
+ <div class="nota">️ <strong>Nota técnica</strong>: Los chips electrónicos oficiales (LF 134.2 kHz) requieren un lector Bluetooth externo. El botón NFC interno es para tags inteligentes complementarios.</div></section>
+
+ <!-- ============================================================= -->
+ <section class="seccion" id="ficha"><span class="fase-tag">Visión 360°</span>
+ <h2 class="modulo">6. Ficha Animal 360° (Detalle)</h2>
+ <p class="intro-mod">Al pulsar un animal, accedes a toda su historia y potencial productivo.</p>
+ 
+    <div class="workflow-stepper">
+      <div class="workflow-step">
+        <div class="workflow-step-num">1</div>
+        <div class="workflow-step-title">Identificación</div>
+        <div class="workflow-step-desc">Escanear o escribir Crotal (ES+12)</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">2</div>
+        <div class="workflow-step-title">Censo</div>
+        <div class="workflow-step-desc">Especie, Raza, Sexo y Edad</div>
+      </div>
+      <div class="workflow-arrow">➔</div>
+      <div class="workflow-step">
+        <div class="workflow-step-num">3</div>
+        <div class="workflow-step-title">Ubicación</div>
+        <div class="workflow-step-desc">Asignar a Zona y Rebaño</div>
+      </div>
+    </div>
+    
+ <ol class="pasos"><li><strong>Línea de Vida</strong>: Histórico de todos los eventos (traslados, vacunas, pesajes) en orden cronológico.</li>
+ <li><strong>Gestión Reproductiva</strong>: Registra celos, inseminaciones y partos directamente desde la ficha.</li>
+ <li><strong>Botón 360°</strong>: Pulsa "Ver 360°" para un análisis profundo de rentabilidad e historial de este animal concreto.</li></ol></section>
+
+ <div class="pie-manual">Livestock Manager Premium · v4.8.7 · Guía del Usuario Oficial</div></div></body></html>
