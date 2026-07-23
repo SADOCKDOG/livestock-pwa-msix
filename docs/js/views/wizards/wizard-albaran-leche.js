@@ -328,11 +328,23 @@ window.AlbaranLecheWizard = {
           // Estado analítico basado en antibióticos
           const estadoAnalitica = dataLeche.antibioticos ? "Alerta Crítica" : (dataLeche.grasa ? "Validado" : "Pendiente");
 
+          // Vincular el comprador del contrato seleccionado (bug detectado en la
+          // auditoría de Producción/Compras/Ventas/Almacén: esta entrega nunca
+          // guardaba compradorId, así que Compradores.getEntregasLeche() siempre
+          // devolvía vacío aunque hubiera entregas reales).
+          let compradorId = borrador ? borrador.compradorId || null : null;
+          if (dataLeche.contrato_numero) {
+            const contratosTodos = await window.db.getAll('contratos_compra').catch(() => []);
+            const contratoSeleccionado = contratosTodos.find(c => c.numero_contrato === dataLeche.contrato_numero && !c.anulado);
+            if (contratoSeleccionado) compradorId = contratoSeleccionado.compradorId;
+          }
+
           // Construir el registro completo
           const reg = {
             cantidad: cantidad,
             fechaRecogida: dataLeche.fecha,
             fincaId: fincaId,
+            compradorId: compradorId,
             matriculaCisterna: dataLeche.matricula,
             numero_Muestra_Letra_Q: dataLeche.q,
             temperatura: dataLeche.temp,

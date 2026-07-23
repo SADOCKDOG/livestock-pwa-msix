@@ -27,7 +27,11 @@ const DashboardView = {
     const kpisDiarios = await this._calcularKPIsDiarios(finca, rebanos, animales);
     const indicadoresLeche = await this._calcularIndicadoresLacteos(finca);
 
-    main.innerHTML = await this._buildHTML(finca, rebanos, animales, rent, censo, alertasSanitarias, alertasTrazabilidad, alertasAdministrativas, alertaEpoca, kpisDiarios, indicadoresLeche);
+    // Tareas pendientes de la agenda
+    const tareasAgenda = window.AgendaService ? await window.AgendaService.list(finca.id, { estado: 'pendiente' }) : [];
+    const alertasAgenda = alertas.agenda || [];
+
+    main.innerHTML = await this._buildHTML(finca, rebanos, animales, rent, censo, alertasSanitarias, alertasTrazabilidad, alertasAdministrativas, alertaEpoca, kpisDiarios, indicadoresLeche, tareasAgenda, alertasAgenda);
 
     this._suscribirAlertasVivo();
   },
@@ -89,11 +93,12 @@ const DashboardView = {
       c.innerHTML = ''
         + (alertas?.sanitarias?.length ? this._renderAlertasSanitarias(alertas.sanitarias) : '')
         + (alertas?.trazabilidad?.length ? this._renderAlertasTrazabilidad(alertas.trazabilidad) : '')
+        + (alertas?.agenda?.length ? this._renderAlertasAgenda(alertas.agenda) : '')
         + (alertas?.administrativas?.length ? this._renderAlertasAdministrativas(alertas.administrativas) : '');
     });
   },
 
-  async _buildHTML(finca, rebanos, animales, rent, censo, alertasSanitarias, alertasTrazabilidad, alertasAdministrativas, alertaEpoca, kpisDiarios, indicadoresLeche) {
+  async _buildHTML(finca, rebanos, animales, rent, censo, alertasSanitarias, alertasTrazabilidad, alertasAdministrativas, alertaEpoca, kpisDiarios, indicadoresLeche, tareasAgenda = [], alertasAgenda = []) {
     const activos = animales.filter(a => a.estado === 'activo').length;
     const balanceTotal = rent?.balance || 0;
     const pctRent = rent?.ingresos > 0 ? ((balanceTotal / rent.ingresos) * 100).toFixed(1) : '0.0';
@@ -269,7 +274,9 @@ const DashboardView = {
       <div id="dash-alertas-container">
         ${this._renderAlertasSanitarias(alertasSanitarias)}
         ${this._renderAlertasTrazabilidad(alertasTrazabilidad)}
+        ${this._renderAlertasAgenda(alertasAgenda)}
         ${this._renderAlertasAdministrativas(alertasAdministrativas)}
+        ${this._renderAgendaWidget(tareasAgenda)}
       </div>
 
       ${flagsModo.leche ? this._renderIndicadoresLacteos(indicadoresLeche) : ''}
@@ -381,6 +388,79 @@ const DashboardView = {
               </div>`;
             }).join('')}
             ${alertas.length > 4 ? `<div style="text-align: center; color: var(--text-s); font-size: var(--fs-label); margin-top: 10px;">+${alertas.length - 4} alertas más</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  },
+
+  _renderAlertasAgenda(alertas) {
+    if (!alertas || !alertas.length) return '';
+    return `
+      <div class="bento-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; animation: fadeInUp 0.4s ease;">
+        <div class="card-registro" style="--registro-color: var(--c-danger); grid-column: span 12; margin-bottom: 0; padding: 20px; text-align: center; background: rgba(255,255,255,0.02);">
+          <h3 style="color: var(--c-danger); font-size: var(--fs-sm); text-transform: uppercase; margin-bottom: 15px; font-weight: 700; letter-spacing: 0.1em;"><span style="color: var(--header-neon-color, var(--c-success)); margin-right: 4px;">|</span> RECORDATORIOS CRÍTICOS <span class="bg-pill-red text-red" style="font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-left: 8px;">${alertas.length}</span></h3>
+          <div style="display: flex; flex-direction: column; gap: 8px; text-align: left;">
+            ${alertas.slice(0, 3).map(a => `
+              <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 4px solid var(--c-danger);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div style="color: #FFF; font-weight: 900; font-size: var(--fs-body); text-transform: uppercase; letter-spacing: 0.5px;">${a.mensaje}</div>
+                    <div style="color: var(--text-s); font-size: var(--fs-tiny); margin-top: 4px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">${Icons.calendar()} PROGRAMADO: ${UI.formatDate(a.fecha)}</div>
+                  </div>
+                  <div style="color: var(--c-danger); font-size: var(--fs-h1);">${Icons.alerta()}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>`;
+  },
+
+  /**
+   * Widget de Agenda para el Dashboard
+   */
+  _renderAgendaWidget(tareas) {
+    if (!tareas || tareas.length === 0) return '';
+
+    const hoy = new Date().toISOString().split('T')[0];
+    const proximas = tareas.slice(0, 3);
+    const total = tareas.length;
+
+    return `
+      <div class="bento-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; animation: fadeInUp 0.4s ease;">
+        <div class="card-registro" style="--registro-color: var(--p-gold); grid-column: span 12; margin-bottom: 0; padding: 20px; background: rgba(255,255,255,0.02);" onclick="App.route('/agenda')">
+          <div class="flex justify-between items-center mb-15">
+            <h3 style="color: var(--p-gold); font-size: var(--fs-sm); text-transform: uppercase; margin: 0; font-weight: 700; letter-spacing: 0.1em;">
+              <span style="color: var(--header-neon-color, var(--c-success)); margin-right: 4px;">|</span> TAREAS PENDIENTES
+            </h3>
+            <span class="bg-pill-gold text-gold" style="font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem;">${total} TOTAL</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${proximas.map(t => {
+              const esVencida = t.fecha_planificada < hoy;
+              const colorPrioridad = t.prioridad === 'alta' ? 'var(--c-danger)' : t.prioridad === 'media' ? 'var(--c-warning)' : 'var(--c-success)';
+
+              return `
+                <div style="padding: 10px; background: #000; border-radius: 6px; border: 1px solid #222; border-left: 3px solid ${colorPrioridad};">
+                  <div class="flex justify-between items-center">
+                    <div style="flex: 1; min-width: 0;">
+                      <div style="color: #FFF; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.titulo}</div>
+                      <div style="color: ${esVencida ? 'var(--c-danger)' : 'var(--text-s)'}; font-size: 0.6rem; margin-top: 4px; font-weight: 800; text-transform: uppercase;">
+                        ${Icons.calendar()} ${UI.formatDate(t.fecha_planificada)} ${esVencida ? '· VENCIDA' : ''}
+                      </div>
+                    </div>
+                    <span style="color: ${colorPrioridad}; opacity: 0.8;">${Icons.siguiente()}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+
+            ${total > 3 ? `
+              <div style="text-align: center; color: var(--p-gold); font-size: 0.65rem; font-weight: 900; text-transform: uppercase; margin-top: 5px;">
+                Ver todas las tareas en la Agenda ${Icons.siguiente()}
+              </div>
+            ` : ''}
           </div>
         </div>
       </div>`;

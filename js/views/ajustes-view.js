@@ -113,6 +113,10 @@ const AjustesView = {
             <div><span class="text-gray">CCAA:</span> <strong class="text-white">${activeFinca.comunidad_autonoma ? activeFinca.comunidad_autonoma.toUpperCase() : 'N/D'}</strong></div>
             <div><span class="text-gray">Animales:</span> <strong class="text-white">${animales.length}</strong></div>
           </div>
+          ${activeFinca.explotacion_lidia ? `
+          <div class="mt-10">
+            <span class="badge badge-sm uppercase" style="background:color-mix(in srgb, var(--c-danger) 12%, transparent); color:var(--c-danger); border:1px solid color-mix(in srgb, var(--c-danger) 30%, transparent); padding:4px 8px; border-radius:4px; font-weight:900; letter-spacing:0.5px; font-size:0.62rem;">${Icons.alerta()} EXPLOTACIÓN DE LIDIA</span>
+          </div>` : ''}
         </div>
         <div class="grid grid-cols-2 gap-10">
           <button class="widget-link-btn widget-link-btn--neon neon-info" onclick="AjustesView._editarFincaPrincipal()">
@@ -133,7 +137,7 @@ const AjustesView = {
         <div class="grid gap-10 mt-15">${fincas.map((f) => `
           <div class="flex justify-between items-center rounded-sm bg-black border border-222 p-12">
             <div>
-              <div class="font-bold text-white uppercase text-sm">${f.nombre}</div>
+              <div class="font-bold text-white uppercase text-sm flex items-center gap-6">${f.nombre}${f.explotacion_lidia ? `<span class="badge badge-sm uppercase" style="background:color-mix(in srgb, var(--c-danger) 12%, transparent); color:var(--c-danger); border:1px solid color-mix(in srgb, var(--c-danger) 30%, transparent); padding:2px 6px; border-radius:4px; font-weight:900; font-size:0.55rem;">LIDIA</span>` : ''}</div>
               <div class="text-gray text-xs mt-4">REGA: <span class="text-gold font-bold">${f.codigo_REGA || f.rega || "N/D"}</span></div>
             </div>
             <div>${f.id !== activeId ? `<button onclick="AjustesView._cambiarFincaActiva(${f.id})" class="btn btn-secondary btn-sm">Activar</button>` : `<span style="font-size: 1.1rem; font-weight: 800; border: 1px solid var(--c-success); color: var(--c-success); background: rgba(204,255,0,0.1); padding: 6px 12px; border-radius: 8px; display: inline-block;">ACTIVA</span>`}</div>
@@ -169,24 +173,6 @@ const AjustesView = {
         </div>
       </div>
 
-      <!-- ===================== TIPO DE EXPLOTACIÓN ===================== -->
-      <div class="card">
-        <h3 class="flex items-center gap-10 mt-0 text-white font-900 uppercase text-lg tracking-wider">
-          <span style="color: var(--c-warning);">|</span> ${Icons.finca()} TIPO DE EXPLOTACIÓN${activeFinca ? ` — ${activeFinca.nombre}` : ''}
-        </h3>
-        <p class="text-gray mt-5 text-sm">Active uno o ambos tipos según la explotación de esta finca. Los módulos ocultarán todo lo relativo al tipo desactivado.</p>
-        <div class="space-y-6 mt-15">
-          <label class="flex items-center gap-3 text-sm text-white cursor-pointer bg-black border border-222 p-10 rounded-sm">
-            <input type="checkbox" ${modoFlags.leche ? 'checked' : ''} onchange="AjustesView._toggleTipoExplotacion('leche', this.checked)">
-            <span>${Icons.leche()} Lácteo</span>
-          </label>
-          <label class="flex items-center gap-3 text-sm text-white cursor-pointer bg-black border border-222 p-10 rounded-sm">
-            <input type="checkbox" ${modoFlags.carne ? 'checked' : ''} onchange="AjustesView._toggleTipoExplotacion('carne', this.checked)">
-            <span>${Icons.carne()} Cárnico</span>
-          </label>
-        </div>
-        <p class="text-xs text-aaa mt-4">Esta configuración es específica de esta finca (cada finca puede tener su propio tipo). Con ambos activos, cada módulo muestra sus secciones de leche y de carne por separado. Debe permanecer al menos uno activo.</p>
-      </div>
 
       <!-- ===================== ESPECIES Y RAZAS ===================== -->
       <div class="card">
@@ -328,26 +314,6 @@ const AjustesView = {
     App.toast('Preferencia guardada', 'success');
   },
 
-  async _toggleTipoExplotacion(tipo, activo) {
-    const activeId = await Fincas.getActiveId();
-    const flags = ModoContextoHelper.getFlags(activeId) || { leche: true, carne: false };
-    const nuevosFlags = { ...flags, [tipo]: activo };
-
-    if (!nuevosFlags.leche && !nuevosFlags.carne) {
-      App.toast('Debe permanecer al menos un tipo activo', 'error');
-      this.render();
-      return;
-    }
-
-    ModoContextoHelper.setFlags(nuevosFlags, activeId);
-    const partes = [nuevosFlags.leche ? 'Lácteo' : '', nuevosFlags.carne ? 'Cárnico' : ''].filter(Boolean);
-    App.toast(`Tipo de explotación: ${partes.join(' + ')}`, 'success');
-
-    if (window.App && typeof App.updateNavigationMenu === 'function') {
-      await App.updateNavigationMenu();
-    }
-    this.render();
-  },
 
   _renderEspecies(config) {
     const especies = config.especies || [];

@@ -18,8 +18,19 @@ Copy-Item (Join-Path $source "css") -Destination $root -Recurse -Force
 
 $jsDst = Join-Path $root "js"
 $jsSrc = Join-Path $source "js"
-Get-ChildItem $jsSrc -File | Where-Object { $_.Name -ne "mode-config.js" -and $_.Name -ne "mode-config.free.js" -and $_.Name -ne "mode-config.premium.js" } | ForEach-Object {
+
+# Copiar archivos raíz de js/ (excepto configuraciones de modo)
+Get-ChildItem $jsSrc -File | Where-Object { $_.Name -notmatch "mode-config" } | ForEach-Object {
     Copy-Item $_.FullName -Destination $jsDst -Force
+}
+
+# Copiar subcarpetas de js/ (views, services, wizards, etc)
+$subfolders = @("services", "views")
+foreach ($folder in $subfolders) {
+    $srcPath = Join-Path $jsSrc $folder
+    if (Test-Path $srcPath) {
+        Copy-Item $srcPath -Destination $jsDst -Recurse -Force
+    }
 }
 
 Copy-Item (Join-Path $source "icons") -Destination $root -Recurse -Force

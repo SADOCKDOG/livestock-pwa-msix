@@ -39,12 +39,21 @@ const GanaderiaView = {
 
     const currentMeta = moduloMeta[this._activeSubModule] || moduloMeta.animales;
 
-    // Sincronizar color de cabecera con el sub-módulo activo
+    // Color de pantalla fijo de GeGan (verde lima), igual para todos sus submódulos
     if (window.App && App.updateHeaderColor) {
-      App.updateHeaderColor(this._activeSubModule === 'animales' ? 'animales' : (this._activeSubModule === 'rebanos' ? 'rebanos' : this._activeSubModule));
+      App.updateHeaderColor('var(--c-success)');
     }
 
     main.innerHTML = `
+      <!-- Carrusel circular de secciones de Ganadería: marco centrado con la sección activa -->
+      <div class="mb-14">
+        ${App.renderCarruselPestanas(
+          ['animales', 'rebanos', 'patrimonio', 'zonas', 'sanidad'].filter(tab => allowedSubModules.includes(tab)).map(tab => ({ key: tab, icon: moduloMeta[tab].icon, label: tab.toUpperCase(), color: moduloMeta[tab].color })),
+          this._activeSubModule,
+          'GanaderiaView'
+        )}
+      </div>
+
       <!-- Cabecera Maestra de Ganadería Consolidada -->
       <div class="flex items-center gap-12 mb-14 px-4 animate-fade-in">
         <span class="text-2xl" style="color:${currentMeta.color}; display:inline-flex; align-items:center;">${currentMeta.icon}</span>
@@ -58,28 +67,14 @@ const GanaderiaView = {
         </div>
       </div>
 
-      <!-- Barra de Navegación Multipestaña Horizontal Ganadería (Scrollable) Premium con Indicadores Animados -->
-      <div class="pestanas-premium-wrapper mb-14" style="--mode-color: ${currentMeta.color};">
-        <div class="pestana-indicador-flecha pestana-flecha-izq" style="opacity: 0; pointer-events: none;" onclick="this.parentElement.querySelector('.pestanas-premium-container').scrollBy({ left: -100, behavior: 'smooth' })">
-          ${Icons.atras()}
-        </div>
-        <div class="pestanas-premium-container" onscroll="App.evaluarScrollPestanas(this)">
-          <div class="pestanas-premium-switch" role="tablist" aria-label="Secciones de Ganadería">
-            ${['animales', 'rebanos', 'patrimonio', 'zonas', 'sanidad'].map(tab => {
-            if (!allowedSubModules.includes(tab)) return '';
-            const isActive = this._activeSubModule === tab;
-            const meta = moduloMeta[tab];
-            return `<button class="pestanas-premium-btn ${isActive ? 'active' : ''}" role="tab" aria-selected="${isActive}" style="--mode-color:${meta.color};" onclick="GanaderiaView._cambiarSubModulo('${tab}')">${meta.icon} ${tab.toUpperCase()}</button>`;
-          }).join('')}
-          </div>
-        </div>
-        <div class="pestana-indicador-flecha pestana-flecha-der" style="opacity: 0; pointer-events: none;" onclick="this.parentElement.querySelector('.pestanas-premium-container').scrollBy({ left: 100, behavior: 'smooth' })">
-          ${Icons.siguiente()}
-        </div>
-      </div>
-
       <!-- Contenedor Dinámico para la pestaña activa -->
+      <div id="ganaderia-agenda-widget"></div>
       <div id="ganaderia-tab-content" class="animate-fade-in"></div>`;
+
+    // Inyectar widget de agenda si el módulo está disponible
+    if (window.AgendaView) {
+        window.AgendaView.renderWidget(document.getElementById('ganaderia-agenda-widget'), 'gegan');
+    }
 
     // Delegación dinámica de renderizado
     switch (this._activeSubModule) {
@@ -98,12 +93,6 @@ const GanaderiaView = {
       case 'sanidad':
         if (window.SanidadView) await SanidadView.render(document.getElementById('ganaderia-tab-content'));
         break;
-    }
-
-    // Inicializar scroll dinámico para la barra de pestañas
-    const containerPestanas = document.querySelector('.pestanas-premium-container');
-    if (containerPestanas && window.App?.inicializarScrollPestanas) {
-      window.App.inicializarScrollPestanas(containerPestanas);
     }
   },
 

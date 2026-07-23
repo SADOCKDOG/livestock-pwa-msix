@@ -247,7 +247,12 @@ window.ComunidadesService = (() => {
   // 6. TIPOS DE EXPLOTACIÓN / SISTEMAS
   // ============================================================
   const TIPOS_EXPLOTACION = Object.freeze(['carne', 'leche', 'mixto', 'ibérico']);
-  const SISTEMAS_EXPLOTACION = Object.freeze(['intensivo', 'extensivo', 'semiextensivo']);
+  // Catálogo oficial SIEX "Sistema productivo" (docs/AUDITAR/Catalogos_csv/Sistema
+  // productivo.csv) — ver docs/PLAN-MEJORA-SIGGAN.md, gap "Sistemas/Características"
+  // de ADSG-WEB-SIGGAN-FLUJOS-ESTRUCTURA.md. Antes solo tenía 3 de los 7 valores
+  // oficiales; se completa sin tocar el campo `sistema_explotacion` ya existente
+  // en finca (mismos valores en minúscula, compatibilidad con datos guardados).
+  const SISTEMAS_EXPLOTACION = Object.freeze(['intensivo', 'extensivo', 'mixto', 'estante', 'trashumante', 'semiextensivo', 'no extensivo']);
 
   // ============================================================
   // 7. PRECIOS DE REFERENCIA — Liquidación por Extracto Seco

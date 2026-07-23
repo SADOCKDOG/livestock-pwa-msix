@@ -187,12 +187,64 @@ const ComercializacionView = {
 
     const currentMeta = this._getSubModuleMeta(this._activeSubModule);
 
+    // Color de pantalla fijo de CoMer (amarillo), igual para todos sus submódulos
     if (window.App && App.updateHeaderColor) {
-      App.updateHeaderColor(currentMeta.headerColorKey);
+      App.updateHeaderColor('var(--c-warning)');
+    }
+
+    // Cabecera de módulo: chip de modo + KPI de la métrica dominante (leche/carne) +
+    // acción principal cuando la pestaña activa es una de las dos comerciales.
+    const modoMetaComer = window.ModoContextoHelper.getModeMetaEffective(flagsModo);
+    let headerKpisHtml = '';
+    let headerPrimaryHtml = '';
+    if (this._activeSubModule === 'leche' || this._activeSubModule === 'carne') {
+      const dComer = await this._ensureData(fincaId, this._needsDataRefresh);
+      if (this._activeSubModule === 'leche') {
+        const litros = dComer.entregas.reduce((s, e) => s + (e.cantidad || 0), 0);
+        headerKpisHtml = `
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Entregas</span>
+            <span class="module-header-kpi-value">${dComer.entregas.length}</span>
+          </div>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Litros</span>
+            <span class="module-header-kpi-value">${UI.formatNumber(litros)}</span>
+          </div>`;
+        headerPrimaryHtml = `<button class="btn btn-create btn-lg" onclick="App._abrirWizardAlbaranLeche()">${Icons.fabPlus()} Registrar Retirada</button>`;
+      } else {
+        const ingreso = dComer.ventas.reduce((s, v) => s + (v.precio_total || 0), 0);
+        headerKpisHtml = `
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Ventas</span>
+            <span class="module-header-kpi-value">${dComer.ventas.length}</span>
+          </div>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Ingreso</span>
+            <span class="module-header-kpi-value" style="color: var(--c-success);">${UI.formatCurrency(Math.round(ingreso))}</span>
+          </div>`;
+        headerPrimaryHtml = `<button class="btn btn-create btn-lg" onclick="App._abrirWizardVentaMasiva()">${Icons.fabPlus()} Registrar Venta</button>`;
+      }
     }
 
     main.innerHTML = `
+      <!-- Carrusel circular de secciones de Comercialización: marco centrado con la sección activa -->
       <div class="mb-14">
+        ${App.renderCarruselPestanas(
+          ['leche', 'carne', 'compradores', 'contratos', 'transportistas'].filter(tab => allowedSubModules.includes(tab)).map(tab => {
+            const meta = this._getSubModuleMeta(tab);
+            return { key: tab, icon: meta.icon, label: tab.toUpperCase(), color: meta.color };
+          }),
+          this._activeSubModule,
+          'ComercializacionView'
+        )}
+      </div>
+
+      <div class="module-header">
+        <div class="module-header-kpis">
+          <span class="module-mode-chip" style="--mode-color: ${modoMetaComer.color};">${modoMetaComer.icon} ${modoMetaComer.label}</span>
+          ${headerKpisHtml}
+        </div>
+        ${headerPrimaryHtml ? `<div class="module-header-primary-action">${headerPrimaryHtml}</div>` : ''}
         <div class="text-left mb-6 uppercase" style="letter-spacing: 0.5px;">
           <h1 style="font-size: 1.25rem; font-weight: 900; color: #fff; margin: 0; display: flex; items-center;">
             <span style="color:${currentMeta.color}; margin-right:4px;">|</span> ${currentMeta.title}
@@ -205,29 +257,14 @@ const ComercializacionView = {
 
       ${alertaContratosHtml}
 
-      <!-- Barra de Navegación Multipestaña Horizontal Comercialización (Scrollable) Premium con Indicadores Animados -->
-      <div class="pestanas-premium-wrapper mb-14" style="--mode-color: ${currentMeta.color};">
-        <div class="pestana-indicador-flecha pestana-flecha-izq" style="opacity: 0; pointer-events: none;" onclick="this.parentElement.querySelector('.pestanas-premium-container').scrollBy({ left: -100, behavior: 'smooth' })">
-          ${Icons.atras()}
-        </div>
-        <div class="pestanas-premium-container" onscroll="App.evaluarScrollPestanas(this)">
-          <div class="pestanas-premium-switch" role="tablist" aria-label="Secciones de Comercialización">
-            <!-- Pestañas generadas dinámicamente según los tipos de explotación activos -->
-            ${['leche', 'carne', 'compradores', 'contratos', 'transportistas'].map(tab => {
-              if (!allowedSubModules.includes(tab)) return '';
-              const isActive = this._activeSubModule === tab;
-              const meta = this._getSubModuleMeta(tab);
-              return `<button class="pestanas-premium-btn ${isActive ? 'active' : ''}" role="tab" aria-selected="${isActive}" style="--mode-color:${meta.color};" onclick="ComercializacionView._cambiarSubModulo('${tab}')">${meta.icon} ${tab.toUpperCase()}</button>`;
-            }).join('')}
-          </div>
-        </div>
-        <div class="pestana-indicador-flecha pestana-flecha-der" style="opacity: 0; pointer-events: none;" onclick="this.parentElement.querySelector('.pestanas-premium-container').scrollBy({ left: 100, behavior: 'smooth' })">
-          ${Icons.siguiente()}
-        </div>
-      </div>
-      
       <!-- Contenedor Dinámico para la pestaña activa -->
+      <div id="comer-agenda-widget"></div>
       <div id="comercializacion-tab-content" class="animate-fade-in"></div>`;
+
+    // Inyectar widget de agenda si el módulo está disponible
+    if (window.AgendaView) {
+        window.AgendaView.renderWidget(document.getElementById('comer-agenda-widget'), 'contratos');
+    }
 
     // Delegación dinámica de renderizado de pestañas
     switch (this._activeSubModule) {
@@ -254,12 +291,6 @@ const ComercializacionView = {
         }
         break;
     }
-
-    // Inicializar scroll dinámico para la barra de pestañas
-    const containerPestanas = document.querySelector('.pestanas-premium-container');
-    if (containerPestanas && window.App?.inicializarScrollPestanas) {
-      window.App.inicializarScrollPestanas(containerPestanas);
-    }
   },
 
   _cambiarSubModulo(subModulo) {
@@ -279,11 +310,11 @@ const ComercializacionView = {
 
   _getSubModuleMeta(sub) {
     const map = {
-      leche: { icon: Icons.leche(), color: 'var(--c-info)', title: 'CONTRATOS Y ENTREGAS LÁCTEAS', desc: 'Control de cisternas, analíticas y albaranes de leche', headerColorKey: 'leche' },
-      carne: { icon: Icons.carne(), color: 'var(--c-success)', title: 'COMERCIALIZACIÓN CÁRNICA', desc: 'Ventas de ganado, rendimientos de canal y facturación', headerColorKey: 'carne' },
-      compradores: { icon: Icons.compradores(), color: 'var(--c-purple)', title: 'CARTERA DE CLIENTES', desc: 'Registro de mataderos, cooperativas y centrales lecheras', headerColorKey: 'compradores' },
-      contratos: { icon: Icons.documento(), color: 'var(--c-purple)', title: 'CONTRATOS DE COMPRA', desc: 'Acuerdos comerciales de suministro y trazabilidad de precios', headerColorKey: 'contratos' },
-      transportistas: { icon: Icons.transportistas(), color: 'var(--c-pink)', title: 'LOGÍSTICA Y TRANSPORTISTAS', desc: 'Flota de transporte ganadero calificado y cisternas', headerColorKey: 'transportistas' }
+      leche: { icon: Icons.leche(), color: 'var(--c-info)', title: 'CONTRATOS Y ENTREGAS LÁCTEAS', desc: 'Control de cisternas, analíticas y albaranes de leche' },
+      carne: { icon: Icons.carne(), color: 'var(--c-success)', title: 'COMERCIALIZACIÓN CÁRNICA', desc: 'Ventas de ganado, rendimientos de canal y facturación' },
+      compradores: { icon: Icons.compradores(), color: 'var(--c-purple)', title: 'CARTERA DE CLIENTES', desc: 'Registro de mataderos, cooperativas y centrales lecheras' },
+      contratos: { icon: Icons.documento(), color: 'var(--c-purple)', title: 'CONTRATOS DE COMPRA', desc: 'Acuerdos comerciales de suministro y trazabilidad de precios' },
+      transportistas: { icon: Icons.transportistas(), color: 'var(--c-pink)', title: 'LOGÍSTICA Y TRANSPORTISTAS', desc: 'Flota de transporte ganadero calificado y cisternas' }
     };
     return map[sub] || map.leche;
   },
@@ -423,10 +454,6 @@ const ComercializacionView = {
         <div class="grid gap-10">
           ${recordsHtml}
         </div>
-      </div>
-      <div class="fab-container" style="--fab-neon-color: ${color};" onclick="${registrarHandler}">
-        <span class="fab-label">${registrarLabel}</span>
-        <button class="fab-btn">${Icons.fabPlus()}</button>
       </div>`;
   },
 

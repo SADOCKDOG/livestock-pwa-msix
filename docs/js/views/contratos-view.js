@@ -9,7 +9,7 @@ const ContratosView = {
     tipo: '' // activo, inactivo, todos
   },
   async render() {
-    if (window.App) App.updateHeaderColor('contratos');
+    // Color de pantalla: lo fija ComercializacionView (color fijo de CoMer), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("comercializacion-tab-content") || document.getElementById("app-content");
     const moduleColor = window.getModuleColor ? getModuleColor('/contrato') : '#4FADF5';
 
@@ -291,13 +291,12 @@ const ContratosView = {
 
     const main = document.getElementById("app-content");
     main.innerHTML = `
-      <div class="mb-14">
-        <button onclick="ContratosView._salirFormulario()" class="widget-link-btn widget-link-btn--neon neon-danger px-16 py-8 min-h-0 h-auto">
-          <span class="text-[0.7rem] font-950 uppercase tracking-widest">${Icons.atras()} Cancelar</span>
-        </button>
+      <div class="wizard-full-screen">
+      <div class="wizard-header-fixed border-top-5-gold">
+        <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--c-purple); margin-right: 6px;">|</span> ${esEdicion ? Icons.editar() : Icons.agregar()} ${esEdicion ? 'EDITAR CONTRATO' : 'NUEVO CONTRATO'}</h1>
       </div>
+      <div class="wizard-content-scrollable p-20">
       <div class="card-registro card-accent card-accent-purple p-20 bg-black" style="--registro-color: var(--c-purple);">
-        <div class="section-header-theme mb-20" style="--theme-color: var(--c-purple)">${esEdicion ? Icons.editar() : Icons.agregar()} ${esEdicion ? 'EDITAR CONTRATO' : 'NUEVO CONTRATO'}</div>
 
         <div class="wizard-input-group mb-15">
           <label class="wizard-label uppercase font-900">COMPRADOR / CLIENTE *</label>
@@ -371,18 +370,16 @@ const ContratosView = {
           <input type="checkbox" id="ct-activo" ${contrato.activo !== false ? 'checked' : ''} style="accent-color:var(--c-purple);">
           <span class="uppercase font-950 tracking-widest text-[0.65rem]">Contrato vigente y activo</span>
         </label>
-
-        <div class="grid grid-cols-2 gap-10 mt-20">
-            <button onclick="ContratosView._guardar('${id || ''}')" class="widget-link-btn widget-link-btn--neon neon-success">
-              ${Icons.guardar()} <span class="widget-label">GUARDAR</span>
-            </button>
-            <button onclick="ContratosView._salirFormulario()" class="widget-link-btn widget-link-btn--neon neon-danger">
-              ${Icons.cerrar()} <span class="widget-label">CANCELAR</span>
-            </button>
-        </div>
-        ${esEdicion ? `<div class="mt-15 text-center"><button onclick="ContratosView._eliminarContrato(${contrato.id})" class="text-red font-900 text-[0.6rem] uppercase tracking-widest p-10 opacity-60 hover:opacity-100 transition-all">${Icons.eliminar()} Anular contrato permanentemente</button></div>` : ''}
       </div>
-      <div class="pb-40"></div>
+      </div>
+      <div class="wizard-footer-fixed border-top-222">
+        ${esEdicion ? `<button type="button" onclick="ContratosView._eliminarContrato(${contrato.id})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Anular</button>` : '<div></div>'}
+        <div class="wizard-footer-buttons">
+          <button type="button" onclick="ContratosView._salirFormulario()" class="wizard-btn-action wizard-btn-secondary">${Icons.cerrar()} Cancelar</button>
+          <button type="button" onclick="ContratosView._guardar('${id || ''}')" class="wizard-btn-action wizard-btn-success">${Icons.guardar()} Guardar</button>
+        </div>
+      </div>
+      </div>
     `;
   },
 

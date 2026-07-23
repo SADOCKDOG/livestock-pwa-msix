@@ -21,33 +21,10 @@ const SilosView = {
 
     async _cargarSilos() {
         try {
-            this._cachedSilos = await window.db.getAll('config_silos');
-
-            // Si está vacío, agregar un silo de muestra para que el usuario no empiece de cero
-            if (this._cachedSilos.length === 0) {
-                const muestraSilos = [
-                    {
-                        nombre: 'Silo Principal 1',
-                        capacidad: 12000,
-                        cantidadActual: 8400,
-                        alimento: 'Pienso Lactancia Vacas',
-                        fechaUltimaCarga: new Date().toISOString().split('T')[0],
-                        creadoEn: new Date().toISOString()
-                    },
-                    {
-                        nombre: 'Silo Secundario 2',
-                        capacidad: 6000,
-                        cantidadActual: 1500,
-                        alimento: 'Pienso Recría Novillas',
-                        fechaUltimaCarga: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString().split('T')[0],
-                        creadoEn: new Date().toISOString()
-                    }
-                ];
-                for (let s of muestraSilos) {
-                    await window.db.add('config_silos', s);
-                }
-                this._cachedSilos = await window.db.getAll('config_silos');
-            }
+            const activeFincaId = await Fincas.getActiveId().catch(() => null);
+            this._cachedSilos = activeFincaId
+                ? await window.db.getAllFromIndex('config_silos', 'fincaId', activeFincaId)
+                : await window.db.getAll('config_silos');
         } catch (err) {
             console.warn('[SilosView] No se pudo acceder a config_silos:', err);
             this._cachedSilos = [];
@@ -159,7 +136,9 @@ const SilosView = {
 
             <!-- Listado de Silos -->
             <div class="flex flex-col gap-15 font-sans">
-                ${this._cachedSilos.map(s => this._renderSiloCard(s)).join('')}
+                ${this._cachedSilos.length === 0
+                    ? `<div class="empty-state"><div class="empty-state-icon">${Icons.explotacion()}</div><p class="empty-state-text">Sin silos registrados.</p><div class="text-center mt-20"><button class="btn btn-create btn-lg" onclick="SilosView._abrirFormularioSilo()">${Icons.agregar()} Registrar primer silo</button></div></div>`
+                    : this._cachedSilos.map(s => this._renderSiloCard(s)).join('')}
             </div>
 
             <!-- FAB (Botón de Acción Flotante) Premium -->
@@ -749,8 +728,8 @@ const SilosView = {
             </div>
 
             <div class="flex gap-10 justify-end">
-                <button class="btn btn-dark" onclick="ModalManager.close('silo-form-modal')">CANCELAR</button>
-                <button class="btn btn-primary" onclick="SilosView._guardarFormularioSilo(${id})">GUARDAR SILO</button>
+                <button type="button" class="wizard-btn-action wizard-btn-secondary" onclick="ModalManager.close('silo-form-modal')">${Icons.cerrar()} Cancelar</button>
+                <button type="button" class="wizard-btn-action wizard-btn-success" onclick="SilosView._guardarFormularioSilo(${id})">${Icons.guardar()} Guardar Silo</button>
             </div>
         </div>
         `;
@@ -798,10 +777,13 @@ const SilosView = {
 
         try {
             if (id !== null) {
+                const previo = this._cachedSilos.find(s => s.id === Number(id));
                 data.id = Number(id);
+                data.fincaId = previo?.fincaId ?? await Fincas.getActiveId().catch(() => null);
                 await window.db.put('config_silos', data);
                 Toast.show('Silo actualizado con éxito', 'success');
             } else {
+                data.fincaId = await Fincas.getActiveId().catch(() => null);
                 await window.db.add('config_silos', data);
                 Toast.show('Silo creado con éxito', 'success');
             }

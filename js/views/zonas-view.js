@@ -6,7 +6,7 @@
 
 const ZonasView = {
   async render() {
-    if (window.App) App.updateHeaderColor('zonas');
+    // Color de pantalla: lo fija GanaderiaView (color fijo de GeGan), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("ganaderia-tab-content") || document.getElementById("app-content");
     const finca = await Fincas.getActive();
     const rebanos = await Rebanos.list();
@@ -127,13 +127,13 @@ const ZonasView = {
             </div>
           `;
           botonRotacionHtml = `
-            <button onclick="event.stopPropagation(); App.toastError('Esta parcela está bajo cuarentena fitosanitaria activa. Rotación suspendida.');" class="px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem] opacity-45 cursor-not-allowed" style="background:#222; border:1px solid #444; color:#999; border-radius:4px;">
+            <button onclick="event.stopPropagation(); App.toastError('Esta parcela está bajo cuarentena fitosanitaria activa. Rotación suspendida.');" class="widget-link-btn widget-link-btn--neon neon-danger px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem] opacity-45 cursor-not-allowed">
               ✕ CUARENTENA ACTIVA (BLOQUEADO)
             </button>
           `;
         } else {
           botonRotacionHtml = `
-            <button onclick="event.stopPropagation(); ZonasView._abrirRotacion('${z.nombre.replace(/'/g, "\\'")}')" class="widget-link-btn widget-link-btn--neon px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]" style="border-color:var(--c-success); color:var(--c-success);">
+            <button onclick="event.stopPropagation(); ZonasView._abrirRotacion('${z.nombre.replace(/'/g, "\\'")}')" class="widget-link-btn widget-link-btn--neon neon-success px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]">
               ⇄ Rotar Lote / Rebaño
             </button>
           `;
@@ -199,7 +199,7 @@ const ZonasView = {
               ${parcelasAfectadasHtml}
             </div>
             <div class="flex justify-end">
-              <button onclick="App.toast('Abriendo panel de asistente de rotación de pastos...', 'info'); location.hash='/sistema?tab=interfaz'" class="px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]" style="background: rgba(255,68,68,0.15); border: 1px solid var(--c-danger); color: var(--c-danger); border-radius: 4px; transition: all 0.2s; box-shadow: 0 0 8px rgba(255,68,68,0.15);" onmouseover="this.style.background='var(--c-danger)'; this.style.color='#000';" onmouseout="this.style.background='rgba(255,68,68,0.15)'; this.style.color='var(--c-danger)';">
+              <button onclick="App.toast('Abriendo panel de asistente de rotación de pastos...', 'info'); location.hash='/sistema?tab=interfaz'" class="widget-link-btn widget-link-btn--neon neon-danger px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]">
                 ⇄ Sugerir Rotación Preventiva
               </button>
             </div>
@@ -207,21 +207,27 @@ const ZonasView = {
         `;
       }
 
-      // Cabecera de Sección Estandarizada + Resumen Colapsable sin anidación
-      const moduleColor = window.getModuleColor('/zonas');
+      // Cabecera de Módulo (chip de modo + KPI + acción principal) + Resumen Colapsable
       const pctGlobal = totalAforo > 0 ? Math.round((totalOcupacion / totalAforo) * 100) : 0;
       const colorGlobal = pctGlobal > 100 ? 'var(--c-danger)' : pctGlobal >= 80 ? 'var(--c-warning)' : 'var(--c-success)';
+      const flagsModoZonas = window.ModoContextoHelper.getFlags() || { leche: true, carne: false };
+      const modoMetaZonas = window.ModoContextoHelper.getModeMetaEffective(flagsModoZonas);
       html += `
-        <!-- Cabecera de Sección Estandarizada -->
-        <div class="flex items-center gap-12 mb-14">
-          <span class="text-2xl" style="color:${moduleColor}; display:inline-flex; align-items:center;">${Icons.zonas()}</span>
-          <div>
-            <h1 class="text-white font-900 text-lg uppercase tracking-wider" style="margin:0; line-height:1.2;">
-              <span style="color:${moduleColor}; margin-right:4px;">|</span> ZONAS / PARCELAS
-            </h1>
-            <div class="text-gray" style="font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
-              ${zonasConIndice.length} ${zonasConIndice.length === 1 ? 'registro' : 'registros'} · ${totalOcupacion} cabezas
+        <!-- Cabecera de Módulo: chip de modo + KPI + acción principal -->
+        <div class="module-header">
+          <div class="module-header-kpis">
+            <span class="module-mode-chip" style="--mode-color: ${modoMetaZonas.color};">${modoMetaZonas.icon} ${modoMetaZonas.label}</span>
+            <div class="module-header-kpi">
+              <span class="module-header-kpi-label">Zonas</span>
+              <span class="module-header-kpi-value">${zonasConIndice.length}</span>
             </div>
+            <div class="module-header-kpi">
+              <span class="module-header-kpi-label">Cabezas</span>
+              <span class="module-header-kpi-value">${totalOcupacion}</span>
+            </div>
+          </div>
+          <div class="module-header-primary-action">
+            <button class="btn btn-create btn-lg" onclick="ZonasView._crearZona()">${Icons.agregar()} Nueva Zona</button>
           </div>
         </div>
 
@@ -250,12 +256,7 @@ const ZonasView = {
         </div>
         <div class="grid gap-12">${fichasHtml}</div>`;
     }
-    main.innerHTML = html + `
-      <!-- Botón Flotante de Acción con viñeta -->
-      <div class="fab-container" onclick="ZonasView._crearZona()">
-        <span class="fab-label">Nueva Zona</span>
-        <button class="fab-btn">${Icons.fabPlus()}</button>
-      </div>`;
+    main.innerHTML = html;
   },
 
   async renderDetalle(params) {
@@ -284,7 +285,11 @@ const ZonasView = {
     App.setExitGuard(() => ZonasView._confirmSalirEdicion());
 
     document.getElementById("app-content").innerHTML = `
-      <div class="mb-20"><a href="#" onclick="ZonasView._salirEdicionZona(); return false;" class="link-back">← Volver</a><h2 class="mt-10 font-900 uppercase tracking-wider"><span style="color: var(--neon);">|</span> ${Icons.zonas()} DETALLE ZONA</h2></div>
+      <div class="wizard-full-screen">
+        <div class="wizard-header-fixed border-top-5-gold">
+          <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--p-gold); margin-right: 6px;">|</span> ${Icons.zonas()} DETALLE ZONA</h1>
+        </div>
+        <div class="wizard-content-scrollable p-20">
       <div class="card-registro" style="--registro-color: var(--c-success);">
         <div class="flex flex-col gap-15">
           <div><label class="form-label" for="z-edit-nombre">Nombre</label>
@@ -308,11 +313,12 @@ const ZonasView = {
           <div><label class="form-label" for="z-edit-localizacion">Localización</label>
           <textarea id="z-edit-localizacion" class="premium-input min-h-60 resize-none">${zona.localizacion || ""}</textarea></div>
         </div>
-        <div class="flex justify-between items-center mt-20">
-          <button class="btn btn-danger" onclick="ZonasView._eliminarZona(${index})">${Icons.eliminar()} Eliminar</button>
-          <div class="flex gap-10">
-            <button class="btn btn-secondary" onclick="ZonasView._salirEdicionZona()">${Icons.cerrar()} Cancelar</button>
-            <button class="btn btn-success" onclick="ZonasView._guardarZona(${index})">${Icons.guardar()} Guardar</button>
+      </div>
+        <div class="wizard-footer-fixed border-top-222">
+          <button type="button" onclick="ZonasView._eliminarZona(${index})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>
+          <div class="wizard-footer-buttons">
+            <button type="button" onclick="ZonasView._salirEdicionZona()" class="wizard-btn-action wizard-btn-secondary">${Icons.cerrar()} Cancelar</button>
+            <button type="button" onclick="ZonasView._guardarZona(${index})" class="wizard-btn-action wizard-btn-success">${Icons.guardar()} Guardar</button>
           </div>
         </div>
       </div>`;
@@ -531,60 +537,48 @@ const ZonasView = {
         });
       }
       
-      // Inyectar el modal HTML en el body
       const modalId = 'modal-rotacion-pastos';
-      let modalDiv = document.getElementById(modalId);
-      if (!modalDiv) {
-        modalDiv = document.createElement('div');
-        modalDiv.id = modalId;
-        document.body.appendChild(modalDiv);
-      }
-      
-      const moduleColor = 'var(--c-success)'; // Verde Lima de ExPro / Zonas
-      
-      modalDiv.innerHTML = `
-        <div class="modal-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:9999; animation:fadeIn 0.2s ease-out;">
-          <div class="card-registro p-20 border-222" style="--registro-color:${moduleColor}; width:90%; max-width:420px; background:#121212; box-shadow:0 0 30px rgba(204,255,0,0.15); border-radius:12px; margin:auto;">
+      const html = `
+          <div class="card p-25" style="max-width:420px; overflow-y:auto; max-height:90vh; border: 1px solid var(--c-success); background: #1e1e1e; width: 100%;">
             <div class="flex items-center gap-10 mb-15">
-              <span class="text-2xl" style="color:${moduleColor}; display:inline-flex; align-items:center;">${Icons.zonas()}</span>
+              <span class="text-2xl" style="color:var(--c-success); display:inline-flex; align-items:center;">${Icons.zonas()}</span>
               <div>
                 <h3 class="text-white font-900 text-sm uppercase tracking-wider" style="margin:0;">⇄ ROTACIÓN DE PASTOS (SIGGAN)</h3>
                 <div class="text-gray text-[0.6rem] font-bold uppercase tracking-tight">Zona Origen: ${zonaOrigenNombre}</div>
               </div>
             </div>
-            
-            <div class="flex flex-col gap-15 mt-10">
-              <div>
-                <label class="form-label text-[0.65rem] font-bold uppercase text-gray mb-4" for="rot-rebano-select" style="display:block;">1. SELECCIONAR REBAÑO / LOTE</label>
-                <select id="rot-rebano-select" class="premium-input w-full uppercase font-800" style="background:rgba(255,255,255,0.03); border:1px solid #27272a; height:38px; padding:0 10px; border-radius:6px; color:#fff; display:block;">
-                  ${rebanosEnZona.map(r => `<option value="${r.id}">${r.nombre} (${r.especie})</option>`).join('')}
-                </select>
-              </div>
-              
-              <div>
-                <label class="form-label text-[0.65rem] font-bold uppercase text-gray mb-4" for="rot-zona-select" style="display:block;">2. SELECCIONAR PARCELA DESTINO</label>
-                <select id="rot-zona-select" class="premium-input w-full uppercase font-800" style="background:rgba(255,255,255,0.03); border:1px solid #27272a; height:38px; padding:0 10px; border-radius:6px; color:#fff; display:block;">
-                  ${otrasZonasConBloqueo.map(item => `
-                    <option value="${item.zona.nombre}" ${item.bloqueada ? 'style="color:#ff4444; font-weight:bold;"' : ''}>
-                      ${item.zona.nombre} (${item.zona.usoPrincipal || 'Pasto'}${item.bloqueada ? ` · ✕ BLOQUEADA HASTA ${item.fechaFin}` : ` · ${item.zona.superficieGrafica || 0} ha`})
-                    </option>
-                  `).join('')}
-                </select>
-              </div>
-              
-              <div>
-                <label class="form-label text-[0.65rem] font-bold uppercase text-gray mb-4" for="rot-observaciones" style="display:block;">3. MOTIVO DE TRASLADO (OPCIONAL)</label>
-                <input type="text" id="rot-observaciones" placeholder="Ej: Rotación rutinaria de pastos, falta de agua..." class="premium-input w-full text-xs font-700" style="background:rgba(255,255,255,0.03); border:1px solid #27272a; height:38px; padding:0 10px; border-radius:6px; color:#fff; display:block;">
-              </div>
+
+            <div class="wizard-input-group">
+              <label class="wizard-label" for="rot-rebano-select">1. SELECCIONAR REBAÑO / LOTE</label>
+              <select id="rot-rebano-select" class="wizard-input">
+                ${rebanosEnZona.map(r => `<option value="${r.id}">${r.nombre} (${r.especie})</option>`).join('')}
+              </select>
             </div>
-            
-            <div class="flex justify-end gap-10 mt-20">
-              <button class="btn btn-secondary text-xs uppercase font-800 px-14 py-8" style="background:#1e1e1e; border:1px solid #333; color:#aaa; border-radius:6px;" onclick="document.getElementById('modal-rotacion-pastos').remove();">${Icons.cerrar()} Cancelar</button>
-              <button class="btn btn-success text-xs uppercase font-800 px-14 py-8" style="background:${moduleColor}; color:#000; border-radius:6px; font-weight:900;" onclick="ZonasView._confirmarRotacion()">${Icons.guardar()} Confirmar Traslado</button>
+
+            <div class="wizard-input-group">
+              <label class="wizard-label" for="rot-zona-select">2. SELECCIONAR PARCELA DESTINO</label>
+              <select id="rot-zona-select" class="wizard-input">
+                ${otrasZonasConBloqueo.map(item => `
+                  <option value="${item.zona.nombre}" ${item.bloqueada ? 'style="color:#ff4444; font-weight:bold;"' : ''}>
+                    ${item.zona.nombre} (${item.zona.usoPrincipal || 'Pasto'}${item.bloqueada ? ` · ✕ BLOQUEADA HASTA ${item.fechaFin}` : ` · ${item.zona.superficieGrafica || 0} ha`})
+                  </option>
+                `).join('')}
+              </select>
             </div>
-          </div>
-        </div>
-      `;
+
+            <div class="wizard-input-group">
+              <label class="wizard-label" for="rot-observaciones">3. MOTIVO DE TRASLADO (OPCIONAL)</label>
+              <input type="text" id="rot-observaciones" placeholder="Ej: Rotación rutinaria de pastos, falta de agua..." class="wizard-input">
+            </div>
+
+            <div class="flex gap-10 mt-20">
+              <button class="wizard-btn-action wizard-btn-secondary flex-1" id="${modalId}-cancel">${Icons.cerrar()} Cancelar</button>
+              <button class="wizard-btn-action wizard-btn-primary flex-1" id="btn-confirmar-rotacion">${Icons.guardar()} Confirmar Traslado</button>
+            </div>
+          </div>`;
+      const overlay = ModalManager.show(modalId, html, { closeOnOverlayClick: false });
+      overlay.querySelector('#' + modalId + '-cancel').onclick = () => ModalManager.close(modalId);
+      overlay.querySelector('#btn-confirmar-rotacion').onclick = () => ZonasView._confirmarRotacion();
     } catch (e) {
       App.toastError(e.message);
     }
@@ -633,7 +627,7 @@ const ZonasView = {
         creadoEn: new Date().toISOString()
       }).catch(() => {});
       
-      document.getElementById('modal-rotacion-pastos').remove();
+      ModalManager.close('modal-rotacion-pastos');
       App.toast("Rotación de rebaño registrada con éxito", "success");
       
       // Volver a renderizar en caliente

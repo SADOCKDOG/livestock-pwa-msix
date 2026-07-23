@@ -173,16 +173,16 @@ const TrazabilidadView = {
       });
     }
 
-    // 4. PESAJES (cada pesaje)
+    // 4. PESAJES (produccion_carne, tabla legacy con solo el campo `peso` — no `valor_neto`/`unidad`)
     for (const p of pesajes) {
       timeline.push({
         fecha: p.fecha || 'N/D',
         tipo: 'pesaje',
         icon: Icons.balanza(),
-        titulo: `PESAJE: ${p.valor_neto || 0} ${p.unidad || 'kg'}`,
+        titulo: `PESAJE: ${p.peso || 0} kg`,
         detalle: `
-          <strong>Peso:</strong> <span class="text-green font-950" style="font-size:1.1rem;">${p.valor_neto || 0}</span> <small class="text-gray">${p.unidad || 'kg'}</small><br>
-          ${p.motivo_tarea ? `<strong>Motivo:</strong> ${p.motivo_tarea.toUpperCase()}<br>` : ''}
+          <strong>Peso:</strong> <span class="text-green font-950" style="font-size:1.1rem;">${p.peso || 0}</span> <small class="text-gray">kg</small><br>
+          ${p.tipo ? `<strong>Tipo:</strong> ${p.tipo.toUpperCase()}<br>` : ''}
         `
       });
     }
@@ -205,6 +205,7 @@ const TrazabilidadView = {
           <strong>Motivo:</strong> ${e.motivo_tarea || 'N/D'}<br>
           ${e.observaciones ? `<strong>Notas:</strong> ${e.observaciones}<br>` : ''}
           ${e.valor_neto ? `<strong>Valor:</strong> <span class="text-gold font-bold">${e.valor_neto}</span> <small class="text-aaa">${e.unidad || ''}</small><br>` : ''}
+          ${e.condicion_corporal ? `<strong>Condición corporal:</strong> ${e.condicion_corporal}/9<br>` : ''}
         `
       });
     }

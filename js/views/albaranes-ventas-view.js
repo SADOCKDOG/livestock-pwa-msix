@@ -278,7 +278,7 @@ const AlbaranesVentasView = {
           `,
           content: `
             <div class="flex flex-wrap gap-x-12 gap-y-3 text-[0.62rem] text-aaa font-800 uppercase mt-4">
-              <div class="flex items-center gap-4">${Icons.calendario()} ${fecha}</div>
+              <div class="flex items-center gap-4">${Icons.calendar()} ${fecha}</div>
               <div class="flex items-center gap-4">${Icons.paquete()} ${reg.cantidad.toLocaleString()} ${reg.unidad}</div>
               <div class="flex items-center gap-4 text-green font-950">${reg.importe.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
             </div>
