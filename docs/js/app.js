@@ -2598,21 +2598,16 @@ const App = {
       document.getElementById("app-content").innerHTML = '<div class="loader">Cargando historial de ventas...</div>';
     }
   },
-
   async renderManuales() {
     if (window.ManualesView) {
       await ManualesView.render();
-    }
-  },
-
-  async renderAgenda(params) {
-    if (window.AgendaView) { await AgendaView.render(params); }
-  },
     } else {
       document.getElementById("app-content").innerHTML = '<div class="loader">Cargando manuales...</div>';
     }
   },
-
+  async renderAgenda(params) {
+    if (window.AgendaView) { await AgendaView.render(params); }
+  },
   async renderSilos() {
     if (window.ExplotacionView) {
       ExplotacionView._activeSubModule = 'silos';
