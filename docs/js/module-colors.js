@@ -8,6 +8,15 @@ window.MODULE_COLORS = Object.freeze({
   '/': '#CCFF00',
   '/explotacion': '#CCFF00',
   '/zonas': '#CCFF00',
+  '/instalaciones': '#CCFF00',
+  '/instalacion': '#CCFF00',
+  '/saneamientos': '#CCFF00',
+  '/saneamiento': '#CCFF00',
+  '/subexplotaciones': '#CCFF00',
+  '/subexplotacion': '#CCFF00',
+  '/botiquin': '#CCFF00',
+  '/botiquin-producto': '#CCFF00',
+  '/animal-bitacora': '#F97316',
   '/carne': '#CCFF00',
   '/comercializacion': '#3B82F6',
   '/trazabilidad': '#3B82F6',
@@ -32,6 +41,7 @@ window.MODULE_COLORS = Object.freeze({
   '/transportistas': '#EC4899',
   // Neutro
   '/ajustes': '#B1B1B1',
+  '/importar-rfid': '#B1B1B1',
   // Alias de rutas de detalle (heredan el color de su módulo)
   '/animal': '#F97316',
   '/rebano': '#3B82F6',

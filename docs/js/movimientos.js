@@ -119,6 +119,11 @@ const Movimientos = {
         rega_origen: regaOrigen,
         rega_destino: regaDestino,
         explotacion_contraparte: (data.explotacion_contraparte || '').trim(),
+        // Autoguía SIGGAN/GTA: mismo titular en origen y destino, sin tasa modelo 046
+        // ni firma digital (ver docs/ADSG-WEB-SIGGAN-FLUJOS-ESTRUCTURA.md, sección
+        // "Máquina de estados GTA" y docs/PLAN-MEJORA-SIGGAN.md). Flag informativo,
+        // declarado por el usuario — no automatiza el flujo de pago/firma real.
+        autoguia: !!data.autoguia,
         motivo: data.motivo || '',
         especie: data.especie || '',
         num_animales: numAnimalesDeclarado,
@@ -129,6 +134,11 @@ const Movimientos = {
         transportista_nombre: (data.transportista_nombre || '').trim(),
         matricula: (data.matricula || '').trim().toUpperCase(),
         fecha: data.fecha || new Date().toISOString().split('T')[0],
+        // Hora de la operación (campo que capturan los lectores RFID de campo en
+        // sus programas de Altas/Bajas, ver docs/PLAN-MEJORA-SIGGAN.md punto 6).
+        // Opcional: SIGGAN no la exige, es solo para no perder el dato si se
+        // importa de un lector físico.
+        hora: (data.hora || '').trim(),
         desinsectacion_certificada: !!data.desinsectacion_certificada,
         comunidad_autonoma: ccaa || '',
         plataforma: conf ? conf.sistema_movimiento : (data.plataforma || ''),
@@ -194,6 +204,18 @@ const Movimientos = {
     return movs
       .filter(m => !m?.anulado && Array.isArray(m.animalId) && m.animalId.map(Number).includes(numId))
       .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+  },
+
+  /**
+   * Campo `Cebo` del fichero de incorporación SIGGAN (ver docs/NORMATIVA-CROTAL-ESPECIE.md,
+   * campo #15: "1 = destinado a cebo, 0 = no"). Se deriva del motivo del último movimiento
+   * de ENTRADA del animal — la app no pide este dato por separado, lo deriva del mismo
+   * movimiento que ya se captura en el wizard de guía (ver docs/PLAN-MEJORA-SIGGAN.md punto 2).
+   */
+  async esDestinoCebo(animalId) {
+    const movs = await this.getByAnimal(animalId);
+    const ultimaEntrada = movs.find(m => m.tipo === 'entrada');
+    return !!(ultimaEntrada && ultimaEntrada.motivo === 'cebo');
   },
 
   /**

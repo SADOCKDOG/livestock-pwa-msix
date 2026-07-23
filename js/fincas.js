@@ -143,6 +143,29 @@ const Fincas = {
             }
             data.rega = regaVal;
             data.codigo_REGA = regaVal;
+
+            // Datos geográficos (gap "Estructura -> Datos Geográficos" del mapa ADSG
+            // WEB, ver docs/PLAN-MEJORA-SIGGAN.md punto 5). Opcionales, pero si se
+            // aportan deben ser coordenadas válidas dentro de España peninsular/
+            // insular/Canarias (rango amplio, no exhaustivo por comunidad).
+            if (data.latitud !== undefined && data.latitud !== null && data.latitud !== '') {
+                const lat = Number(data.latitud);
+                if (isNaN(lat) || lat < 27 || lat > 44) {
+                    throw new Error('Latitud inválida: debe estar entre 27 y 44 (España, incluidas Canarias)');
+                }
+                data.latitud = lat;
+            } else {
+                data.latitud = null;
+            }
+            if (data.longitud !== undefined && data.longitud !== null && data.longitud !== '') {
+                const lon = Number(data.longitud);
+                if (isNaN(lon) || lon < -19 || lon > 5) {
+                    throw new Error('Longitud inválida: debe estar entre -19 y 5 (España, incluidas Canarias)');
+                }
+                data.longitud = lon;
+            } else {
+                data.longitud = null;
+            }
         }
 
         // Flags de tipo de explotación (Leche/Carne) recogidos en el wizard, si vienen.
@@ -171,6 +194,56 @@ const Fincas = {
                 }
                 // Otherwise assign a new sequential ID
                 return {...zona, id: nextId++};
+            });
+        }
+
+        // Instalaciones de la finca (gap "Estructura" del mapa ADSG WEB, ver
+        // docs/PLAN-MEJORA-SIGGAN.md punto 5) — mismo patrón de IDs que zonas.
+        if (data.instalaciones && Array.isArray(data.instalaciones)) {
+            const maxExistingId = data.instalaciones.reduce((max, inst) => {
+                return inst.id && typeof inst.id === 'number' ? Math.max(max, inst.id) : max;
+            }, 0);
+            let nextId = Math.max(maxExistingId + 1, 1);
+
+            data.instalaciones = data.instalaciones.map(inst => {
+                if (!inst.tipoId) {
+                    throw new Error('Cada instalación debe tener un tipo asignado del catálogo oficial.');
+                }
+                if (inst.id && typeof inst.id === 'number' && inst.id > 0) {
+                    return inst;
+                }
+                return { ...inst, id: nextId++ };
+            });
+        }
+
+        // Subexplotaciones (gap "Subexplotación" de docs/PLAN-MEJORA-SIGGAN.md
+        // punto 7): SIEX no relaciona animales directamente con la finca, sino
+        // con una subdivisión por especie (REGA + especie + clasificación
+        // zootécnica). Capa aditiva y opcional — mismo patrón de IDs que
+        // zonas/instalaciones; una explotación de una sola especie puede
+        // ignorarla por completo y seguir usando tipo_explotacion/
+        // sistema_explotacion a nivel de finca como hasta ahora.
+        if (data.subexplotaciones && Array.isArray(data.subexplotaciones)) {
+            const maxExistingId = data.subexplotaciones.reduce((max, sub) => {
+                return sub.id && typeof sub.id === 'number' ? Math.max(max, sub.id) : max;
+            }, 0);
+            let nextId = Math.max(maxExistingId + 1, 1);
+
+            const especiesVistas = new Set();
+            data.subexplotaciones = data.subexplotaciones.map(sub => {
+                if (!sub.especieId) {
+                    throw new Error('Cada subexplotación debe tener una especie asignada.');
+                }
+                if (!sub.anulada) {
+                    if (especiesVistas.has(Number(sub.especieId))) {
+                        throw new Error('Ya existe una subexplotación activa para esa especie (una por especie, según SIEX).');
+                    }
+                    especiesVistas.add(Number(sub.especieId));
+                }
+                if (sub.id && typeof sub.id === 'number' && sub.id > 0) {
+                    return sub;
+                }
+                return { ...sub, id: nextId++ };
             });
         }
 

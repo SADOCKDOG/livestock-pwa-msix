@@ -1,4 +1,4 @@
-const CACHE_NAME = 'corcho-v6.31.7-desktop-typography-modals';
+const CACHE_NAME = 'corcho-v6.33.0';
 const ASSETS = [
   './',
   './index.html',

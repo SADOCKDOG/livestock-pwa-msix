@@ -17,6 +17,9 @@ const Saneamientos = {
   async list(filtros = {}) {
     return await ErrorHandler.tryAsync(async () => {
       let regs = await window.db.getAll('saneamientos').catch(() => []);
+      if (!filtros.includeAnulados) {
+        regs = regs.filter(s => !s?.anulada);
+      }
       if (filtros.fincaId != null) {
         regs = regs.filter(s => Number(s.fincaId) === Number(filtros.fincaId));
       }
@@ -58,6 +61,15 @@ const Saneamientos = {
         num_examinados: examinados,
         num_positivos: positivos,
         calificacion: data.calificacion || 'sin_calificar',
+        // Granularidad individual de saneamientos (nº tubo + sexo)
+        tubo: (data.tubo || '').trim(),
+        sexo: data.sexo || '',
+        // Estado operativo de restricción de movimientos (gap "Históricos ->
+        // Restricciones" del mapa ADSG WEB — distinto de `calificacion`, que es
+        // el resultado sanitario, no si la explotación tiene vetados los
+        // movimientos. Ver docs/PLAN-MEJORA-SIGGAN.md punto 5).
+        restriccion_movimientos: data.restriccion_movimientos === true,
+        motivo_restriccion: (data.motivo_restriccion || '').trim(),
         proxima_actuacion: data.proxima_actuacion || '',
         notas: (data.notas || '').trim(),
         actualizadoEn: new Date().toISOString(),
@@ -90,6 +102,23 @@ const Saneamientos = {
     }, { entity: 'Saneamientos', action: 'delete', id });
   },
 
+  /**
+   * Anulación trazable (nunca borrado duro) — mismo patrón que Movimientos/
+   * Vacunaciones/Instalaciones: conserva el registro para auditoría SIGGAN.
+   */
+  async anular(id, motivo = '') {
+    return await ErrorHandler.tryAsync(async () => {
+      const san = await this.get(id);
+      if (!san) throw new Error('Saneamiento no encontrado.');
+      san.anulada = true;
+      san.motivo_anulacion = (motivo || '').trim();
+      san.fecha_anulacion = new Date().toISOString();
+      await window.db.put('saneamientos', san);
+      if (window.EventBus) window.EventBus.emit('saneamiento:anulado', { id: Number(id) });
+      return san;
+    }, { entity: 'Saneamientos', action: 'anular', id });
+  },
+
   /** Etiqueta legible de una campaña a partir de su clave */
   labelCampana(clave) {
     const CS = window.ComunidadesService;
@@ -102,6 +131,19 @@ const Saneamientos = {
   async calificacionActual(fincaId) {
     const regs = await this.list({ fincaId });
     return regs.length > 0 ? regs[0].calificacion : 'sin_calificar';
+  },
+
+  /**
+   * Estado operativo de restricción de movimientos vigente en la finca
+   * (según el saneamiento más reciente). No es lo mismo que la calificación
+   * sanitaria: una explotación puede tener buena calificación histórica y
+   * seguir con movimientos restringidos por una actuación en curso.
+   */
+  async restriccionActiva(fincaId) {
+    const regs = await this.list({ fincaId });
+    if (regs.length === 0) return { activa: false, motivo: '' };
+    const ultimo = regs[0];
+    return { activa: !!ultimo.restriccion_movimientos, motivo: ultimo.motivo_restriccion || '' };
   },
 };
 

@@ -1,3 +1,11 @@
+// Escala de Condición Corporal (BCS) 1-9, estándar veterinario internacional de
+// nutrición bovina. No es un requisito SIGGAN, es un dato de manejo opcional —
+// ver docs/AUDITAR/AUDITORIA-BASEDEDATOS-LEGACY.md.
+const BCS_ESCALA = {
+    1: 'Flaco', 2: 'Muy Delgado', 3: 'Delgado', 4: 'Regular', 5: 'Moderado',
+    6: 'Bueno', 7: 'Muy Bueno', 8: 'Gordo', 9: 'Muy Gordo',
+};
+
 const PesajesUI = {
     async abrirWizard(config) {
         const modoStr = config.modo || config.motivo || '';
@@ -190,6 +198,19 @@ const PesajesUI = {
                          ${esModoLeche ? `
                          <div class="pesaje-leche-grid">
                              <div>
+                                 <label class="text-xs text-gray uppercase font-extrabold tracking-wider mb-6 d-block">TURNO</label>
+                                 <div class="flex space-x-4">
+                                     <label class="flex items-center">
+                                         <input type="radio" name="turno" value="AM" class="form-radio" checked>
+                                         <span class="ml-2">AM</span>
+                                     </label>
+                                     <label class="flex items-center">
+                                         <input type="radio" name="turno" value="PM" class="form-radio">
+                                         <span class="ml-2">PM</span>
+                                     </label>
+                                 </div>
+                             </div>
+                             <div>
                                  <label class="text-xs text-gray uppercase font-extrabold tracking-wider mb-6 d-block">GRASA (%)</label>
                                  <input type="number" id="w-leche-grasa" step="0.01" placeholder="0.00" class="wizard-input font-900 text-lg">
                              </div>
@@ -198,7 +219,15 @@ const PesajesUI = {
                                  <input type="number" id="w-leche-proteina" step="0.01" placeholder="0.00" class="wizard-input font-900 text-lg">
                              </div>
                          </div>
-                         ` : ''}
+                         ` : `
+                         <div class="mt-15">
+                             <label class="text-xs text-gray uppercase font-extrabold tracking-wider mb-6 d-block">CONDICIÓN CORPORAL (OPC.)</label>
+                             <select id="w-bcs" class="wizard-input font-900">
+                                 <option value="">— SIN VALORAR —</option>
+                                 ${[1,2,3,4,5,6,7,8,9].map(n => `<option value="${n}">${n} — ${BCS_ESCALA[n]}</option>`).join('')}
+                             </select>
+                         </div>
+                         `}
 
                          <div class="mt-20">
                              <button id="btn-guardar-peso" class="widget-link-btn widget-link-btn--neon ${esModoLeche ? 'neon-warning' : 'neon-success'} w-full">
@@ -314,8 +343,11 @@ const PesajesUI = {
                     const proteinaIn = overlay.querySelector('#w-leche-proteina');
                     if (grasaIn) grasaIn.value = (a.grasaActual !== undefined && a.grasaActual !== null) ? a.grasaActual : '';
                     if (proteinaIn) proteinaIn.value = (a.proteinaActual !== undefined && a.proteinaActual !== null) ? a.proteinaActual : '';
+                } else {
+                    const bcsIn = overlay.querySelector('#w-bcs');
+                    if (bcsIn) bcsIn.value = (a.condicionCorporalActual !== undefined && a.condicionCorporalActual !== null) ? a.condicionCorporalActual : '';
                 }
-                
+
                 renderTable();
             };
 
@@ -383,13 +415,18 @@ const PesajesUI = {
                             }
                         }
 
+                        // Get turno value
+                        const turnoInput = overlay.querySelector('input[name="turno"]:checked');
+                        const turno = turnoInput ? turnoInput.value : 'AM';
+
                         const pLecheId = await Produccion.saveLeche({
                             id: a.produccionLecheId || undefined,
                             vacaId: a.id,
                             fecha,
                             cantidad_litros: val,
                             analisis_grasa_proteina: { grasa, proteina },
-                            creadoEn: a.creadoEnLeche || new Date().toISOString()
+                            creadoEn: a.creadoEnLeche || new Date().toISOString(),
+                            turno: turno
                         }, activeFincaId);
                         a.produccionLecheId = pLecheId;
                         if (!a.creadoEnLeche) a.creadoEnLeche = new Date().toISOString();
@@ -410,6 +447,7 @@ const PesajesUI = {
                         a.grasaActual = grasa;
                         a.proteinaActual = proteina;
                     } else {
+                        const bcsVal = overlay.querySelector('#w-bcs')?.value || '';
                         const payload = {
                             id: a.pesajeId || undefined,
                             entidad_id: a.id, tipo_entidad: 'animal', motivo_tarea: motivo || 'control', fecha, valor_neto: val,
@@ -420,26 +458,30 @@ const PesajesUI = {
                             peso_bruto: isLogistico ? parseFloat(overlay.querySelector('#w-bruto')?.value || 0) : 0,
                             tara: isLogistico ? parseFloat(overlay.querySelector('#w-tara')?.value || 0) : 0,
                             rol_contable: motivo === 'expedicion' ? 'VENTA' : 'INVENTARIO',
+                            condicion_corporal: bcsVal,
                             snap_identificacion: a.numero_identificacion || 'S/N'
                         };
                         if (esModoLote) {
                             const existingIdx = _pesajesLote.findIndex(p => p.animalId === a.id);
                             if (existingIdx !== -1) {
                                 _pesajesLote[existingIdx].peso = val;
+                                _pesajesLote[existingIdx].condicion_corporal = bcsVal;
                             } else {
-                                _pesajesLote.push({ 
+                                _pesajesLote.push({
                                     id: a.pesajeId || undefined,
-                                    animalId: a.id, 
-                                    crotal: a.numero_identificacion, 
-                                    peso: val, 
-                                    especie: a.especie, 
-                                    raza: a.raza 
+                                    animalId: a.id,
+                                    crotal: a.numero_identificacion,
+                                    peso: val,
+                                    condicion_corporal: bcsVal,
+                                    especie: a.especie,
+                                    raza: a.raza
                                 });
                             }
                         } else {
                             const pesId = await Pesajes.registrar(payload);
                             a.pesajeId = pesId;
                         }
+                        a.condicionCorporalActual = bcsVal;
                     }
                     a.pesoActual = val;
                     App.toast(`REGISTRADO: ${a.numero_identificacion} -> ${val}${unidadAbreviada}`);
@@ -512,6 +554,7 @@ const PesajesUI = {
                                 id: p.id || undefined,
                                 entidad_id: p.animalId, tipo_entidad: 'animal', motivo_tarea: motivo || 'control', fecha, valor_neto: p.peso,
                                 precio_unitario: precio, valor_canal: canal, documento_ref: docRef, matricula: matricula, peso_bruto: bruto, tara: tara, rol_contable: motivo === 'expedicion' ? 'VENTA' : 'INVENTARIO',
+                                condicion_corporal: p.condicion_corporal,
                                 snap_identificacion: p.crotal, snap_zona: reb?.zonaActual, snap_especie: reb?.especie, snap_tipo: reb?.tipo
                             });
                         }

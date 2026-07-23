@@ -170,18 +170,31 @@ const Compradores = {
             Contratos ? Contratos.list(compradorId) : Promise.resolve([])
         ]);
 
+        // Importe real solo a partir de ventas con precio registrado — nunca se
+        // inventa un precio de mercado. Las ventas sin precio se cuentan aparte
+        // para que el usuario sepa que el importe está incompleto.
+        const ventasConPrecioCarne = ventasCarne.filter(v => (v.precioUnitario || 0) > 0);
         const pesoTotal = ventasCarne.reduce((s, v) => s + (v.pesoCanal || 0), 0);
-        const importeCarneEst = ventasCarne.reduce((s, v) => s + ((v.pesoCanal || 0) * 5.5), 0);
+        const importeCarneReal = ventasConPrecioCarne.reduce((s, v) => s + ((v.pesoCanal || 0) * v.precioUnitario), 0);
+        const ventasSinPrecioCarne = ventasCarne.length - ventasConPrecioCarne.length;
+
+        const entregasConPrecioLeche = entregasLeche.filter(e => (e.importe_total || 0) > 0 || (e.precio_final_unitario || 0) > 0);
         const litrosTotal = entregasLeche.reduce((s, e) => s + (e.cantidad || 0), 0);
-        const importeLecheEst = entregasLeche.reduce((s, e) => s + ((e.cantidad || 0) * (e.precioBase || 0.45)), 0);
+        const importeLecheReal = entregasConPrecioLeche.reduce((s, e) => {
+            if (e.importe_total) return s + e.importe_total;
+            return s + ((e.cantidad || 0) * (e.precio_final_unitario || 0));
+        }, 0);
+        const entregasSinPrecioLeche = entregasLeche.length - entregasConPrecioLeche.length;
 
         return {
             total_ventas_carne: ventasCarne.length,
             peso_canal_total: pesoTotal,
-            importe_carne_estimado: importeCarneEst,
+            importe_carne_real: importeCarneReal,
+            ventas_carne_sin_precio: ventasSinPrecioCarne,
             total_entregas_leche: entregasLeche.length,
             litros_totales: litrosTotal,
-            importe_leche_estimado: importeLecheEst,
+            importe_leche_real: importeLecheReal,
+            entregas_leche_sin_precio: entregasSinPrecioLeche,
             contratos_activos: contratos.filter(c => c.activo).length,
             ultima_venta: ventasCarne.length > 0 ? ventasCarne[0] : null,
             ultima_entrega: entregasLeche.length > 0 ? entregasLeche[0] : null

@@ -32,9 +32,12 @@ const Animales = {
   async save(data) {
     return await ErrorHandler.tryAsync(
       async () => {
-        // Validaciones
-        const crotal = ErrorHandler.validateCaravana(
-          data.numero_identificacion
+        // Validaciones (formato de crotal según especie/tipo de identificador
+        // si están disponibles; si no, cae al formato genérico)
+        const crotal = await ErrorHandler.validateCrotal(
+          data.numero_identificacion,
+          data.especieId,
+          data.tipoIdentificadorId
         );
         // El rebaño ya no es obligatorio según las nuevas reglas
 
@@ -99,15 +102,39 @@ const Animales = {
           numero_identificacion: crotal,
           rebanoId: data.rebanoId ? Number(data.rebanoId) : null,
           especie: data.especie || null,
+          especieId: data.especieId ? Number(data.especieId) : null,
+          tipoIdentificadorId: data.tipoIdentificadorId ? Number(data.tipoIdentificadorId) : null,
           tipo: data.tipo || "Sin Clasificar",
           estado: data.estado || "activo",
           fecha_nacimiento: data.fecha_nacimiento || null,
+          // Nuevos campos para compra de animal
+          precio_compra: data.precio_compra ? Number(data.precio_compra) : null,
+          proveedor_id: data.proveedor_id ? Number(data.proveedor_id) : null,
+          factura_compra: data.factura_compra || null,
+          pago_pendiente: data.pago_pendiente !== undefined ? Boolean(data.pago_pendiente) : false,
           actualizadoEn: new Date().toISOString(),
         };
 
         // Gap 7: Mapear motivo_baja a categoría SANDACH
         if (data.motivo_baja && window.ComunidadesService) {
           animalData.sandach_categoria = ComunidadesService.getSANDACHCategoria(data.motivo_baja);
+        }
+
+        // Validar datos de compra si tipoAlta es "Compra"
+        if (data.tipoAlta === "Compra") {
+          if (data.precio_compra === undefined || data.precio_compra === null || data.precio_compra === '' || isNaN(parseFloat(data.precio_compra)) || parseFloat(data.precio_compra) <= 0) {
+            throw new Error('Precio de compra requerido y debe ser mayor a cero');
+          }
+          if (data.proveedor_id === undefined || data.proveedor_id === null || data.proveedor_id === '' || isNaN(parseInt(data.proveedor_id)) || parseInt(data.proveedor_id) <= 0) {
+            throw new Error('Proveedor requerido para compra de animal');
+          }
+          if (!data.factura_compra || data.factura_compra.trim() === '') {
+            throw new Error('Factura de compra requerida');
+          }
+          // Validar pago_pendiente (opcional, pero si se proporciona debe ser boolean)
+          if (data.pago_pendiente !== undefined && typeof data.pago_pendiente !== 'boolean' && ![0, 1, 'true', 'false'].includes(data.pago_pendiente)) {
+            throw new Error('pago_pendiente debe ser un valor booleano');
+          }
         }
 
         const animalAnterior = esEdicion ? await this.get(Number(data.id)) : null;
@@ -307,6 +334,37 @@ const Animales = {
       },
       { entity: "Animales", action: "delete" }
     );
+  },
+
+  /**
+   * Comentario libre sobre el animal (gap "Histórico Comentarios Animal" de
+   * docs/AUDITAR/AUDITORIA-BASEDEDATOS-LEGACY.md — no es un dato SIGGAN,
+   * es una nota de manejo). Se guarda en registro_eventos como cualquier
+   * otro evento de trazabilidad, motivo_tarea: 'comentario_animal'.
+   */
+  async agregarComentario(animalId, texto) {
+    return await ErrorHandler.tryAsync(async () => {
+      const comentario = (texto || "").trim();
+      if (!comentario) throw new Error("El comentario no puede estar vacío.");
+      const numId = Number(animalId);
+      const animal = await this.get(numId);
+      if (!animal) throw new Error("Animal no encontrado.");
+      const fincaId = await Fincas.getActiveId().catch(() => null);
+      const id = await window.db.add("registro_eventos", {
+        fincaId,
+        entidad_id: numId,
+        tipo_entidad: "animal",
+        tipo: "comentario",
+        motivo_tarea: "comentario_animal",
+        fecha: new Date().toISOString().split("T")[0],
+        descripcion: comentario,
+        creadoEn: new Date().toISOString(),
+      });
+      if (window.EventBus) {
+        window.EventBus.emit("animal:comentario", { animalId: numId, id });
+      }
+      return id;
+    }, { entity: "Animales", action: "agregarComentario" });
   },
 };
 
