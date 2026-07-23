@@ -255,13 +255,11 @@ const TransportistasView = {
     const main = document.getElementById("app-content");
 
     main.innerHTML = `
-      <div class="p-16 max-w-800 mx-auto">
-        <div class="flex items-center gap-8 mb-14">
-          <button onclick="TransportistasView.render()" class="link-back" style="background:none; border:none; cursor:pointer; padding:4px 8px;">← Volver</button>
-          <span style="width:4px; height:20px; border-radius:2px; background:linear-gradient(135deg,var(--c-info),var(--c-info));"></span>
-          <h2 class="m-0 font-900 text-sm text-blue-400">${Icons.transportistas()} ${t.nombre}</h2>
-        </div>
-
+      <div class="wizard-full-screen">
+      <div class="wizard-header-fixed border-top-5-gold">
+        <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--c-info); margin-right: 6px;">|</span> ${Icons.transportistas()} ${t.nombre}</h1>
+      </div>
+      <div class="wizard-content-scrollable p-20">
         <div class="card p-16 mb-14">
           <div class="flex justify-between items-start mb-16">
             <div class="flex-1 min-w-0">
@@ -274,16 +272,6 @@ const TransportistasView = {
                   ${t.activo ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
-            </div>
-            <div class="flex gap-10">
-              <button class="widget-link-btn widget-link-btn--neon neon-danger" onclick="TransportistasView._eliminar(${t.id})">
-                ${Icons.eliminar()}
-                <span class="widget-link-label">Eliminar</span>
-              </button>
-              <button class="widget-link-btn widget-link-btn--neon neon-info" onclick="TransportistasView._abrirFormulario(${t.id})">
-                ${Icons.editar()}
-                <span class="widget-link-label">Editar</span>
-              </button>
             </div>
           </div>
 
@@ -312,11 +300,14 @@ const TransportistasView = {
             </div>
           </div>
         </div>
-
-        <div class="flex justify-between items-center mt-20">
-          <button onclick="TransportistasView._eliminar(${t.id})" class="btn btn-danger">${Icons.eliminar()} Eliminar</button>
-          <button onclick="TransportistasView._abrirFormulario(${t.id})" class="btn btn-edit">${Icons.editar()} Editar</button>
+      </div>
+      <div class="wizard-footer-fixed border-top-222">
+        <button type="button" onclick="TransportistasView._eliminar(${t.id})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>
+        <div class="wizard-footer-buttons">
+          <button type="button" onclick="TransportistasView.render()" class="wizard-btn-action wizard-btn-secondary">${Icons.atras()} Volver</button>
+          <button type="button" onclick="TransportistasView._abrirFormulario(${t.id})" class="wizard-btn-action wizard-btn-success">${Icons.editar()} Editar</button>
         </div>
+      </div>
       </div>`;
   },
 
@@ -429,10 +420,10 @@ const TransportistasView = {
         </div>
 
         <div class="flex justify-between items-center mt-20">
-          ${isEdit ? `<button onclick="TransportistasView._eliminar(${t.id}); App.clearExitGuard(); this.closest('.wizard-full-screen').remove();" class="btn btn-danger">${Icons.eliminar()} Eliminar</button>` : '<div></div>'}
-          <div class="flex gap-10">
-            <button class="btn btn-secondary" onclick="TransportistasView._cerrarFormulario(this)">${Icons.cerrar()} Cancelar</button>
-            <button class="btn btn-success" id="btn-save-trans">${Icons.guardar()} Guardar</button>
+          ${isEdit ? `<button type="button" onclick="TransportistasView._eliminar(${t.id}); App.clearExitGuard(); this.closest('.wizard-full-screen').remove();" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>` : '<div></div>'}
+          <div class="wizard-footer-buttons">
+            <button type="button" class="wizard-btn-action wizard-btn-secondary" onclick="TransportistasView._cerrarFormulario(this)">${Icons.cerrar()} Cancelar</button>
+            <button type="button" class="wizard-btn-action wizard-btn-success" id="btn-save-trans">${Icons.guardar()} Guardar</button>
           </div>
         </div>
         <div id="trans-form-error" class="text-red text-xs mt-8 d-none"></div>

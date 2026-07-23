@@ -158,11 +158,11 @@ const ProveedoresView = {
 
         const main = document.getElementById("app-content");
         main.innerHTML = `
-          <div class="mb-14">
-            <button onclick="location.hash='#/proveedores'" class="widget-link-btn widget-link-btn--neon neon-danger px-16 py-8 min-h-0 h-auto">
-              <span class="text-[0.7rem] font-950 uppercase tracking-widest">${Icons.atras()} Volver</span>
-            </button>
+          <div class="wizard-full-screen">
+          <div class="wizard-header-fixed border-top-5-gold">
+            <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--c-purple); margin-right: 6px;">|</span> ${proveedor.nombre}</h1>
           </div>
+          <div class="wizard-content-scrollable p-20">
 
           <!-- Cabecera -->
           <div class="card p-24 mb-14" style="background: var(--surface);">
@@ -174,14 +174,6 @@ const ProveedoresView = {
                     ? '<span class="badge badge-sm font-950 uppercase" style="background:color-mix(in srgb, var(--c-danger) 12%, transparent); color:var(--c-danger); border:1px solid color-mix(in srgb, var(--c-danger) 25%, transparent);">INACTIVO</span>'
                     : '<span class="badge badge-sm font-950 uppercase" style="background:color-mix(in srgb, var(--c-success) 12%, transparent); color:var(--c-success); border:1px solid color-mix(in srgb, var(--c-success) 25%, transparent);">ACTIVO</span>'}
                 </div>
-              </div>
-              <div class="flex gap-8">
-                <button class="widget-link-btn widget-link-btn--neon neon-danger px-12 py-8 min-h-0 h-auto" onclick="ProveedoresView._eliminar(${id})" aria-label="Eliminar">
-                  <span aria-hidden="true">${Icons.eliminar()}</span>
-                </button>
-                <button class="widget-link-btn widget-link-btn--neon neon-info px-12 py-8 min-h-0 h-auto" onclick="ProveedoresView.renderFormulario(${id})" aria-label="Editar">
-                  <span aria-hidden="true">${Icons.editar()}</span>
-                </button>
               </div>
             </div>
 
@@ -254,7 +246,16 @@ const ProveedoresView = {
           <div class="card card-accent card-accent-gold p-16 mb-40">
             <div class="text-gold font-950 text-[0.65rem] uppercase tracking-widest mb-10"><span style="color: var(--p-gold); margin-right: 4px;">|</span> ${Icons.documento()} OBSERVACIONES</div>
             <p class="text-aaa text-xs uppercase font-700 leading-relaxed m-0">${proveedor.notas}</p>
-          </div>` : '<div class="pb-40"></div>'}
+          </div>` : ''}
+          </div>
+          <div class="wizard-footer-fixed border-top-222">
+            <button type="button" onclick="ProveedoresView._eliminar(${id})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>
+            <div class="wizard-footer-buttons">
+              <button type="button" onclick="location.hash='#/proveedores'" class="wizard-btn-action wizard-btn-secondary">${Icons.atras()} Volver</button>
+              <button type="button" onclick="ProveedoresView.renderFormulario(${id})" class="wizard-btn-action wizard-btn-success">${Icons.editar()} Editar</button>
+            </div>
+          </div>
+          </div>
         `;
     },
 
@@ -279,13 +280,12 @@ const ProveedoresView = {
 
         const main = document.getElementById("app-content");
         main.innerHTML = `
-          <div class="mb-14">
-            <button onclick="ProveedoresView._salirFormulario('${destinoCancelar}')" class="widget-link-btn widget-link-btn--neon neon-danger px-16 py-8 min-h-0 h-auto">
-              <span class="text-[0.7rem] font-950 uppercase tracking-widest">${Icons.atras()} Cancelar</span>
-            </button>
+          <div class="wizard-full-screen">
+          <div class="wizard-header-fixed border-top-5-gold">
+            <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--c-success); margin-right: 6px;">|</span> ${esEdicion ? Icons.editar() : Icons.agregar()} ${esEdicion ? 'EDITAR PROVEEDOR' : 'NUEVO PROVEEDOR'}</h1>
           </div>
+          <div class="wizard-content-scrollable p-20">
           <div class="card card-accent card-accent-green p-20 bg-black">
-            <div class="section-header-theme mb-20" style="--theme-color: var(--c-success)"><span style="color: var(--c-success); margin-right: 4px;">|</span> ${esEdicion ? Icons.editar() : Icons.agregar()} ${esEdicion ? 'EDITAR PROVEEDOR' : 'NUEVO PROVEEDOR'}</div>
 
             <div class="wizard-input-group mb-15">
                 <label class="wizard-label" for="p-nombre">NOMBRE / RAZÓN SOCIAL *</label>
@@ -387,17 +387,16 @@ const ProveedoresView = {
               <span class="uppercase font-950 tracking-widest text-[0.65rem]">Proveedor activo en el sistema</span>
             </label>
 
-            <div class="grid grid-cols-2 gap-10 mt-20">
-                <button onclick="ProveedoresView._guardar(${id || ''})" class="widget-link-btn widget-link-btn--neon neon-success">
-                  ${Icons.guardar()} <span class="widget-link-label">GUARDAR</span>
-                </button>
-                <button onclick="ProveedoresView._salirFormulario('${destinoCancelar}')" class="widget-link-btn widget-link-btn--neon neon-danger">
-                  ${Icons.cerrar()} <span class="widget-link-label">CANCELAR</span>
-                </button>
-            </div>
-            ${esEdicion ? `<div class="mt-15 text-center"><button onclick="ProveedoresView._eliminar(${id})" class="text-red font-900 text-[0.6rem] uppercase tracking-widest p-10 opacity-60 hover:opacity-100 transition-all">${Icons.eliminar()} Eliminar definitivamente</button></div>` : ''}
           </div>
-          <div class="pb-40"></div>
+          </div>
+          <div class="wizard-footer-fixed border-top-222">
+            ${esEdicion ? `<button type="button" onclick="ProveedoresView._eliminar(${id})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>` : '<div></div>'}
+            <div class="wizard-footer-buttons">
+              <button type="button" onclick="ProveedoresView._salirFormulario('${destinoCancelar}')" class="wizard-btn-action wizard-btn-secondary">${Icons.cerrar()} Cancelar</button>
+              <button type="button" onclick="ProveedoresView._guardar(${id || ''})" class="wizard-btn-action wizard-btn-success">${Icons.guardar()} Guardar</button>
+            </div>
+          </div>
+          </div>
         `;
     },
 
