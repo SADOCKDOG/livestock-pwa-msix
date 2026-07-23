@@ -379,16 +379,16 @@
       window.isNative = !!window.Capacitor;
       try {
         if (!window.isNative && navigator.serviceWorker && typeof navigator.serviceWorker.register === 'function') {
-          window.addEventListener("load", () => {
-            try {
-              navigator.serviceWorker
-                .register("./sw.js")
-                .then((reg) => console.log("SW OK"))
-                .catch((err) => console.error("SW Error:", err));
-            } catch (err) {
-              console.warn("Error al registrar el Service Worker:", err);
-            }
-          });
+          // Registro inmediato (sin esperar 'load'): este script ya está al final
+          // de <body>, así que el DOM está listo. Esperar a 'load' retrasa el
+          // registro hasta que carguen todos los subrecursos (imágenes, etc.),
+          // lo que hace que crawlers de análisis como PWABuilder no detecten el
+          // Service Worker dentro de su ventana de tiempo — falso negativo de
+          // "no tiene Service Worker" en el report card, aunque sí funciona.
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) => console.log("SW OK"))
+            .catch((err) => console.error("SW Error:", err));
         }
       } catch (e) {
         console.warn("Service Worker no disponible o bloqueado por el sandbox del entorno:", e.message);
