@@ -21,47 +21,55 @@ const CryptoUtils = {
         }
 
         const Filesystem = window.Capacitor?.Plugins?.Filesystem;
-        // En Capacitor, el enum Directory suele estar en Plugins o se puede usar el string directamente
-        const directory = 'DATA';
-        const path = `keystore/${keyId}.json`;
 
-        try {
-            if (!Filesystem) throw new Error("Plugin Filesystem no disponible");
-
-            // 1. Intentar leer la clave del filesystem
-            const result = await Filesystem.readFile({ path, directory });
-            const jwk = JSON.parse(atob(result.data));
-            const key = await window.crypto.subtle.importKey("jwk", jwk, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
-            this._keyCache[keyId] = key;
-            return key;
-        } catch (e) {
-            // 2. Si no existe o falla (ej: estamos en web/browser sin plugin), generar una temporal
-            console.log(`[Crypto] No se pudo leer clave de disco para ${keyId}: ${e.message}. Generando clave temporal.`);
-
-            const newKey = await window.crypto.subtle.generateKey(
-                { name: "AES-GCM", length: 256 },
-                true,
-                ["encrypt", "decrypt"]
-            );
-
-            // Intentar persistirla si el plugin existe
-            if (Filesystem) {
+        if (Filesystem) {
+            // Nativo (Android/iOS): la clave se persiste en el Filesystem del dispositivo.
+            const directory = 'DATA';
+            const path = `keystore/${keyId}.json`;
+            try {
+                const result = await Filesystem.readFile({ path, directory });
+                const jwk = JSON.parse(atob(result.data));
+                const key = await window.crypto.subtle.importKey("jwk", jwk, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
+                this._keyCache[keyId] = key;
+                return key;
+            } catch (e) {
+                console.log(`[Crypto] No se pudo leer clave de disco para ${keyId}: ${e.message}. Generando y persistiendo nueva clave.`);
+                const newKey = await window.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
                 try {
                     const jwk = await window.crypto.subtle.exportKey("jwk", newKey);
-                    await Filesystem.writeFile({
-                        path,
-                        data: btoa(JSON.stringify(jwk)),
-                        directory,
-                        recursive: true
-                    });
+                    await Filesystem.writeFile({ path, data: btoa(JSON.stringify(jwk)), directory, recursive: true });
                 } catch (writeErr) {
                     console.warn("[Crypto] No se pudo persistir la clave en disco:", writeErr.message);
                 }
+                this._keyCache[keyId] = newKey;
+                return newKey;
             }
-
-            this._keyCache[keyId] = newKey;
-            return newKey;
         }
+
+        // Web/PWA/MSIX (sin Capacitor Filesystem): persistir el CryptoKey directamente en
+        // IndexedDB (store 'meta'), que soporta clonar CryptoKey de forma nativa sin exponer
+        // nunca el material de la clave a JS. Antes, al no existir Filesystem, se generaba
+        // una clave nueva SIN persistir en cada sesión — indescifrando todo lo cifrado en
+        // sesiones anteriores tras cualquier recarga de página.
+        const metaKey = `crypto_${keyId}`;
+        try {
+            const stored = await window.db.get('meta', metaKey);
+            if (stored?.value) {
+                this._keyCache[keyId] = stored.value;
+                return stored.value;
+            }
+        } catch (e) {
+            console.warn(`[Crypto] No se pudo leer clave de IndexedDB para ${keyId}:`, e.message);
+        }
+
+        const newKey = await window.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+        try {
+            await window.db.put('meta', { key: metaKey, value: newKey });
+        } catch (writeErr) {
+            console.warn(`[Crypto] No se pudo persistir la clave en IndexedDB para ${keyId}:`, writeErr.message);
+        }
+        this._keyCache[keyId] = newKey;
+        return newKey;
     },
 
     /**
