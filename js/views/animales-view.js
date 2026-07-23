@@ -8,7 +8,7 @@ const AnimalesView = {
   _filtroActivo: { especie: '', sexo: '', estado: '' },
 
   async render() {
-    if (window.App) App.updateHeaderColor('animales');
+    // Color de pantalla: lo fija GanaderiaView (color fijo de GeGan), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("ganaderia-tab-content") || document.getElementById("app-content");
     const animales = await Animales.list();
     const rebanos = await Rebanos.list();
@@ -45,18 +45,23 @@ const AnimalesView = {
       const rebano = rebanoMap[a.rebanoId];
       return rebano && !window.ModoContextoHelper._matchTipoByMode(rebano.tipo, flagsModo);
     }).length;
-    const moduleColor = window.getModuleColor('/animales');
+    const modoMeta = window.ModoContextoHelper.getModeMetaEffective(flagsModo);
     html += `
-      <!-- Cabecera de Sección Estandarizada -->
-      <div class="flex items-center gap-12 mb-14">
-        <span class="text-2xl" style="color:${moduleColor}; display:inline-flex; align-items:center;">${Icons.animales()}</span>
-        <div>
-          <h1 class="text-white font-900 text-lg uppercase tracking-wider" style="margin:0; line-height:1.2;">
-            <span style="color:${moduleColor}; margin-right:4px;">|</span> CENSO DE ANIMALES
-          </h1>
-          <div class="text-gray" style="font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
-            ${animales.length} ${animales.length === 1 ? 'registro' : 'registros'} · ${activos} activos
+      <!-- Cabecera de Módulo: chip de modo + KPI + acción principal -->
+      <div class="module-header">
+        <div class="module-header-kpis">
+          <span class="module-mode-chip" style="--mode-color: ${modoMeta.color};">${modoMeta.icon} ${modoMeta.label}</span>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Censo</span>
+            <span class="module-header-kpi-value">${animales.length}</span>
           </div>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Activos</span>
+            <span class="module-header-kpi-value" style="color: var(--c-success);">${activos}</span>
+          </div>
+        </div>
+        <div class="module-header-primary-action">
+          <button class="btn btn-create btn-lg" onclick="location.hash='/animal'">${Icons.agregar()} Nuevo Animal</button>
         </div>
       </div>
 
@@ -113,11 +118,6 @@ const AnimalesView = {
       html += App._cardRegistro(props);
     });
     html += `</div>
-      <!-- Botón Flotante de Acción con viñeta -->
-      <div class="fab-container" onclick="location.hash='/animal'">
-        <span class="fab-label">Nuevo Animal</span>
-        <button class="fab-btn" aria-label="Añadir"><span aria-hidden="true">${Icons.fabPlus()}</span></button>
-      </div>
       <div id="animales-empty-search" class="card mt-10 p-12 text-center d-none" style="background: rgba(255,255,255,0.01);">
         <div class="text-2xl mb-8" style="color:#555;">${Icons.buscar()}</div>
         <p class="text-gray-500 uppercase font-900 text-xs" style="margin: 0;">No se encontraron animales con ese criterio.</p>
@@ -221,17 +221,55 @@ const AnimalesView = {
       peso_inicial: ""
     };
     if (!esNuevo) a = await Animales.get(id);
+    // Calculate economic margin for existing animals
+    const margen = !esNuevo && window.MargenAnimal ? await window.MargenAnimal.calcular(a.id).catch(() => null) : null;
 
-    const [especies, rebanos, todosAnimales] = await Promise.all([
-      window.db.getAll("config_especies"),
+    const [especies, tiposIdentificador, especieTipoIdentificador, razas, rebanos, todosAnimales, proveedores] = await Promise.all([
+      window.db.getAll("especies").catch(() => []),
+      window.db.getAll("tipos_identificador").catch(() => []),
+      window.db.getAll("especie_tipo_identificador").catch(() => []),
+      window.db.getAll("razas").catch(() => []),
       Rebanos.list(),
       Animales.list().catch(() => []),
+      window.Proveedores ? window.Proveedores.list().catch(() => []) : Promise.resolve([]),
     ]);
+    // Tipos de identificador válidos para la especie ya guardada del animal (si la hay),
+    // excluyendo los dados de baja del catálogo oficial (ver docs/NORMATIVA-CROTAL-ESPECIE.md)
+    const tiposIdentificadorPorEspecieId = (especieId) => {
+      const idsValidos = especieTipoIdentificador
+        .filter((r) => Number(r.especieId) === Number(especieId))
+        .map((r) => r.tipoIdentificadorId);
+      return tiposIdentificador.filter((t) => idsValidos.includes(t.id) && !t.fecha_baja);
+    };
+    // Razas del catálogo oficial FEGA válidas para la especie (ver
+    // docs/NORMATIVA-CROTAL-ESPECIE.md sección "Catálogo de razas").
+    const razasPorEspecieId = (especieId) =>
+      razas.filter((r) => Number(r.especieId) === Number(especieId)).sort((a, b) => a.nombre.localeCompare(b.nombre));
+    // Cache para que _onEspecieChange (onchange, sin acceso a estas const locales)
+    // pueda repoblar los selectores de tipo de crotal y raza sin volver a consultar la BD.
+    this._tiposIdentificadorPorEspecieIdCache = tiposIdentificadorPorEspecieId;
+    this._razasPorEspecieIdCache = razasPorEspecieId;
+
+    // Fallback: animales guardados antes de la migración v15 (o creados por seed-data)
+    // solo tienen `especie` (string), no `especieId`. El <select> de ESPECIE ya marca
+    // la opción correcta comparando por string, pero el de tipo de crotal necesita el id
+    // numérico — lo derivamos aquí para que también se pueble en la carga inicial.
+    const especieIdInicial = a.especieId != null
+      ? Number(a.especieId)
+      : especies.find((e) => e.nombre_display === a.especie)?.id ?? null;
+    this._razasPorNombreCache = razasPorEspecieId(especieIdInicial);
 
     const idActual = esNuevo ? null : Number(id);
     const hembras = (todosAnimales || []).filter(
       (x) => x.sexo === "H" && (x.estado || "activo") !== "baja" && x.id !== idActual
     );
+
+    // Campo `Cebo` del fichero de incorporación SIGGAN (ver docs/PLAN-MEJORA-SIGGAN.md
+    // punto 2): derivado del motivo del último movimiento de entrada, no es un campo
+    // editable propio del animal.
+    const esDestinoCebo = !esNuevo && window.Movimientos
+      ? await window.Movimientos.esDestinoCebo(idActual).catch(() => false)
+      : false;
 
     const CS = window.ComunidadesService;
     const paisesNac = CS ? CS.getPaisesNacimiento() : [{ value: 'ES', label: 'España (ES)' }];
@@ -245,15 +283,17 @@ const AnimalesView = {
 
     document.getElementById("app-content").innerHTML = `
       <div class="wizard-full-screen">
-        <div class="wizard-header-fixed flex justify-between items-center border-top-5-gold">
-          <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--p-gold); margin-right: 6px;">|</span> ${Icons.animales()} FICHA ANIMAL</h1>
-          <div class="flex gap-10">
-            <button onclick="App._leerChipNFC('a-rfid', 'a-crotal')" class="widget-link-btn widget-link-btn--neon neon-accent px-12 py-6 min-h-0 h-auto">
-              <span class="text-[0.65rem] font-900 uppercase">NFC</span>
-            </button>
-            <button onclick="App._escanearCrotal('a-crotal')" class="widget-link-btn widget-link-btn--neon neon-info px-12 py-6 min-h-0 h-auto">
-              <span class="text-[0.65rem] font-900 uppercase">SCAN</span>
-            </button>
+        <div class="wizard-header-fixed border-top-5-gold">
+          <div class="flex justify-between items-center">
+            <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--p-gold); margin-right: 6px;">|</span> ${Icons.animales()} FICHA ANIMAL</h1>
+            <div class="flex gap-10">
+              <button onclick="App._leerChipNFC('a-rfid', 'a-crotal')" class="widget-link-btn widget-link-btn--neon neon-accent px-12 py-6 min-h-0 h-auto">
+                <span class="text-[0.65rem] font-900 uppercase">NFC</span>
+              </button>
+              <button onclick="App._escanearCrotal('a-crotal')" class="widget-link-btn widget-link-btn--neon neon-info px-12 py-6 min-h-0 h-auto">
+                <span class="text-[0.65rem] font-900 uppercase">SCAN</span>
+              </button>
+            </div>
           </div>
         </div>
         <div class="wizard-content-scrollable p-20">
@@ -275,7 +315,7 @@ const AnimalesView = {
               <div class="wizard-input-group">
                 <label class="wizard-label" for="a-especie">ESPECIE</label>
                 <select id="a-especie" required class="wizard-input" onchange="AnimalesView._onEspecieChange(this)">
-                  ${especies.map((e) => `<option value="${e.nombre}" ${a.especie === e.nombre ? "selected" : ""}>${e.nombre.toUpperCase()}</option>`).join("")}
+                  ${especies.map((e) => `<option value="${e.nombre_display}" data-especie-id="${e.id}" ${a.especie === e.nombre_display ? "selected" : ""}>${e.nombre_display.toUpperCase()}</option>`).join("")}
                 </select>
               </div>
               <div class="wizard-input-group">
@@ -289,8 +329,31 @@ const AnimalesView = {
             </div>
             <div class="grid grid-cols-2 gap-12 mb-12">
               <div class="wizard-input-group">
-                <label class="wizard-label" for="a-raza">RAZA</label>
-                <input type="text" id="a-raza" value="${a.raza || ""}" class="wizard-input uppercase font-800" placeholder="SIN RAZA">
+                <label class="wizard-label" for="a-tipo-crotal-oficial">TIPO DE CROTAL (NORMATIVA)</label>
+                <select id="a-tipo-crotal-oficial" class="wizard-input font-800">
+                  ${tiposIdentificadorPorEspecieId(especieIdInicial).map((t) => `<option value="${t.id}" ${a.tipoIdentificadorId === t.id ? "selected" : ""}>${t.nombre.toUpperCase()}</option>`).join("") || '<option value="">— Elige especie primero —</option>'}
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-12 mb-12">
+              <div class="wizard-input-group">
+                <label class="wizard-label" for="a-raza">RAZA (CATÁLOGO OFICIAL)</label>
+                ${(() => {
+                  const razasIniciales = razasPorEspecieId(especieIdInicial);
+                  const razaCatalogada = a.raza && razasIniciales.find((r) => r.nombre.toUpperCase() === a.raza.toUpperCase());
+                  const esOtra = !!(a.raza && !razaCatalogada);
+                  return `
+                <select id="a-raza" class="wizard-input font-800" onchange="AnimalesView._onRazaChange(this)">
+                  <option value="">— SIN RAZA —</option>
+                  ${razasIniciales.map((r) => `<option value="${r.nombre}" ${razaCatalogada && razaCatalogada.nombre === r.nombre ? "selected" : ""}>${r.nombre.toUpperCase()}</option>`).join("")}
+                  <option value="__otra__" ${esOtra ? "selected" : ""}>OTRA (ESPECIFICAR)</option>
+                </select>
+                <input type="text" id="a-raza-otra" value="${esOtra ? a.raza : ""}"
+                       class="wizard-input uppercase font-800 mt-6"
+                       placeholder="Nombre de la raza"
+                       style="display: ${esOtra ? "block" : "none"};">
+                <div id="a-raza-info" class="text-[0.6rem] font-800 uppercase tracking-wide mt-6">${AnimalesView._razaInfoHTML(razaCatalogada)}</div>`;
+                })()}
               </div>
               <div class="wizard-input-group">
                 <label class="wizard-label" for="a-rebano">REBAÑO / LOTE</label>
@@ -298,6 +361,7 @@ const AnimalesView = {
                   <option value="">SIN ASIGNAR</option>
                   ${rebanos.map((r) => `<option value="${r.id}" ${a.rebanoId == r.id ? "selected" : ""}>${r.nombre.toUpperCase()}</option>`).join("")}
                 </select>
+                ${esDestinoCebo ? `<div class="text-[0.6rem] font-800 uppercase tracking-wide mt-6" style="color: var(--c-warning, #f59e0b);">DESTINO: CEBO / ENGORDE (SIGGAN)</div>` : ""}
               </div>
             </div>
             <div class="grid grid-cols-2 gap-12 mb-12">
@@ -322,7 +386,71 @@ const AnimalesView = {
                 <input type="number" step="0.1" id="a-pesoinicial" value="${a.peso_inicial || ""}" class="wizard-input font-800" placeholder="EJ: 25.0">
               </div>
             </div>
+            ${a.tipoAlta === "Compra" ? `
+            <div class="grid grid-cols-2 gap-12 mb-12">
+              <div class="wizard-input-group">
+                <label class="wizard-label" for="a-precio-compra">PRECIO DE COMPRA (€)</label>
+                <input type="number" step="0.01" id="a-precio-compra" value="${a.precio_compra || ''}" class="wizard-input font-800" placeholder="EJ: 150.50">
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label" for="a-proveedor">PROVEEDOR</label>
+                <select id="a-proveedor" class="wizard-input font-800">
+                  <option value="">— SELECCIONAR PROVEEDOR —</option>
+                  ${proveedores.map(p => `<option value="${p.id}" ${a.proveedor_id === p.id ? 'selected' : ''}>${p.nombre || ''}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="wizard-input-group mb-12">
+              <label class="wizard-label" for="a-factura-compra">FACTURA COMPRA</label>
+              <input type="text" id="a-factura-compra" value="${a.factura_compra || ''}" class="wizard-input font-800" placeholder="NÚMERO DE FACTURA">
+            </div>
+            ` : ''}
           </div>
+
+          ${a.tipoAlta === "Compra" ? `
+          <div class="card p-16 mb-20" style="border: 1px solid var(--c-amber); background: rgba(255,255,255,0.02);">
+            <div class="section-header-theme mb-12" style="--theme-color: var(--c-amber); font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;"><span style="color: var(--c-amber); margin-right: 4px;">|</span> ${Icons.shopping_cart()} DATOS DE COMPRA</div>
+            <div class="grid grid-cols-2 gap-12 mb-12">
+              <div class="wizard-input-group">
+                <label class="wizard-label" for="a-precio-compra">PRECIO DE COMPRA (€)</label>
+                <input type="number" step="0.01" id="a-precio-compra" value="${a.precio_compra || ''}" class="wizard-input font-800" placeholder="EJ: 150.50">
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label" for="a-proveedor">PROVEEDOR</label>
+                <select id="a-proveedor" class="wizard-input font-800">
+                  <option value="">— SELECCIONAR PROVEEDOR —</option>
+                  ${proveedores.map(p => `<option value="${p.id}" ${a.proveedor_id === p.id ? 'selected' : ''}>${p.nombre || ''}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="wizard-input-group mb-12">
+              <label class="wizard-label" for="a-factura-compra">FACTURA COMPRA</label>
+              <input type="text" id="a-factura-compra" value="${a.factura_compra || ''}" class="wizard-input font-800" placeholder="NÚMERO DE FACTURA">
+            </div>
+            <div class="wizard-input-group mb-12">
+              <label class="wizard-label" for="a-pago-pendiente">PAGO PENDIENTE</label>
+              <input type="checkbox" id="a-pago-pendiente" ${a.pago_pendiente ? 'checked' : ''} class="wizard-input">
+            </div>
+          </div>
+          ` : ''}
+
+          ${margen ? `
+          <div class="card p-16 mb-20" style="border: 1px solid ${margen.margenNeto >= 0 ? 'var(--c-success)' : 'var(--c-danger)'}; background: rgba(255,255,255,0.02);">
+            <div class="section-header-theme mb-12" style="--theme-color: ${margen.margenNeto >= 0 ? 'var(--c-success)' : 'var(--c-danger)'}; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;"><span style="color: ${margen.margenNeto >= 0 ? 'var(--c-success)' : 'var(--c-danger)'}; margin-right: 4px;">|</span> ${Icons.dinero ? Icons.dinero() : Icons.documento()} MARGEN ECONÓMICO</div>
+            <div class="grid grid-cols-2 gap-12 mb-12">
+              <div><span class="text-xs text-gray uppercase font-extrabold tracking-wider">COSTE TOTAL</span><br><span class="text-white font-950 text-lg">${margen.costeTotal.toFixed(2)} €</span></div>
+              <div><span class="text-xs text-gray uppercase font-extrabold tracking-wider">INGRESO TOTAL</span><br><span class="text-white font-950 text-lg">${margen.ingresoTotal.toFixed(2)} €</span></div>
+            </div>
+            <div class="mb-12"><span class="text-xs text-gray uppercase font-extrabold tracking-wider">MARGEN NETO</span><br><span class="font-950 text-xl" style="color: ${margen.margenNeto >= 0 ? 'var(--c-success)' : 'var(--c-danger)'};">${margen.margenNeto.toFixed(2)} €</span></div>
+            <div class="grid grid-cols-2 gap-8 text-xs">
+              <div>Compra: ${margen.costeCompra.toFixed(2)} €</div>
+              <div>Sanidad: ${margen.costeSanidad.toFixed(2)} €</div>
+              <div>Leche: ${margen.litrosLeche.toFixed(1)} L · ${margen.ingresoLeche.toFixed(2)} €</div>
+              <div>Venta: ${margen.ingresoVenta.toFixed(2)} €</div>
+            </div>
+            ${margen.sinPrecioLeche ? `<div class="text-xs mt-8" style="color: var(--c-warning);">${Icons.alerta ? Icons.alerta() : ''} Sin contrato de leche activo con precio vigente — ingreso de leche estimado en 0 €.</div>` : ''}
+          </div>
+          ` : ''}
 
           <div class="card p-16 mb-20" style="border: 1px solid #4FADF5; background: rgba(255,255,255,0.02);">
             <div class="section-header-theme mb-12" style="--theme-color: var(--c-info); font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;"><span style="color: #4FADF5; margin-right: 4px;">|</span> ${Icons.documento()} IDENTIFICACIÓN TÉCNICA</div>
@@ -434,21 +562,19 @@ const AnimalesView = {
               </button>
             </div>` : ""}
         </div>
-
-        <div class="wizard-footer-fixed grid grid-cols-3 gap-8">
+        <div class="wizard-footer-fixed border-top-222" style="flex-direction:column; align-items:stretch;">
           ${!esNuevo ? `
-          <button type="button" onclick="location.hash='/trazabilidad?id=${id}'" class="widget-link-btn widget-link-btn--neon neon-info px-4">
-            ${Icons.rotacion()}
-            <span class="widget-link-label">360°</span>
-          </button>` : '<div></div>'}
-          <button type="button" onclick="AnimalesView._salirRegistro()" class="widget-link-btn widget-link-btn--neon neon-danger px-4">
-            ${Icons.cerrar()}
-            <span class="widget-link-label">SALIR</span>
-          </button>
-          <button type="button" id="btn-guardar-main" onclick="AnimalesView._guardarAnimalDetalle('${id || ""}')" class="widget-link-btn widget-link-btn--neon neon-success px-4">
-            ${Icons.guardar()}
-            <span class="widget-link-label">GUARDAR</span>
-          </button>
+          <div class="flex justify-center gap-8 flex-wrap">
+            <button type="button" onclick="location.hash='/trazabilidad?id=${id}'" class="wizard-btn-action wizard-btn-secondary">${Icons.rotacion()} 360°</button>
+            <button type="button" onclick="location.hash='/animal-bitacora?id=${id}'" class="wizard-btn-action wizard-btn-secondary">${Icons.documento()} Bitácora</button>
+          </div>` : ''}
+          <div class="flex justify-between items-center" style="gap:10px;">
+            ${!esNuevo ? `<button type="button" onclick="AnimalesView._eliminarAnimal(${id})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>` : '<div></div>'}
+            <div class="wizard-footer-buttons">
+              <button type="button" onclick="AnimalesView._salirRegistro()" class="wizard-btn-action wizard-btn-secondary">${Icons.cerrar()} Salir</button>
+              <button type="button" id="btn-guardar-main" onclick="AnimalesView._guardarAnimalDetalle('${id || ""}')" class="wizard-btn-action wizard-btn-success">${Icons.guardar()} Guardar</button>
+            </div>
+          </div>
         </div>
       </div>`;
 
@@ -571,8 +697,16 @@ const AnimalesView = {
         id: id ? Number(id) : undefined,
         numero_identificacion: crotal,
         especie: document.getElementById("a-especie").value,
+        especieId: document.getElementById("a-especie").selectedOptions[0]?.dataset.especieId
+          ? Number(document.getElementById("a-especie").selectedOptions[0].dataset.especieId)
+          : null,
+        tipoIdentificadorId: document.getElementById("a-tipo-crotal-oficial")?.value
+          ? Number(document.getElementById("a-tipo-crotal-oficial").value)
+          : null,
         sexo: document.getElementById("a-sexo").value,
-        raza: document.getElementById("a-raza").value.trim(),
+        raza: document.getElementById("a-raza").value === "__otra__"
+          ? document.getElementById("a-raza-otra").value.trim()
+          : document.getElementById("a-raza").value.trim(),
         tipo: document.getElementById("a-tipo").value.trim(),
         peso_inicial: parseFloat(document.getElementById("a-pesoinicial").value) || null,
         rebanoId: rebanoIdFinal,
@@ -593,6 +727,11 @@ const AnimalesView = {
         estado: document.getElementById("a-estado")?.value || existing.estado || "activo",
         motivo_baja: document.getElementById("a-motivo-baja")?.value || "",
         fecha_baja: document.getElementById("a-fecha-baja")?.value || "",
+        // Nuevos campos para compra de animal
+        precio_compra: parseFloat(document.getElementById("a-precio-compra").value) || null,
+        proveedor_id: document.getElementById("a-proveedor").value ? Number(document.getElementById("a-proveedor").value) : null,
+        factura_compra: document.getElementById("a-factura-compra").value.trim() || null,
+        pago_pendiente: document.getElementById("a-pago-pendiente").checked,
         actualizadoEn: new Date().toISOString(),
       };
 
@@ -602,6 +741,18 @@ const AnimalesView = {
         const ccaa = finca ? finca.comunidad_autonoma : null;
         const res = window.ComunidadesService.validarFormatoREGA(data.rega_origen, ccaa);
         if (!res.valido) return App.toastError("REGA de procedencia: " + res.mensaje);
+      }
+      // Validación de datos de compra
+      if (data.tipoAlta === "Compra") {
+        if (!data.precio_compra || data.precio_compra <= 0) {
+          return App.toastError("Indique un precio de compra válido para animales de tipo Compra.");
+        }
+        if (!data.proveedor_id) {
+          return App.toastError("Seleccione un proveedor para animales de tipo Compra.");
+        }
+        if (!data.factura_compra || data.factura_compra.trim() === "") {
+          return App.toastError("Indique el número de factura para animales de tipo Compra.");
+        }
       }
       // Coherencia de baja
       if (data.estado === "baja" && !data.motivo_baja) {
@@ -719,6 +870,57 @@ const AnimalesView = {
       catSel.innerHTML = '<option value="">— Sin clasificar —</option>' +
         cats.map((c) => `<option value="${c}" ${prev === c ? 'selected' : ''}>${c}</option>`).join('');
     }
+    // Refrescar el catálogo oficial de tipos de crotal según la nueva especie
+    // (ver docs/NORMATIVA-CROTAL-ESPECIE.md)
+    const tipoCrotalSel = document.getElementById('a-tipo-crotal-oficial');
+    const especieId = selectEl.selectedOptions[0]?.dataset.especieId;
+    if (tipoCrotalSel && especieId && this._tiposIdentificadorPorEspecieIdCache) {
+      const tipos = this._tiposIdentificadorPorEspecieIdCache(especieId);
+      tipoCrotalSel.innerHTML = tipos.length
+        ? tipos.map((t) => `<option value="${t.id}">${t.nombre.toUpperCase()}</option>`).join('')
+        : '<option value="">— Sin tipos definidos —</option>';
+    }
+    // Refrescar el catálogo oficial de razas según la nueva especie
+    // (ver docs/NORMATIVA-CROTAL-ESPECIE.md sección "Catálogo de razas")
+    const razaSel = document.getElementById('a-raza');
+    if (razaSel && especieId && this._razasPorEspecieIdCache) {
+      const razasList = this._razasPorEspecieIdCache(especieId);
+      this._razasPorNombreCache = razasList;
+      razaSel.innerHTML = '<option value="">— SIN RAZA —</option>' +
+        razasList.map((r) => `<option value="${r.nombre}">${r.nombre.toUpperCase()}</option>`).join('') +
+        '<option value="__otra__">OTRA (ESPECIFICAR)</option>';
+      const razaOtra = document.getElementById('a-raza-otra');
+      if (razaOtra) { razaOtra.style.display = 'none'; razaOtra.value = ''; }
+      const info = document.getElementById('a-raza-info');
+      if (info) info.innerHTML = this._razaInfoHTML(null);
+    }
+  },
+
+  _onRazaChange(selectEl) {
+    const otra = document.getElementById('a-raza-otra');
+    if (otra) otra.style.display = selectEl.value === '__otra__' ? 'block' : 'none';
+    const info = document.getElementById('a-raza-info');
+    if (info) {
+      const raza = (this._razasPorNombreCache || []).find((r) => r.nombre === selectEl.value);
+      info.innerHTML = this._razaInfoHTML(raza);
+    }
+  },
+
+  // Clasificación oficial FEGA de la raza seleccionada (ver docs/NORMATIVA-CROTAL-ESPECIE.md
+  // sección "Catálogo de razas"): 1001 Autóctona, 1002 Autóctona Amenazada (con grado_amenaza),
+  // 1003 Integrada en España, 1004 Otras reconocidas.
+  _razaInfoHTML(raza) {
+    if (!raza) return '';
+    const CLASIFICACIONES = {
+      1001: { texto: 'RAZA AUTÓCTONA', color: 'var(--c-emerald, #10b981)' },
+      1002: { texto: 'RAZA AUTÓCTONA EN PELIGRO DE EXTINCIÓN', color: 'var(--c-red, #ef4444)' },
+      1003: { texto: 'RAZA INTEGRADA EN ESPAÑA', color: 'var(--text-aaa, #999)' },
+      1004: { texto: 'OTRA RAZA RECONOCIDA', color: 'var(--text-aaa, #999)' },
+    };
+    const c = CLASIFICACIONES[raza.clasificacion];
+    if (!c) return '';
+    const grado = raza.clasificacion === 1002 && raza.grado_amenaza ? ` · GRADO DE AMENAZA: ${raza.grado_amenaza.toUpperCase()}` : '';
+    return `<span style="color: ${c.color};">${c.texto}${grado}</span>`;
   },
 
   _onEstadoChange(selectEl) {

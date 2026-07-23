@@ -157,6 +157,9 @@ const SanidadView = {
     if (!container) return;
     this._renderOpts = opts;
 
+    const vacunaciones = window.Vacunaciones
+      ? await window.Vacunaciones.list().catch(() => [])
+      : [];
     const tratamientos = await Sanitarios.list().catch(() => []);
     const filtro = this._filtro.trim().toLowerCase();
     const tratamientosFiltrados = filtro ? tratamientos.filter(t => {
@@ -169,34 +172,39 @@ const SanidadView = {
 
     const enriquecidos = this.enriquecer(tratamientos);
     const supresionesActivas = enriquecidos.filter(t => t.enSupresion);
+    const modoFlags = window.ModoContextoHelper ? window.ModoContextoHelper.getFlags() : null;
+    const modoMeta = window.ModoContextoHelper
+      ? window.ModoContextoHelper.getModeMetaEffective(modoFlags)
+      : { icon: Icons.sanidad(), label: 'Explotación', color: 'var(--c-purple)' };
 
     container.innerHTML = `
+      <div class="px-4">
+        <div class="module-header">
+          <div class="module-header-kpis">
+            <span class="module-mode-chip" style="--mode-color: ${modoMeta.color};">${modoMeta.icon} ${modoMeta.label}</span>
+            <div class="module-header-kpi">
+              <span class="module-header-kpi-label">Tratamientos</span>
+              <span class="module-header-kpi-value">${tratamientos.length}</span>
+            </div>
+            <div class="module-header-kpi">
+              <span class="module-header-kpi-label">En Supresión</span>
+              <span class="module-header-kpi-value" style="color:${supresionesActivas.length > 0 ? 'var(--c-danger)' : 'var(--c-success)'};">${supresionesActivas.length}</span>
+            </div>
+          </div>
+          <div class="module-header-primary-action">
+            <button class="btn btn-create btn-lg" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">${Icons.fabPlus()} Aplicar Tratamiento</button>
+          </div>
+          <div class="module-header-secondary-actions">
+            <button class="widget-link-btn widget-link-btn--neon neon-info" style="border:none; cursor:pointer;" onclick="window.WizardVacunacion ? window.WizardVacunacion.registrar(null, { onSaved: () => App.route() }) : App.toastError('Módulo de vacunación no disponible')">${Icons.documento()}<span class="widget-link-label">Vacunación</span></button>
+            <button class="widget-link-btn widget-link-btn--neon neon-accent" style="border:none; cursor:pointer;" onclick="App._abrirWizardCrotales()">${Icons.documento()}<span class="widget-link-label">Crotales</span></button>
+            <button class="widget-link-btn widget-link-btn--neon neon-warning" style="border:none; cursor:pointer;" onclick="App._abrirWizardGuiaMovimiento()">${Icons.documento()}<span class="widget-link-label">Guía Mov.</span></button>
+          </div>
+        </div>
+      </div>
+
       ${this.renderAlertasSupresion(enriquecidos)}
 
       <div class="px-4">
-        <div class="card p-12 mb-14 border-222 card-total-3d card-resumen" style="background: rgba(255,255,255,0.02);">
-          <div class="text-xs text-white font-black uppercase tracking-wider mb-6 flex items-center justify-between gap-6">
-            <span class="flex items-center gap-6" style="color: var(--c-purple)">${Icons.sanidad()} BALANCE SANITARIO</span>
-            <button class="resumen-toggle" onclick="App.toggleResumen(this)">${Icons.chevronAbajo()}</button>
-          </div>
-          <div class="resumen-body flex flex-col">
-            <div class="py-10 flex justify-between items-center border-bottom-222">
-              <span class="text-[0.65rem] text-gray uppercase font-900">Total Tratamientos</span>
-              <strong class="text-lg font-950">${tratamientos.length}</strong>
-            </div>
-            <div class="py-10 flex justify-between items-center">
-              <span class="text-[0.65rem] text-gray uppercase font-900">Tratamientos en Supresión</span>
-              <strong class="text-lg font-950" style="color:${supresionesActivas.length > 0 ? 'var(--c-danger)' : 'var(--c-success)'};">${supresionesActivas.length}</strong>
-            </div>
-          </div>
-        </div>
-
-        <!-- Accesos directos a trámites oficiales -->
-        <div class="grid grid-cols-2 gap-8 mb-14">
-          <button class="widget-link-btn" style="border:none; cursor:pointer;" onclick="App._abrirWizardCrotales()">${Icons.documento()} Pedido de Crotales</button>
-          <button class="widget-link-btn" style="border:none; cursor:pointer;" onclick="App._abrirWizardGuiaMovimiento()">${Icons.documento()} Guía de Movimiento</button>
-        </div>
-
         <div class="flex items-center gap-8 mb-14">
           <div class="search-input-wrapper flex-1" style="position: relative;">
             <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #555;">${Icons.buscar()}</span>
@@ -205,15 +213,15 @@ const SanidadView = {
         </div>
 
         <div class="inf-section-title mb-10 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray">
+          <span style="color: var(--c-info); margin-right: 4px;">|</span> ${Icons.documento()} VACUNACIONES (LIBRO ADSG)
+        </div>
+        ${this.renderVacunaciones(vacunaciones)}
+
+        <div class="inf-section-title mb-10 mt-14 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray">
           <span style="color: var(--c-purple); margin-right: 4px;">|</span> ${Icons.documento()} HISTORIAL CLÍNICO VETERINARIO
         </div>
 
         ${this.renderHistorial(this.enriquecer(tratamientosFiltrados))}
-      </div>
-
-      <div class="fab-container" style="--fab-neon-color: var(--c-purple);" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">
-        <span class="fab-label">Aplicar Tratamiento</span>
-        <button class="fab-btn">${Icons.fabPlus()}</button>
       </div>`;
   },
 
@@ -225,17 +233,96 @@ const SanidadView = {
     }
   },
 
+  /** Listado de vacunaciones (cards clicables), más reciente primero. */
+  renderVacunaciones(vacunaciones, opts = {}) {
+    const limit = opts.limit || 20;
+    const lista = (vacunaciones || []).filter((v) => !v.anulada).slice(0, limit);
+    if (lista.length === 0) {
+      return `<div class="p-20 text-center rounded border border-222" style="background: rgba(255,255,255,0.015);">
+        <span class="text-555 text-xs uppercase font-800 tracking-wider">Sin vacunaciones registradas</span>
+      </div>`;
+    }
+    return `<div class="grid gap-10">${lista.map((v) => {
+      const tiposLabel = (v.tipos_vacuna || []).map((t) => t.tipo).filter(Boolean).join(', ') || 'Sin tipo';
+      return App._cardRegistro({
+        icon: Icons.sanidad(),
+        title: tiposLabel,
+        subtitle: `Animales: <strong style="color: var(--p-gold); font-weight: 950;">${v.animales_vacunados_total || 0}</strong>${v.veterinario ? ` · ${v.veterinario}` : ''}`,
+        metadata: `<span>${this._fmtFecha(v.fecha)}</span><span>·</span><span>${v.completa ? '100% CENSO' : 'PARCIAL'}</span>`,
+        badge: v.cerrada ? 'CERRADA' : 'ABIERTA',
+        color: v.cerrada ? 'var(--c-success)' : 'var(--c-info)',
+        onClick: `SanidadView._abrirOpcionesVacunacion(${v.id})`
+      });
+    }).join('')}</div>`;
+  },
+
+  async _abrirOpcionesVacunacion(id) {
+    try {
+      const v = await window.Vacunaciones.get(id);
+      if (!v) return;
+
+      const modalId = 'modal-opciones-vacunacion';
+      const tiposHtml = (v.tipos_vacuna || []).map((t) => `
+        <div class="p-8 mb-6 bg-black border border-222 rounded-sm">
+          <div class="text-white font-900 text-xs uppercase">${t.tipo}</div>
+          <div class="text-[0.6rem] text-gray uppercase">${[t.lote && `Lote: ${t.lote}`, t.dosis && `Dosis: ${t.dosis}`, t.nombre_comercial].filter(Boolean).join(' · ')}</div>
+        </div>`).join('');
+      const html = `
+          <div class="card p-25" style="max-width:420px; overflow-y:auto; max-height:90vh; border: 1px solid var(--c-info); background: #1e1e1e; width: 100%;">
+              <h3 class="mt-0 text-white font-900 uppercase tracking-wider"><span style="color: var(--c-info); margin-right: 4px;">|</span> VACUNACIÓN — ${v.cerrada ? 'CERRADA' : 'ABIERTA'}</h3>
+              <p class="text-xs text-gray mb-15">${this._fmtFecha(v.fecha)} · ${v.veterinario || 'Sin veterinario'}</p>
+
+              <div class="mb-15">${tiposHtml}</div>
+
+              <div class="text-[0.65rem] text-gray uppercase font-800 mb-15">
+                Animales vacunados: <strong class="text-gold">${v.animales_vacunados_total || 0}</strong>
+                ${v.animales_totales ? ` / ${v.animales_totales} censo` : ''}
+                ${v.completa ? ' · 100% CENSO' : ''}
+              </div>
+
+              ${v.observaciones ? `<p class="text-xs text-ccc mb-15">${v.observaciones}</p>` : ''}
+
+              <div class="flex gap-10 mt-20">
+                  ${!v.cerrada ? `<button class="wizard-btn-action wizard-btn-primary flex-1" id="btn-cerrar-vac">${Icons.check()} Cerrar</button>` : ''}
+                  <button class="wizard-btn-action wizard-btn-danger ${v.cerrada ? 'w-full' : 'flex-1'}" id="btn-anular-vac">${Icons.eliminar()} Anular</button>
+                </div>
+                <button class="wizard-btn-action wizard-btn-secondary mt-10 w-full" id="${modalId}-cancel">${Icons.cerrar()} Cerrar ventana</button>
+            </div>
+          </div>`;
+      const overlay = ModalManager.show(modalId, html, { closeOnOverlayClick: false });
+
+      overlay.querySelector('#' + modalId + '-cancel').onclick = () => ModalManager.close(modalId);
+
+      const btnCerrar = overlay.querySelector('#btn-cerrar-vac');
+      if (btnCerrar) {
+        btnCerrar.onclick = async () => {
+          if (!await Confirm.confirm('Cerrar vacunación', 'Una vez cerrada, no podrás editarla (solo anularla). ¿Continuar?', false)) return;
+          await window.Vacunaciones.cerrar(id);
+          App.toast('Vacunación cerrada', 'success');
+          ModalManager.close(modalId);
+          App.route();
+        };
+      }
+
+      overlay.querySelector('#btn-anular-vac').onclick = async () => {
+        if (!await Confirm.confirm('Anular vacunación', '¿Anular esta vacunación de forma trazable? No se borrará, quedará marcada como anulada.', true)) return;
+        await window.Vacunaciones.anular(id, '');
+        App.toast('Vacunación anulada', 'success');
+        ModalManager.close(modalId);
+        App.route();
+      };
+    } catch (e) {
+      App.toastError(e.message);
+    }
+  },
+
     async _abrirOpcionesTratamiento(id) {
     try {
       const t = await Sanitarios.get(id);
       if (!t) return;
 
-      const overlay = document.createElement("div");
-      overlay.className = "wizard-full-screen";
-      overlay.style.justifyContent = "center";
-      overlay.style.alignItems = "center";
-      overlay.style.backgroundColor = "rgba(0,0,0,0.8)";
-      overlay.innerHTML = `
+      const modalId = 'modal-editar-tratamiento';
+      const html = `
           <div class="card p-25" style="max-width:420px; overflow-y:auto; max-height:90vh; border: 1px solid var(--c-purple); background: #1e1e1e; width: 100%;">
               <h3 class="mt-0 text-white font-900 uppercase tracking-wider"><span style="color: var(--c-purple); margin-right: 4px;">|</span> EDITAR TRATAMIENTO</h3>
               <p class="text-xs text-gray mb-15">ID Interno: ${t.id}</p>
@@ -271,13 +358,15 @@ const SanidadView = {
                   <button class="wizard-btn-action wizard-btn-primary flex-2" id="btn-save-san">${Icons.guardar()} Guardar</button>
                   <button class="wizard-btn-action wizard-btn-danger flex-1" id="btn-del-san">${Icons.eliminar()} Borrar</button>
                 </div>
-                <button class="wizard-btn-action wizard-btn-secondary mt-10 w-full" onclick="SanidadView._cerrarOverlayRegistro(this)">${Icons.cerrar()} Cancelar</button>
+                <button class="wizard-btn-action wizard-btn-secondary mt-10 w-full" id="${modalId}-cancel">${Icons.cerrar()} Cancelar</button>
             </div>
           </div>`;
-      document.body.appendChild(overlay);
+      const overlay = ModalManager.show(modalId, html, { closeOnOverlayClick: false });
 
       SanidadView._registroGuardado = false;
       App.setExitGuard(() => SanidadView._confirmSalirOverlayRegistro());
+
+      overlay.querySelector('#' + modalId + '-cancel').onclick = () => SanidadView._cerrarOverlayRegistro(modalId);
 
       overlay.querySelector('#btn-save-san').onclick = async () => {
         const medicamento = overlay.querySelector('#edit-san-medicamento').value.trim();
@@ -301,7 +390,7 @@ const SanidadView = {
         SanidadView._registroGuardado = true;
         App.clearExitGuard();
         App.toast("Tratamiento actualizado", "success");
-        overlay.remove();
+        ModalManager.close(modalId);
         App.route();
       };
 
@@ -311,7 +400,7 @@ const SanidadView = {
         SanidadView._registroGuardado = true;
         App.clearExitGuard();
         App.toast("Tratamiento eliminado", "success");
-        overlay.remove();
+        ModalManager.close(modalId);
         App.route();
       };
     } catch (e) {
@@ -325,11 +414,10 @@ const SanidadView = {
     return await Confirm.confirm("Salir sin guardar", "¿Cerrar sin guardar datos?", false);
   },
 
-  async _cerrarOverlayRegistro(btn) {
+  async _cerrarOverlayRegistro(modalId) {
     if (!(await this._confirmSalirOverlayRegistro())) return;
     App.clearExitGuard();
-    const overlay = btn.closest('.wizard-full-screen');
-    if (overlay) overlay.remove();
+    ModalManager.close(modalId);
   }
 };
 

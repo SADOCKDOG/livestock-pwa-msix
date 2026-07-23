@@ -12,7 +12,7 @@ const CompradoresView = {
     tipo: ''
   },
   async render() {
-    if (window.App) App.updateHeaderColor('compradores');
+    // Color de pantalla: lo fija ComercializacionView (color fijo de CoMer), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("comercializacion-tab-content") || document.getElementById("app-content");
 
     // Cargar datos necesarios según el módulo activo
@@ -542,12 +542,14 @@ const CompradoresView = {
           <div class="info-box-center py-10" style="background: #1E1E1E; border: 1px solid #27272a; border-radius: 8px;">
             <small class="s-lbl uppercase font-900" style="color: var(--c-success);">CARNE</small>
             <div class="s-val inf-val-lg text-green font-950">${resumen.total_ventas_carne}</div>
-            <small class="text-gray-600 text-[0.5rem] font-800 block mt-2">${resumen.peso_canal_total.toLocaleString()} kg</small>
+            <small class="text-gray-600 text-[0.5rem] font-800 block mt-2">${resumen.peso_canal_total.toLocaleString()} kg · ${resumen.importe_carne_real.toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2})} €</small>
+            ${resumen.ventas_carne_sin_precio > 0 ? `<small class="text-[0.5rem] font-800 block mt-2" style="color: var(--c-warning);">${resumen.ventas_carne_sin_precio} sin precio</small>` : ''}
           </div>
           <div class="info-box-center py-10" style="background: #1E1E1E; border: 1px solid #27272a; border-radius: 8px;">
             <small class="s-lbl uppercase font-900" style="color: var(--c-warning);">LECHE</small>
             <div class="s-val inf-val-lg text-amber font-950">${resumen.total_entregas_leche}</div>
-            <small class="text-gray-600 text-[0.5rem] font-800 block mt-2">${resumen.litros_totales.toLocaleString()} L</small>
+            <small class="text-gray-600 text-[0.5rem] font-800 block mt-2">${resumen.litros_totales.toLocaleString()} L · ${resumen.importe_leche_real.toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2})} €</small>
+            ${resumen.entregas_leche_sin_precio > 0 ? `<small class="text-[0.5rem] font-800 block mt-2" style="color: var(--c-warning);">${resumen.entregas_leche_sin_precio} sin precio</small>` : ''}
           </div>
           <div class="info-box-center py-10" style="background: #1E1E1E; border: 1px solid #27272a; border-radius: 8px;">
             <small class="s-lbl uppercase font-900" style="color: var(--c-purple);">CONTRATOS</small>
@@ -652,13 +654,12 @@ const CompradoresView = {
 
       const main = document.getElementById("app-content");
       main.innerHTML = `
-        <div class="mb-14">
-          <button onclick="CompradoresView._salirFormulario('${destinoCancelar}')" class="widget-link-btn widget-link-btn--neon neon-danger px-16 py-8 min-h-0 h-auto">
-            <span class="text-[0.7rem] font-950 uppercase tracking-widest">${Icons.atras()} Cancelar</span>
-          </button>
+        <div class="wizard-full-screen">
+        <div class="wizard-header-fixed border-top-5-gold">
+          <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--c-warning); margin-right: 6px;">|</span> ${esEdicion ? Icons.editar() : Icons.agregar()} ${esEdicion ? 'EDITAR COMPRADOR' : 'NUEVO COMPRADOR'}</h1>
         </div>
+        <div class="wizard-content-scrollable p-20">
         <div class="card p-20 bg-black" style="border: 1px solid #27272a;">
-          <div class="section-header-theme mb-20" style="--theme-color: var(--c-warning)"><span style="color: var(--c-amber); margin-right: 6px;">|</span> ${esEdicion ? 'EDITAR COMPRADOR' : 'NUEVO COMPRADOR'}</div>
 
           <div class="wizard-input-group mb-15">
               <label class="wizard-label uppercase font-900" for="c-nombre">Nombre / Razón Social *</label>
@@ -749,18 +750,16 @@ const CompradoresView = {
             <input type="checkbox" id="c-activo" ${c.activo !== false ? 'checked' : ''} style="accent-color:var(--c-warning);">
             <span class="uppercase font-950 tracking-widest text-[0.65rem]">Comprador activo en el sistema</span>
           </label>
-
-          <div class="grid grid-cols-2 gap-10 mt-20">
-              <button onclick="CompradoresView._guardar(${id || ''})" class="widget-link-btn widget-link-btn--neon neon-success">
-                ${Icons.guardar()} <span class="widget-link-label">GUARDAR</span>
-              </button>
-              <button onclick="CompradoresView._salirFormulario('${destinoCancelar}')" class="widget-link-btn widget-link-btn--neon neon-danger">
-                ${Icons.cerrar()} <span class="widget-link-label">CANCELAR</span>
-              </button>
-            </div>
-            ${esEdicion ? `<div class="mt-15 text-center"><button onclick="CompradoresView._eliminar(${id})" class="text-red font-900 text-[0.6rem] uppercase tracking-widest p-10 opacity-60 hover:opacity-100 transition-all">${Icons.eliminar()} Eliminar definitivamente</button></div>` : ''}
+        </div>
+        </div>
+        <div class="wizard-footer-fixed border-top-222">
+          ${esEdicion ? `<button type="button" onclick="CompradoresView._eliminar(${id})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>` : '<div></div>'}
+          <div class="wizard-footer-buttons">
+            <button type="button" onclick="CompradoresView._salirFormulario('${destinoCancelar}')" class="wizard-btn-action wizard-btn-secondary">${Icons.cerrar()} Cancelar</button>
+            <button type="button" onclick="CompradoresView._guardar(${id || ''})" class="wizard-btn-action wizard-btn-success">${Icons.guardar()} Guardar</button>
           </div>
-          <div class="pb-40"></div>
+        </div>
+        </div>
         `;
     },
 

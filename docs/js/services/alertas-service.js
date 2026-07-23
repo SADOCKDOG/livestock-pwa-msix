@@ -43,13 +43,14 @@ const AlertasService = {
    * Obtener todas las alertas agrupadas
    */
   async getAll() {
-    const [sanitarias, trazabilidad, administrativas, calendario] = await Promise.all([
+    const [sanitarias, trazabilidad, administrativas, calendario, agenda] = await Promise.all([
       this.obtenerAlertasSanitarias(),
       this.obtenerAlertasTrazabilidad(),
       this.obtenerAlertasAdministrativas(),
       this.obtenerCalendarioPreventivo(),
+      this.obtenerAlertasAgenda(),
     ]);
-    const alertas = { sanitarias, trazabilidad, administrativas, calendario };
+    const alertas = { sanitarias, trazabilidad, administrativas, calendario, agenda };
     this._notify(alertas);
     return alertas;
   },
@@ -387,15 +388,42 @@ const AlertasService = {
   },
 
   /**
+   * Alertas personalizadas del usuario (Agenda)
+   */
+  async obtenerAlertasAgenda() {
+    try {
+        if (!window.AgendaService) return [];
+        const fincas = await window.db.getAll('fincas');
+        if (!fincas.length) return [];
+
+        const alertas = await window.AgendaService.getAlertasActivas(fincas[0].id);
+        const hoy = new Date().toISOString().split('T')[0];
+
+        return alertas.map(a => ({
+            id: a.id,
+            tipo: 'agenda',
+            mensaje: a.titulo,
+            fecha: a.fecha_planificada,
+            vencida: a.fecha_planificada < hoy,
+            urgencia: a.prioridad === 'alta' ? 'rojo' : 'amarillo'
+        }));
+    } catch (e) {
+        console.error('[AlertasService] Error agenda:', e);
+        return [];
+    }
+  },
+
+  /**
    * Número total de alertas activas (para badges en la UI)
    */
   async getActiveCount() {
-    const [sanitarias, trazabilidad, administrativas] = await Promise.all([
+    const [sanitarias, trazabilidad, administrativas, agenda] = await Promise.all([
       this.obtenerAlertasSanitarias(),
       this.obtenerAlertasTrazabilidad(),
       this.obtenerAlertasAdministrativas(),
+      this.obtenerAlertasAgenda(),
     ]);
-    return sanitarias.length + trazabilidad.length + administrativas.length;
+    return sanitarias.length + trazabilidad.length + administrativas.length + agenda.length;
   },
 };
 

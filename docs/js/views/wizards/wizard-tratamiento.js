@@ -20,6 +20,17 @@ window.WizardTratamiento = {
     const viasAdmin = CS ? CS.getViasAdministracion() : [];
     const motivosTrat = CS ? CS.getMotivosTratamiento() : [];
 
+    // Productos del botiquín de la finca activa, para vincular opcionalmente
+    // el consumo de stock a este tratamiento (js/botiquin.js) — gestión
+    // interna, no exigida por SIGGAN, no condiciona el guardado del tratamiento.
+    let productosBotiquin = [];
+    try {
+      const fincaActiva = window.Fincas ? await window.Fincas.getActive() : null;
+      if (fincaActiva && window.Botiquin) {
+        productosBotiquin = await window.Botiquin.listActivos(fincaActiva.id);
+      }
+    } catch (e) { /* sin finca activa o módulo no disponible */ }
+
     // Veterinario prescriptor por defecto: el de la ADSG de la finca activa
     let vetDefecto = '';
     let vetColegiadoDefecto = '';
@@ -71,9 +82,15 @@ window.WizardTratamiento = {
             <div id="w-san-alerta-leche" class="p-10 bg-red-900 border-red-500 border rounded-sm mb-12 d-none">
                 <div class="text-white font-950 text-[0.6rem] uppercase tracking-tighter leading-tight">PROHIBIDO EN LACTACIÓN: NO DESTINAR LECHE A CONSUMO HUMANO</div>
             </div>
-            <div class="wizard-input-group mb-16">
-              <label class="wizard-label">FECHA APLICACIÓN</label>
-              <input type="date" id="w-san-fecha" class="wizard-input font-800" value="${data.fecha}">
+            <div class="grid grid-cols-2 gap-12 mb-16">
+              <div class="wizard-input-group">
+                <label class="wizard-label">FECHA APLICACIÓN</label>
+                <input type="date" id="w-san-fecha" class="wizard-input font-800" value="${data.fecha}">
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label">HORA (OPC.)</label>
+                <input type="time" id="w-san-hora" class="wizard-input font-800" value="${data.hora || ''}">
+              </div>
             </div>
             <div class="wizard-input-group mb-16">
               <label class="wizard-label">DESTINATARIO (INDIVIDUAL O COLECTIVO)</label>
@@ -82,6 +99,24 @@ window.WizardTratamiento = {
                 ${animales.map(an => `<option value="${an.id}" ${data.animalId == an.id ? 'selected' : ''}>${(an.numero_identificacion || ('#' + an.id)).toUpperCase()} · ${an.raza || 'SIN RAZA'}</option>`).join('')}
               </select>
             </div>
+
+            ${productosBotiquin.length > 0 ? `
+            <div class="p-12 mb-16 bg-black border border-222 rounded-sm">
+              <div class="text-[0.6rem] text-gold uppercase font-950 tracking-wider mb-8">DESCONTAR DE STOCK BOTIQUÍN (OPC.)</div>
+              <div class="grid grid-cols-2 gap-10">
+                <div class="wizard-input-group">
+                  <label class="text-[0.55rem] text-gray uppercase font-800 tracking-wider mb-4 d-block">PRODUCTO</label>
+                  <select id="w-san-botiquin-producto" class="wizard-input h-35 text-xs font-800">
+                    <option value="">— NO VINCULAR —</option>
+                    ${productosBotiquin.map(p => `<option value="${p.id}" ${data.botiquinProductoId == p.id ? 'selected' : ''}>${p.nombre.toUpperCase()} (${p.cantidadActual || 0} ${p.unidad || ''})</option>`).join('')}
+                  </select>
+                </div>
+                <div class="wizard-input-group">
+                  <label class="text-[0.55rem] text-gray uppercase font-800 tracking-wider mb-4 d-block">CANTIDAD A DESCONTAR</label>
+                  <input type="number" id="w-san-botiquin-cantidad" min="0.01" step="0.01" class="wizard-input h-35 text-xs font-800" value="${data.botiquinCantidad || ''}" placeholder="Ej: 10">
+                </div>
+              </div>
+            </div>` : ''}
 
             <div class="border-top-222 pt-12">
                 <button type="button" id="btn-toggle-calc" class="widget-link-btn widget-link-btn--neon neon-info w-full px-12 py-8 min-h-0 h-auto">
@@ -178,6 +213,7 @@ window.WizardTratamiento = {
           data.tiempo_espera_carne_dias = parseInt(document.getElementById('w-san-carne')?.value) || 0;
           data.tiempo_espera_leche_dias = parseInt(document.getElementById('w-san-leche')?.value) || 0;
           data.fecha = document.getElementById('w-san-fecha')?.value || data.fecha;
+          data.hora = document.getElementById('w-san-hora')?.value || '';
 
           const animalVal = document.getElementById('w-san-animal')?.value;
           data.animalId = animalVal ? Number(animalVal) : null;
@@ -186,10 +222,19 @@ window.WizardTratamiento = {
             const inputNumAn = document.getElementById('w-san-num-animales');
             if (inputNumAn) inputNumAn.value = 1;
           }
+
+          const botiquinProductoVal = document.getElementById('w-san-botiquin-producto')?.value;
+          data.botiquinProductoId = botiquinProductoVal ? Number(botiquinProductoVal) : null;
+          data.botiquinCantidad = document.getElementById('w-san-botiquin-cantidad')?.value
+            ? Number(document.getElementById('w-san-botiquin-cantidad').value) : null;
         },
         validate: async (data) => {
           if (!data.medicamento) {
             App.toastError("Debes especificar el medicamento.");
+            return false;
+          }
+          if (data.botiquinProductoId && (!data.botiquinCantidad || data.botiquinCantidad <= 0)) {
+            App.toastError("Indica la cantidad a descontar del botiquín.");
             return false;
           }
           return true;
@@ -307,6 +352,7 @@ window.WizardTratamiento = {
         medicamento: "",
         tipo_tratamiento: "Otro",
         fecha: new Date().toISOString().split("T")[0],
+        hora: '',
         tiempo_espera_carne_dias: 0,
         tiempo_espera_leche_dias: 0,
         prohibidoLeche: false,
@@ -323,12 +369,27 @@ window.WizardTratamiento = {
         veterinario_colegiado: vetColegiadoDefecto,
         numero_receta: '',
         origen_modulo: options.origen_modulo || null,
-        modo_explotacion: options.modo_explotacion || null
+        modo_explotacion: options.modo_explotacion || null,
+        botiquinProductoId: null,
+        botiquinCantidad: null
       },
       steps: wizardSteps,
       onComplete: async (finalData) => {
         try {
-          await window.Sanitarios.save(finalData);
+          const tratamientoId = await window.Sanitarios.save(finalData);
+
+          if (finalData.botiquinProductoId && finalData.botiquinCantidad && window.Botiquin) {
+            try {
+              await window.Botiquin.consumir(finalData.botiquinProductoId, finalData.botiquinCantidad, {
+                fecha: finalData.fecha,
+                origenTipo: 'tratamiento',
+                origenId: tratamientoId
+              });
+            } catch (stockErr) {
+              App.toastError(`Tratamiento guardado, pero no se pudo descontar el stock: ${stockErr.message}`);
+            }
+          }
+
           App.toast("Tratamiento registrado correctamente.");
           if (options.returnTo === 'explotacion') {
             if (window.ExplotacionView) {

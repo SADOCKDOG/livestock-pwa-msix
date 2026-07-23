@@ -46,7 +46,7 @@ const TransportistasView = {
   },
 
   async render() {
-    if (window.App) App.updateHeaderColor('transportistas');
+    // Color de pantalla: lo fija ComercializacionView (color fijo de CoMer), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("comercializacion-tab-content") || document.getElementById("app-content");
     const moduleColor = window.getModuleColor ? getModuleColor('/transportistas') : 'var(--c-pink)';
 

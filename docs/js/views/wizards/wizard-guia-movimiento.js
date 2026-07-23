@@ -39,15 +39,22 @@ window.WizardGuiaMovimiento = {
                 ${motivos.map(m => `<option value="${m.value}" ${data.motivo === m.value ? 'selected' : ''}>${m.label.toUpperCase()}</option>`).join('')}
               </select>
             </div>
-            <div class="wizard-input-group">
-              <label class="wizard-label">FECHA DEL MOVIMIENTO</label>
-              <input type="date" id="w-mv-fecha" value="${data.fecha}" class="wizard-input font-800">
+            <div class="grid grid-cols-2 gap-10">
+              <div class="wizard-input-group">
+                <label class="wizard-label">FECHA DEL MOVIMIENTO</label>
+                <input type="date" id="w-mv-fecha" value="${data.fecha}" class="wizard-input font-800">
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label">HORA (OPC.)</label>
+                <input type="time" id="w-mv-hora" value="${data.hora || ''}" class="wizard-input font-800">
+              </div>
             </div>
           </div>`,
         onChange: async (data) => {
           data.tipo = document.getElementById('w-mv-tipo')?.value || data.tipo;
           data.motivo = document.getElementById('w-mv-motivo')?.value || data.motivo;
           data.fecha = document.getElementById('w-mv-fecha')?.value || data.fecha;
+          data.hora = document.getElementById('w-mv-hora')?.value || '';
         },
         validate: async (data) => {
           if (!data.fecha) { App.toastError("Indica la fecha del movimiento"); return false; }
@@ -72,6 +79,10 @@ window.WizardGuiaMovimiento = {
               <label class="wizard-label">NOMBRE EXPLOTACIÓN CONTRAPARTE</label>
               <input type="text" id="w-mv-contra-nombre" value="${data.explotacion_contraparte}" placeholder="TITULAR O EXPLOTACIÓN" class="wizard-input uppercase font-800">
             </div>
+            <label class="flex items-center gap-8 text-[0.6rem] text-aaa cursor-pointer mb-12">
+              <input type="checkbox" id="w-mv-autoguia" ${data.autoguia ? 'checked' : ''} style="accent-color:var(--p-gold);">
+              <span class="uppercase font-900 tracking-tight leading-tight">AUTOGUÍA (MISMO TITULAR EN ORIGEN Y DESTINO — SIN TASA NI FIRMA DIGITAL)</span>
+            </label>
             <div class="wizard-input-group mb-12">
               <label class="wizard-label">TIPO OPERADOR DESTINO</label>
               <select id="w-mv-tipo-operador" class="wizard-input font-800">
@@ -130,6 +141,7 @@ window.WizardGuiaMovimiento = {
           if (esSalida) { data.rega_origen = propia; data.rega_destino = contra; }
           else { data.rega_destino = propia; data.rega_origen = contra; }
           data.explotacion_contraparte = document.getElementById('w-mv-contra-nombre')?.value.trim() || '';
+          data.autoguia = !!document.getElementById('w-mv-autoguia')?.checked;
           data.tipo_operador_destino = document.getElementById('w-mv-tipo-operador')?.value || '';
           data.especie = document.getElementById('w-mv-especie')?.value || '';
 
@@ -214,6 +226,11 @@ window.WizardGuiaMovimiento = {
               <label class="wizard-label">VETERINARIO / INSPECTOR AUTORIZANTE</label>
               <input type="text" id="w-mv-vet-autorizante" value="${data.veterinario_autorizante || ''}" placeholder="Ej: DR. ALFONSO GÓMEZ (COL. 2808)" class="wizard-input uppercase font-800">
             </div>
+            ${conf && conf.requiere_nif_veterinario_cebadero && data.tipo_operador_destino === 'cebadero' ? `
+            <div class="wizard-input-group mb-12">
+              <label class="wizard-label">NIF VETERINARIO</label>
+              <input type="text" id="w-mv-vet-nif" value="${data.vet_nif || ''}" placeholder="NIF veterinario oficial" class="wizard-input uppercase font-800">
+            </div>` : ''}
             ${conf && conf.requiere_desinsectacion_movimiento ? `
             <div class="p-10 bg-red-900 border border-red-500 rounded-sm mb-12">
               <div class="text-[0.55rem] text-white uppercase font-950 tracking-widest">${Icons.alerta()} ${conf.label} EXIGE CERTIFICADO DE DESINSECTACIÓN</div>
@@ -231,11 +248,16 @@ window.WizardGuiaMovimiento = {
           data.desinfeccion_numero_talon = document.getElementById('w-mv-desinf-talon')?.value.trim() || '';
           data.desinfeccion_fecha = document.getElementById('w-mv-desinf-fecha')?.value || '';
           data.veterinario_autorizante = document.getElementById('w-mv-vet-autorizante')?.value.trim() || '';
+          data.vet_nif = document.getElementById('w-mv-vet-nif')?.value.trim() || '';
           data.notas = document.getElementById('w-mv-notas')?.value.trim() || '';
         },
         validate: async (data) => {
           if (conf && conf.requiere_desinsectacion_movimiento && !data.desinsectacion_certificada) {
             App.toastError("Debes certificar la desinsectación para esta comunidad");
+            return false;
+          }
+          if (conf && conf.requiere_nif_veterinario_cebadero && data.tipo_operador_destino === 'cebadero' && !data.vet_nif) {
+            App.toastError("Debes proporcionar el NIF del veterinario autorizante para operaciones con cebadero en esta comunidad");
             return false;
           }
           // Bloqueo duro de bioseguridad si el transportista tiene ficha registrada:
@@ -351,6 +373,7 @@ window.WizardGuiaMovimiento = {
             rega_origen: data.rega_origen,
             rega_destino: data.rega_destino,
             explotacion_contraparte: data.explotacion_contraparte,
+            autoguia: !!data.autoguia,
             motivo: data.motivo,
             especie: data.especie,
             num_animales: data.num_animales,
@@ -454,6 +477,7 @@ window.WizardGuiaMovimiento = {
         <p style="margin:6px 0 0 0; line-height:1.5;">
           <strong>N\u00BA Gu\u00EDa Oficial:</strong> <span style="font-weight:bold;color:#000;">${mov.numero_guia}</span> &nbsp;&nbsp;\u00B7&nbsp;&nbsp; <strong>Fecha Expedición:</strong> ${mov.fecha} &nbsp;&nbsp;\u00B7&nbsp;&nbsp; <strong>Motivo de Traslado:</strong> ${(mov.motivo || '\u2014').toUpperCase()}<br>
           <strong>Especie Ganadera:</strong> <span style="font-weight:700;">${(mov.especie || '\u2014').toUpperCase()}</span> &nbsp;&nbsp;\u00B7&nbsp;&nbsp; <strong>Censo de Cabezas:</strong> <span style="font-weight:900;color:#10b981;font-size:0.9rem;">${mov.num_animales} UDS</span>
+          ${mov.autoguia ? '<br><strong>Tipo:</strong> <span style="font-weight:900;color:#b8860b;">AUTOGU\u00CDA (MISMO TITULAR \u2014 SIN TASA NI FIRMA DIGITAL)</span>' : ''}
         </p>
         ${crotalesHtml}
       </div>

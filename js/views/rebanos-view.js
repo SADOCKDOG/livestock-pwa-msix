@@ -9,7 +9,7 @@ const RebanosView = {
     texto: ''
   },
   async render() {
-    if (window.App) App.updateHeaderColor('rebanos');
+    // Color de pantalla: lo fija GanaderiaView (color fijo de GeGan), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("ganaderia-tab-content") || document.getElementById("app-content");
     const rebanos = await Rebanos.list();
     const eventos = await window.db.getAll('registro_eventos').catch(() => []);
@@ -54,18 +54,23 @@ const RebanosView = {
       </div>`;
     }).join('');
 
-    const moduleColor = window.getModuleColor('/rebanos');
+    const modoMetaReb = window.ModoContextoHelper.getModeMetaEffective(flagsModo);
     main.innerHTML = `
-      <!-- Cabecera de Sección Estandarizada -->
-      <div class="flex items-center gap-12 mb-14">
-        <span class="text-2xl" style="color:${moduleColor}; display:inline-flex; align-items:center;">${Icons.rebanos()}</span>
-        <div>
-          <h1 class="text-white font-900 text-lg uppercase tracking-wider" style="margin:0; line-height:1.2;">
-            <span style="color:${moduleColor}; margin-right:4px;">|</span> REBAÑOS / LOTES
-          </h1>
-          <div class="text-gray" style="font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
-            ${rebanos.length} ${rebanos.length === 1 ? 'registro' : 'registros'} · ${rebanosActivos} activos
+      <!-- Cabecera de Módulo: chip de modo + KPI + acción principal -->
+      <div class="module-header">
+        <div class="module-header-kpis">
+          <span class="module-mode-chip" style="--mode-color: ${modoMetaReb.color};">${modoMetaReb.icon} ${modoMetaReb.label}</span>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Rebaños</span>
+            <span class="module-header-kpi-value">${rebanos.length}</span>
           </div>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Activos</span>
+            <span class="module-header-kpi-value" style="color: var(--c-success);">${rebanosActivos}</span>
+          </div>
+        </div>
+        <div class="module-header-primary-action">
+          <button class="btn btn-create btn-lg" onclick="RebanosView._crearRebano()">${Icons.agregar()} Nuevo Rebaño</button>
         </div>
       </div>
 
@@ -217,11 +222,6 @@ const RebanosView = {
         <div class="grid gap-10">
           ${recordsHtml}
         </div>
-      </div>
-      <!-- Botón Flotante de Acción con viñeta -->
-      <div class="fab-container" onclick="${registrarHandler}">
-        <span class="fab-label">Nuevo ${registrarLabel}</span>
-        <button class="fab-btn" aria-label="Añadir"><span aria-hidden="true">${Icons.fabPlus()}</span></button>
       </div>`;
   },
 
@@ -292,7 +292,11 @@ const RebanosView = {
     App.setExitGuard(() => RebanosView._confirmSalirEdicion());
 
     document.getElementById("app-content").innerHTML = `
-      <div class="mb-20"><a href="#" onclick="RebanosView._salirDetalle(); return false;" class="link-back">← Volver</a><h2 class="mt-10 flex items-center gap-8">${Icons.rebanos()} ${rebano.nombre}</h2></div>
+      <div class="wizard-full-screen">
+        <div class="wizard-header-fixed border-top-5-gold">
+          <h1 class="wizard-header-title uppercase font-950 tracking-widest text-lg"><span style="color: var(--p-gold); margin-right: 6px;">|</span> ${Icons.rebanos()} ${rebano.nombre}</h1>
+        </div>
+        <div class="wizard-content-scrollable p-20">
 
       <!-- KPIs -->
       <div class="grid grid-cols-3 gap-8 mb-20">
@@ -352,20 +356,6 @@ const RebanosView = {
           </select></div>
           <div><label class="form-label uppercase font-900 text-[0.65rem] text-gray">Notas / Observaciones</label>
           <textarea id="r-edit-notas" class="premium-input font-700 uppercase" style="height:80px; resize:none;">${rebano.notas || ''}</textarea></div>
-        </div>
-        <div class="flex gap-10 mt-20">
-          <button class="widget-link-btn widget-link-btn--neon neon-danger flex-1" onclick="RebanosView._eliminarRebano(${id})">
-            ${Icons.eliminar()}
-            <span class="widget-link-label">Eliminar</span>
-          </button>
-          <button class="widget-link-btn widget-link-btn--neon flex-1" onclick="RebanosView._salirDetalle()">
-            ${Icons.cerrar()}
-            <span class="widget-link-label">Cancelar</span>
-          </button>
-          <button class="widget-link-btn widget-link-btn--neon neon-success flex-2" onclick="RebanosView._guardarRebano(${id})">
-            ${Icons.guardar()}
-            <span class="widget-link-label">Guardar Datos</span>
-          </button>
         </div>
       </div>
 
@@ -429,6 +419,16 @@ const RebanosView = {
             </div>`;
           }).join("") || '<div class="text-gray text-center p-20">Sin animales en este rebaño</div>'}
         </div>
+      </div>
+
+        </div>
+        <div class="wizard-footer-fixed border-top-222">
+          <button type="button" onclick="RebanosView._eliminarRebano(${id})" class="wizard-btn-action wizard-btn-danger">${Icons.eliminar()} Eliminar</button>
+          <div class="wizard-footer-buttons">
+            <button type="button" onclick="RebanosView._salirDetalle()" class="wizard-btn-action wizard-btn-secondary">${Icons.cerrar()} Cancelar</button>
+            <button type="button" onclick="RebanosView._guardarRebano(${id})" class="wizard-btn-action wizard-btn-success">${Icons.guardar()} Guardar</button>
+          </div>
+        </div>
       </div>`;
     this._cargarHistorialSanitario(id);
     this._cargarGastosRebano(Number(id));
@@ -459,12 +459,8 @@ const RebanosView = {
       return;
     }
 
-    const overlay = document.createElement("div");
-    overlay.className = "wizard-full-screen";
-    overlay.style.justifyContent = "center";
-    overlay.style.alignItems = "center";
-    overlay.style.backgroundColor = "rgba(0,0,0,0.8)";
-    overlay.innerHTML = `
+    const modalId = 'modal-consumo-pienso';
+    const html = `
       <div class="card p-25" style="max-width:380px; width: 100%; border: 1px solid var(--c-gray); background: #1e1e1e;">
         <h3 class="mt-0 text-white font-900 flex items-center gap-8"><span style="color: var(--c-gray); margin-right: 4px;">|</span> ${Icons.paquete()} CONSUMO DE PIENSO</h3>
         <label class="wizard-label mb-10">Selecciona el silo de origen:</label>
@@ -473,15 +469,17 @@ const RebanosView = {
         </select>
         <div class="flex gap-10">
           <button class="wizard-btn-action wizard-btn-primary flex-1" id="btn-consumo-next">Proceder ${Icons.siguiente()}</button>
-          <button class="wizard-btn-action wizard-btn-secondary" onclick="this.closest('.wizard-full-screen').remove()">Cancelar</button>
+          <button class="wizard-btn-action wizard-btn-secondary" id="${modalId}-cancel">Cancelar</button>
         </div>
       </div>
     `;
-    document.body.appendChild(overlay);
+    const overlay = ModalManager.show(modalId, html, { closeOnOverlayClick: false });
+
+    overlay.querySelector('#' + modalId + '-cancel').onclick = () => ModalManager.close(modalId);
 
     overlay.querySelector('#btn-consumo-next').onclick = async () => {
       const siloId = parseInt(overlay.querySelector('#w-consumo-silo').value);
-      overlay.remove();
+      ModalManager.close(modalId);
       await SilosView._abrirConsumirSilo(siloId, rebanoId, onSaved);
     };
   },

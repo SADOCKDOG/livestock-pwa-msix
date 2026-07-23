@@ -34,17 +34,24 @@ const PatrimonioView = {
     const icaData = this._calcularICA({ rebanos, animalesFinca, pesajes, ventasCarne, eventos, movimientos });
 
     container.innerHTML = `
-      <div class="card p-16 mb-14" style="border: 1px solid #27272a; background: #1E1E1E;">
-        <div class="flex items-center gap-12 mb-16">
-          <span class="text-3xl" style="color: var(--c-warning);">${Icons.edificio()}</span>
-          <div>
-            <h2 class="text-white font-900 text-lg uppercase tracking-wider style-none m-0" style="line-height:1.2;">
-              <span style="color: var(--c-warning); margin-right:4px;">|</span> PATRIMONIO Y GANADERÍA
-            </h2>
-            <div class="text-gray text-[0.62rem] uppercase font-800 tracking-wider">Censo, lotes y conversión alimenticia de toda la finca</div>
+      <div class="module-header">
+        <div class="module-header-kpis">
+          <span class="module-mode-chip" style="--mode-color: var(--c-success);">${Icons.carne()} Cárnico</span>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Censo</span>
+            <span class="module-header-kpi-value">${animalesFinca.length}</span>
+          </div>
+          <div class="module-header-kpi">
+            <span class="module-header-kpi-label">Lotes</span>
+            <span class="module-header-kpi-value">${rebanos.length}</span>
           </div>
         </div>
+        <div class="module-header-primary-action">
+          <button class="btn btn-create btn-lg" onclick="App._abrirAsistenteProduccion('carne', { origen_modulo: 'patrimonio' })">${Icons.peso()} Registrar Pesaje</button>
+        </div>
+      </div>
 
+      <div class="card p-16 mb-14" style="border: 1px solid #27272a; background: #1E1E1E;">
         ${this._kpiGrid([
           { label: 'Censo Total', value: animalesFinca.length + ' cabezas' },
           { label: 'Lotes/Rebaños', value: rebanos.length },
@@ -57,9 +64,9 @@ const PatrimonioView = {
 
         <!-- Accesos directos táctiles -->
         <div class="grid grid-cols-3 gap-8 mb-16">
-          <a href="#/animales" class="widget-link-btn">${Icons.animales()} Animales</a>
-          <a href="#/rebanos" class="widget-link-btn">${Icons.rebanos()} Rebaños</a>
-          <a href="#/zonas" class="widget-link-btn">${Icons.zonas()} Zonas</a>
+          <a href="#/animales" class="widget-link-btn widget-link-btn--neon neon-info"><span class="widget-link-label">${Icons.animales()} Animales</span></a>
+          <a href="#/rebanos" class="widget-link-btn widget-link-btn--neon neon-info"><span class="widget-link-label">${Icons.rebanos()} Rebaños</span></a>
+          <a href="#/zonas" class="widget-link-btn widget-link-btn--neon neon-info"><span class="widget-link-label">${Icons.zonas()} Zonas</span></a>
         </div>
 
         <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-6 pb-5">
