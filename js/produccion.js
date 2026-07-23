@@ -116,7 +116,12 @@ const Produccion = {
                 if (record.fincaId === fincaId) {
                     try {
                         const decryptedData = await window.CryptoUtils.decryptData(record.encrypted, record.iv, fincaId);
-                        decryptedRecords.push({ id: record.id, ...decryptedData });
+                        const fullData = {
+                            ...decryptedData,
+                            turno: decryptedData.turno !== undefined ? decryptedData.turno : null,
+                            zona: decryptedData.zona !== undefined ? decryptedData.zona : null
+                        };
+                        decryptedRecords.push({ id: record.id, ...fullData });
                     } catch (e) {
                         console.error(`Error descifrando produccion_leche ID ${record.id}:`, e);
                     }
@@ -212,11 +217,14 @@ const Produccion = {
             // Capturar Snapshot de contexto
             const rebanoId = animal && animal.rebanoId ? animal.rebanoId : null;
             const snapMetadata = await window.SnapshotService.buildSnapMetadata(rebanoId);
-            // Add snap_rebano if we have the animal and rebano
+            // zonaActual es un campo del rebaño, no del animal — el animal solo
+            // tiene rebanoId. Add snap_rebano y zona si tenemos el rebaño.
+            let zonaAnimal = null;
             if (rebanoId) {
                 const rebano = await window.db.get('rebanos', Number(rebanoId));
                 if (rebano) {
                     snapMetadata.snap_rebano = rebano.nombre;
+                    zonaAnimal = rebano.zonaActual || null;
                 }
             }
 
@@ -227,7 +235,9 @@ const Produccion = {
                 analisis_grasa_proteina: data.analisis_grasa_proteina || {},
                 ...snapMetadata,
                 creadoEn: data.creadoEn || new Date().toISOString(),
-                actualizadoEn: new Date().toISOString()
+                actualizadoEn: new Date().toISOString(),
+                turno: data.turno,
+                zona: zonaAnimal
             };
 
             const { encrypted, iv } = await window.CryptoUtils.encryptData(payload, fincaId);
@@ -268,7 +278,13 @@ const Produccion = {
             for (const record of records) {
                 try {
                     const decryptedData = await window.CryptoUtils.decryptData(record.encrypted, record.iv, fincaId);
-                    decryptedRecords.push({ id: record.id, ...decryptedData, fecha: record.fecha });
+                    const fullData = {
+                        ...decryptedData,
+                        motivo: decryptedData.motivo !== undefined ? decryptedData.motivo : null,
+                        trazabilidad: decryptedData.trazabilidad !== undefined ? decryptedData.trazabilidad : null,
+                        observaciones: decryptedData.observaciones !== undefined ? decryptedData.observaciones : null
+                    };
+                    decryptedRecords.push({ id: record.id, ...fullData, fecha: record.fecha });
                 } catch (e) {
                     console.error(`Error descifrando ventas_ganado ID ${record.id}:`, e);
                 }
@@ -278,22 +294,60 @@ const Produccion = {
     },
 
     /**
+     * Ventas unificadas para análisis: combina el store actual
+     * comercializacion_carne (una fila por animal, con precio real) con el
+     * legacy cifrado ventas_ganado. Antes los análisis de abajo solo leían el
+     * legacy, así que las ventas reales del wizard actual no aparecían en
+     * ningún informe de precios/rentabilidad (bug detectado en la auditoría
+     * de Producción/Compras/Ventas/Almacén).
+     */
+    async _ventasParaAnalisis(fincaId) {
+        const fId = Number(fincaId);
+        const [legacy, actuales] = await Promise.all([
+            this.listVentas(fId).catch(() => []),
+            window.db.getAllFromIndex('comercializacion_carne', 'fincaId', fId).catch(() => [])
+        ]);
+        const normalizadas = [];
+        for (const v of legacy) {
+            normalizadas.push({
+                fecha: v.fecha,
+                precio_total: v.precio_total || 0,
+                animales: v.animal_id_list?.length || 1,
+                kg: null, // el legacy no guarda peso canal
+            });
+        }
+        for (const c of actuales) {
+            const kg = Number(c.pesoCanal) || 0;
+            const precioTotal = c.precio_total != null
+                ? Number(c.precio_total)
+                : kg * (Number(c.precioUnitario) || 0);
+            normalizadas.push({
+                fecha: c.fechaSacrificio || c.fecha_presentacion || c.creadoEn,
+                precio_total: precioTotal,
+                animales: 1,
+                kg: kg || null,
+            });
+        }
+        return normalizadas;
+    },
+
+    /**
      * Análisis de rentabilidad: Ingresos vs Gastos
      */
     async analizarRentabilidad(fincaId) {
         return await ErrorHandler.tryAsync(async () => {
-            // Ingresos por ventas
-            const ventas = await this.listVentas(fincaId);
+            // Ingresos por ventas (legacy + comercializacion_carne actual)
+            const ventas = await this._ventasParaAnalisis(fincaId);
             const totalIngresos = ventas.reduce((sum, v) => sum + (v.precio_total || 0), 0);
-            
+
             // Gastos
             const gastos = await Gastos.list(fincaId);
             const totalGastos = gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
-            
+
             // Margen
             const margenNeto = totalIngresos - totalGastos;
             const porcentajeMargen = totalIngresos > 0 ? ((margenNeto / totalIngresos) * 100).toFixed(2) : 0;
-            
+
             return {
                 totalIngresos: totalIngresos.toFixed(2),
                 totalGastos: totalGastos.toFixed(2),
@@ -307,43 +361,43 @@ const Produccion = {
     },
 
     /**
-     * Promedio de precio por kg de venta
+     * Promedio de precio por kg de venta. Usa el peso canal real cuando existe
+     * (comercializacion_carne); solo recurre a la estimación de 300 kg/animal
+     * para el legacy, que no guardaba peso.
      */
     async calcularPrecioPromedioKg(fincaId) {
         return await ErrorHandler.tryAsync(async () => {
-            const ventas = await this.listVentas(fincaId);
+            const ventas = await this._ventasParaAnalisis(fincaId);
             if (ventas.length === 0) return 0;
-            
-            let totalAnimales = 0;
+
+            let totalKg = 0;
             let totalIngresos = 0;
-            
+
             ventas.forEach(v => {
-                totalAnimales += v.animal_id_list?.length || 1;
+                totalKg += v.kg != null ? v.kg : (v.animales * 300);
                 totalIngresos += v.precio_total || 0;
             });
-            
-            // Asumir peso promedio de 300kg por animal (simplificación)
-            const totalKg = totalAnimales * 300;
-            
+
+            if (totalKg === 0) return 0;
             return (totalIngresos / totalKg).toFixed(2);
         }, { action: 'calcularPrecioPromedioKg' });
     },
 
     /**
-     * Historial de precios para trending
+     * Historial de precios para trending (legacy + comercializacion_carne actual)
      */
     async historialPrecios(fincaId, diasAtras = 90) {
         return await ErrorHandler.tryAsync(async () => {
-            const ventas = await this.listVentas(fincaId);
+            const ventas = await this._ventasParaAnalisis(fincaId);
             const fechaLimite = new Date(Date.now() - diasAtras * 24 * 60 * 60 * 1000);
-            
+
             return ventas
-                .filter(v => new Date(v.fecha) >= fechaLimite)
+                .filter(v => v.fecha && new Date(v.fecha) >= fechaLimite)
                 .map(v => ({
                     fecha: v.fecha,
                     precioTotal: v.precio_total,
-                    animales: v.animal_id_list?.length || 1,
-                    precioPromedio: (v.precio_total / (v.animal_id_list?.length || 1)).toFixed(2)
+                    animales: v.animales,
+                    precioPromedio: (v.precio_total / v.animales).toFixed(2)
                 }))
                 .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
         }, { action: 'historialPrecios' });
@@ -360,8 +414,12 @@ const Produccion = {
                 precio_total: Number(data.precio_total) || 0,
                 comprador: data.comprador || "",
                 documentacion: data.documentacion || "",
+                motivo: data.motivo || "",
+                trazabilidad: data.trazabilidad || "",
+                observaciones: data.observaciones || "",
                 creadoEn: data.creadoEn || new Date().toISOString(),
-                actualizadoEn: new Date().toISOString()
+                actualizadoEn: new Date().toISOString(),
+                pago_pendiente: data.pago_pendiente !== undefined ? Boolean(data.pago_pendiente) : false
             };
 
             const { encrypted, iv } = await window.CryptoUtils.encryptData(payload, fincaId);

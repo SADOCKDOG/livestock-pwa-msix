@@ -88,6 +88,12 @@ const Pesajes = {
 
           // Parámetros de Calidad
           calidad: data.calidad || null,
+          // Condición Corporal (BCS 1-9, escala estándar de nutrición bovina) —
+          // dato opcional de manejo, no exigido por SIGGAN. Ver
+          // docs/AUDITAR/AUDITORIA-BASEDEDATOS-LEGACY.md.
+          condicion_corporal: (data.condicion_corporal != null && data.condicion_corporal !== '')
+            ? Number(data.condicion_corporal)
+            : null,
 
           // Economía
           precio_unitario: Number(data.precio_unitario) || 0,

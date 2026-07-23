@@ -5,6 +5,6 @@
  * La versión de base de datos NO se declara aquí: sale de DB_VERSION (js/db.js).
  */
 window.APP_INFO = Object.freeze({
-  version: '4.9.0',
-  versionCode: 515
+  version: '4.10.1',
+  versionCode: 517
 });
