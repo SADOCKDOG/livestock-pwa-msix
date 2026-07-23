@@ -357,21 +357,29 @@
     <script src="js/services/alertas-service.js?v=6.33"></script>
     <script src="js/services/agenda-service.js?v=6.33"></script>
     <script src="js/services/notificaciones-service.js?v=6.33"></script>
-
     <!-- 6º Arrancar el Controlador de la Aplicación (Orquestador Central) -->
     <script src="js/app.js?v=6.33"></script>
 
     <!-- Herramientas de QA/E2E (solo en desarrollo): se cargan bajo demanda,
          no en cada arranque en producción. Activar una vez con
-         localStorage.setItem('lm_qa_tools','1') y recargar. -->
+         localStorage.setItem("lm_qa_tools","1") y recargar. -->
     <script>
-      if (window.localStorage && localStorage.getItem('lm_qa_tools') === '1') {
-        ['js/e2e-test-suite.js?v=6.33 'js/qa-test-runner.js?v=6.33 'js/qa-diagnostico.js?v=6.33 'js/qa-siggan.js?v=6.33 'js/qa-premium.js?v=6.33 'js/qa-especie-crotal.js?v=6.33 'js/qa-plan-siggan.js?v=6.33 'js/qa-margen-animal.js?v=6.33 'js/qa-importador-rfid.js?v=6.33
-          .forEach((src) => {
-            const s = document.createElement('script');
-            s.src = src;
-            document.body.appendChild(s);
-          });
+      if (window.localStorage && localStorage.getItem("lm_qa_tools") === "1") {
+        [
+          "js/e2e-test-suite.js?v=6.33",
+          "js/qa-test-runner.js?v=6.33",
+          "js/qa-diagnostico.js?v=6.33",
+          "js/qa-siggan.js?v=6.33",
+          "js/qa-premium.js?v=6.33",
+          "js/qa-especie-crotal.js?v=6.33",
+          "js/qa-plan-siggan.js?v=6.33",
+          "js/qa-margen-animal.js?v=6.33",
+          "js/qa-importador-rfid.js?v=6.33"
+        ].forEach((src) => {
+          const s = document.createElement("script");
+          s.src = src;
+          document.body.appendChild(s);
+        });
       }
     </script>
 
@@ -393,7 +401,6 @@
       } catch (e) {
         console.warn("Service Worker no disponible o bloqueado por el sandbox del entorno:", e.message);
       }
-
     </script>
 
 </body>
