@@ -35,5 +35,63 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/Livestock_20260717_202535.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Panel de inicio — Registro rápido de actividad"
+    },
+    {
+      "src": "screenshots/Livestock_20260717_202552.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Livestock Manager — pantalla de la aplicación"
+    },
+    {
+      "src": "screenshots/Livestock_20260717_202608.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Livestock Manager — pantalla de la aplicación"
+    },
+    {
+      "src": "screenshots/Livestock_20260717_220748.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Livestock Manager — pantalla de la aplicación"
+    },
+    {
+      "src": "screenshots/Livestock_20260717_220804.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Livestock Manager — pantalla de la aplicación"
+    },
+    {
+      "src": "screenshots/Livestock_20260717_220814.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Livestock Manager — pantalla de la aplicación"
+    },
+    {
+      "src": "screenshots/Livestock_20260717_220854.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Livestock Manager — pantalla de la aplicación"
+    },
+    {
+      "src": "screenshots/Livestock_20260717_220928.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Livestock Manager — pantalla de la aplicación"
+    }
   ]
 }
