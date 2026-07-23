@@ -233,6 +233,8 @@ const ExplotacionView = {
           else if (window.WizardCenso) await window.WizardCenso.abrir();
         } finally {
           window._wizardCallFromExpro = false;
+          // Regresar a la pestaña principal después de lanzar el wizard para evitar contenido vacío
+          this._cambiarSubModulo('explotacion');
         }
         break;
       case 'crotales':
@@ -242,6 +244,8 @@ const ExplotacionView = {
           else if (window.WizardCrotales) await window.WizardCrotales.abrir();
         } finally {
           window._wizardCallFromExpro = false;
+          // Regresar a la pestaña principal después de lanzar el wizard para evitar contenido vacío
+          this._cambiarSubModulo('explotacion');
         }
         break;
       case 'guia':
@@ -251,6 +255,8 @@ const ExplotacionView = {
           else if (window.WizardGuiaMovimiento) await window.WizardGuiaMovimiento.abrir();
         } finally {
           window._wizardCallFromExpro = false;
+          // Regresar a la pestaña principal después de lanzar el wizard para evitar contenido vacío
+          this._cambiarSubModulo('explotacion');
         }
         break;
     }
