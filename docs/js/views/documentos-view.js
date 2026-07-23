@@ -309,13 +309,13 @@ const DocumentosView = {
                   ${descHtml}
                 </div>
                 ${acuseHtml}
-                <div class="mt-6 flex gap-3 flex-wrap">
+                <div class="mt-6 flex gap-6 flex-wrap">
                   ${esBorrador ? `
-                    <button class="btn btn-sm btn-outline text-xs" style="color:var(--c-warning); border-color:var(--c-warning);" onclick="DocumentosView._editarBorrador('${doc.tipo}', ${doc.id})">${Icons.editar()} Editar Borrador</button>
+                    <button type="button" class="widget-link-btn widget-link-btn--neon neon-warning px-10 py-6 min-h-0 h-auto" onclick="DocumentosView._editarBorrador('${doc.tipo}', ${doc.id})">${Icons.editar()}<span class="widget-link-label">Editar Borrador</span></button>
                   ` : `
-                    <button class="btn btn-sm btn-outline text-xs" onclick="DocumentosView._imprimirDoc('${doc.tipo}', ${doc.id})">${Icons.imprimir()} Imprimir PDF</button>
+                    <button type="button" class="widget-link-btn widget-link-btn--neon neon-info px-10 py-6 min-h-0 h-auto" onclick="DocumentosView._imprimirDoc('${doc.tipo}', ${doc.id})">${Icons.imprimir()}<span class="widget-link-label">Imprimir PDF</span></button>
                   `}
-                  <button class="btn btn-sm btn-outline text-xs" onclick="DocumentosView._registrarAcuse(${doc.id}, '${doc.tipo}', ${doc.isMovimiento ? 'true' : 'false'}, ${doc.isPedidoCrotales ? 'true' : 'false'})">${Icons.adjuntar()} Guardar acuse</button>
+                  <button type="button" class="widget-link-btn widget-link-btn--neon px-10 py-6 min-h-0 h-auto" onclick="DocumentosView._registrarAcuse(${doc.id}, '${doc.tipo}', ${doc.isMovimiento ? 'true' : 'false'}, ${doc.isPedidoCrotales ? 'true' : 'false'})">${Icons.adjuntar()}<span class="widget-link-label">Guardar acuse</span></button>
                 </div>
               </div>
               <div class="text-right">
@@ -529,13 +529,13 @@ const DocumentosView = {
           ${infoExtra}
         </div>
         <div class="text-xs mb-8">${acuseTexto}</div>
-        <div class="flex flex-wrap gap-8 justify-end text-xs">
-          <button class="btn btn-sm" onclick="document.getElementById('doc-detail-overlay-${docId}').remove()">Cerrar</button>
-          <button class="btn btn-sm btn-outline" onclick="DocumentosView._registrarAcuse(${doc.id}, '${doc.tipo}', ${doc.isMovimiento ? 'true' : 'false'}, ${doc.isPedidoCrotales ? 'true' : 'false'})">${Icons.adjuntar()} Registrar acuse</button>
+        <div class="flex flex-wrap gap-8 justify-end">
+          <button type="button" class="wizard-btn-action wizard-btn-secondary" onclick="document.getElementById('doc-detail-overlay-${docId}').remove()">${Icons.cerrar()} Cerrar</button>
+          <button type="button" class="wizard-btn-action wizard-btn-secondary" onclick="DocumentosView._registrarAcuse(${doc.id}, '${doc.tipo}', ${doc.isMovimiento ? 'true' : 'false'}, ${doc.isPedidoCrotales ? 'true' : 'false'})">${Icons.adjuntar()} Registrar acuse</button>
           ${doc.estado === 'borrador' ? `
-            <button class="btn btn-sm btn-primary" onclick="DocumentosView._editarBorrador('${doc.tipo}', ${doc.id}); document.getElementById('doc-detail-overlay-${docId}').remove();">${Icons.editar()} Editar</button>
+            <button type="button" class="wizard-btn-action wizard-btn-primary" onclick="DocumentosView._editarBorrador('${doc.tipo}', ${doc.id}); document.getElementById('doc-detail-overlay-${docId}').remove();">${Icons.editar()} Editar</button>
           ` : `
-            <button class="btn btn-sm btn-primary" onclick="DocumentosView._imprimirDoc('${doc.tipo}', ${doc.id}); document.getElementById('doc-detail-overlay-${docId}').remove();">${Icons.imprimir()} Imprimir</button>
+            <button type="button" class="wizard-btn-action wizard-btn-primary" onclick="DocumentosView._imprimirDoc('${doc.tipo}', ${doc.id}); document.getElementById('doc-detail-overlay-${docId}').remove();">${Icons.imprimir()} Imprimir</button>
           `}
         </div>
       </div>`;
@@ -595,8 +595,8 @@ const DocumentosView = {
         <input id="acuse-input" type="text" class="wizard-input font-800" placeholder="Ej: SIGGAN-2026-000123" value="${valorActual.replace(/"/g, '&quot;')}">
         <div class="text-[0.65rem] text-aaa mt-2">Puedes pegar el código del acuse, URL o anotación breve.</div>
         <div class="flex gap-8 justify-end mt-10">
-          <button class="btn btn-sm" id="acuse-cancel">${Icons.cerrar()} Cancelar</button>
-          <button class="btn btn-sm btn-primary" id="acuse-save">Guardar</button>
+          <button type="button" class="wizard-btn-action wizard-btn-secondary" id="acuse-cancel">${Icons.cerrar()} Cancelar</button>
+          <button type="button" class="wizard-btn-action wizard-btn-success" id="acuse-save">${Icons.guardar()} Guardar</button>
         </div>
       </div>`;
 
