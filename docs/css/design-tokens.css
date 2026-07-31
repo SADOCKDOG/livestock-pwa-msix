@@ -99,17 +99,39 @@
    Solo redefine superficie/texto/sombras; los colores semánticos (--c-success, --c-danger…)
    y de módulo se mantienen para no romper el contraste ni la identidad visual. */
 body[data-modo="claro"] {
-    --bg: #F4F3EF;            /* Papel de campo claro */
+    --bg: #EBE5D8;            /* Papel de campo claro — arena/piedra cálido (paleta por defecto) */
     --surface: #FFFFFF;
-    --surface-light: #ECEAE4;
+    --surface-light: #E1D9C8;
     --surface-input: #FFFFFF;
-    --border: #D8D5CC;
-    --border-input: #C9C6BC;
+    --border: #D2C6AC;
+    --border-input: #BDAE8E;
 
     --text-p: #1A1A18;
     --text-s: #55534C;
     --text-d: #9A968A;
     --shadow-md: 0 4px 20px rgb(0 0 0 / 12%);
+}
+
+/* Paletas alternativas de modo claro (AjustesView._cambiarTemaClaroColor).
+   "arena" es el default de arriba, sin atributo extra. Solo redefinen
+   bg/surface/border — texto y sombras se heredan del bloque anterior. */
+body[data-modo="claro"][data-tema-claro="gris"] {
+    --bg: #E7E7E4;
+    --surface-light: #DCDCD8;
+    --border: #C9C9C3;
+    --border-input: #B8B8B1;
+}
+body[data-modo="claro"][data-tema-claro="oliva"] {
+    --bg: #E5E6D6;
+    --surface-light: #D9DBC3;
+    --border: #C3C6A5;
+    --border-input: #AFB38C;
+}
+body[data-modo="claro"][data-tema-claro="beige"] {
+    --bg: #F0E6D2;
+    --surface-light: #E8DAC0;
+    --border: #D9C6A0;
+    --border-input: #C7AF80;
 }
 
 /* Componentes con color de texto/fondo fijo pensado solo para OLED negro
