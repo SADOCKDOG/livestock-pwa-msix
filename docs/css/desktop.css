@@ -313,15 +313,15 @@
    ============================================ */
 @media (min-width: 1024px) {
   :root {
-    --bg: #F4F3EF;
+    --bg: #EBE5D8;
     --surface: #FFFFFF;
-    --surface-light: #ECEAE4;
+    --surface-light: #E1D9C8;
     --surface-input: #FFFFFF;
-    --surface-card: #F8F7F3;
-    --surface-dark: #EDEBE6;
-    --border: #D8D5CC;
-    --border-subtle: #D0CDC5;
-    --border-input: #C9C6BC;
+    --surface-card: #F8F5EE;
+    --surface-dark: #DED5C1;
+    --border: #D2C6AC;
+    --border-subtle: #C9BCA0;
+    --border-input: #BDAE8E;
     --text-p: #1A1A18;
     --text-s: #55534C;
     --text-d: #9A968A;
