@@ -47,21 +47,23 @@ const AnimalesView = {
     }).length;
     const modoMeta = window.ModoContextoHelper.getModeMetaEffective(flagsModo);
     html += `
-      <!-- Cabecera de Módulo: chip de modo + KPI + acción principal -->
+      <!-- Cabecera de Módulo: Resumen y acción principal -->
       <div class="module-header">
-        <div class="module-header-kpis">
-          <span class="module-mode-chip" style="--mode-color: ${modoMeta.color};">${modoMeta.icon} ${modoMeta.label}</span>
-          <div class="module-header-kpi">
-            <span class="module-header-kpi-label">Censo</span>
-            <span class="module-header-kpi-value">${animales.length}</span>
+        <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(255,165,0,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-orange);">
+          <div class="flex items-center gap-12 mb-10">
+            <span class="text-3xl" style="color:var(--c-orange);">${Icons.animales()}</span>
+            <div>
+              <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">CENSO DE ANIMALES</h2>
+              <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Control individual, registro de crotales, altas y bajas de la explotación.</p>
+            </div>
           </div>
-          <div class="module-header-kpi">
-            <span class="module-header-kpi-label">Activos</span>
-            <span class="module-header-kpi-value" style="color: var(--c-success);">${activos}</span>
+          <div class="grid grid-cols-2 gap-8 mt-12 py-8 border-top-222">
+            <div class="text-[0.6rem] text-gray uppercase font-900">Total Censo: <strong class="text-white">${animales.length}</strong></div>
+            <div class="text-[0.6rem] text-gray uppercase font-900">Activos: <strong class="text-success">${activos}</strong></div>
           </div>
         </div>
         <div class="module-header-primary-action">
-          <button class="btn btn-create btn-lg" onclick="location.hash='/animal'">${Icons.agregar()} Nuevo Animal</button>
+          <button class="btn btn-create btn-lg w-full" onclick="location.hash='/animal'">${Icons.agregar()} Nuevo Animal</button>
         </div>
       </div>
 

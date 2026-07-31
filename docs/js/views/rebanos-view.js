@@ -56,21 +56,23 @@ const RebanosView = {
 
     const modoMetaReb = window.ModoContextoHelper.getModeMetaEffective(flagsModo);
     main.innerHTML = `
-      <!-- Cabecera de Módulo: chip de modo + KPI + acción principal -->
+      <!-- Cabecera de Módulo: Resumen y acción principal -->
       <div class="module-header">
-        <div class="module-header-kpis">
-          <span class="module-mode-chip" style="--mode-color: ${modoMetaReb.color};">${modoMetaReb.icon} ${modoMetaReb.label}</span>
-          <div class="module-header-kpi">
-            <span class="module-header-kpi-label">Rebaños</span>
-            <span class="module-header-kpi-value">${rebanos.length}</span>
+        <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(79,173,245,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-info);">
+          <div class="flex items-center gap-12 mb-10">
+            <span class="text-3xl" style="color:var(--c-info);">${Icons.rebanos()}</span>
+            <div>
+              <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">LOTES Y REBAÑOS</h2>
+              <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Agrupamiento de ganado, gestión de lotes productivos y ubicaciones.</p>
+            </div>
           </div>
-          <div class="module-header-kpi">
-            <span class="module-header-kpi-label">Activos</span>
-            <span class="module-header-kpi-value" style="color: var(--c-success);">${rebanosActivos}</span>
+          <div class="grid grid-cols-2 gap-8 mt-12 py-8 border-top-222">
+            <div class="text-[0.6rem] text-gray uppercase font-900">Total Lotes: <strong class="text-white">${rebanos.length}</strong></div>
+            <div class="text-[0.6rem] text-gray uppercase font-900">Activos: <strong class="text-success">${rebanosActivos}</strong></div>
           </div>
         </div>
         <div class="module-header-primary-action">
-          <button class="btn btn-create btn-lg" onclick="RebanosView._crearRebano()">${Icons.agregar()} Nuevo Rebaño</button>
+          <button class="btn btn-create btn-lg w-full" onclick="RebanosView._crearRebano()">${Icons.agregar()} Nuevo Rebaño</button>
         </div>
       </div>
 

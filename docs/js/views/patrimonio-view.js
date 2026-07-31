@@ -35,19 +35,21 @@ const PatrimonioView = {
 
     container.innerHTML = `
       <div class="module-header">
-        <div class="module-header-kpis">
-          <span class="module-mode-chip" style="--mode-color: var(--c-success);">${Icons.carne()} Cárnico</span>
-          <div class="module-header-kpi">
-            <span class="module-header-kpi-label">Censo</span>
-            <span class="module-header-kpi-value">${animalesFinca.length}</span>
+        <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-warning);">
+          <div class="flex items-center gap-12 mb-10">
+            <span class="text-3xl" style="color:var(--c-warning);">${Icons.edificio()}</span>
+            <div>
+              <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">PATRIMONIO Y GANADERÍA</h2>
+              <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Censo consolidado, inventario de lotes y conversión alimenticia (ICA) de la finca.</p>
+            </div>
           </div>
-          <div class="module-header-kpi">
-            <span class="module-header-kpi-label">Lotes</span>
-            <span class="module-header-kpi-value">${rebanos.length}</span>
+          <div class="grid grid-cols-2 gap-8 mt-12 py-8 border-top-222">
+            <div class="text-[0.6rem] text-gray uppercase font-900">Total Cabezas: <strong class="text-white">${animalesFinca.length}</strong></div>
+            <div class="text-[0.6rem] text-gray uppercase font-900">Valor Est.: <strong class="text-warning">${Math.round(valorPatrimonioTotal).toLocaleString()} €</strong></div>
           </div>
         </div>
         <div class="module-header-primary-action">
-          <button class="btn btn-create btn-lg" onclick="App._abrirAsistenteProduccion('carne', { origen_modulo: 'patrimonio' })">${Icons.peso()} Registrar Pesaje</button>
+          <button class="btn btn-create btn-lg w-full" onclick="App._abrirAsistenteProduccion('carne', { origen_modulo: 'patrimonio' })">${Icons.peso()} Registrar Pesaje</button>
         </div>
       </div>
 

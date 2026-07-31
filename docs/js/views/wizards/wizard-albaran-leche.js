@@ -16,6 +16,10 @@ window.AlbaranLecheWizard = {
       ? window.ComunidadesService.PRECIO_EXTRACTO_SECO_REF
       : { precio_base_referencia: 0.45, precio_por_punto_extracto: 0.045, tasa_INLAC_defecto: 0.0012 };
 
+    const tanquesActivos = window.TanquesLeche ? await window.TanquesLeche.getActivos(fincaId) : [];
+    const compradoresLacteos = window.Compradores ? (await window.Compradores.list({ tipo: 'láctico' })).filter(c => c.activo !== false) : [];
+    const laboratorios = window.ComunidadesService ? window.ComunidadesService.getLaboratoriosLeche() : [];
+
     // Definición de funciones de cálculo en el ámbito global del App para los onchange/oninput
     App._recalcularPrecioLeche = function() {
       const pbInput = document.getElementById('w-l-pb');
@@ -72,6 +76,32 @@ window.AlbaranLecheWizard = {
 
             <div class="grid grid-cols-2 gap-10 mb-12">
               <div class="wizard-input-group">
+                <label class="wizard-label">ESPECIE</label>
+                <select id="w-l-especie" class="wizard-input font-800 text-xs">
+                  <option value="vacuno" ${data.especie_leche === 'vacuno' ? 'selected' : ''}>VACUNO</option>
+                  <option value="ovino" ${data.especie_leche === 'ovino' ? 'selected' : ''}>OVINO</option>
+                  <option value="caprino" ${data.especie_leche === 'caprino' ? 'selected' : ''}>CAPRINO</option>
+                </select>
+              </div>
+              ${tanquesActivos.length > 0 ? `
+              <div class="wizard-input-group">
+                <label class="wizard-label">TANQUE ORIGEN</label>
+                <select id="w-l-tanque" class="wizard-input font-800 text-xs">
+                  <option value="">— SELECCIONAR —</option>
+                  ${tanquesActivos.map(t => `<option value="${t.id}" ${data.tanqueId == t.id ? 'selected' : ''}>${t.nombre} (${t.codigo_letra_q})</option>`).join('')}
+                </select>
+              </div>
+              ` : `
+              <div class="wizard-input-group">
+                <label class="wizard-label">TANQUE</label>
+                <div class="text-[0.6rem] font-800 text-red p-8">Sin tanques registrados</div>
+              </div>
+              `}
+            </div>
+            <div id="w-l-tanque-stock" class="text-[0.6rem] font-800 mb-8" style="color:var(--c-info);"></div>
+
+            <div class="grid grid-cols-2 gap-10 mb-12">
+              <div class="wizard-input-group">
                 <label class="wizard-label">MATRÍCULA CISTERNA</label>
                 <input type="text" id="w-l-mat" value="${data.matricula}" placeholder="ABC-000" class="wizard-input uppercase font-900 text-lg">
               </div>
@@ -79,9 +109,77 @@ window.AlbaranLecheWizard = {
                 <label class="wizard-label">TEMPERATURA (°C)</label>
                 <input type="number" id="w-l-temp" value="${data.temp}" step="0.1" class="wizard-input font-950 text-xl" style="color:${data.temp <= 4 ? 'var(--c-success)' : 'var(--c-danger)'};">
               </div>
-                    <div class="wizard-input-group mb-12">
+            </div>
+
+            <div class="wizard-input-group mb-12">
               <label class="wizard-label">NÚMERO MUESTRA LETRA Q</label>
               <input type="text" id="w-l-q" value="${data.q}" placeholder="CÓDIGO MUESTRA..." class="wizard-input uppercase font-800">
+            </div>
+
+            <div class="grid grid-cols-2 gap-10 mb-12">
+              <div class="wizard-input-group">
+                <label class="wizard-label">NIF TOMADOR MUESTRA</label>
+                <input type="text" id="w-l-nif-tomador" value="${data.nif_tomador_muestra || ''}" placeholder="NIF..." class="wizard-input uppercase font-800 text-xs">
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label">INHIBIDORES IN SITU</label>
+                <select id="w-l-inh-situ" class="wizard-input font-800 text-xs">
+                  <option value="no_realizada" ${(!data.resultado_inhibidores_in_situ || data.resultado_inhibidores_in_situ === 'no_realizada') ? 'selected' : ''}>NO REALIZADA</option>
+                  <option value="conforme" ${data.resultado_inhibidores_in_situ === 'conforme' ? 'selected' : ''}>CONFORME</option>
+                  <option value="no_conforme" ${data.resultado_inhibidores_in_situ === 'no_conforme' ? 'selected' : ''}>NO CONFORME</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-10 mb-12">
+              <div class="wizard-input-group">
+                <label class="wizard-label">AGENTE RECOGIDA</label>
+                <select id="w-l-agente-recogida" class="wizard-input font-800 text-xs">
+                  <option value="">— 1er COMPRADOR (DEFECTO) —</option>
+                  ${compradoresLacteos.map(c => `<option value="${c.nif_cif}" ${data.agente_recogida_nif === c.nif_cif ? 'selected' : ''}>${c.nombre} (${c.nif_cif})</option>`).join('')}
+                </select>
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label">AGENTE DESTINO</label>
+                <select id="w-l-agente-destino" class="wizard-input font-800 text-xs">
+                  <option value="">— 1er COMPRADOR (DEFECTO) —</option>
+                  ${compradoresLacteos.map(c => `<option value="${c.nif_cif}" ${data.agente_destino_nif === c.nif_cif ? 'selected' : ''}>${c.nombre} (${c.nif_cif})</option>`).join('')}
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-10 mb-12">
+              <div class="wizard-input-group">
+                <label class="wizard-label">TIPO MOVIMIENTO LETRA Q</label>
+                <select id="w-l-tipo-mov" class="wizard-input font-800 text-xs">
+                  <option value="explotacion_a_cisterna" ${(data.tipo_movimiento_letra_q || 'explotacion_a_cisterna') === 'explotacion_a_cisterna' ? 'selected' : ''}>EXPLOTACIÓN → CISTERNA</option>
+                  <option value="explotacion_a_rechazo" ${data.tipo_movimiento_letra_q === 'explotacion_a_rechazo' ? 'selected' : ''}>EXPLOTACIÓN → RECHAZO</option>
+                  <option value="explotacion_a_establecimiento" ${data.tipo_movimiento_letra_q === 'explotacion_a_establecimiento' ? 'selected' : ''}>EXPLOTACIÓN → ESTABLECIMIENTO</option>
+                  <option value="cisterna_a_cisterna" ${data.tipo_movimiento_letra_q === 'cisterna_a_cisterna' ? 'selected' : ''}>CISTERNA → CISTERNA</option>
+                  <option value="cisterna_a_rechazo" ${data.tipo_movimiento_letra_q === 'cisterna_a_rechazo' ? 'selected' : ''}>CISTERNA → RECHAZO</option>
+                  <option value="cisterna_a_establecimiento" ${data.tipo_movimiento_letra_q === 'cisterna_a_establecimiento' ? 'selected' : ''}>CISTERNA → ESTABLECIMIENTO</option>
+                </select>
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label">ESTADO LETRA Q</label>
+                <select id="w-l-estado-q" class="wizard-input font-800 text-xs">
+                  <option value="pendiente" ${(data.estado_letra_q || 'pendiente') === 'pendiente' ? 'selected' : ''}>PENDIENTE</option>
+                  <option value="comunicado" ${data.estado_letra_q === 'comunicado' ? 'selected' : ''}>COMUNICADO</option>
+                  <option value="rechazado" ${data.estado_letra_q === 'rechazado' ? 'selected' : ''}>RECHAZADO</option>
+                  <option value="exento" ${data.estado_letra_q === 'exento' ? 'selected' : ''}>EXENTO</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="w-l-cisterna-fields" class="grid grid-cols-2 gap-10 mb-12" style="display:${data.tipo_movimiento_letra_q === 'cisterna_a_cisterna' ? 'grid' : 'none'};">
+              <div class="wizard-input-group">
+                <label class="wizard-label">CÓD. CISTERNA ORIGEN (LETRA Q)</label>
+                <input type="text" id="w-l-cist-origen" value="${data.codigo_cisterna_origen_letra_q || ''}" placeholder="CÓDIGO..." class="wizard-input uppercase font-800 text-xs">
+              </div>
+              <div class="wizard-input-group">
+                <label class="wizard-label">CÓD. CISTERNA DESTINO (LETRA Q)</label>
+                <input type="text" id="w-l-cist-destino" value="${data.codigo_cisterna_destino_letra_q || ''}" placeholder="CÓDIGO..." class="wizard-input uppercase font-800 text-xs">
+              </div>
             </div>
 
             <div class="grid grid-cols-3 gap-10 mb-12">
@@ -134,6 +232,14 @@ window.AlbaranLecheWizard = {
           data.matricula = document.getElementById('w-l-mat')?.value.trim() || data.matricula;
           data.temp = parseFloat(document.getElementById('w-l-temp')?.value) || 0;
           data.q = document.getElementById('w-l-q')?.value.trim() || data.q;
+          data.nif_tomador_muestra = document.getElementById('w-l-nif-tomador')?.value.trim().toUpperCase() || '';
+          data.resultado_inhibidores_in_situ = document.getElementById('w-l-inh-situ')?.value || 'no_realizada';
+          data.agente_recogida_nif = document.getElementById('w-l-agente-recogida')?.value || null;
+          data.agente_destino_nif = document.getElementById('w-l-agente-destino')?.value || null;
+          data.tipo_movimiento_letra_q = document.getElementById('w-l-tipo-mov')?.value || 'explotacion_a_cisterna';
+          data.estado_letra_q = document.getElementById('w-l-estado-q')?.value || 'pendiente';
+          data.codigo_cisterna_origen_letra_q = document.getElementById('w-l-cist-origen')?.value.trim().toUpperCase() || '';
+          data.codigo_cisterna_destino_letra_q = document.getElementById('w-l-cist-destino')?.value.trim().toUpperCase() || '';
           data.numero_muestreo_oficial = document.getElementById('w-l-muestreo')?.value.trim() || '';
           data.hora_ordeno = document.getElementById('w-l-hora-ordeno')?.value || '';
           data.hora_carga = document.getElementById('w-l-hora-carga')?.value || '';
@@ -141,9 +247,28 @@ window.AlbaranLecheWizard = {
           data.comunidad_autonoma = document.getElementById('w-l-ccaa')?.value || data.comunidad_autonoma;
           data.cadena_frio_cumplida = document.getElementById('w-l-frio')?.checked || false;
           data.inh = document.getElementById('w-l-inh')?.checked || false;
+          data.especie_leche = document.getElementById('w-l-especie')?.value || 'vacuno';
+          data.tanqueId = parseInt(document.getElementById('w-l-tanque')?.value) || null;
+
+          // Mostrar/ocultar campos de cisterna según tipo de movimiento
+          const cisternaFields = document.getElementById('w-l-cisterna-fields');
+          if (cisternaFields) {
+            cisternaFields.style.display = data.tipo_movimiento_letra_q === 'cisterna_a_cisterna' ? 'grid' : 'none';
+          }
           
           data.estado_tramite_infolac = data.estado_tramite_infolac || 'borrador';
           data.adsg_codigo = data.adsg_codigo || finca.adsg_codigo || '';
+
+          if (data.tanqueId && window.BalanceLacteo) {
+            const stock = await window.BalanceLacteo.getStockTanque(data.tanqueId);
+            const tanque = tanquesActivos.find(t => t.id === data.tanqueId);
+            const stockEl = document.getElementById('w-l-tanque-stock');
+            if (stockEl) {
+              const pct = tanque && tanque.capacidad_litros > 0 ? Math.round((stock / tanque.capacidad_litros) * 100) : 0;
+              stockEl.textContent = `Stock tanque: ${stock.toLocaleString('es-ES')}L (${pct}% capacidad)`;
+              stockEl.style.color = data.l > stock ? 'var(--c-danger)' : 'var(--c-info)';
+            }
+          }
         },
         validate: async (data) => {
           if (!data.fecha) { App.toastError("La fecha de recogida es obligatoria"); return false; }
@@ -151,6 +276,62 @@ window.AlbaranLecheWizard = {
           if (!data.comunidad_autonoma) { App.toastError("Selecciona la comunidad autónoma"); return false; }
           if (data.temp > 6) { App.toast("ALERTA SANITARIA: Temperatura > 6°C detectada.", 'warning'); }
           if (!data.inh) { App.toastError("Debes certificar la ausencia de inhibidores."); return false; }
+
+          // Regla de intermediarios (Nota Aclaratoria MAPA)
+          if (data.tipo_movimiento_letra_q && !data.tipo_movimiento_letra_q.startsWith('cisterna_a') && data.agente_recogida_nif) {
+            const agente = compradoresLacteos.find(c => c.nif_cif === data.agente_recogida_nif);
+            if (agente && agente.tipo_operador_lacteo === 'intermediario') {
+              App.toastError('Los movimientos de solo cambio de propiedad (Intermediario 1) no se registran en Letra Q 2.0. Si hay cambio de cisterna, seleccione tipo "Cisterna → Cisterna".');
+              return false;
+            }
+          }
+
+          // Validación movimiento Letra Q
+          if (window.MotorLacteo) {
+            const movVal = await window.MotorLacteo.validarMovimientoLetraQ({
+              tipo_movimiento_letra_q: data.tipo_movimiento_letra_q,
+              agente_recogida_nif: data.agente_recogida_nif,
+              agente_destino_nif: data.agente_destino_nif,
+              resultado_inhibidores_in_situ: data.resultado_inhibidores_in_situ,
+              muestra_tomada: !!data.q,
+              nif_tomador_muestra: data.nif_tomador_muestra,
+              codigo_cisterna_origen_letra_q: data.codigo_cisterna_origen_letra_q,
+              codigo_cisterna_destino_letra_q: data.codigo_cisterna_destino_letra_q,
+            });
+            for (const err of movVal.errores) {
+              App.toastError(err);
+            }
+            if (!movVal.valido) return false;
+            for (const w of movVal.warnings) {
+              App.toast(w, 'warning');
+            }
+          }
+
+          if (data.tanqueId && window.BalanceLacteo) {
+            const validacion = await window.BalanceLacteo.validarStockSuficiente(data.tanqueId, data.l);
+            if (!validacion.valido) {
+              App.toastError(`Litros (${data.l}L) superan stock del tanque (${validacion.stockActual}L)`);
+              return false;
+            }
+          }
+
+          if (window.MotorLacteo) {
+            const validacionCom = await window.MotorLacteo.validarComercializacion({
+              fincaId,
+              tanqueId: data.tanqueId,
+              cantidad: data.l,
+              especie_leche: data.especie_leche,
+              temperatura: data.temp,
+            });
+            for (const err of validacionCom.errores) {
+              App.toastError(err);
+            }
+            if (!validacionCom.valido) return false;
+            for (const w of validacionCom.warnings) {
+              App.toast(w, 'warning');
+            }
+          }
+
           return true;
         }
       },
@@ -191,11 +372,39 @@ window.AlbaranLecheWizard = {
                 <input type="number" id="w-l-som" value="${data.somaticas || ''}" class="wizard-input font-800">
               </div>
             </div>
+
+            <div class="border-top-222 pt-12 mt-4 mb-12">
+              <div class="section-header-theme mb-10" style="--theme-color: var(--c-danger); font-size: var(--fs-tiny);">AFLATOXINA M1 (PLAN PIVCA)</div>
+              <div class="grid grid-cols-2 gap-10 mb-10">
+                <div class="wizard-input-group">
+                  <label class="wizard-label">AFLATOXINA M1 (ng/kg)</label>
+                  <input type="number" id="w-l-afm1" value="${data.aflatoxina_m1 || ''}" step="0.1" class="wizard-input font-800">
+                </div>
+                <div class="wizard-input-group">
+                  <label class="wizard-label">MÉTODO</label>
+                  <select id="w-l-afm1-metodo" class="wizard-input font-800 text-xs">
+                    <option value="">— NINGUNO —</option>
+                    <option value="kit_rapido" ${data.aflatoxina_m1_metodo === 'kit_rapido' ? 'selected' : ''}>KIT RÁPIDO</option>
+                    <option value="ELISA" ${data.aflatoxina_m1_metodo === 'ELISA' ? 'selected' : ''}>ELISA</option>
+                    <option value="HPLC" ${data.aflatoxina_m1_metodo === 'HPLC' ? 'selected' : ''}>HPLC</option>
+                  </select>
+                </div>
+              </div>
+            </div>
             
             <div class="wizard-input-group mb-12">
               <label class="wizard-label">FECHA ANÁLISIS</label>
               <input type="date" id="w-l-fec-an" value="${data.fecha_analisis || ''}" class="wizard-input font-800">
             </div>
+
+            ${laboratorios.length > 0 ? `
+            <div class="wizard-input-group mb-12">
+              <label class="wizard-label">LABORATORIO</label>
+              <select id="w-l-lab" class="wizard-input font-800 text-xs">
+                ${laboratorios.map(l => `<option value="${l.codigo}" ${data.laboratorio_nombre === l.codigo || data.laboratorio_nombre === l.nombre ? 'selected' : ''}>${l.nombre}</option>`).join('')}
+              </select>
+            </div>
+            ` : ''}
 
             <div class="p-10 bg-black border border-222 rounded-sm mb-12">
               <label class="flex items-center gap-10 text-xs text-white cursor-pointer">
@@ -257,15 +466,35 @@ window.AlbaranLecheWizard = {
           data.antibioticos = document.getElementById('w-l-antb')?.checked || false;
           data.coste_alimentacion_diario = parseFloat(document.getElementById('w-l-coste-diario')?.value) || 0;
           data.coste_alimentacion_periodo = parseFloat(document.getElementById('w-l-coste-periodo')?.value) || 0;
+          data.aflatoxina_m1 = parseFloat(document.getElementById('w-l-afm1')?.value) || null;
+          data.aflatoxina_m1_metodo = document.getElementById('w-l-afm1-metodo')?.value || null;
+          data.laboratorio_nombre = document.getElementById('w-l-lab')?.value || data.laboratorio_nombre;
         },
         validate: async (data) => {
+          if (window.ComunidadesService) {
+            const especie = data.especie_leche || 'vacuno';
+            const evalResult = window.ComunidadesService.evaluarCalidadLecheEspecie({
+              grasa: data.grasa,
+              proteina: data.proteina,
+              germenes_30C: data.germenes,
+              celulas_somaticas: data.somaticas,
+              inhibidores: data.antibioticos,
+              aflatoxina_m1: data.aflatoxina_m1,
+            }, especie);
+
+            if (evalResult.bloqueante) {
+              evalResult.alertas.forEach(a => App.toastError(a));
+              return false;
+            }
+            evalResult.alertas.forEach(a => App.toast(a, 'warning'));
+          }
           return true;
         }
       }
     ];
 
     window.WizardManager.create({
-      id: 'wizard-leche-colectivo-container',
+      id: `wizard-leche-colectivo-container-${borrador ? borrador.id : 'nuevo'}`,
       title: 'SALIDA LÁCTEA',
       initialData: {
         id: borrador ? borrador.id : undefined,
@@ -282,14 +511,18 @@ window.AlbaranLecheWizard = {
         temp: borrador ? borrador.temperatura : 4.5,
         cadena_frio_cumplida: borrador ? !!borrador.cadena_frio_cumplida : true,
         inh: borrador ? !!borrador.certificadoInhibidores : true,
-        grasa: borrador ? borrador.laboratorio?.grasa : '',
-        proteina: borrador ? borrador.laboratorio?.proteina : '',
-        germenes: borrador ? borrador.laboratorio?.germenes : '',
-        somaticas: borrador ? borrador.laboratorio?.somaticas : '',
+        especie_leche: borrador ? (borrador.especie_leche || 'vacuno') : 'vacuno',
+        tanqueId: borrador ? (borrador.tanqueId || null) : null,
+        grasa: borrador ? (borrador.laboratorio?.grasa || borrador.analitica?.grasa) : '',
+        proteina: borrador ? (borrador.laboratorio?.proteina || borrador.analitica?.proteina) : '',
+        germenes: borrador ? (borrador.laboratorio?.germenes || borrador.laboratorio?.gemenes || borrador.analitica?.germenes_30C) : '',
+        somaticas: borrador ? (borrador.laboratorio?.somaticas || borrador.analitica?.celulas_somaticas) : '',
         antibioticos: borrador ? !!borrador.laboratorio?.antibioticos : false,
-        fecha_analisis: borrador ? borrador.laboratorio?.fecha_analisis : new Date().toISOString().split("T")[0],
-        nro_boletin: borrador ? borrador.laboratorio?.nro_boletin : '',
-        laboratorio_nombre: borrador ? borrador.laboratorio?.laboratorio_nombre : 'LIGAL',
+        fecha_analisis: borrador ? (borrador.laboratorio?.fecha_analisis || borrador.analitica?.fecha_muestreo) : new Date().toISOString().split("T")[0],
+        nro_boletin: borrador ? (borrador.laboratorio?.nro_boletin || borrador.analitica?.nro_boletin) : '',
+        laboratorio_nombre: borrador ? (borrador.laboratorio?.laboratorio_nombre || borrador.analitica?.laboratorio_nombre) : 'CICAP',
+        aflatoxina_m1: borrador ? (borrador.analitica?.aflatoxina_m1 || '') : '',
+        aflatoxina_m1_metodo: borrador ? (borrador.analitica?.aflatoxina_m1_metodo || '') : '',
         estado_tramite_infolac: borrador ? borrador.estado_tramite_infolac : 'borrador',
         fecha_presentacion_infolac: borrador ? borrador.fecha_presentacion_infolac : '',
         numero_registro_infolac: borrador ? borrador.numero_registro_infolac : '',
@@ -300,6 +533,16 @@ window.AlbaranLecheWizard = {
         primas_penalizaciones: borrador ? borrador.primas_penalizaciones : 0,
         coste_alimentacion_diario: borrador ? borrador.coste_alimentacion_diario : 0,
         coste_alimentacion_periodo: borrador ? borrador.coste_alimentacion_periodo : 0,
+        nif_tomador_muestra: borrador ? borrador.nif_tomador_muestra : '',
+        resultado_inhibidores_in_situ: borrador ? borrador.resultado_inhibidores_in_situ : 'no_realizada',
+        tipo_movimiento_letra_q: borrador ? borrador.tipo_movimiento_letra_q : 'explotacion_a_cisterna',
+        agente_recogida_nif: borrador ? borrador.agente_recogida_nif : null,
+        agente_destino_nif: borrador ? borrador.agente_destino_nif : null,
+        codigo_cisterna_origen_letra_q: borrador ? borrador.codigo_cisterna_origen_letra_q : '',
+        codigo_cisterna_destino_letra_q: borrador ? borrador.codigo_cisterna_destino_letra_q : '',
+        estado_letra_q: borrador ? borrador.estado_letra_q : 'pendiente',
+        fecha_limite_comunicacion_letra_q: borrador ? borrador.fecha_limite_comunicacion_letra_q : '',
+        fecha_comunicado_letra_q: borrador ? borrador.fecha_comunicado_letra_q : '',
       },
       steps: wizardSteps,
       onComplete: async (dataLeche) => {
@@ -366,6 +609,17 @@ window.AlbaranLecheWizard = {
             cadena_frio_cumplida: dataLeche.cadena_frio_cumplida || false,
             hora_ordeno: dataLeche.hora_ordeno || '',
             hora_carga: dataLeche.hora_carga || '',
+            tanqueId: dataLeche.tanqueId || null,
+            especie_leche: dataLeche.especie_leche || 'vacuno',
+            codigo_letra_q_tanque: null,
+            recibo_letra_q: {
+              identificacion_productor: finca.nombre_titular || finca.nombre || '',
+              codigo_explotacion: finca.codigo_REGA || finca.rega || '',
+              fecha_hora_recogida: `${dataLeche.fecha}T${dataLeche.hora_carga || '00:00'}`,
+              cantidad_litros: cantidad,
+              operador_cisterna: dataLeche.matricula,
+              muestra_tomada: !!dataLeche.q,
+            },
             laboratorio: {
               grasa: dataLeche.grasa || 0,
               proteina: dataLeche.proteina || 0,
@@ -376,7 +630,7 @@ window.AlbaranLecheWizard = {
               extracto_seco: extractoSeco,
               recuento_bacterias: dataLeche.germenes || 0,
               antibioticos_positivos: dataLeche.antibioticos || false,
-              laboratorio_nombre: dataLeche.laboratorio_nombre || 'LIGAL',
+              laboratorio_nombre: dataLeche.laboratorio_nombre || 'CICAP',
               nro_boletin: dataLeche.nro_boletin || '',
             },
             precio_extracto_seco: pExt,
@@ -386,8 +640,37 @@ window.AlbaranLecheWizard = {
             coste_alimentacion_diario: dataLeche.coste_alimentacion_diario || 0,
             coste_alimentacion_periodo: costeAlim,
             mofa: mofa,
+            // Nuevos campos RD 989/2022
+            nif_tomador_muestra: dataLeche.nif_tomador_muestra || '',
+            resultado_inhibidores_in_situ: dataLeche.resultado_inhibidores_in_situ || 'no_realizada',
+            tipo_movimiento_letra_q: dataLeche.tipo_movimiento_letra_q || 'explotacion_a_cisterna',
+            agente_recogida_nif: dataLeche.agente_recogida_nif || null,
+            agente_destino_nif: dataLeche.agente_destino_nif || null,
+            codigo_cisterna_origen_letra_q: dataLeche.codigo_cisterna_origen_letra_q || null,
+            codigo_cisterna_destino_letra_q: dataLeche.codigo_cisterna_destino_letra_q || null,
+            estado_letra_q: dataLeche.estado_letra_q || 'pendiente',
+            fecha_limite_comunicacion_letra_q: null,
+            fecha_comunicado_letra_q: dataLeche.fecha_comunicado_letra_q || null,
             creadoEn: borrador ? borrador.creadoEn : new Date().toISOString(),
           };
+
+          // Calcular fecha límite de comunicación a Letra Q
+          if (window.MotorLacteo && dataLeche.fecha) {
+            const nifDestino = dataLeche.agente_destino_nif || null;
+            let tipoAgenteDestino = 'primer_comprador';
+            if (nifDestino) {
+              const agenteDest = compradoresLacteos.find(c => c.nif_cif === nifDestino);
+              if (agenteDest && agenteDest.tipo_operador_lacteo) {
+                tipoAgenteDestino = agenteDest.tipo_operador_lacteo;
+              }
+            }
+            reg.fecha_limite_comunicacion_letra_q = window.MotorLacteo.calcularPlazoComunicacion(tipoAgenteDestino, dataLeche.fecha);
+          }
+
+          if (dataLeche.tanqueId) {
+            const tanque = await window.TanquesLeche.getById(dataLeche.tanqueId);
+            if (tanque) reg.codigo_letra_q_tanque = tanque.codigo_letra_q;
+          }
 
           // ═══════════════════════════════════════════════════════════════════
           // FASE 1 — P1: BLOQUEO SANITARIO AUTOMÁTICO EN VENTA DE LECHE
@@ -471,13 +754,61 @@ window.AlbaranLecheWizard = {
           }
 
           let idL;
-          if (dataLeche.id) {
-            reg.id = Number(dataLeche.id);
+          const idNumerico = Number(dataLeche.id);
+          if (dataLeche.id && Number.isFinite(idNumerico)) {
+            reg.id = idNumerico;
             await window.db.put("comercializacion_leche", reg);
             idL = reg.id;
           } else {
             idL = await window.db.add("comercializacion_leche", reg);
           }
+
+          if (dataLeche.grasa || dataLeche.germenes || dataLeche.somaticas || dataLeche.aflatoxina_m1) {
+            try {
+              const analiticaData = {
+                fincaId,
+                comercializacionId: idL,
+                tanqueId: dataLeche.tanqueId || null,
+                fecha_muestreo: dataLeche.fecha_analisis || dataLeche.fecha,
+                tipo_muestreo: 'autocontrol',
+                laboratorio_nombre: dataLeche.laboratorio_nombre || 'CICAP',
+                nro_boletin: dataLeche.nro_boletin || null,
+                grasa: dataLeche.grasa || null,
+                proteina: dataLeche.proteina || null,
+                germenes_30C: dataLeche.germenes || null,
+                celulas_somaticas: dataLeche.somaticas || null,
+                inhibidores: !dataLeche.inh,
+                antibioticos_detectados: dataLeche.antibioticos || false,
+                aflatoxina_m1: dataLeche.aflatoxina_m1 || null,
+                aflatoxina_m1_metodo: dataLeche.aflatoxina_m1_metodo || null,
+                numero_muestra_letra_q: dataLeche.q || null,
+                especie: dataLeche.especie_leche || 'vacuno',
+              };
+              const analiticaId = await window.db.add('analiticas_leche', analiticaData);
+              reg.analiticaId = analiticaId;
+              await window.db.put("comercializacion_leche", reg);
+            } catch (analErr) {
+              console.warn('[Leche] Error guardando analítica:', analErr);
+            }
+          }
+
+          if (dataLeche.tanqueId && window.BalanceLacteo) {
+            try {
+              await window.BalanceLacteo.registrar({
+                fincaId,
+                tanqueId: dataLeche.tanqueId,
+                tipo_movimiento: 'salida',
+                fecha: dataLeche.fecha,
+                cantidad_litros: cantidad,
+                referencia_tipo: 'comercializacion_leche',
+                referencia_id: idL,
+                temperatura: dataLeche.temp,
+              });
+            } catch (balErr) {
+              console.warn('[Leche] Error registrando salida en balance:', balErr);
+            }
+          }
+
           const numeroDocInfolac = `INFOLAC-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${idL}`;
           
           const docsLegales = await window.db.getAll('documentos_legales').catch(() => []);

@@ -202,27 +202,27 @@ const ComercializacionView = {
       if (this._activeSubModule === 'leche') {
         const litros = dComer.entregas.reduce((s, e) => s + (e.cantidad || 0), 0);
         headerKpisHtml = `
-          <div class="module-header-kpi">
+          <div class="module-header-kpi text-center">
             <span class="module-header-kpi-label">Entregas</span>
             <span class="module-header-kpi-value">${dComer.entregas.length}</span>
           </div>
-          <div class="module-header-kpi">
+          <div class="module-header-kpi text-center">
             <span class="module-header-kpi-label">Litros</span>
             <span class="module-header-kpi-value">${UI.formatNumber(litros)}</span>
           </div>`;
-        headerPrimaryHtml = `<button class="btn btn-create btn-lg" onclick="App._abrirWizardAlbaranLeche()">${Icons.fabPlus()} Registrar Retirada</button>`;
+        headerPrimaryHtml = `<button class="btn btn-create btn-lg w-full" onclick="App._abrirWizardAlbaranLeche()">${Icons.fabPlus()} Registrar Retirada</button>`;
       } else {
         const ingreso = dComer.ventas.reduce((s, v) => s + (v.precio_total || 0), 0);
         headerKpisHtml = `
-          <div class="module-header-kpi">
+          <div class="module-header-kpi text-center">
             <span class="module-header-kpi-label">Ventas</span>
             <span class="module-header-kpi-value">${dComer.ventas.length}</span>
           </div>
-          <div class="module-header-kpi">
+          <div class="module-header-kpi text-center">
             <span class="module-header-kpi-label">Ingreso</span>
             <span class="module-header-kpi-value" style="color: var(--c-success);">${UI.formatCurrency(Math.round(ingreso))}</span>
           </div>`;
-        headerPrimaryHtml = `<button class="btn btn-create btn-lg" onclick="App._abrirWizardVentaMasiva()">${Icons.fabPlus()} Registrar Venta</button>`;
+        headerPrimaryHtml = `<button class="btn btn-create btn-lg w-full" onclick="App._abrirWizardVentaMasiva()">${Icons.fabPlus()} Registrar Venta</button>`;
       }
     }
 
@@ -239,23 +239,21 @@ const ComercializacionView = {
         )}
       </div>
 
-      <div class="module-header">
-        <div class="module-header-kpis">
-          <span class="module-mode-chip" style="--mode-color: ${modoMetaComer.color};">${modoMetaComer.icon} ${modoMetaComer.label}</span>
-          ${headerKpisHtml}
-        </div>
+      <div class="module-header px-4">
         ${headerPrimaryHtml ? `<div class="module-header-primary-action">${headerPrimaryHtml}</div>` : ''}
-        <div class="text-left mb-6 uppercase" style="letter-spacing: 0.5px;">
-          <h1 style="font-size: 1.25rem; font-weight: 900; color: #fff; margin: 0; display: flex; items-center;">
+        <div class="text-left mb-6 uppercase" style="letter-spacing: 0.5px; padding-left: 4px;">
+          <h1 style="font-size: 1.1rem; font-weight: 900; color: #fff; margin: 0; display: flex; items-center;">
             <span style="color:${currentMeta.color}; margin-right:4px;">|</span> ${currentMeta.title}
           </h1>
-          <div class="text-gray" style="font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+          <div class="text-gray" style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
             ${currentMeta.desc}
           </div>
         </div>
       </div>
 
-      ${alertaContratosHtml}
+      <div class="px-4">
+        ${alertaContratosHtml}
+      </div>
 
       <!-- Contenedor Dinámico para la pestaña activa -->
       <div id="comer-agenda-widget"></div>
@@ -325,13 +323,36 @@ const ComercializacionView = {
     const fincaId = await Fincas.getActiveId();
     const d = await this._ensureData(fincaId, this._needsDataRefresh);
 
+    // Tarjeta de Resumen Comercial Lácteo
+    const resumenLecheHtml = `
+      <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(79,173,245,0.08) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-info);">
+        <div class="flex items-center gap-12 mb-10">
+          <span class="text-3xl" style="color:var(--c-info);">${Icons.leche()}</span>
+          <div>
+            <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">BALANCE COMERCIAL LÁCTEO</h2>
+            <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Registro de albaranes de entrega, liquidaciones y control de calidad.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-8 mt-12">
+          ${d.kpis.leche.slice(0, 2).map(k => `
+            <div class="leche-kpi-item" style="--kpi-color:var(--c-info); --kpi-value-color:#fff">
+              <small class="leche-kpi-label">${k.label}</small>
+              <div class="leche-kpi-value">${k.value}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+
     const kpisHtml = this._renderKPIsSubTab('leche', d.kpis.leche, 'var(--c-info)', Icons.leche());
     
     container.innerHTML = `
-      <div class="explotacion-kpis mb-14">
-        ${kpisHtml}
-      </div>
-      <div id="comer-sub-content"></div>`;
+      <div class="px-4">
+        ${resumenLecheHtml}
+        <div class="explotacion-kpis mb-14">
+          ${kpisHtml}
+        </div>
+        <div id="comer-sub-content"></div>
+      </div>`;
 
     const subContent = document.getElementById('comer-sub-content');
     this._renderSeccion(subContent, {
@@ -380,13 +401,36 @@ const ComercializacionView = {
     const fincaId = await Fincas.getActiveId();
     const d = await this._ensureData(fincaId, this._needsDataRefresh);
 
+    // Tarjeta de Resumen Comercial Cárnico
+    const resumenCarneHtml = `
+      <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-success);">
+        <div class="flex items-center gap-12 mb-10">
+          <span class="text-3xl" style="color:var(--c-success);">${Icons.carne()}</span>
+          <div>
+            <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">BALANCE COMERCIAL CÁRNICO</h2>
+            <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Ventas de ganado, rendimientos de canal y facturación a mataderos.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-8 mt-12">
+          ${d.kpis.carne.slice(0, 2).map(k => `
+            <div class="leche-kpi-item" style="--kpi-color:var(--c-success); --kpi-value-color:#fff">
+              <small class="leche-kpi-label">${k.label}</small>
+              <div class="leche-kpi-value">${k.value}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+
     const kpisHtml = this._renderKPIsSubTab('carne', d.kpis.carne, 'var(--c-success)', Icons.carne());
     
     container.innerHTML = `
-      <div class="explotacion-kpis mb-14">
-        ${kpisHtml}
-      </div>
-      <div id="comer-sub-content"></div>`;
+      <div class="px-4">
+        ${resumenCarneHtml}
+        <div class="explotacion-kpis mb-14">
+          ${kpisHtml}
+        </div>
+        <div id="comer-sub-content"></div>
+      </div>`;
 
     const subContent = document.getElementById('comer-sub-content');
     this._renderSeccion(subContent, {

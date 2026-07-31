@@ -468,6 +468,13 @@ const MotorTrazabilidad = {
           data.certificadoInhibidores || data.certificadoAusenciaInhibidores
             ? "DECLARADA (APTO)"
             : "PENDIENTE BIOCIDA",
+        nif_tomador_muestra: data.nif_tomador_muestra || "",
+        resultado_inhibidores_in_situ: data.resultado_inhibidores_in_situ || "no_realizada",
+        tipo_movimiento_letra_q: data.tipo_movimiento_letra_q || "explotacion_a_cisterna",
+        estado_letra_q: data.estado_letra_q || "pendiente",
+        fecha_limite_comunicacion_letra_q: data.fecha_limite_comunicacion_letra_q || "",
+        codigo_cisterna_origen_letra_q: data.codigo_cisterna_origen_letra_q || "",
+        codigo_cisterna_destino_letra_q: data.codigo_cisterna_destino_letra_q || "",
       };
 
       const precioBaseLitre = parseFloat(data.precioBase || 0.45);

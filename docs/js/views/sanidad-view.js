@@ -180,19 +180,21 @@ const SanidadView = {
     container.innerHTML = `
       <div class="px-4">
         <div class="module-header">
-          <div class="module-header-kpis">
-            <span class="module-mode-chip" style="--mode-color: ${modoMeta.color};">${modoMeta.icon} ${modoMeta.label}</span>
-            <div class="module-header-kpi">
-              <span class="module-header-kpi-label">Tratamientos</span>
-              <span class="module-header-kpi-value">${tratamientos.length}</span>
+          <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(168,85,247,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-purple);">
+            <div class="flex items-center gap-12 mb-10">
+              <span class="text-3xl" style="color:var(--c-purple);">${Icons.sanidad()}</span>
+              <div>
+                <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">SANIDAD ANIMAL</h2>
+                <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Libro de tratamientos, periodos de supresión y vigilancia veterinaria.</p>
+              </div>
             </div>
-            <div class="module-header-kpi">
-              <span class="module-header-kpi-label">En Supresión</span>
-              <span class="module-header-kpi-value" style="color:${supresionesActivas.length > 0 ? 'var(--c-danger)' : 'var(--c-success)'};">${supresionesActivas.length}</span>
+            <div class="grid grid-cols-2 gap-8 mt-12 py-8 border-top-222">
+              <div class="text-[0.6rem] text-gray uppercase font-900">Historial: <strong class="text-white">${tratamientos.length}</strong></div>
+              <div class="text-[0.6rem] text-gray uppercase font-900">En Supresión: <strong class="${supresionesActivas.length > 0 ? 'text-danger' : 'text-success'}">${supresionesActivas.length}</strong></div>
             </div>
           </div>
           <div class="module-header-primary-action">
-            <button class="btn btn-create btn-lg" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">${Icons.fabPlus()} Aplicar Tratamiento</button>
+            <button class="btn btn-create btn-lg w-full" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">${Icons.fabPlus()} Aplicar Tratamiento</button>
           </div>
           <div class="module-header-secondary-actions">
             <button class="widget-link-btn widget-link-btn--neon neon-info" style="border:none; cursor:pointer;" onclick="window.WizardVacunacion ? window.WizardVacunacion.registrar(null, { onSaved: () => App.route() }) : App.toastError('Módulo de vacunación no disponible')">${Icons.documento()}<span class="widget-link-label">Vacunación</span></button>

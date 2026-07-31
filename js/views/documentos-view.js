@@ -91,7 +91,10 @@ const DocumentosView = {
       const ventaMap = {};
       ventas.forEach(v => { ventaMap[v.id] = v; });
 
-      // Normalizar pedidos de crotales para el listado de documentos
+      let ventasLeche = await window.db.getAll('comercializacion_leche').catch(() => []);
+      let contratos = await window.db.getAll('contratos_compra').catch(() => []);
+
+      // Normalizar pedidos de crotales
       const pedidosNormalizados = pedidos.map(p => ({
         id: p.id,
         tipo: 'crotales',
@@ -104,7 +107,7 @@ const DocumentosView = {
         dataRaw: p
       }));
 
-      // Normalizar movimientos de ganado a DIMOE para que figuren en el listado unificado
+      // Normalizar movimientos de ganado a DIMOE
       const movimientosNormalizados = movimientos.map(m => ({
         id: m.id,
         tipo: 'dimoe',
@@ -117,8 +120,46 @@ const DocumentosView = {
         dataRaw: m
       }));
 
+      // Normalizar Albaranes de Carne
+      const ventasCarneNormalizadas = ventas.map(v => ({
+        id: v.id,
+        tipo: 'albaran_carne',
+        numero: v.numero_albaran || `ALB-C-${v.id}`,
+        fecha: v.fecha || v.fechaSacrificio || v.creadoEn,
+        createdAt: v.creadoEn || v.fecha || v.fechaSacrificio,
+        estado: v.estado_tramite || 'presentado',
+        acuseManual: v.acuse_manual || '',
+        isAlbaranCarne: true,
+        dataRaw: v
+      }));
+
+      // Normalizar Albaranes de Leche
+      const ventasLecheNormalizadas = ventasLeche.map(v => ({
+        id: v.id,
+        tipo: 'albaran_leche',
+        numero: v.numero_infolac || `ALB-L-${v.id}`,
+        fecha: v.fechaRecogida || v.creadoEn,
+        createdAt: v.creadoEn || v.fechaRecogida,
+        estado: v.estado_tramite_infolac || 'borrador',
+        acuseManual: v.acuse_manual || '',
+        isAlbaranLeche: true,
+        dataRaw: v
+      }));
+
+      // Normalizar Contratos
+      const contratosNormalizados = contratos.map(c => ({
+        id: c.id,
+        tipo: 'contrato',
+        numero: c.numero_contrato || `CT-${c.id}`,
+        fecha: c.fecha_inicio || c.creadoEn,
+        createdAt: c.creadoEn || c.fecha_inicio,
+        estado: c.activo !== false ? 'activo' : 'inactivo',
+        acuseManual: c.acuse_manual || '',
+        isContrato: true,
+        dataRaw: c
+      }));
+
       // Unificar todos los documentos
-      // Filtrar de documentos_legales aquellos que ya se representarán a través de movimientos/pedidos para evitar duplicados visuales
       const docsNormalizados = docs
         .filter(d => d.tipo !== 'guia_movimiento' && d.tipo !== 'infolac_declaracion')
         .map(d => ({
@@ -135,7 +176,10 @@ const DocumentosView = {
       const docsUnificados = [
         ...docsNormalizados,
         ...pedidosNormalizados,
-        ...movimientosNormalizados
+        ...movimientosNormalizados,
+        ...ventasCarneNormalizadas,
+        ...ventasLecheNormalizadas,
+        ...contratosNormalizados
       ];
 
       // Ordenar por fecha descendente
@@ -167,9 +211,10 @@ const DocumentosView = {
       crotales: `${Icons.animales()} Crotales`
     };
     
-    const totalDocs = docs.length;
     const porTipo = {};
     docs.forEach(d => { porTipo[d.tipo] = (porTipo[d.tipo] || 0) + 1; });
+
+    const totalComercial = (porTipo.albaran_carne || 0) + (porTipo.albaran_leche || 0);
 
     const docsRecientes = docs.slice(0, 5);
 
@@ -185,18 +230,18 @@ const DocumentosView = {
       ${bannerInterno}
       <div class="card p-12 mb-14 border-222 card-resumen" style="background: rgba(168,85,247,0.015); width:100%;">
         <div class="text-xs text-white font-black uppercase tracking-wider mb-6 flex items-center gap-6"><span style="color: #4FADF5; margin-right:4px;">|</span> ${Icons.documento()} DOCUMENTOS</div>
-        <div class="grid grid-cols-5 gap-4 mb-6">
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-4 mb-6">
           <div class="bg-dark rounded-lg p-6 text-center border border-222">
             <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">TOTAL</div>
-            <div class="text-base font-black text-blue">${totalDocs}</div>
+            <div class="text-base font-black text-blue">${docs.length}</div>
           </div>
           <div class="bg-dark rounded-lg p-6 text-center border border-222">
-            <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">DIMOE</div>
+            <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">GUÍAS</div>
             <div class="text-base font-black text-green">${porTipo.dimoe || 0}</div>
           </div>
           <div class="bg-dark rounded-lg p-6 text-center border border-222">
-            <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">FACTURAS</div>
-            <div class="text-base font-black text-amber">${porTipo.factura || 0}</div>
+            <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">COMERCIAL</div>
+            <div class="text-base font-black text-amber">${totalComercial}</div>
           </div>
           <div class="bg-dark rounded-lg p-6 text-center border border-222">
             <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">DIB/REGA</div>
@@ -205,6 +250,10 @@ const DocumentosView = {
           <div class="bg-dark rounded-lg p-6 text-center border border-222">
             <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">CROTALES</div>
             <div class="text-base font-black text-gold">${porTipo.crotales || 0}</div>
+          </div>
+          <div class="bg-dark rounded-lg p-6 text-center border border-222">
+            <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">CONTRATOS</div>
+            <div class="text-base font-black text-info" style="color:var(--c-info);">${porTipo.contrato || 0}</div>
           </div>
         </div>
       </div>
@@ -262,8 +311,26 @@ const DocumentosView = {
       return `<div class="empty-state"><div class="empty-state-icon">${Icons.documento()}</div><p class="empty-state-text">No hay documentos${this._currentTab !== 'todos' ? ' de este tipo' : ''}.</p></div>`;
     }
 
-    const colors = { dimoe: 'var(--c-success)', factura: 'var(--c-info)', certificado: 'var(--c-warning)', dib: 'var(--c-purple)', crotales: 'var(--c-orange)' };
-    const labels = { dimoe: 'DIMOE (Guía)', factura: 'Factura', certificado: 'Certificado', dib: 'DIB (Identificación)', crotales: 'Pedido Crotales' };
+    const colors = {
+      dimoe: 'var(--c-success)',
+      factura: 'var(--c-info)',
+      certificado: 'var(--c-warning)',
+      dib: 'var(--c-purple)',
+      crotales: 'var(--c-orange)',
+      albaran_carne: 'var(--c-danger)',
+      albaran_leche: 'var(--c-info)',
+      contrato: 'var(--c-purple)'
+    };
+    const labels = {
+      dimoe: 'DIMOE (Guía)',
+      factura: 'Factura',
+      certificado: 'Certificado',
+      dib: 'DIB (Identificación)',
+      crotales: 'Pedido Crotales',
+      albaran_carne: 'Albarán Carne',
+      albaran_leche: 'Albarán Leche',
+      contrato: 'Contrato'
+    };
 
     return `<div class="grid gap-10">
       ${filtrados.map(doc => {
@@ -277,9 +344,18 @@ const DocumentosView = {
           descHtml = `Especie: <strong>${doc.dataRaw.especie ?? '—'}</strong> &middot; Cantidad: <strong>${doc.dataRaw.cantidad ?? '—'}${typeof doc.dataRaw.cantidad === 'number' ? (doc.dataRaw.cantidad === 1 ? ' par' : ' pares') : ''}</strong>`;
         } else if (doc.isMovimiento) {
           descHtml = `Movimiento de <strong>${doc.dataRaw.tipo === 'salida' ? 'Salida' : 'Entrada'}</strong> &middot; Animales: <strong>${doc.dataRaw.num_animales ?? '—'}</strong>`;
+        } else if (doc.isAlbaranCarne) {
+          descHtml = `Venta de <strong>${doc.dataRaw.num_animales || 1}</strong> animales &middot; Comprador: <strong>${doc.dataRaw.razonSocial || '—'}</strong>`;
+        } else if (doc.isAlbaranLeche) {
+          descHtml = `Entrega de <strong>${(doc.dataRaw.cantidad || 0).toLocaleString()} L</strong> &middot; Comprador: <strong>${doc.dataRaw.comprador_nombre || '—'}</strong>`;
+        } else if (doc.isContrato) {
+          descHtml = `Comprador: <strong>${ventaMap[doc.dataRaw.compradorId]?.razonSocial || '—'}</strong> &middot; Tipo: <strong>${(doc.dataRaw.tipo || '').toUpperCase()}</strong>`;
         } else {
           descHtml = doc.numero || 'Sin número registrado';
         }
+
+        const badgeText = doc.isContrato ? (doc.dataRaw.activo !== false ? 'Activo' : 'Inactivo') : (esBorrador ? 'Borrador' : 'Presentado');
+        const badgeColorKey = doc.isContrato ? (doc.dataRaw.activo !== false ? 'success' : 'danger') : (esBorrador ? 'warning' : 'success');
 
         const fechaEmision = doc.createdAt || doc.fecha;
         const diasPendiente = fechaEmision ? Math.floor((new Date() - new Date(fechaEmision)) / (1000 * 60 * 60 * 24)) : null;
@@ -292,14 +368,14 @@ const DocumentosView = {
             <div class="flex justify-between items-start">
               <div class="flex-1 min-w-0">
                 <div class="font-800 text-sm" style="color:${color}; display:flex; align-items:center; gap:6px;">
-                  ${doc.tipo === 'crotales' ? Icons.animales() : Icons.documento()}
+                  ${(doc.tipo === 'crotales' || doc.isAlbaranCarne) ? Icons.animales() : (doc.isAlbaranLeche ? Icons.leche() : Icons.documento())}
                   ${label}
                 </div>
                 <div class="font-900 text-white mt-2">${doc.numero || 'S/N'}</div>
               </div>
               <div class="text-right">
-                <span style="font-size: 1.1rem; font-weight: 800; border: 1px solid var(--c-${esBorrador ? 'warning' : 'success'}); color: var(--c-${esBorrador ? 'warning' : 'success'}); background: ${esBorrador ? 'rgba(255,215,0,0.1)' : 'rgba(204,255,0,0.1)'}; padding: 6px 12px; border-radius: 8px; display: inline-block;">
-                  ${esBorrador ? 'Borrador' : 'Presentado'}
+                <span style="font-size: 1.1rem; font-weight: 800; border: 1px solid var(--c-${badgeColorKey}); color: var(--c-${badgeColorKey}); background: color-mix(in srgb, var(--c-${badgeColorKey}) 10%, transparent); padding: 6px 12px; border-radius: 8px; display: inline-block;">
+                  ${badgeText}
                 </span>
               </div>
             </div>
@@ -319,7 +395,7 @@ const DocumentosView = {
                 </div>
               </div>
               <div class="text-right">
-                <span style="display: inline-block; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--c-warning); color: var(--c-warning); background: rgba(255, 215, 0, 0.1); padding: 2px 6px; border-radius: 4px;">${Icons.documento()} Detalle</span>
+                <span style="display: inline-block; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--c-warning); color: var(--c-warning); background: rgba(255, 215, 0, 0.1); padding: 2px 6px; border-radius: 4px;" onclick="DocumentosView._verDetalle(${doc.id}, '${doc.tipo}')">${Icons.documento()} Detalle</span>
               </div>
             </div>
           </div>
@@ -350,15 +426,16 @@ const DocumentosView = {
           <div class="text-xs text-white font-black uppercase tracking-wider mb-8 text-center"><span style="color: var(--c-info); margin-right: 4px;">|</span> SELECCIONA TIPO DE DOCUMENTO</div>
           <div class="grid grid-cols-2 gap-8">
             ${[
-              { id: 'dimoe', label: 'DIMOE (Guías)', icon: Icons.exportar(), color: 'var(--c-success)' },
-              { id: 'factura', label: 'Facturas', icon: Icons.libroVentas(), color: 'var(--c-info)' },
+              { id: 'dimoe', label: 'Guías DIMOE', icon: Icons.exportar(), color: 'var(--c-success)' },
+              { id: 'albaran_carne', label: 'Albaranes Carne', icon: Icons.carne(), color: 'var(--c-danger)' },
+              { id: 'albaran_leche', label: 'Albaranes Leche', icon: Icons.leche(), color: 'var(--c-info)' },
+              { id: 'factura', label: 'Facturas Venta', icon: Icons.libroVentas(), color: 'var(--c-info)' },
               { id: 'certificado', label: 'Certificados', icon: Icons.contratos(), color: 'var(--c-warning)' },
               { id: 'dib', label: 'DIB / Identificación', icon: Icons.informeRega(), color: 'var(--c-purple)' },
               { id: 'crotales', label: 'Pedidos Crotales', icon: Icons.animales(), color: 'var(--c-orange)' },
-              { id: 'guias', label: 'Guías Movimiento', icon: Icons.exportar(), color: 'var(--c-success)' },
-              { id: 'libro', label: 'Libro Registro', icon: Icons.libroVentas(), color: 'var(--c-info)' },
-              { id: 'contratos', label: 'Contratos', icon: Icons.contratos(), color: 'var(--c-purple)' },
-              { id: 'cierres', label: 'Cierres / Borradores', icon: Icons.documento(), color: 'var(--c-warning)' },
+              { id: 'contrato', label: 'Contratos', icon: Icons.contratos(), color: 'var(--c-purple)' },
+              { id: 'informes', label: 'Informes Oficiales', icon: Icons.informeRega(), color: 'var(--c-success)' },
+              { id: 'cierres', label: 'Borradores / Pendientes', icon: Icons.documento(), color: 'var(--c-warning)' },
               { id: 'todos', label: 'Todos los documentos', icon: Icons.documento(), color: '#888' },
             ].map(t => `
               <button class="widget-link-btn widget-link-btn--neon" style="--neon-color:${t.color};--neon-glow:${t.color}B0;--neon-inner:${t.color}40;"
@@ -374,11 +451,13 @@ const DocumentosView = {
   },
 
   _filtrarYMostrar(tipo) {
+    if (tipo === 'informes') {
+      location.hash = '#/informes?tab=exportar';
+      return;
+    }
     const docs = this._cachedDocs || [];
     const filtrados = tipo === 'todos' ? docs : docs.filter(d => {
-      if (tipo === 'guias') return d.tipo === 'dimoe' || d.isMovimiento;
-      if (tipo === 'libro') return d.tipo === 'dib' || d.tipo === 'certificado';
-      if (tipo === 'contratos') return d.tipo === 'factura' || d.tipo === 'certificado';
+      if (tipo === 'dimoe') return d.tipo === 'dimoe' || d.isMovimiento;
       if (tipo === 'cierres') return d.estado === 'borrador';
       return (d.tipo || '') === tipo;
     });
@@ -403,16 +482,24 @@ const DocumentosView = {
     try {
       if (tipo === 'crotales') {
         const p = await window.db.get('pedidos_crotales', Number(id));
-        if (p) {
-          await window.WizardCrotales.abrirPedido(p);
-        } else { App.toastError("Borrador no encontrado"); }
+        if (p) await window.WizardCrotales.abrirPedido(p);
+        else throw new Error("Borrador no encontrado");
       } else if (tipo === 'dimoe') {
         const m = await window.db.get('movimientos_ganado', Number(id));
-        if (m) {
-          await window.WizardGuiaMovimiento.abrir(m);
-        } else { App.toastError("Borrador no encontrado"); }
+        if (m) await window.WizardGuiaMovimiento.abrir(m);
+        else throw new Error("Borrador no encontrado");
+      } else if (tipo === 'albaran_carne') {
+        const v = await window.db.get('comercializacion_carne', Number(id));
+        if (v) await window.VentaMasivaWizard.open(v);
+        else throw new Error("Borrador no encontrado");
+      } else if (tipo === 'albaran_leche') {
+        const l = await window.db.get('comercializacion_leche', Number(id));
+        if (l) await window.AlbaranLecheWizard.open(l);
+        else throw new Error("Borrador no encontrado");
+      } else if (tipo === 'contrato') {
+        location.hash = `#/contrato?id=${id}`;
       } else {
-        App.toast("Los borradores de este tipo se modifican en sus respectivos módulos", "info");
+        App.toast("Este tipo de documento no se puede editar como borrador aquí", "info");
       }
     } catch (e) {
       App.toastError("Error al abrir borrador: " + e.message);
@@ -426,24 +513,46 @@ const DocumentosView = {
       
       if (tipo === 'crotales') {
         const p = await window.db.get('pedidos_crotales', Number(id));
-        if (p) {
-          await window.WizardCrotales.generarPDF(finca, p, p.id);
-        } else { App.toastError("Pedido no encontrado"); }
+        if (p) await window.WizardCrotales.generarPDF(finca, p, p.id);
+        else throw new Error("Pedido no encontrado");
         return;
       }
       if (tipo === 'dimoe') {
         const m = await window.db.get('movimientos_ganado', Number(id));
-        if (m) {
-          window.WizardGuiaMovimiento.generarDocumento(finca, m);
-        } else { App.toastError("Movimiento no encontrado"); }
+        if (m) window.WizardGuiaMovimiento.generarDocumento(finca, m);
+        else throw new Error("Movimiento no encontrado");
         return;
+      }
+      if (tipo === 'albaran_carne' || tipo === 'albaran_leche') {
+        if (window.AlbaranesVentasView) {
+          await AlbaranesVentasView._imprimirDoc(tipo === 'albaran_carne' ? 'carne' : 'leche', id);
+        } else {
+          throw new Error("Módulo de ventas no disponible");
+        }
+        return;
+      }
+      if (tipo === 'contrato') {
+         // Generar PDF básico de contrato
+         const c = await window.db.get('contratos_compra', Number(id));
+         if (!c) throw new Error("Contrato no encontrado");
+         this._imprimirContratoPDF(finca, c);
+         return;
       }
 
       // Para el resto de tipos (factura, certificado, dib), generar PDF genérico
       const doc = (this._cachedDocs || []).find(d => d.id === id && d.tipo === tipo);
-      if (!doc) { App.toastError("Documento no encontrado"); return; }
+      if (!doc) throw new Error("Documento no encontrado");
 
-      const label = { dimoe: 'DIMOE (Guía)', factura: 'Factura', certificado: 'Certificado', dib: 'DIB (Identificación)', crotales: 'Pedido Crotales' }[tipo] || tipo;
+      const label = {
+        dimoe: 'DIMOE (Guía)',
+        factura: 'Factura',
+        certificado: 'Certificado',
+        dib: 'DIB (Identificación)',
+        crotales: 'Pedido Crotales',
+        albaran_carne: 'Albarán Carne',
+        albaran_leche: 'Albarán Leche',
+        contrato: 'Contrato'
+      }[tipo] || tipo;
 
       const html = `
         <div style="padding:40px; box-sizing:border-box; font-family:serif; color:#000;">
@@ -476,12 +585,58 @@ const DocumentosView = {
     }
   },
 
+  async _imprimirContratoPDF(finca, contrato) {
+    const html = `
+      <div style="padding:40px; font-family:serif; color:#000;">
+        <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:20px; margin-bottom:30px;">
+          <h1 style="margin:0; font-size:1.4rem; text-transform:uppercase;">CONTRATO DE SUMINISTRO/VENTA</h1>
+          <p style="margin:5px 0 0 0;">${finca.nombre} · ${finca.codigo_REGA || ''}</p>
+        </div>
+        <div style="margin-bottom:20px;">
+          <p><strong>Nº Contrato:</strong> ${contrato.numero_contrato || 'S/N'}</p>
+          <p><strong>Fecha Inicio:</strong> ${this._fmtFecha(contrato.fecha_inicio)}</p>
+          <p><strong>Tipo:</strong> ${(contrato.tipo || '').toUpperCase()}</p>
+        </div>
+        <div style="margin-top:30px;">
+          <h3 style="border-bottom:1px solid #eee; padding-bottom:5px;">PRECIOS PACTADOS</h3>
+          <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+            <thead>
+              <tr style="background:#f5f5f5;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Producto</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Precio (€)</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:center;">Unidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(contrato.precios || []).map(p => `
+                <tr>
+                  <td style="border:1px solid #ddd; padding:8px;">${p.producto}</td>
+                  <td style="border:1px solid #ddd; padding:8px; text-align:right;">${p.precio_unitario.toLocaleString()} €</td>
+                  <td style="border:1px solid #ddd; padding:8px; text-align:center;">${p.unidad}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:40px; padding:20px; border:1px solid #ccc; background:#f9f9f9;">
+          <p><strong>Condiciones:</strong> ${contrato.condiciones || 'Generales de mercado'}</p>
+        </div>
+      </div>`;
+
+    DocumentViewer.show({
+      id: 'doc-viewer-contrato',
+      title: 'Contrato ' + (contrato.numero_contrato || ''),
+      html,
+      filename: `Contrato_${contrato.numero_contrato || contrato.id}`
+    });
+  },
+
   async _verDetalle(docId, tipo) {
     const doc = (this._cachedDocs || []).find(d => d.id === docId && d.tipo === tipo);
     if (!doc) { App.toastError('Documento no encontrado'); return; }
     
-    const colors = { dimoe: '#10b981', factura: '#4FADF5', certificado: '#f59e0b', dib: '#8b5cf6', crotales: '#FFFC55' };
-    const labels = { dimoe: 'DIMOE (Guía)', factura: 'Factura', certificado: 'Certificado', dib: 'DIB (Identificación)', crotales: 'Pedido Crotales' };
+    const colors = { dimoe: '#10b981', factura: '#4FADF5', certificado: '#f59e0b', dib: '#8b5cf6', crotales: '#FFFC55', albaran_carne: '#E8555F', albaran_leche: '#4FADF5', contrato: '#8b5cf6' };
+    const labels = { dimoe: 'DIMOE (Guía)', factura: 'Factura', certificado: 'Certificado', dib: 'DIB (Identificación)', crotales: 'Pedido Crotales', albaran_carne: 'Albarán Carne', albaran_leche: 'Albarán Leche', contrato: 'Contrato' };
     const color = colors[doc.tipo] || '#666';
     const label = labels[doc.tipo] || doc.tipo;
     const overlay = document.createElement('div');
@@ -504,6 +659,24 @@ const DocumentosView = {
         <div><span class="text-gray">Nº Animales:</span> <span class="text-white">${doc.dataRaw.num_animales ?? '—'}</span></div>
         <div class="col-span-2"><span class="text-gray">REGA Origen:</span> <span class="text-white">${doc.dataRaw.rega_origen || '—'}</span></div>
         <div class="col-span-2"><span class="text-gray">REGA Destino:</span> <span class="text-white">${doc.dataRaw.rega_destino || '—'}</span></div>
+      `;
+    } else if (doc.isAlbaranCarne) {
+      infoExtra = `
+        <div><span class="text-gray">Nº Animales:</span> <span class="text-white">${doc.dataRaw.num_animales || 1}</span></div>
+        <div><span class="text-gray">Importe:</span> <span class="text-white">${(doc.dataRaw.importe_total || 0).toLocaleString()} €</span></div>
+        <div class="col-span-2"><span class="text-gray">Comprador:</span> <span class="text-white">${doc.dataRaw.razonSocial || '—'}</span></div>
+      `;
+    } else if (doc.isAlbaranLeche) {
+      infoExtra = `
+        <div><span class="text-gray">Litros:</span> <span class="text-white">${(doc.dataRaw.cantidad || 0).toLocaleString()} L</span></div>
+        <div><span class="text-gray">Importe:</span> <span class="text-white">${(doc.dataRaw.importe_total || 0).toLocaleString()} €</span></div>
+        <div class="col-span-2"><span class="text-gray">Comprador:</span> <span class="text-white">${doc.dataRaw.comprador_nombre || '—'}</span></div>
+      `;
+    } else if (doc.isContrato) {
+       infoExtra = `
+        <div><span class="text-gray">Tipo:</span> <span class="text-white">${(doc.dataRaw.tipo || '').toUpperCase()}</span></div>
+        <div><span class="text-gray">IVA:</span> <span class="text-white">${doc.dataRaw.iva_pct}%</span></div>
+        <div class="col-span-2"><span class="text-gray">Condiciones:</span> <span class="text-white truncate">${doc.dataRaw.condiciones || '—'}</span></div>
       `;
     } else {
       infoExtra = `<div class="col-span-2"><span class="text-gray-500">Documento general cargado</span></div>`;
@@ -552,6 +725,12 @@ const DocumentosView = {
         registro = await window.db.get('movimientos_ganado', Number(docId));
       } else if (esPedidoCrotales) {
         registro = await window.db.get('pedidos_crotales', Number(docId));
+      } else if (tipo === 'albaran_carne') {
+        registro = await window.db.get('comercializacion_carne', Number(docId));
+      } else if (tipo === 'albaran_leche') {
+        registro = await window.db.get('comercializacion_leche', Number(docId));
+      } else if (tipo === 'contrato') {
+        registro = await window.db.get('contratos_compra', Number(docId));
       } else {
         registro = await window.db.get('documentos_legales', Number(docId));
       }
@@ -652,6 +831,24 @@ const DocumentosView = {
         pedido.acuse_manual = referencia;
         pedido.actualizadoEn = new Date().toISOString();
         await window.db.put('pedidos_crotales', pedido);
+      } else if (tipo === 'albaran_carne') {
+        const v = await window.db.get('comercializacion_carne', Number(docId));
+        if (!v) throw new Error('Venta no encontrada');
+        v.acuse_manual = referencia;
+        v.actualizadoEn = new Date().toISOString();
+        await window.db.put('comercializacion_carne', v);
+      } else if (tipo === 'albaran_leche') {
+        const l = await window.db.get('comercializacion_leche', Number(docId));
+        if (!l) throw new Error('Entrega no encontrada');
+        l.acuse_manual = referencia;
+        l.actualizadoEn = new Date().toISOString();
+        await window.db.put('comercializacion_leche', l);
+      } else if (tipo === 'contrato') {
+        const c = await window.db.get('contratos_compra', Number(docId));
+        if (!c) throw new Error('Contrato no encontrado');
+        c.acuse_manual = referencia;
+        c.actualizadoEn = new Date().toISOString();
+        await window.db.put('contratos_compra', c);
       } else {
         const registro = await window.db.get('documentos_legales', Number(docId));
         if (!registro) throw new Error('Documento no encontrado');
