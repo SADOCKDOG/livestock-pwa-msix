@@ -187,6 +187,9 @@ const App = {
         if (useLightMode) {
           document.body.setAttribute('data-modo', 'claro');
           document.documentElement.style.colorScheme = 'light';
+          if (cfg?.value?.temaClaroColor && cfg.value.temaClaroColor !== 'arena') {
+            document.body.setAttribute('data-tema-claro', cfg.value.temaClaroColor);
+          }
         }
         if (cfg?.value?.glowMarco === false) document.body.classList.add('glow-marco-off');
         if (cfg?.value?.glowLaterales !== true) document.body.classList.add('glow-laterales-off');

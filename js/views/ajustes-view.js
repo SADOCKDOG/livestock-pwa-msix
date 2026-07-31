@@ -234,7 +234,7 @@ const AjustesView = {
       glowMarcoFijo: false, glowMarcoFijoColor: '#FFFFFF', bannerOpacity: 0.77,
       hazLuzColor: '', hazLuzIntensidad: 50,
       fabColor: '#FFFFFF', fabIntensidad: 40,
-      colorTema: 'gold', formatoFecha: 'es-ES', moneda: '€', especies: [],
+      colorTema: 'gold', temaClaroColor: 'arena', formatoFecha: 'es-ES', moneda: '€', especies: [],
       alertSanidad: true, alertTrazabilidad: true, alertPAC: true,
       alertADSG: true, alertINCOLAC: true, alertContratos: false
     };
@@ -276,6 +276,13 @@ const AjustesView = {
     if (checked) document.body.removeAttribute('data-modo');
     else document.body.setAttribute('data-modo', 'claro');
     App.toast(checked ? 'Modo oscuro' : 'Modo claro', "info");
+  },
+
+  async _cambiarTemaClaroColor(valor) {
+    await this._saveConfig({ temaClaroColor: valor });
+    if (valor && valor !== 'arena') document.body.setAttribute('data-tema-claro', valor);
+    else document.body.removeAttribute('data-tema-claro');
+    App.toast('Paleta de modo claro actualizada', "info");
   },
 
   async _toggleGlowMarco(checked) {

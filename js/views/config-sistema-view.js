@@ -60,6 +60,8 @@ const ConfigSistemaView = {
 
   async _renderInterfaz(container, config) {
     const palette = this._getStandardPalette();
+    const esDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+    const esClaroActivo = document.body.getAttribute('data-modo') === 'claro';
     container.innerHTML = `
       <div class="card p-14 mb-16" style="background: rgba(255,255,255,0.02); border: 1px solid #27272a;">
         <div class="section-header-theme mb-15 font-900 uppercase tracking-wider text-[0.7rem] text-gray"><span style="color: var(--c-purple); margin-right: 4px;">|</span> ${Icons.foto()} APARIENCIA BASE</div>
@@ -67,10 +69,21 @@ const ConfigSistemaView = {
           <label class="wizard-check-label">
             <input type="checkbox" ${config.temaOscuro !== false ? 'checked' : ''} onchange="ConfigSistemaView._action('toggleTema', this.checked)">
             <div class="flex flex-col">
-              <span class="font-bold">${typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'MODO OSCURO' : 'MODO OSCURO (OLED)'}</span>
-              <span class="text-[0.65rem] text-aaa">${typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'Tema oscuro alternativo.' : 'Optimizado para pantallas AMOLED.'}</span>
+              <span class="font-bold">${esDesktop ? 'MODO OSCURO' : 'MODO OSCURO (OLED)'}</span>
+              <span class="text-[0.65rem] text-aaa">${esDesktop ? 'Tema oscuro alternativo.' : 'Optimizado para pantallas AMOLED.'}</span>
             </div>
           </label>
+          ${esClaroActivo ? `
+          <div class="wizard-input-group">
+            <label class="wizard-label">PALETA DE MODO CLARO</label>
+            <select class="wizard-input font-800 text-xs" onchange="ConfigSistemaView._action('cambiarTemaClaroColor', this.value)">
+              <option value="arena" ${(!config.temaClaroColor || config.temaClaroColor === 'arena') ? 'selected' : ''}>ARENA (POR DEFECTO)</option>
+              <option value="gris" ${config.temaClaroColor === 'gris' ? 'selected' : ''}>GRIS</option>
+              <option value="oliva" ${config.temaClaroColor === 'oliva' ? 'selected' : ''}>OLIVA</option>
+              <option value="beige" ${config.temaClaroColor === 'beige' ? 'selected' : ''}>BEIGE</option>
+            </select>
+          </div>
+          ` : ''}
           <label class="wizard-check-label">
             <input type="checkbox" ${config.mostrarContextos !== false ? 'checked' : ''} onchange="ConfigSistemaView._action('toggleContextos', this.checked)">
             <div class="flex flex-col">
