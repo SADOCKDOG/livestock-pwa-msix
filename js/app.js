@@ -170,6 +170,12 @@ const App = {
         const storedCfg = await window.db.get('meta', 'appConfig');
         this._config = storedCfg?.value || {};
         const cfg = storedCfg;
+
+        // Desktop (≥1024px): modo claro por defecto salvo preferencia explícita guardada
+        const isDesktop = window.innerWidth >= 1024;
+        const hasTemaSaved = cfg?.value && 'temaOscuro' in cfg.value;
+        const useLightMode = (isDesktop && !hasTemaSaved) || (cfg?.value?.temaOscuro === false);
+
         const mostrar = cfg?.value?.mostrarContextos;
         if (mostrar === false) {
           document.body.classList.add('hide-context');
@@ -178,7 +184,7 @@ const App = {
         if (cfg?.value?.colorTema && cfg.value.colorTema !== 'gold') {
           document.body.setAttribute('data-tema', cfg.value.colorTema);
         }
-        if (cfg?.value?.temaOscuro === false) {
+        if (useLightMode) {
           document.body.setAttribute('data-modo', 'claro');
           document.documentElement.style.colorScheme = 'light';
         }
@@ -598,6 +604,27 @@ const App = {
     document.getElementById("nav-more")?.setAttribute("aria-expanded", String(isOpen));
   },
 
+  _toggleDesktopMore() {
+    const panel = document.getElementById("desktopMorePanel");
+    if (!panel) return;
+    const isOpen = panel.classList.toggle("open");
+    document.getElementById("sidebar-more")?.setAttribute("aria-expanded", String(isOpen));
+    if (isOpen && !panel.dataset.populated) {
+      const src = document.querySelector("#nav-more-sheet .more-sheet-grid");
+      const dst = document.getElementById("desktopMoreGrid");
+      if (src && dst) {
+        dst.innerHTML = src.innerHTML;
+        App._inyectarIconosEstaticos();
+        dst.querySelectorAll('.more-sheet-item').forEach(item => {
+          item.addEventListener('click', () => {
+            panel.classList.remove("open");
+          });
+        });
+        panel.dataset.populated = '1';
+      }
+    }
+  },
+
   /** Colapsa/expande la card de resumen (chevron esquina superior derecha). Reutilizable en todas las vistas. */
   toggleResumen(btn) {
     const card = btn && btn.closest('.card-resumen');
@@ -985,6 +1012,11 @@ const App = {
       const navRebanos = document.getElementById('nav-rebanos');
       if (navRebanos) navRebanos.style.display = 'none';
 
+      const sidebarAnimales = document.getElementById('sidebar-animales');
+      if (sidebarAnimales) sidebarAnimales.style.display = 'none';
+      const sidebarRebanos = document.getElementById('sidebar-rebanos');
+      if (sidebarRebanos) sidebarRebanos.style.display = 'none';
+
       const navComer = document.getElementById('nav-comercializacion');
       if (navComer) {
         navComer.style.display = 'flex';
@@ -1096,6 +1128,13 @@ const App = {
       }
     });
 
+    document.querySelectorAll(".sidebar-item").forEach((el) => {
+      const href = el.getAttribute("href");
+      if (!href) return;
+      const isActive = path === '/' ? href === '#/' : href.startsWith(`#${path}`);
+      el.classList.toggle("active", isActive);
+    });
+
     // 2. Check "Más" items
     let moreActiveText = null;
     document.querySelectorAll(".more-sheet-item").forEach((el) => {
@@ -1135,9 +1174,24 @@ const App = {
       }
     }
 
+    // 5. Sidebar "Más" button — mirror bottom-nav "Más" state
+    const sidebarMore = document.getElementById('sidebar-more');
+    if (sidebarMore) {
+      const sidebarMoreLabel = sidebarMore.querySelector('.label');
+      if (moreActiveText) {
+        sidebarMore.classList.add('active');
+        if (sidebarMoreLabel) sidebarMoreLabel.textContent = moreActiveText;
+      } else {
+        sidebarMore.classList.remove('active');
+        if (sidebarMoreLabel) sidebarMoreLabel.textContent = 'Más';
+      }
+    }
+
     // Cerrar menú "Más" al navegar
     const sheet = document.getElementById("nav-more-sheet");
     if (sheet) sheet.classList.remove("open");
+    const desktopPanel = document.getElementById("desktopMorePanel");
+    if (desktopPanel) desktopPanel.classList.remove("open");
 
     // Actualizar header contextual (título de vista + botón volver)
     this._updateHeaderContext(path);

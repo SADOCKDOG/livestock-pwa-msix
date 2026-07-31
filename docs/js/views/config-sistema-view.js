@@ -67,8 +67,8 @@ const ConfigSistemaView = {
           <label class="wizard-check-label">
             <input type="checkbox" ${config.temaOscuro !== false ? 'checked' : ''} onchange="ConfigSistemaView._action('toggleTema', this.checked)">
             <div class="flex flex-col">
-              <span class="font-bold">MODO OSCURO (OLED)</span>
-              <span class="text-[0.65rem] text-aaa">Optimizado para pantallas AMOLED.</span>
+              <span class="font-bold">${typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'MODO OSCURO' : 'MODO OSCURO (OLED)'}</span>
+              <span class="text-[0.65rem] text-aaa">${typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'Tema oscuro alternativo.' : 'Optimizado para pantallas AMOLED.'}</span>
             </div>
           </label>
           <label class="wizard-check-label">
