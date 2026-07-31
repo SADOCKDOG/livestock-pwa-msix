@@ -1,0 +1,695 @@
+/**
+ * desktop.css — Adaptación a escritorio Windows (Microsoft Store)
+ * Breakpoints ≥1024px. No toca el diseño mobile-first.
+ * Modo claro por defecto en escritorio (dark OLED solo en móvil).
+ * Se carga DESPUÉS de styles.css para prevaler en cascada.
+ *
+ * ORDEN: 1) Grid fix → 2) Estructura desktop → 3) Modo claro overrides
+ *        (al final para que las variables claras ganen la cascada)
+ */
+
+/* ============================================
+   1. grid-cols-12 + col-span (bug fix)
+   ============================================ */
+.grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+.grid-cols-12 > * { min-width: 0; }
+
+.col-span-1  { grid-column: span 1; }
+.col-span-2  { grid-column: span 2; }
+.col-span-3  { grid-column: span 3; }
+.col-span-4  { grid-column: span 4; }
+.col-span-5  { grid-column: span 5; }
+.col-span-6  { grid-column: span 6; }
+.col-span-7  { grid-column: span 7; }
+.col-span-8  { grid-column: span 8; }
+.col-span-9  { grid-column: span 9; }
+.col-span-10 { grid-column: span 10; }
+.col-span-11 { grid-column: span 11; }
+.col-span-12 { grid-column: span 12; }
+
+/* ============================================
+   2. ESTRUCTURA DESKTOP (≥1024px)
+   ============================================ */
+@media (min-width: 1024px) {
+  /* Ocultar bottom-nav y su wrapper */
+  .bottom-nav-wrap,
+  nav.bottom-nav {
+    display: none !important;
+  }
+
+  /* Sidebar */
+  body {
+    padding-left: 72px;
+  }
+
+  .desktop-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 72px;
+    background: rgba(18, 18, 18, var(--banner-opacity, 0.4));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid var(--header-neon-color, #FFFFFF);
+    box-shadow:
+      5px 0 16px -3px color-mix(in srgb, var(--header-neon-color, #FFFFFF) var(--haz-intensity, 60%), transparent),
+      inset -6px 0 14px -6px color-mix(in srgb, var(--haz-luz-color, var(--header-neon-color, #FFFFFF)) var(--haz-intensity, 60%), transparent);
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 70px;
+    gap: 4px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .desktop-sidebar .sidebar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    padding: 8px 0;
+    text-decoration: none;
+    color: var(--text-p);
+    font-size: 0.55rem;
+    font-weight: 700;
+    gap: 3px;
+    border-radius: var(--r-md);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+
+  .desktop-sidebar .sidebar-item svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    transition: all 0.3s ease;
+  }
+
+  .desktop-sidebar .sidebar-item:hover {
+    background: rgba(255,255,255,0.06);
+  }
+
+  .desktop-sidebar .sidebar-item.active {
+    color: var(--header-neon-color, #C5FA50);
+    text-shadow: 0 0 8px var(--header-neon-color, rgba(197, 250, 80,0.5));
+  }
+
+  .desktop-sidebar .sidebar-item.active svg {
+    display: block;
+    stroke: currentColor;
+    filter: drop-shadow(0 0 8px var(--header-neon-color, rgba(197, 250, 80,0.5)));
+  }
+
+  .desktop-sidebar .sidebar-item .label {
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  /* Marco lateral: mover el izquierdo para que pegue con la sidebar */
+  body::after {
+    left: 72px;
+  }
+
+  /* Contenedor principal */
+  main#app-content {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 16px 32px 32px;
+  }
+
+  /* Header ajustes */
+  header#main-header,
+  header {
+    padding-left: 84px;
+  }
+
+  /* More-sheet como dropdown en desktop */
+  .desktop-sidebar .sidebar-more-dropdown {
+    position: relative;
+  }
+
+  .desktop-sidebar .sidebar-more-panel {
+    display: none;
+    position: fixed;
+    left: 80px;
+    top: 70px;
+    width: 320px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    z-index: 3000;
+  }
+
+  .desktop-sidebar .sidebar-more-panel.open {
+    display: block;
+  }
+
+  .desktop-sidebar .sidebar-more-panel .more-sheet-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .desktop-sidebar .sidebar-more-panel .more-sheet-item {
+    padding: 12px 6px;
+    font-size: 0.7rem;
+  }
+
+  .desktop-sidebar .sidebar-more-panel .more-sheet-item svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .desktop-sidebar .sidebar-more-panel .more-sheet-section-title {
+    font-size: 0.6rem;
+  }
+
+  /* Ocultar overlay original del more-sheet en desktop */
+  #nav-more-sheet {
+    display: none !important;
+  }
+
+  /* ============================================
+     3. Dashboard multi-columna
+     ============================================ */
+  .explotacion-kpis {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  .grid.grid-cols-12 .card-registro-quick.col-span-4 {
+    grid-column: span 4 !important;
+  }
+
+  .grid.grid-cols-12 .card-registro-quick.col-span-12 {
+    grid-column: span 12 !important;
+  }
+
+  .alerta-card,
+  .card-registro-quick {
+    transition: transform 0.2s ease;
+  }
+
+  /* ============================================
+     4. Modales y wizards más grandes
+     ============================================ */
+  .wizard-card {
+    max-width: 720px;
+    margin: 30px auto;
+  }
+
+  .modal-val-wrap {
+    max-width: 800px;
+  }
+
+  .tour-flotante-card {
+    max-width: 560px;
+  }
+
+  .error-dialog {
+    max-width: 520px;
+  }
+
+  .asistente-configuracion {
+    max-width: 640px;
+    border-radius: var(--r-xl);
+  }
+
+  /* ============================================
+     5. Tipografía y densidad
+     ============================================ */
+  #app-content .summary-cell .s-val { font-size: 1.35rem; }
+  #app-content .summary-cell .s-lbl { font-size: 0.72rem; }
+  #app-content table,
+  #app-content .table-scroll td,
+  #app-content .table-scroll th { font-size: 0.9rem; }
+  #app-content .badge,
+  #app-content .chip,
+  #app-content small:not(.s-lbl):not(.wizard-label) { font-size: 0.8rem; }
+
+  .card h2, .card h3 {
+    font-size: 1.3rem;
+  }
+
+  /* ============================================
+     6. More-sheet-grid
+     ============================================ */
+  .more-sheet {
+    max-width: 480px;
+    border-radius: var(--r-xl);
+    margin: auto;
+  }
+
+  /* ============================================
+     7. FAB / botones flotantes
+     ============================================ */
+  .fab-container {
+    bottom: 24px;
+    right: 32px;
+  }
+}
+
+/* ============================================
+   8. Pantallas muy anchas (≥1440px)
+   ============================================ */
+@media (min-width: 1440px) {
+  main#app-content {
+    max-width: 1600px;
+    padding: 20px 48px 40px;
+  }
+
+  .desktop-sidebar {
+    width: 80px;
+  }
+
+  .desktop-sidebar .sidebar-item {
+    width: 64px;
+    font-size: 0.6rem;
+  }
+
+  .desktop-sidebar .sidebar-item svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  body {
+    padding-left: 80px;
+  }
+
+  body::after {
+    left: 80px;
+  }
+
+  header#main-header,
+  header {
+    padding-left: 92px;
+  }
+
+  .desktop-sidebar .sidebar-more-panel {
+    left: 88px;
+    width: 360px;
+  }
+
+  .wizard-card {
+    max-width: 840px;
+  }
+}
+
+/* ============================================
+   9. MODO CLARO por defecto en escritorio
+      (AL FINAL — prevalece en cascada sobre
+       las definiciones estructurales de arriba)
+   ============================================ */
+@media (min-width: 1024px) {
+  :root {
+    --bg: #F4F3EF;
+    --surface: #FFFFFF;
+    --surface-light: #ECEAE4;
+    --surface-input: #FFFFFF;
+    --surface-card: #F8F7F3;
+    --surface-dark: #EDEBE6;
+    --border: #D8D5CC;
+    --border-subtle: #D0CDC5;
+    --border-input: #C9C6BC;
+    --text-p: #1A1A18;
+    --text-s: #55534C;
+    --text-d: #9A968A;
+    --shadow-md: 0 4px 20px rgb(0 0 0 / 12%);
+  }
+
+  /* Componentes con color fijo pensado para OLED negro */
+  .section-header-neon,
+  .section-header-theme {
+    color: var(--text-p) !important;
+    text-shadow: none;
+  }
+  .kpi-pill,
+  .section-header,
+  .filter-pill {
+    background: var(--surface-light);
+  }
+  .wizard-check-label {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: var(--border);
+    color: var(--text-s);
+  }
+  .wizard-check-label:has(input:checked) {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-p);
+  }
+  .card-registro-quick .quick-title {
+    color: var(--text-p) !important;
+  }
+  .text-white {
+    color: var(--text-p);
+  }
+  .form-input,
+  .premium-input,
+  .form-select {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--border-input);
+    color: var(--text-p);
+  }
+  .form-input::placeholder,
+  .premium-input::placeholder {
+    color: var(--text-d);
+  }
+  .form-label,
+  label {
+    color: var(--text-s);
+  }
+  .rebaño-tab,
+  .gasto-tab {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--text-s);
+  }
+  .rebaño-tab:hover,
+  .gasto-tab:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-p);
+  }
+  .detail-value {
+    color: var(--text-p);
+  }
+  .detail-label,
+  .empty-state-text {
+    color: var(--text-s);
+  }
+  .empty-state-search {
+    color: var(--text-d);
+  }
+  .text-gray,
+  .text-999,
+  .text-777,
+  .text-aaa,
+  .text-ccc,
+  .text-gray-400,
+  .text-zinc-200 {
+    color: var(--text-s);
+  }
+  .text-gray-500,
+  .text-333,
+  .text-444,
+  .text-555,
+  .text-neutral {
+    color: var(--text-d);
+  }
+
+  /* Ajustes de componentes específicos para fondo claro */
+  body {
+    background-color: var(--bg);
+  }
+  .card {
+    background: var(--surface);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+    border-color: var(--border);
+  }
+  .card h2, .card h3 {
+    border-bottom-color: var(--border);
+  }
+
+  /* Marco neón: reducir intensidad sobre fondo claro */
+  body::after {
+    --haz-intensity: 30%;
+    border-left-color: color-mix(in srgb, var(--header-neon-color, #FFFFFF) 40%, var(--text-p));
+    border-right-color: color-mix(in srgb, var(--header-neon-color, #FFFFFF) 40%, var(--text-p));
+  }
+
+  /* Header y bottom-nav (cuando visible): fondo claro contrastado */
+  header,
+  header#main-header {
+    background: #E2DFD8;
+    border-bottom-color: #C5C2BA;
+  }
+
+  nav.bottom-nav {
+    background: #E2DFD8;
+    border-top-color: #C5C2BA;
+  }
+
+  /* Sidebar escritorio: fondo claro contrastado */
+  .desktop-sidebar {
+    background: #E2DFD8;
+    border-right-color: #C5C2BA;
+    box-shadow:
+      5px 0 16px -3px rgba(0,0,0,0.06),
+      inset -6px 0 14px -6px rgba(0,0,0,0.03);
+  }
+  .desktop-sidebar .sidebar-item {
+    color: var(--text-s);
+  }
+  .desktop-sidebar .sidebar-item:hover {
+    background: rgba(0,0,0,0.06);
+  }
+  .desktop-sidebar .sidebar-item svg {
+    filter: none;
+  }
+  .desktop-sidebar .sidebar-item.active {
+    color: color-mix(in srgb, var(--header-neon-color, #C5FA50) 45%, var(--text-p));
+    text-shadow: none;
+    background: color-mix(in srgb, var(--header-neon-color, #C5FA50) 22%, transparent);
+  }
+  .desktop-sidebar .sidebar-item.active svg {
+    filter: none;
+  }
+
+  /* More-sheet / dropdown: fondo claro */
+  .desktop-sidebar .sidebar-more-panel {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  .more-sheet {
+    background: rgba(255, 255, 255, 0.97);
+  }
+  .more-sheet-item {
+    background: rgba(0,0,0,0.02);
+  }
+  .more-sheet-item:active {
+    background: rgba(0,0,0,0.04);
+  }
+
+  /* Input fields */
+  input, textarea, select {
+    background: var(--surface-input);
+    color: var(--text-p);
+    border-color: var(--border-input);
+  }
+
+  /* Wizard / modales */
+  .wizard-card {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .wizard-overlay {
+    background: rgba(0,0,0,0.4);
+  }
+  .error-dialog {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .tour-flotante-card {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .modal-val-wrap {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+
+  /* Botones secundarios */
+  .btn-ghost {
+    color: var(--text-s);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar-thumb {
+    background: var(--text-d);
+  }
+
+  /* Header dropdown */
+  .header-dropdown-content {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+
+  /* Forzar colores oscuros en textos con #FFF inline sobre fondos claros */
+  .card-registro [style*="color: #FFF"],
+  .card-registro [style*="color:#FFF"],
+  .card-registro [style*="color: #fff"],
+  .card-registro [style*="color:#fff"],
+  .card-registro [style*="color: rgb(255, 255, 255)"] {
+    color: var(--text-p) !important;
+  }
+
+  /* Fondos rgba(255,255,255,0.0X) apenas visibles sobre blanco → oscurecer */
+  .card-registro {
+    background: rgba(0, 0, 0, 0.03) !important;
+  }
+  .card-registro [style*="background: rgba(255,255,255,0.0"],
+  .card-registro [style*="background: rgba(255, 255, 255, 0.0"] {
+    background: rgba(0, 0, 0, 0.03) !important;
+  }
+
+  /* Badge dorado: texto dorado sobre fondo claro necesita fondo dorado para contraste */
+  .bg-pill-gold {
+    background: rgba(204, 143, 0, 0.12) !important;
+  }
+
+  /* KPI "Bajas" con icono — asegurar visibilidad */
+  .kpi-pill,
+  .s-val {
+    color: var(--text-p) !important;
+  }
+
+  /* FAB Nueva Actividad — fondo claro, texto oscuro */
+  .fab-container {
+    background: var(--surface);
+    color: var(--text-p);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .fab-container [style*="background"],
+  .fab-container .fab-label {
+    color: var(--text-p) !important;
+  }
+
+  /* Títulos de sección del more-sheet: amarillo/azul sobre blanco → oscurecer */
+  .more-sheet-section-title[style*="color: var(--c-success)"],
+  .more-sheet-section-title[style*="--c-success"] {
+    color: #4a7a00 !important;
+  }
+  .more-sheet-section-title[style*="color: var(--c-info)"],
+  .more-sheet-section-title[style*="--c-info"] {
+    color: #1a5fa8 !important;
+  }
+  .more-sheet-section-title[style*="color: var(--c-warning)"],
+  .more-sheet-section-title[style*="--c-warning"] {
+    color: #996600 !important;
+  }
+
+  /* ============================================
+     9b. CONTRASTE mejorado (sidebar/header oscuros,
+         mode-switch, tabs, carrusel)
+     ============================================ */
+
+  /* Mode-switch: contenedor más oscuro para separar los botones */
+  .ganaderia-mode-switch,
+  .comer-mode-switch,
+  .expro-mode-switch {
+    background: #DDDAD2;
+    border-color: #C5C2BA;
+  }
+
+  /* Botones de modo inactivos: legibles sobre contenedor oscuro */
+  .ganaderia-mode-btn,
+  .comer-mode-btn,
+  .expro-mode-btn {
+    color: var(--text-s);
+  }
+  .ganaderia-mode-btn:hover,
+  .comer-mode-btn:hover,
+  .expro-mode-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  /* Botones de modo activos: fondo sólido del color de módulo + texto blanco */
+  .ganaderia-mode-btn.active,
+  .comer-mode-btn.active,
+  .expro-mode-btn.active {
+    background: var(--mode-color);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--mode-color) 45%, transparent);
+  }
+
+  /* Tabs de vista inactivos: más oscuros para destacar sobre cards */
+  .carne-tab, .comer-tab, .gasto-tab, .hibrido-tab, .leche-tab, .prod-tab,
+  .rebaño-tab {
+    background: #D5D2CA;
+    color: var(--text-s);
+    border-color: #C5C2BA;
+  }
+  .carne-tab:hover, .comer-tab:hover, .gasto-tab:hover, .hibrido-tab:hover,
+  .leche-tab:hover, .prod-tab:hover, .rebaño-tab:hover {
+    background: #CFCCC4;
+    color: var(--text-p);
+  }
+  .carne-tab.active {
+    background: var(--c-danger);
+    border-color: var(--c-danger);
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(232, 85, 95, 0.25);
+  }
+  .comer-tab.active, .gasto-tab.active, .hibrido-tab.active, .leche-tab.active,
+  .prod-tab.active {
+    background: var(--p-gold-dark);
+    border-color: var(--p-gold-dark);
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.25);
+  }
+
+  /* Carrusel: marco sobre fondo claro */
+  .carrusel-marco {
+    background: rgba(220, 217, 210, 0.9);
+    box-shadow:
+      0 0 10px color-mix(in srgb, var(--mode-color, #C5FA50) 30%, transparent),
+      inset 0 0 8px color-mix(in srgb, var(--mode-color, #C5FA50) 15%, transparent);
+  }
+  .carrusel-marco-label {
+    color: color-mix(in srgb, var(--mode-color, #C5FA50) 45%, var(--text-p));
+    text-shadow: none;
+  }
+  .carrusel-marco-chevron {
+    color: color-mix(in srgb, var(--mode-color, #C5FA50) 55%, var(--text-p));
+  }
+  .carrusel-marco-icon {
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+
+  /* Carrusel: menú desplegable claro */
+  .carrusel-menu {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: var(--border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+  .carrusel-menu-item {
+    color: var(--text-s);
+  }
+  .carrusel-menu-item:active {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  .carrusel-menu-item.active {
+    color: var(--mode-color);
+    border-color: var(--mode-color);
+    background: color-mix(in srgb, var(--mode-color, #C5FA50) 14%, transparent);
+    text-shadow: none;
+  }
+
+  /* Carrusel: flechas laterales claras */
+  .carrusel-flecha {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--border);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--mode-color, #C5FA50) 30%, transparent);
+  }
+}
+
+/* ============================================
+   10. Ocultar sidebar en móvil (defensivo)
+   ============================================ */
+@media (max-width: 1023px) {
+  .desktop-sidebar {
+    display: none !important;
+  }
+}

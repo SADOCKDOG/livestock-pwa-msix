@@ -57,6 +57,7 @@
     <link rel="stylesheet" href="css/design-tokens.css?v=6.34" />
     <link rel="stylesheet" href="css/styles.css?v=6.34" />
     <link rel="stylesheet" href="css/layout.css?v=6.34" />
+    <link rel="stylesheet" href="css/desktop.css?v=6.34" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icons/Logo aplicación.png" />
 
@@ -179,6 +180,39 @@
       </a>
     </nav>
     </div>
+
+    <!-- ============================
+    SIDEBAR DESKTOP (≥1024px)
+    ============================ -->
+    <nav class="desktop-sidebar" id="desktopSidebar" aria-label="Navegación principal escritorio">
+      <a href="#/" class="sidebar-item" id="sidebar-home" data-icon="home">
+        <span class="label">Inicio</span>
+      </a>
+      <a href="#/animales" class="sidebar-item" id="sidebar-animales" data-icon="animales">
+        <span class="label">Animales</span>
+      </a>
+      <a href="#/rebanos" class="sidebar-item" id="sidebar-rebanos" data-icon="rebanos">
+        <span class="label">Rebaños</span>
+      </a>
+      <a href="#/ganaderia" class="sidebar-item" id="sidebar-produccion" data-icon="registros">
+        <span class="label">GeGan</span>
+      </a>
+      <a href="#/explotacion" class="sidebar-item" id="sidebar-explotacion" data-icon="informes">
+        <span class="label">ExPro</span>
+      </a>
+      <a href="#/comercializacion" class="sidebar-item" id="sidebar-comercializacion" data-icon="comercial">
+        <span class="label">CoMer</span>
+      </a>
+      <div class="sidebar-more-dropdown">
+        <a class="sidebar-item" id="sidebar-more" role="button" tabindex="0" data-icon="mas" onclick="App._toggleDesktopMore()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();App._toggleDesktopMore();}">
+          <span class="label">Más</span>
+        </a>
+        <div class="sidebar-more-panel" id="desktopMorePanel">
+          <div class="more-sheet-grid" id="desktopMoreGrid">
+          </div>
+        </div>
+      </div>
+    </nav>
 
     <!-- ============================
     BOTTOM SHEET "MÁS"

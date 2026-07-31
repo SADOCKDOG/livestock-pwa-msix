@@ -226,9 +226,10 @@ const AjustesView = {
   // ===================== HELPER: CONFIG =====================
 
   async _loadConfig() {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
     const defaults = {
       objGmd: 0.8, objLitros: 25, objFert: 85, objOcup: 85, objRent: 20, objBajas: 5,
-      autoBackup: false, temaOscuro: true, mostrarContextos: true,
+      autoBackup: false, temaOscuro: !isDesktop, mostrarContextos: true,
       glowMarco: true, glowLaterales: false, glowBotones: true, glowTarjetas: true,
       glowMarcoFijo: false, glowMarcoFijoColor: '#FFFFFF', bannerOpacity: 0.77,
       hazLuzColor: '', hazLuzIntensidad: 50,
