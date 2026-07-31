@@ -28,9 +28,9 @@ const ModoContextoHelper = {
 
   getModeMeta(mode) {
     const map = {
-      carne: { icon: Icons.carne(), label: 'Cárnico', color: 'var(--c-danger)' },
-      leche: { icon: Icons.leche(), label: 'Lácteo', color: 'var(--c-info)' },
-      hibrido: { icon: Icons.hibrido(), label: 'Híbrido', color: 'var(--c-success)' }
+      carne: { icon: Icons.carne(), label: 'Cárnica', color: 'var(--c-danger)' },
+      leche: { icon: Icons.leche(), label: 'Láctea', color: 'var(--c-info)' },
+      hibrido: { icon: Icons.hibrido(), label: 'Híbrida', color: 'var(--c-success)' }
     };
     return map[mode] || map.leche;
   },

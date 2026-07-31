@@ -87,6 +87,9 @@ const Compradores = {
                 condiciones_pago: (data.condiciones_pago || '').trim(),
                 notas: (data.notas || '').trim(),
                 activo: data.activo !== undefined ? data.activo : true,
+                tipo_operador_lacteo: data.tipo_operador_lacteo || null,
+                responsables_operador: data.responsables_operador || [],
+                rgseaa: (data.rgseaa || '').trim(),
                 actualizadoEn: new Date().toISOString()
             };
 

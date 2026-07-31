@@ -1,6 +1,6 @@
 console.log("[DB] Cargando script db.js");
 const DB_NAME = 'LivestockDB';
-const DB_VERSION = 23;
+const DB_VERSION = 26;
 
 // Datos maestros oficiales de Especie / Tipo de Identificador — ver
 // docs/NORMATIVA-CROTAL-ESPECIE.md para la fuente normativa de cada valor.
@@ -471,7 +471,7 @@ class InMemoryMockDB {
                 return {
                     indexNames: {
                         contains: (indexName) => {
-                            const knownIndexes = ['fincaId', 'rebanoId', 'animalId', 'caravana', 'numero_identificacion', 'nif_cif', 'activo', 'especie', 'rega', 'dib', 'categoria', 'madre_id', 'numero_albaran', 'dimoe', 'transportistaId', 'autorizacion_veterinaria', 'tipo', 'fecha_emision', 'numero', 'especieId'];
+                            const knownIndexes = ['fincaId', 'rebanoId', 'animalId', 'caravana', 'numero_identificacion', 'nif_cif', 'activo', 'especie', 'rega', 'dib', 'categoria', 'madre_id', 'numero_albaran', 'dimoe', 'transportistaId', 'autorizacion_veterinaria', 'tipo', 'fecha_emision', 'numero', 'especieId', 'tanqueId', 'codigo_letra_q', 'fecha', 'comercializacionId', 'fecha_muestreo', 'estado', 'fechaRecogida', 'comunidad_autonoma', 'contrato_numero', 'compradorId', 'contratoId', 'especie_leche', 'fecha_control'];
                             return knownIndexes.includes(indexName);
                         }
                     },
@@ -930,6 +930,93 @@ async function initDB() {
                     store.createIndex('es_alerta', 'es_alerta');
                 }
             }
+
+            // v24: Módulo Lácteo Integral — Tanques, Balance, Analíticas, Control Lechero
+            // Ver docs/DISENO_MODULO_LACTEO.md
+            if (oldVersion < 24) {
+                // Tanques de frío con código Letra Q
+                if (!db.objectStoreNames.contains('tanques_leche')) {
+                    const store = db.createObjectStore('tanques_leche', { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('fincaId', 'fincaId');
+                    store.createIndex('codigo_letra_q', 'codigo_letra_q', { unique: true });
+                }
+
+                // Balance lácteo (movimientos entrada/salida del tanque)
+                if (!db.objectStoreNames.contains('balance_lacteo')) {
+                    const store = db.createObjectStore('balance_lacteo', { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('fincaId', 'fincaId');
+                    store.createIndex('tanqueId', 'tanqueId');
+                    store.createIndex('fecha', 'fecha');
+                }
+
+                // Analíticas de leche (separadas de comercialización)
+                if (!db.objectStoreNames.contains('analiticas_leche')) {
+                    const store = db.createObjectStore('analiticas_leche', { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('fincaId', 'fincaId');
+                    store.createIndex('comercializacionId', 'comercializacionId');
+                    store.createIndex('fecha_muestreo', 'fecha_muestreo');
+                    store.createIndex('estado', 'estado');
+                }
+
+                // Control lechero oficial (DHI)
+                if (!db.objectStoreNames.contains('control_lechero')) {
+                    const store = db.createObjectStore('control_lechero', { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('fincaId', 'fincaId');
+                    store.createIndex('rebanoId', 'rebanoId');
+                    store.createIndex('fecha_control', 'fecha_control');
+                }
+            }
+
+            // v25: Migración INFOLAC → Letra Q y campos adicionales
+            if (oldVersion < 25) {
+                // Índices adicionales en comercializacion_leche para Letra Q
+                if (db.objectStoreNames.contains('comercializacion_leche')) {
+                    const lecheStore = transaction.objectStore('comercializacion_leche');
+                    if (!lecheStore.indexNames.contains('tanqueId')) {
+                        lecheStore.createIndex('tanqueId', 'tanqueId');
+                    }
+                    if (!lecheStore.indexNames.contains('especie_leche')) {
+                        lecheStore.createIndex('especie_leche', 'especie_leche');
+                    }
+                }
+            }
+
+            // v26: Nuevos campos RD 989/2022 — Letra Q (índices adicionales, sin nuevos stores)
+            if (oldVersion < 26) {
+                if (db.objectStoreNames.contains('comercializacion_leche')) {
+                    const lecheStore = transaction.objectStore('comercializacion_leche');
+                    if (!lecheStore.indexNames.contains('estado_letra_q')) {
+                        lecheStore.createIndex('estado_letra_q', 'estado_letra_q');
+                    }
+                    if (!lecheStore.indexNames.contains('tipo_movimiento_letra_q')) {
+                        lecheStore.createIndex('tipo_movimiento_letra_q', 'tipo_movimiento_letra_q');
+                    }
+                    if (!lecheStore.indexNames.contains('agente_recogida_nif')) {
+                        lecheStore.createIndex('agente_recogida_nif', 'agente_recogida_nif');
+                    }
+                }
+                if (db.objectStoreNames.contains('compradores')) {
+                    const compStore = transaction.objectStore('compradores');
+                    if (!compStore.indexNames.contains('tipo_operador_lacteo')) {
+                        compStore.createIndex('tipo_operador_lacteo', 'tipo_operador_lacteo');
+                    }
+                }
+                if (db.objectStoreNames.contains('tanques_leche')) {
+                    const tanqStore = transaction.objectStore('tanques_leche');
+                    if (!tanqStore.indexNames.contains('matricula_vehiculo')) {
+                        tanqStore.createIndex('matricula_vehiculo', 'matricula_vehiculo');
+                    }
+                    if (!tanqStore.indexNames.contains('nif_transportista')) {
+                        tanqStore.createIndex('nif_transportista', 'nif_transportista');
+                    }
+                }
+                if (db.objectStoreNames.contains('analiticas_leche')) {
+                    const analStore = transaction.objectStore('analiticas_leche');
+                    if (!analStore.indexNames.contains('codigo_letra_q_laboratorio')) {
+                        analStore.createIndex('codigo_letra_q_laboratorio', 'codigo_letra_q_laboratorio');
+                    }
+                }
+            }
         },
     });
     } catch (e) {
@@ -1288,6 +1375,86 @@ async function migrarV21(windowDb) {
     }
 }
 
+/**
+ * Migración v24-v25: Módulo Lácteo Integral
+ * - Extrae datos de laboratorio de comercializacion_leche → analiticas_leche
+ * - Marca documentos infolac_declaracion como legacy
+ * - Añade especie_leche por defecto a comercializaciones existentes
+ */
+async function migrarV24Lacteo(windowDb) {
+    try {
+        console.log("[DB] Migración v24-v25: Módulo Lácteo Integral...");
+
+        const comercializaciones = await windowDb.getAll('comercializacion_leche');
+        let analiticasCreadas = 0;
+        let comercializacionesActualizadas = 0;
+
+        for (const c of comercializaciones) {
+            if (c.laboratorio && (c.laboratorio.grasa != null || c.laboratorio.germenes != null || c.laboratorio.somaticas != null)) {
+                const analitica = {
+                    fincaId: c.fincaId,
+                    comercializacionId: c.id,
+                    tanqueId: c.tanqueId || null,
+                    fecha_muestreo: c.laboratorio.fecha_analisis || c.fechaRecogida,
+                    tipo_muestreo: 'autocontrol',
+                    laboratorio_nombre: c.laboratorio.laboratorio_nombre || 'CICAP',
+                    laboratorio_codigo: null,
+                    nro_boletin: c.laboratorio.nro_boletin || null,
+                    grasa: c.laboratorio.grasa || null,
+                    proteina: c.laboratorio.proteina || null,
+                    extracto_seco: (c.laboratorio.grasa || 0) + (c.laboratorio.proteina || 0),
+                    temperatura: c.temperatura || null,
+                    germenes_30C: c.laboratorio.germenes || c.laboratorio.recuento_bacterias || null,
+                    celulas_somaticas: c.laboratorio.somaticas || null,
+                    recuento_bacterias: c.laboratorio.recuento_bacterias || null,
+                    inhibidores: !c.certificadoInhibidores ? true : false,
+                    antibioticos_detectados: c.laboratorio.antibioticos || c.laboratorio.antibioticos_positivos || c.antibioticos || false,
+                    aflatoxina_m1: null,
+                    aflatoxina_m1_metodo: null,
+                    aflatoxina_m1_resultado: null,
+                    numero_muestra_letra_q: c.numero_Muestra_Letra_Q || null,
+                    resultado_letra_q: null,
+                    estado: c.estadoAnalitica === 'Alerta Crítica' ? 'alerta' : (c.estadoAnalitica === 'Validado' ? 'validado' : 'pendiente'),
+                    observaciones: null,
+                    creadoEn: c.creadoEn || new Date().toISOString(),
+                };
+
+                const analiticaId = await windowDb.add('analiticas_leche', analitica);
+                analiticasCreadas++;
+
+                c.analiticaId = analiticaId;
+                c.especie_leche = c.especie_leche || 'vacuno';
+                c.recibo_letra_q = {
+                    identificacion_productor: '',
+                    codigo_explotacion: c.rega_origen || '',
+                    fecha_hora_recogida: `${c.fechaRecogida}T${c.hora_carga || '00:00'}`,
+                    cantidad_litros: c.cantidad,
+                    operador_cisterna: c.matriculaCisterna || '',
+                    muestra_tomada: !!c.numero_Muestra_Letra_Q,
+                };
+                await windowDb.put('comercializacion_leche', c);
+                comercializacionesActualizadas++;
+            }
+        }
+
+        const documentos = await windowDb.getAll('documentos_legales');
+        let docsMarcados = 0;
+        for (const d of documentos) {
+            if (d.tipo === 'infolac_declaracion' && !d.legacy_infolac) {
+                d.legacy_infolac = true;
+                d.observaciones_legacy = 'Migrado a Letra Q en v24';
+                await windowDb.put('documentos_legales', d);
+                docsMarcados++;
+            }
+        }
+
+        await windowDb.put('meta', { key: 'migracion_v24_lacteo', value: true, migradoEn: new Date().toISOString() });
+        console.log(`[DB] Migración v24-v25 completada: ${analiticasCreadas} analíticas, ${comercializacionesActualizadas} comercializaciones, ${docsMarcados} documentos legacy.`);
+    } catch (e) {
+        console.warn("[DB] Error en migración v24-v25:", e);
+    }
+}
+
 console.log("[DB] Iniciando window.dbPromise...");
 const dbTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('DB_TIMEOUT: IndexedDB no respondió en 15s')), 15000));
 window.dbPromise = Promise.race([initDB(), dbTimeout]).then(async database => {
@@ -1359,6 +1526,16 @@ window.dbPromise = Promise.race([initDB(), dbTimeout]).then(async database => {
         const metaV21 = await database.get('meta', 'migracion_v21');
         if (!metaV21) {
             await migrarV21(database);
+        }
+    } catch (e) {
+        console.log("[DB] Primera ejecución o store meta no disponible aún.");
+    }
+
+    // Ejecutar migración v24-v25 (Módulo Lácteo Integral) si no se ha ejecutado antes
+    try {
+        const metaV24 = await database.get('meta', 'migracion_v24_lacteo');
+        if (!metaV24) {
+            await migrarV24Lacteo(database);
         }
     } catch (e) {
         console.log("[DB] Primera ejecución o store meta no disponible aún.");

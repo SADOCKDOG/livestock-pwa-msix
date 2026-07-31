@@ -213,21 +213,23 @@ const ZonasView = {
       const flagsModoZonas = window.ModoContextoHelper.getFlags() || { leche: true, carne: false };
       const modoMetaZonas = window.ModoContextoHelper.getModeMetaEffective(flagsModoZonas);
       html += `
-        <!-- Cabecera de Módulo: chip de modo + KPI + acción principal -->
+        <!-- Cabecera de Módulo: Resumen y acción principal -->
         <div class="module-header">
-          <div class="module-header-kpis">
-            <span class="module-mode-chip" style="--mode-color: ${modoMetaZonas.color};">${modoMetaZonas.icon} ${modoMetaZonas.label}</span>
-            <div class="module-header-kpi">
-              <span class="module-header-kpi-label">Zonas</span>
-              <span class="module-header-kpi-value">${zonasConIndice.length}</span>
+          <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(34,197,94,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-success);">
+            <div class="flex items-center gap-12 mb-10">
+              <span class="text-3xl" style="color:var(--c-success);">${Icons.zonas()}</span>
+              <div>
+                <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">ZONAS Y PARCELAS</h2>
+                <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Gestión de ubicaciones, carga ganadera, UGM y rotación de pastos.</p>
+              </div>
             </div>
-            <div class="module-header-kpi">
-              <span class="module-header-kpi-label">Cabezas</span>
-              <span class="module-header-kpi-value">${totalOcupacion}</span>
+            <div class="grid grid-cols-2 gap-8 mt-12 py-8 border-top-222">
+              <div class="text-[0.6rem] text-gray uppercase font-900">Total Zonas: <strong class="text-white">${zonasConIndice.length}</strong></div>
+              <div class="text-[0.6rem] text-gray uppercase font-900">Ocupación: <strong class="text-success">${totalOcupacion} cab.</strong></div>
             </div>
           </div>
           <div class="module-header-primary-action">
-            <button class="btn btn-create btn-lg" onclick="ZonasView._crearZona()">${Icons.agregar()} Nueva Zona</button>
+            <button class="btn btn-create btn-lg w-full" onclick="ZonasView._crearZona()">${Icons.agregar()} Nueva Zona</button>
           </div>
         </div>
 

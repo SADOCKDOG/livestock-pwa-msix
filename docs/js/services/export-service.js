@@ -412,6 +412,65 @@ const ExportService = {
   },
 
   /**
+   * Genera CSV de exportación Letra Q (RD 989/2022 — ANEXOS I y V)
+   * @param {object[]} entregas - registros de comercializacion_leche
+   * @param {object} finca - datos de la finca activa
+   * @returns {string} CSV
+   */
+  generarCSV_LetraQ(entregas, finca) {
+    const lines = [];
+    lines.push(';;;EXPORTACION LETRA Q (RD 989/2022);;;');
+    lines.push(`EXPLOTACION;;${escCsv(finca?.nombre)};;`);
+    lines.push(`REGA;;${escCsv(finca?.codigo_REGA || finca?.rega)};;`);
+    lines.push(`NIF_PRODUCTOR;;${escCsv(finca?.nif)};;`);
+    lines.push(`CODIGO_LETRA_Q;;${escCsv(finca?.codigo_letra_q)};;`);
+    lines.push(`FECHA_EXPORTACION;;${formatFecha(new Date())};;`);
+    lines.push('');
+
+    // Cabecera ANEXO V — datos mínimos a comunicar a Letra Q
+    lines.push(';;DATOS MINIMOS A COMUNICAR A LETRA Q (ANEXO V);;');
+    lines.push('FECHA_RECOGIDA;HORA_CARGA;VOLUMEN_L;ESPECIE;NIF_PRODUCTOR;REGA;CODIGO_LETRA_Q_TANQUE;MATRICULA_CISTERNA;NIF_TOMADOR;INHIBIDORES_IN_SITU;TIPO_MOVIMIENTO;NIF_AGENTE_RECOGIDA;NIF_AGENTE_DESTINO;COD_CISTERNA_ORIGEN;COD_CISTERNA_DESTINO;ESTADO_LETRA_Q;FECHA_LIMITE_COMUNICACION;FECHA_COMUNICADO;GRASA;PROTEINA;GERMENES_30C;CELULAS_SOMATICAS;INHIBIDORES;N_MUESTRA_LETRA_Q');
+
+    (entregas || []).forEach(e => {
+      lines.push([
+        formatFecha(e.fechaRecogida),
+        escCsv(e.hora_carga || ''),
+        escCsv(e.cantidad || 0),
+        escCsv(e.especie_leche || 'vacuno'),
+        escCsv(finca?.nif || ''),
+        escCsv(finca?.codigo_REGA || finca?.rega || ''),
+        escCsv(e.codigo_letra_q_tanque || ''),
+        escCsv(e.matriculaCisterna || ''),
+        escCsv(e.nif_tomador_muestra || ''),
+        escCsv(e.resultado_inhibidores_in_situ || 'no_realizada'),
+        escCsv(e.tipo_movimiento_letra_q || 'explotacion_a_cisterna'),
+        escCsv(e.agente_recogida_nif || ''),
+        escCsv(e.agente_destino_nif || ''),
+        escCsv(e.codigo_cisterna_origen_letra_q || ''),
+        escCsv(e.codigo_cisterna_destino_letra_q || ''),
+        escCsv(e.estado_letra_q || 'pendiente'),
+        formatFecha(e.fecha_limite_comunicacion_letra_q),
+        formatFecha(e.fecha_comunicado_letra_q),
+        escCsv(e.laboratorio?.grasa || ''),
+        escCsv(e.laboratorio?.proteina || ''),
+        escCsv(e.laboratorio?.germenes || ''),
+        escCsv(e.laboratorio?.somaticas || ''),
+        e.certificadoInhibidores ? 'NO_DETECTADOS' : 'NO_CERTIFICADO',
+        escCsv(e.numero_Muestra_Letra_Q || ''),
+      ].join(';'));
+    });
+
+    return '﻿' + lines.join('\r\n');
+  },
+
+  async exportarLetraQ(entregas, finca) {
+    const csv = this.generarCSV_LetraQ(entregas, finca);
+    const rega = finca?.codigo_REGA || finca?.rega || 'unknown';
+    await this.descargar(csv, `LetraQ_${rega}_${formatFecha(new Date())}.csv`);
+    return { success: true, csv };
+  },
+
+  /**
    * Descarga/comparte un fichero — primero intenta Capacitor nativo, luego fallback blob
    * @param {string} content - contenido del fichero
    * @param {string} filename - nombre del fichero
@@ -552,3 +611,7 @@ const ExportService = {
 };
 
 window.ExportService = ExportService;
+
+// Añadir nuevos métodos al objeto ExportService (para mantener compatibilidad)
+ExportService.generarCSV_LetraQ = ExportService.generarCSV_LetraQ.bind(ExportService);
+ExportService.exportarLetraQ = ExportService.exportarLetraQ.bind(ExportService);

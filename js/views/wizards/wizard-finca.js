@@ -359,6 +359,118 @@ window.WizardFinca = {
           }
           return true;
         }
+      },
+      // PASO 3: Instalaciones Lácteas y Normativa (v24) — Solo si flag_leche === true
+      {
+        content: (data) => {
+          const clasificaciones = window.ComunidadesService ? window.ComunidadesService.getClasificacionZootecnicaLetraQ() : [];
+          const clasifOptions = clasificaciones.map(c => `<option value="${c.value}" ${data.clasificacion_zootecnica_leche === c.value ? 'selected' : ''}>${c.label}</option>`).join('');
+          
+          return `
+            <div class="mt-10">
+              <h4 class="text-blue text-sm mt-0 mb-12 flex items-center gap-6">${Icons.leche()} Instalaciones Lácteas y Normativa (Letra Q)</h4>
+              <p class="text-gray text-xs mb-14">
+                Configura los datos de tu explotación láctea para cumplir con la normativa de trazabilidad Letra Q y bienestar animal.
+              </p>
+
+              <div class="bg-darker border-blue rounded p-14 mb-16">
+                <h5 class="text-blue text-xs font-900 mb-10">TRAZABILIDAD LETRA Q</h5>
+                <div class="wizard-input-group mb-12">
+                  <label class="wizard-label">CÓDIGO LETRA Q DE LA FINCA *</label>
+                  <input type="text" id="w-f-letraq" value="${data.codigo_letra_q || ''}" placeholder="T-21-00123" class="wizard-input uppercase font-900" style="border:1px solid var(--c-info);">
+                  <div class="text-2xs text-gray-500 mt-4">Código oficial del titular en el Registro General de Agentes del Sector Lácteo (MAPA)</div>
+                </div>
+                <div class="wizard-input-group">
+                  <label class="wizard-label">CLASIFICACIÓN ZOOTÉCNICA LÁCTEA *</label>
+                  <select id="w-f-clasif" class="wizard-input font-800">
+                    <option value="">— SELECCIONAR —</option>
+                    ${clasifOptions}
+                  </select>
+                  <div class="text-2xs text-gray-500 mt-4">Solo las compatibles con Letra Q permiten comercializar leche</div>
+                </div>
+              </div>
+
+              <div class="bg-darker border-muted rounded p-14 mb-16">
+                <h5 class="text-yellow text-xs font-900 mb-10">INSTALACIONES Y BIENESTAR ANIMAL</h5>
+                <div class="grid grid-cols-2 gap-10 mb-12">
+                  <div class="wizard-input-group">
+                    <label class="wizard-label">PLAZAS VACUNO LECHE</label>
+                    <input type="number" id="w-f-plazas" value="${data.plazas_vacuno_leche || ''}" min="0" max="10000" class="wizard-input font-800">
+                    <div class="text-2xs text-gray-500 mt-4">Plazas autorizadas en sala de ordeño</div>
+                  </div>
+                  <div class="wizard-input-group">
+                    <label class="wizard-label">NÚMERO DE CUBÍCULOS</label>
+                    <input type="number" id="w-f-cubiculos" value="${data.num_cubiculos || ''}" min="0" class="wizard-input font-800">
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-10">
+                  <div class="wizard-input-group">
+                    <label class="wizard-label">SUPERFICIE DESCANSO (m²)</label>
+                    <input type="number" id="w-f-superficie" value="${data.superficie_descanso_m2 || ''}" min="0" class="wizard-input font-800">
+                    <div class="text-2xs text-gray-500 mt-4">Referencia: 5-6 m²/vaca</div>
+                  </div>
+                  <div class="wizard-input-group">
+                    <label class="wizard-label">METROS LINEALES COMEDERO (cm)</label>
+                    <input type="number" id="w-f-comedero" value="${data.metros_lineales_comedero || ''}" min="0" class="wizard-input font-800">
+                    <div class="text-2xs text-gray-500 mt-4">Referencia: 60-70 cm/vaca</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-darker border-red rounded p-14 mb-16" id="w-f-ambiental-section" style="display:none;">
+                <h5 class="text-red text-xs font-900 mb-10">MEDIO AMBIENTE (>300 plazas)</h5>
+                <div class="wizard-input-group mb-12">
+                  <label class="wizard-label">CAPACIDAD BALSA PURINES (m³)</label>
+                  <input type="number" id="w-f-balsa" value="${data.capacidad_balsa_purines_m3 || ''}" min="0" class="wizard-input font-800">
+                  <div class="text-2xs text-gray-500 mt-4">Obligatoria para explotaciones >300 plazas</div>
+                </div>
+                <label class="flex items-center gap-10 text-xs text-white cursor-pointer">
+                  <input type="checkbox" id="w-f-evalamb" ${data.tiene_evaluacion_ambiental ? 'checked' : ''} style="accent-color:var(--c-danger);">
+                  <span class="uppercase font-900 text-2xs">DISPONE DE EVALUACIÓN AMBIENTAL</span>
+                </label>
+              </div>
+
+              <div class="bg-darker border-muted rounded p-14">
+                <p class="text-2xs text-gray-500 flex items-center gap-6 m-0">
+                  ${Icons.info()} <strong>Referencia normativa:</strong> RD 1728/2007, Reg. CE 853/2004, Manual Sector Lácteo Andalucía (MAPA).
+                </p>
+              </div>
+            </div>
+          `;
+        },
+        onChange: async (data) => {
+          data.codigo_letra_q = document.getElementById('w-f-letraq')?.value.trim().toUpperCase() || data.codigo_letra_q;
+          data.clasificacion_zootecnica_leche = document.getElementById('w-f-clasif')?.value || data.clasificacion_zootecnica_leche;
+          data.plazas_vacuno_leche = parseInt(document.getElementById('w-f-plazas')?.value) || data.plazas_vacuno_leche;
+          data.num_cubiculos = parseInt(document.getElementById('w-f-cubiculos')?.value) || data.num_cubiculos;
+          data.superficie_descanso_m2 = parseFloat(document.getElementById('w-f-superficie')?.value) || data.superficie_descanso_m2;
+          data.metros_lineales_comedero = parseFloat(document.getElementById('w-f-comedero')?.value) || data.metros_lineales_comedero;
+          data.capacidad_balsa_purines_m3 = parseFloat(document.getElementById('w-f-balsa')?.value) || data.capacidad_balsa_purines_m3;
+          data.tiene_evaluacion_ambiental = document.getElementById('w-f-evalamb')?.checked || false;
+
+          // Mostrar/ocultar sección ambiental según plazas
+          const plazas = parseInt(document.getElementById('w-f-plazas')?.value) || 0;
+          const ambientalSection = document.getElementById('w-f-ambiental-section');
+          if (ambientalSection) {
+            ambientalSection.style.display = plazas > 300 ? 'block' : 'none';
+          }
+        },
+        validate: async (data) => {
+          // Solo validar si es explotación láctea
+          if (data.flag_leche || data.tipo_explotacion === 'leche' || data.tipo_explotacion === 'mixto') {
+            if (data.codigo_letra_q && !/^[A-Z0-9\-]{3,20}$/.test(data.codigo_letra_q)) {
+              App.toast('Código Letra Q inválido. Formato: T-PP-NNNNN (3-20 caracteres alfanuméricos)');
+              return false;
+            }
+            if (data.plazas_vacuno_leche > 300 && !data.capacidad_balsa_purines_m3) {
+              App.toast('Explotación >300 plazas: registre capacidad de balsa de purines', 'warning');
+            }
+            if (data.plazas_vacuno_leche > 300 && !data.tiene_evaluacion_ambiental) {
+              App.toast('Explotación >300 plazas: confirme evaluación ambiental', 'warning');
+            }
+          }
+          return true;
+        }
       }
     ];
     window.WizardManager.create({

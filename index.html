@@ -54,10 +54,10 @@
       content="black-translucent"
     />
     <title>Livestock Manager</title>
-    <link rel="stylesheet" href="css/design-tokens.css?v=6.34" />
-    <link rel="stylesheet" href="css/styles.css?v=6.34" />
-    <link rel="stylesheet" href="css/layout.css?v=6.34" />
-    <link rel="stylesheet" href="css/desktop.css?v=6.34" />
+    <link rel="stylesheet" href="css/design-tokens.css?v=6.36" />
+    <link rel="stylesheet" href="css/styles.css?v=6.36" />
+    <link rel="stylesheet" href="css/layout.css?v=6.36" />
+    <link rel="stylesheet" href="css/desktop.css?v=6.36" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icons/Logo aplicación.png" />
 
@@ -70,14 +70,16 @@
     />
 
     <!-- Librerías Críticas Locales para Android -->
-    <script src="js/app-version.js?v=6.34"></script>
-    <script src="js/module-colors.js?v=6.34"></script>
-    <script src="js/idb-local.js?v=6.34"></script>
+    <script src="js/app-version.js?v=6.36"></script>
+    <script src="js/module-colors.js?v=6.36"></script>
+    <script src="js/idb-local.js?v=6.36"></script>
 
     <!-- Librerías Externas vía CDN -->
     <!-- xlsx.js, html2pdf.js y chart.js (~1.3MB combinados) se cargan bajo demanda desde
          App._ensureXLSX() / App._ensureHtml2Pdf() / App._ensureChartJs() en app.js,
          solo al exportar o al abrir una vista con gráficos. -->
+    <!-- capacitor.js eliminado a propósito: no existe fuera del build nativo Android,
+         esta es la variante web/PWA/MSIX desacoplada de Capacitor. -->
   </head>
   <body>
     <header id="main-header" role="banner">
@@ -93,8 +95,11 @@
 
         <!-- Right: Viñeta de Finca (REGA con haz de luz) -->
         <div class="flex items-center gap-10 justify-end" style="justify-self: end; display: flex; align-items: flex-end; padding-bottom: 8px;">
-            <div id="finca-badge" class="rega-badge-container" onclick="App.route('/fincas')" style="margin-left: 4px;">
+            <div id="finca-badge" class="rega-badge-container flex-col" onclick="App.route('/fincas')" style="margin-left: 4px; display: flex; align-items: flex-end; gap: 2px;">
                 <span id="nombre-finca-header">Cargando...</span>
+                <div id="finca-mode-container" style="display:none; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; color: var(--c-aaa); gap: 4px;">
+                    Tipo Explo: <span id="finca-mode-chip-header"></span>
+                </div>
             </div>
         </div>
       <!-- Dropdown del Header -->
@@ -153,35 +158,6 @@
     </script>
 
     <!-- ============================
-    BOTTOM NAV: 5 items + "Más"
-    ============================ -->
-    <div class="bottom-nav-wrap" id="bottomNavWrap">
-    <nav class="bottom-nav" id="bottomNav" aria-label="Navegación principal">
-      <a href="#/" class="nav-item" id="nav-home" data-icon="home">
-        <span class="label">Inicio</span>
-      </a>
-      <a href="#/animales" class="nav-item" id="nav-animales" data-icon="animales">
-        <span class="label">Animales</span>
-      </a>
-      <a href="#/rebanos" class="nav-item" id="nav-rebanos" data-icon="rebanos">
-        <span class="label">Rebaños</span>
-      </a>
-      <a href="#/ganaderia" class="nav-item" id="nav-produccion" data-icon="registros">
-        <span class="label">GeGan</span>
-      </a>
-      <a href="#/explotacion" class="nav-item" id="nav-explotacion" data-icon="informes">
-        <span class="label">ExPro</span>
-      </a>
-      <a href="#/comercializacion" class="nav-item" id="nav-comercializacion" data-icon="comercial">
-        <span class="label">CoMer</span>
-      </a>
-      <a class="nav-item" id="nav-more" role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" onclick="App._toggleMenuNavegacion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();App._toggleMenuNavegacion();}" data-icon="mas">
-        <span class="label">Más</span>
-      </a>
-    </nav>
-    </div>
-
-    <!-- ============================
     SIDEBAR DESKTOP (≥1024px)
     ============================ -->
     <nav class="desktop-sidebar" id="desktopSidebar" aria-label="Navegación principal escritorio">
@@ -213,6 +189,35 @@
         </div>
       </div>
     </nav>
+
+    <!-- ============================
+    BOTTOM NAV: 5 items + "Más"
+    ============================ -->
+    <div class="bottom-nav-wrap" id="bottomNavWrap">
+    <nav class="bottom-nav" id="bottomNav" aria-label="Navegación principal">
+      <a href="#/" class="nav-item" id="nav-home" data-icon="home">
+        <span class="label">Inicio</span>
+      </a>
+      <a href="#/animales" class="nav-item" id="nav-animales" data-icon="animales">
+        <span class="label">Animales</span>
+      </a>
+      <a href="#/rebanos" class="nav-item" id="nav-rebanos" data-icon="rebanos">
+        <span class="label">Rebaños</span>
+      </a>
+      <a href="#/ganaderia" class="nav-item" id="nav-produccion" data-icon="registros">
+        <span class="label">GeGan</span>
+      </a>
+      <a href="#/explotacion" class="nav-item" id="nav-explotacion" data-icon="informes">
+        <span class="label">ExPro</span>
+      </a>
+      <a href="#/comercializacion" class="nav-item" id="nav-comercializacion" data-icon="comercial">
+        <span class="label">CoMer</span>
+      </a>
+      <a class="nav-item" id="nav-more" role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" onclick="App._toggleMenuNavegacion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();App._toggleMenuNavegacion();}" data-icon="mas">
+        <span class="label">Más</span>
+      </a>
+    </nav>
+    </div>
 
     <!-- ============================
     BOTTOM SHEET "MÁS"
@@ -286,121 +291,132 @@
     </script>
 
     <!-- Modo de publicación (FREE / PREMIUM) — se genera automáticamente en build:free / build:premium -->
-    <script src="js/mode-config.js?v=6.34"></script>
+    <script src="js/mode-config.js?v=6.36"></script>
     <script>if (typeof FREE_MODE === 'undefined') { window.FREE_MODE = false; }</script>
 
     <!-- Scripts locales de Livestock Manager Premium (Orden de Dependencia Crítico) -->
-    <script src="js/db.js?v=6.34"></script>
-    <script src="js/error-handler.js?v=6.34"></script>
-    <script src="js/icons.js?v=6.34"></script>
-    <script src="js/crypto.js?v=6.34"></script>
-    <script src="js/catalogo-sanitario.js?v=6.34"></script>
+    <script src="js/db.js?v=6.36"></script>
+    <script src="js/error-handler.js?v=6.36"></script>
+    <script src="js/icons.js?v=6.36"></script>
+    <script src="js/crypto.js?v=6.36"></script>
+    <script src="js/catalogo-sanitario.js?v=6.36"></script>
 
     <!-- Lector de códigos de barras QR (Web): carga diferida bajo demanda
          (~366KB) desde App._ensureHtml5Qrcode() en app.js, no en cada arranque.
          Sigue disponible offline: precacheado por el Service Worker. -->
 
     <!-- Servicios del Sistema (Capa de Infraestructura) -->
-    <script src="js/services/event-bus.js?v=6.34"></script>
-    <script src="js/services/cache-service.js?v=6.34"></script>
-    <script src="js/services/balance-service.js?v=6.34"></script>
-    <script src="js/services/comunidades-service.js?v=6.34"></script>
-    <script src="js/services/pdf-service.js?v=6.34"></script>
-    <script src="js/services/export-service.js?v=6.34"></script>
+    <script src="js/services/event-bus.js?v=6.36"></script>
+    <script src="js/services/cache-service.js?v=6.36"></script>
+    <script src="js/services/balance-service.js?v=6.36"></script>
+    <script src="js/services/comunidades-service.js?v=6.36"></script>
+    <script src="js/services/pdf-service.js?v=6.36"></script>
+    <script src="js/services/export-service.js?v=6.36"></script>
 
     <!-- Vistas Modulares -->
-    <script src="js/views/dashboard-view.js?v=6.34"></script>
-    <script src="js/views/produccion-view.js?v=6.34"></script>
-    <script src="js/views/ajustes-view.js?v=6.34"></script>
-    <script src="js/views/agenda-view.js?v=6.34"></script>
-    <script src="js/views/importador-rfid-view.js?v=6.34"></script>
+    <script src="js/views/dashboard-view.js?v=6.36"></script>
+    <script src="js/views/produccion-view.js?v=6.36"></script>
+    <script src="js/views/explotacion-lactea-view.js?v=6.36"></script>
+    <script src="js/views/tanques-view.js?v=6.36"></script>
+    <script src="js/views/ajustes-view.js?v=6.36"></script>
+    <script src="js/views/agenda-view.js?v=6.36"></script>
+    <script src="js/views/importador-rfid-view.js?v=6.36"></script>
 
     <!-- Helpers de UI -->
-    <script src="js/views/helpers/modo-contexto.js?v=6.34"></script>
-    <script src="js/views/helpers/calidad-leche.js?v=6.34"></script>
-    <script src="js/ui-utils.js?v=6.34"></script>
+    <script src="js/views/helpers/modo-contexto.js?v=6.36"></script>
+    <script src="js/views/helpers/calidad-leche.js?v=6.36"></script>
+    <script src="js/ui-utils.js?v=6.36"></script>
 
     <!-- 1º Inyectar el Motor de Reglas y Trazabilidad Oficial (Validaciones y Albaranes) -->
-    <script src="js/trazabilidad.js?v=6.34"></script>
+    <script src="js/trazabilidad.js?v=6.36"></script>
 
     <!-- 2º Inyectar el Motor de Inteligencia Analítica (Cálculo de Fórmulas y Márgenes) -->
-    <script src="js/analitica.js?v=6.34"></script>
+    <script src="js/analitica.js?v=6.36"></script>
 
     <!-- 3º Inyectar el Gestor Jerárquico de Modelos de Datos -->
-    <script src="js/fincas.js?v=6.34"></script>
-    <script src="js/adsgs.js?v=6.34"></script>
-    <script src="js/rebanos.js?v=6.34"></script>
-    <script src="js/animales.js?v=6.34"></script>
-    <script src="js/pesajes.js?v=6.34"></script>
-    <script src="js/pesajes-ui.js?v=6.34"></script>
-    <script src="js/produccion-ui.js?v=6.34"></script>
+    <script src="js/fincas.js?v=6.36"></script>
+    <script src="js/adsgs.js?v=6.36"></script>
+    <script src="js/rebanos.js?v=6.36"></script>
+    <script src="js/animales.js?v=6.36"></script>
+    <script src="js/pesajes.js?v=6.36"></script>
+    <script src="js/pesajes-ui.js?v=6.36"></script>
+    <script src="js/produccion-ui.js?v=6.36"></script>
 
     <!-- 4º Inyectar los Controladores Operativos Diario (Vida y Alimentación) -->
-    <script src="js/produccion.js?v=6.34"></script>
-    <script src="js/gastos.js?v=6.34"></script>
-    <script src="js/botiquin.js?v=6.34"></script>
-    <script src="js/margen-animal.js?v=6.34"></script>
-    <script src="js/sanitarios.js?v=6.34"></script>
-    <script src="js/reproduccion.js?v=6.34"></script>
+    <script src="js/produccion.js?v=6.36"></script>
+    <script src="js/gastos.js?v=6.36"></script>
+    <script src="js/botiquin.js?v=6.36"></script>
+    <script src="js/margen-animal.js?v=6.36"></script>
+    <script src="js/sanitarios.js?v=6.36"></script>
+    <script src="js/reproduccion.js?v=6.36"></script>
 
     <!-- 5º Inyectar los Módulos de Onboarding, Backups y Formularios de UI -->
-    <script src="js/export_reco.js?v=6.34"></script>
-    <script src="js/importador.js?v=6.34"></script>
-    <script src="js/importador-rfid.js?v=6.34"></script>
-    <script src="js/asistente-configuracion.js?v=6.34"></script>
-    <script src="js/modal-manager.js?v=6.34"></script>
-    <script src="js/services/document-viewer.js?v=6.34"></script>
-    <script src="js/wizard-manager.js?v=6.34"></script>
-    <script src="js/snapshot-service.js?v=6.34"></script>
+    <script src="js/export_reco.js?v=6.36"></script>
+    <script src="js/importador.js?v=6.36"></script>
+    <script src="js/importador-rfid.js?v=6.36"></script>
+    <script src="js/asistente-configuracion.js?v=6.36"></script>
+    <script src="js/modal-manager.js?v=6.36"></script>
+    <script src="js/services/document-viewer.js?v=6.36"></script>
+    <script src="js/wizard-manager.js?v=6.36"></script>
+    <script src="js/snapshot-service.js?v=6.36"></script>
 
     <!-- Wizards extraídos (deben cargar antes de app.js) -->
-    <script src="js/views/wizards/wizard-traslado.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-tratamiento.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-vacunacion.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-finca.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-crotales.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-guia-movimiento.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-censo.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-albaran-leche.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-tarea.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-gasto.js?v=6.34"></script>
-    <script src="js/views/wizards/wizard-venta-masiva.js?v=6.34"></script>
+    <script src="js/views/wizards/wizard-traslado.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-tratamiento.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-vacunacion.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-finca.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-crotales.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-guia-movimiento.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-censo.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-albaran-leche.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-ordeno.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-tanque.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-analitica-leche.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-movimiento-balance.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-tarea.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-gasto.js?v=6.36"></script>
+    <script src="js/views/wizards/wizard-venta-masiva.js?v=6.36"></script>
 
     <!-- Helpers modales -->
-    <script src="js/views/helpers/ayuda.js?v=6.34"></script>
+    <script src="js/views/helpers/ayuda.js?v=6.36"></script>
 
     <!-- Gestor de compras IAP (Google Play Billing) -->
-    <script src="js/purchase-manager.js?v=6.34"></script>
+    <script src="js/purchase-manager.js?v=6.36"></script>
 
     <!-- Gestor de modo Free/Premium -->
-    <script src="js/premium-manager.js?v=6.34"></script>
+    <script src="js/premium-manager.js?v=6.36"></script>
 
     <!-- 5bº Módulos de Compradores, Proveedores, Contratos y Transportistas -->
-    <script src="js/compradores.js?v=6.34"></script>
-    <script src="js/proveedores.js?v=6.34"></script>
-    <script src="js/contratos.js?v=6.34"></script>
-    <script src="js/transportistas.js?v=6.34"></script>
-    <script src="js/movimientos.js?v=6.34"></script>
-    <script src="js/saneamientos.js?v=6.34"></script>
-    <script src="js/vacunaciones.js?v=6.34"></script>
-    <script src="js/pedidos-crotales.js?v=6.34"></script>
-    <script src="js/notificaciones-rega.js?v=6.34"></script>
-    <script src="js/liquidacion.js?v=6.34"></script>
+    <script src="js/compradores.js?v=6.36"></script>
+    <script src="js/proveedores.js?v=6.36"></script>
+    <script src="js/contratos.js?v=6.36"></script>
+    <script src="js/transportistas.js?v=6.36"></script>
+    <script src="js/movimientos.js?v=6.36"></script>
+    <script src="js/saneamientos.js?v=6.36"></script>
+    <script src="js/vacunaciones.js?v=6.36"></script>
+    <script src="js/pedidos-crotales.js?v=6.36"></script>
+    <script src="js/notificaciones-rega.js?v=6.36"></script>
+    <script src="js/liquidacion.js?v=6.36"></script>
 
     <!-- 5cº Servicios de Agenda y Notificaciones (Cargar al final de modelos) -->
-    <script src="js/services/alertas-service.js?v=6.34"></script>
-    <script src="js/services/agenda-service.js?v=6.34"></script>
-    <script src="js/services/notificaciones-service.js?v=6.34"></script>
+    <script src="js/services/alertas-service.js?v=6.36"></script>
+    <script src="js/services/agenda-service.js?v=6.36"></script>
+    <script src="js/services/notificaciones-service.js?v=6.36"></script>
+    <script src="js/services/tanques-leche.js?v=6.36"></script>
+    <script src="js/services/balance-lacteo.js?v=6.36"></script>
+    <script src="js/services/analiticas-leche.js?v=6.36"></script>
+    <script src="js/services/motor-lacteo.js?v=6.36"></script>
+    <script src="js/services/graficos-lacteo.js?v=6.36"></script>
 
     <!-- 6º Arrancar el Controlador de la Aplicación (Orquestador Central) -->
-    <script src="js/app.js?v=6.34"></script>
+    <script src="js/app.js?v=6.36"></script>
 
     <!-- Herramientas de QA/E2E (solo en desarrollo): se cargan bajo demanda,
          no en cada arranque en producción. Activar una vez con
          localStorage.setItem('lm_qa_tools','1') y recargar. -->
     <script>
       if (window.localStorage && localStorage.getItem('lm_qa_tools') === '1') {
-        ['js/e2e-test-suite.js?v=6.34', 'js/qa-test-runner.js?v=6.34', 'js/qa-diagnostico.js?v=6.34', 'js/qa-siggan.js?v=6.34', 'js/qa-premium.js?v=6.34', 'js/qa-especie-crotal.js?v=6.34', 'js/qa-plan-siggan.js?v=6.34', 'js/qa-margen-animal.js?v=6.34', 'js/qa-importador-rfid.js?v=6.34']
+        ['js/e2e-test-suite.js?v=6.36', 'js/qa-test-runner.js?v=6.36', 'js/qa-diagnostico.js?v=6.36', 'js/qa-siggan.js?v=6.36', 'js/qa-premium.js?v=6.36', 'js/qa-especie-crotal.js?v=6.36', 'js/qa-plan-siggan.js?v=6.36', 'js/qa-margen-animal.js?v=6.36', 'js/qa-importador-rfid.js?v=6.36', 'tests/test-lacteo-v24.js?v=6.36']
           .forEach((src) => {
             const s = document.createElement('script');
             s.src = src;
@@ -413,16 +429,16 @@
       window.isNative = !!window.Capacitor;
       try {
         if (!window.isNative && navigator.serviceWorker && typeof navigator.serviceWorker.register === 'function') {
-          // Registro inmediato (sin esperar 'load'): este script ya está al final
-          // de <body>, así que el DOM está listo. Esperar a 'load' retrasa el
-          // registro hasta que carguen todos los subrecursos (imágenes, etc.),
-          // lo que hace que crawlers de análisis como PWABuilder no detecten el
-          // Service Worker dentro de su ventana de tiempo — falso negativo de
-          // "no tiene Service Worker" en el report card, aunque sí funciona.
-          navigator.serviceWorker
-            .register("./sw.js")
-            .then((reg) => console.log("SW OK"))
-            .catch((err) => console.error("SW Error:", err));
+          window.addEventListener("load", () => {
+            try {
+              navigator.serviceWorker
+                .register("./sw.js")
+                .then((reg) => console.log("SW OK"))
+                .catch((err) => console.error("SW Error:", err));
+            } catch (err) {
+              console.warn("Error al registrar el Service Worker:", err);
+            }
+          });
         }
       } catch (e) {
         console.warn("Service Worker no disponible o bloqueado por el sandbox del entorno:", e.message);

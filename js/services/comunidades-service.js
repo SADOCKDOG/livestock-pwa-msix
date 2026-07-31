@@ -217,7 +217,46 @@ window.ComunidadesService = (() => {
   });
 
   // ============================================================
-  // 4. UMBRALES DE CALIDAD — Ovino de Leche (Referencia LIGAL)
+  // 4. UMBRALES DE CALIDAD — Por Especie (Normativa Oficial)
+  // ============================================================
+  // Vacuno: RD 1728/2007 art.7.5 | Ovino/Caprino: Reg. CE 853/2004
+  const CALIDAD_LECHE_UMBRALES = Object.freeze({
+    vacuno: Object.freeze({
+      grasa:              Object.freeze({ min: 3.2,  max: 5.0,  optimo: 3.8,  unidad: '%', legal: true }),
+      proteina:           Object.freeze({ min: 2.9,  max: 4.0,  optimo: 3.3,  unidad: '%', legal: true }),
+      extracto_seco:      Object.freeze({ min: 6.1,  max: 9.0,  optimo: 7.1,  unidad: '%' }),
+      germenes_30C:       Object.freeze({ max: 100000,           optimo: '<50000',  unidad: 'UFC/mL', legal: true, bloqueante: true }),
+      celulas_somaticas:  Object.freeze({ max: 400000,           optimo: '<200000', unidad: 'cel/mL', legal: true, bloqueante: true }),
+      temperatura:        Object.freeze({ max: 4,                optimo: '<2',      unidad: '°C' }),
+      inhibidores:        Object.freeze({ permitido: false, bloqueante: true }),
+      aflatoxina_m1:      Object.freeze({ max: 50,               optimo: '<25',    unidad: 'ng/kg', legal: true }),
+    }),
+
+    ovino: Object.freeze({
+      grasa:              Object.freeze({ min: 6.0,  max: 8.5,  optimo: 7.2,  unidad: '%' }),
+      proteina:           Object.freeze({ min: 5.0,  max: 6.5,  optimo: 5.8,  unidad: '%' }),
+      extracto_seco:      Object.freeze({ min: 11.0, max: 15.0, optimo: 13.0, unidad: '%' }),
+      germenes_30C:       Object.freeze({ max: 1500000,          optimo: '<500000',  unidad: 'UFC/mL', legal: true, bloqueante: true }),
+      celulas_somaticas:  Object.freeze({ max: null,             optimo: '<800000', unidad: 'cel/mL', legal: false, nota: 'Sin límite legal, referencia manejo' }),
+      temperatura:        Object.freeze({ max: 4,                optimo: '<2',      unidad: '°C' }),
+      inhibidores:        Object.freeze({ permitido: false, bloqueante: true }),
+      aflatoxina_m1:      Object.freeze({ max: 50,               optimo: '<25',    unidad: 'ng/kg' }),
+    }),
+
+    caprino: Object.freeze({
+      grasa:              Object.freeze({ min: 5.5,  max: 7.5,  optimo: 6.5,  unidad: '%' }),
+      proteina:           Object.freeze({ min: 4.5,  max: 6.0,  optimo: 5.2,  unidad: '%' }),
+      extracto_seco:      Object.freeze({ min: 10.0, max: 13.5, optimo: 11.7, unidad: '%' }),
+      germenes_30C:       Object.freeze({ max: 1500000,          optimo: '<500000',  unidad: 'UFC/mL', legal: true, bloqueante: true }),
+      celulas_somaticas:  Object.freeze({ max: null,             optimo: '<2000000', unidad: 'cel/mL', legal: false, nota: 'Sin límite legal, referencia manejo' }),
+      temperatura:        Object.freeze({ max: 4,                optimo: '<2',      unidad: '°C' }),
+      inhibidores:        Object.freeze({ permitido: false, bloqueante: true }),
+      aflatoxina_m1:      Object.freeze({ max: 50,               optimo: '<25',    unidad: 'ng/kg' }),
+    }),
+  });
+
+  // ============================================================
+  // 4.b. UMBRALES LEGACY — Ovino de Leche (Referencia LIGAL)
   // ============================================================
   const CALIDAD_LECHE_OVINO_UMBRALES = Object.freeze({
     grasa:         Object.freeze({ min: 6.0,  max: 8.5,  optimo: 7.2, unidad: '%' }),
@@ -247,6 +286,53 @@ window.ComunidadesService = (() => {
   // 6. TIPOS DE EXPLOTACIÓN / SISTEMAS
   // ============================================================
   const TIPOS_EXPLOTACION = Object.freeze(['carne', 'leche', 'mixto', 'ibérico']);
+
+  // Clasificación zootécnica compatible con Letra Q (Manual Sector Lácteo Andalucía p.89)
+  const CLASIFICACION_ZOOTECNICA_LETRA_Q = Object.freeze([
+    Object.freeze({ value: 'produccion_leche', label: 'Reproducción para producción de leche', compatible_letra_q: true }),
+    Object.freeze({ value: 'mixta', label: 'Reproducción mixta', compatible_letra_q: true }),
+    Object.freeze({ value: 'pastos_comun', label: 'Pastos en común', compatible_letra_q: true }),
+    Object.freeze({ value: 'pastos_temporales', label: 'Pastos temporales', compatible_letra_q: true }),
+    Object.freeze({ value: 'carne', label: 'Producción de carne', compatible_letra_q: false }),
+    Object.freeze({ value: 'otra', label: 'Otra', compatible_letra_q: false }),
+  ]);
+
+  // Tipos de operador del sector lácteo (RD 989/2022 Art.2)
+  const TIPO_OPERADOR_LACTEO = Object.freeze([
+    Object.freeze({ value: 'primer_comprador',     label: 'Primer comprador',                    desc: 'Compra leche directamente del productor' }),
+    Object.freeze({ value: 'centro_operacion',      label: 'Centro de operación',                desc: 'Oficina comercial (intermediario con contenedor propio)' }),
+    Object.freeze({ value: 'centro_descarga',       label: 'Centro lácteo de primera descarga',  desc: 'Establecimiento donde se descarga y analiza la leche' }),
+    Object.freeze({ value: 'intermediario',         label: 'Intermediario',                      desc: 'Compra/venta sin cambio de contenedor (solo propiedad)' }),
+    Object.freeze({ value: 'transportista',         label: 'Transportista',                      desc: 'Empresa de transporte de leche cruda' }),
+  ]);
+
+  // Plazos de comunicación a Letra Q (Art.8 RD 989/2022)
+  const PLAZOS_COMUNICACION_LETRA_Q = Object.freeze({
+    primer_comprador: 3,
+    centro_descarga: 3,
+    centro_operacion: 5,
+    intermediario: 5,
+    transportista: 3,
+  });
+
+  // Movimientos permitidos en Letra Q 2.0 (Nota Aclaratoria Intermediarios)
+  const TIPOS_MOVIMIENTO_LETRA_Q = Object.freeze([
+    Object.freeze({ value: 'explotacion_a_cisterna',           label: 'Explotación → Cisterna',                 permite_intermediario: false }),
+    Object.freeze({ value: 'explotacion_a_rechazo',            label: 'Explotación → Rechazo',                  permite_intermediario: false }),
+    Object.freeze({ value: 'explotacion_a_establecimiento',     label: 'Explotación → Establecimiento',          permite_intermediario: false }),
+    Object.freeze({ value: 'cisterna_a_cisterna',              label: 'Cisterna → Cisterna',                    permite_intermediario: true }),
+    Object.freeze({ value: 'cisterna_a_rechazo',               label: 'Cisterna → Rechazo',                     permite_intermediario: false }),
+    Object.freeze({ value: 'cisterna_a_establecimiento',       label: 'Cisterna → Establecimiento',             permite_intermediario: false }),
+  ]);
+
+  // Laboratorios de autocontrol homologados (Andalucía)
+  const LABORATORIOS_LECHE = Object.freeze([
+    Object.freeze({ codigo: 'CICAP', nombre: 'CICAP (Centro de Investigación y Calidad Agroalimentaria)', ubicacion: 'Pozoblanco, Córdoba', default: true, codigo_letra_q: '' }),
+    Object.freeze({ codigo: 'LILC', nombre: 'LILC (Laboratorio Interprofesional de Cantabria)', ubicacion: 'Cantabria', default: false, codigo_letra_q: '' }),
+    Object.freeze({ codigo: 'LILCAM', nombre: 'LILCAM (Castilla-La Mancha)', ubicacion: 'Castilla-La Mancha', default: false, codigo_letra_q: '' }),
+    Object.freeze({ codigo: 'LILCYL', nombre: 'LILCYL (Castilla y León)', ubicacion: 'Castilla y León', default: false, codigo_letra_q: '' }),
+    Object.freeze({ codigo: 'LPSA_CORDOBA', nombre: 'Lab. Producción y Sanidad Animal de Córdoba', ubicacion: 'Córdoba', oficial: true, codigo_letra_q: '' }),
+  ]);
   // Catálogo oficial SIEX "Sistema productivo" (docs/AUDITAR/Catalogos_csv/Sistema
   // productivo.csv) — ver docs/PLAN-MEJORA-SIGGAN.md, gap "Sistemas/Características"
   // de ADSG-WEB-SIGGAN-FLUJOS-ESTRUCTURA.md. Antes solo tenía 3 de los 7 valores
@@ -541,6 +627,123 @@ window.ComunidadesService = (() => {
   }
 
   /**
+   * Obtiene los umbrales de calidad por especie (vacuno, ovino, caprino)
+   * @param {string} especie — 'vacuno' | 'ovino' | 'caprino'
+   * @returns {object}
+   */
+  function getUmbralesCalidadEspecie(especie) {
+    const esp = (especie || 'vacuno').toString().trim().toLowerCase();
+    return CALIDAD_LECHE_UMBRALES[esp] || CALIDAD_LECHE_UMBRALES.vacuno;
+  }
+
+  /**
+   * Obtiene la clasificación zootécnica compatible con Letra Q
+   * @returns {Array}
+   */
+  function getClasificacionZootecnicaLetraQ() {
+    return CLASIFICACION_ZOOTECNICA_LETRA_Q.map(c => ({ ...c }));
+  }
+
+  /**
+   * Verifica si una clasificación zootécnica es compatible con Letra Q
+   * @param {string} value — valor de la clasificación
+   * @returns {boolean}
+   */
+  function esCompatibleLetraQ(value) {
+    const cls = CLASIFICACION_ZOOTECNICA_LETRA_Q.find(c => c.value === value);
+    return cls ? cls.compatible_letra_q : false;
+  }
+
+  /**
+   * Obtiene el catálogo de laboratorios de leche homologados
+   * @returns {Array}
+   */
+  function getLaboratoriosLeche() {
+    return LABORATORIOS_LECHE.map(l => ({ ...l }));
+  }
+
+  /**
+   * Obtiene el laboratorio por defecto
+   * @returns {object}
+   */
+  function getLaboratorioDefault() {
+    return LABORATORIOS_LECHE.find(l => l.default) || LABORATORIOS_LECHE[0];
+  }
+
+  /**
+   * Evalúa la calidad de un análisis de leche contra los umbrales por especie
+   * @param {object} lab — { grasa, proteina, celulas_somaticas, germenes_30C, antibioticos_detectados, inhibidores, aflatoxina_m1 }
+   * @param {string} especie — 'vacuno' | 'ovino' | 'caprino'
+   * @returns {{ apto: boolean, bloqueante: boolean, alertas: string[], badges: object[] }}
+   */
+  function evaluarCalidadLecheEspecie(lab, especie) {
+    const umbrales = getUmbralesCalidadEspecie(especie);
+    const alertas = [];
+    const badges = [];
+    let bloqueante = false;
+
+    if (!lab) return { apto: false, bloqueante: true, alertas: ['Sin datos de laboratorio'], badges: [] };
+
+    if (lab.inhibidores === true || lab.antibioticos_detectados === true) {
+      alertas.push('PRESENCIA DE INHIBIDORES — LECHE NO COMERCIALIZABLE');
+      badges.push({ label: 'Inhibidores', color: '#dc2626', tipo: 'critico' });
+      bloqueante = true;
+    }
+
+    if (lab.grasa != null) {
+      if (lab.grasa < umbrales.grasa.min) {
+        alertas.push(`Grasa baja (${lab.grasa}% < ${umbrales.grasa.min}%)`);
+        badges.push({ label: `Grasa ${lab.grasa}%`, color: 'var(--c-warning)', tipo: 'alerta' });
+      } else {
+        badges.push({ label: `Grasa ${lab.grasa}%`, color: 'var(--c-success)', tipo: 'ok' });
+      }
+    }
+
+    if (lab.proteina != null) {
+      if (lab.proteina < umbrales.proteina.min) {
+        alertas.push(`Proteína baja (${lab.proteina}% < ${umbrales.proteina.min}%)`);
+        badges.push({ label: `Prot ${lab.proteina}%`, color: 'var(--c-warning)', tipo: 'alerta' });
+      } else {
+        badges.push({ label: `Prot ${lab.proteina}%`, color: 'var(--c-success)', tipo: 'ok' });
+      }
+    }
+
+    if (lab.germenes_30C != null && umbrales.germenes_30C.max != null) {
+      if (lab.germenes_30C > umbrales.germenes_30C.max) {
+        alertas.push(`Gérmenes elevados (${lab.germenes_30C.toLocaleString()} > ${umbrales.germenes_30C.max.toLocaleString()} UFC/mL)`);
+        badges.push({ label: `UFC ${(lab.germenes_30C / 1000).toFixed(0)}k`, color: 'var(--c-danger)', tipo: 'alerta' });
+        if (umbrales.germenes_30C.bloqueante) bloqueante = true;
+      } else {
+        badges.push({ label: `UFC ${(lab.germenes_30C / 1000).toFixed(0)}k`, color: 'var(--c-success)', tipo: 'ok' });
+      }
+    }
+
+    if (lab.celulas_somaticas != null && umbrales.celulas_somaticas.max != null) {
+      if (lab.celulas_somaticas > umbrales.celulas_somaticas.max) {
+        alertas.push(`Células somáticas elevadas (${lab.celulas_somaticas.toLocaleString()} > ${umbrales.celulas_somaticas.max.toLocaleString()} cel/mL)`);
+        badges.push({ label: `CS ${(lab.celulas_somaticas / 1000).toFixed(0)}k`, color: 'var(--c-danger)', tipo: 'alerta' });
+        if (umbrales.celulas_somaticas.bloqueante) bloqueante = true;
+      } else {
+        badges.push({ label: `CS ${(lab.celulas_somaticas / 1000).toFixed(0)}k`, color: 'var(--c-success)', tipo: 'ok' });
+      }
+    }
+
+    if (lab.aflatoxina_m1 != null && umbrales.aflatoxina_m1) {
+      if (lab.aflatoxina_m1 > umbrales.aflatoxina_m1.max) {
+        alertas.push(`Aflatoxina M1 elevada (${lab.aflatoxina_m1} ng/kg > ${umbrales.aflatoxina_m1.max} ng/kg)`);
+        badges.push({ label: `AFM1 ${lab.aflatoxina_m1}`, color: 'var(--c-danger)', tipo: 'alerta' });
+      } else if (lab.aflatoxina_m1 > umbrales.aflatoxina_m1.optimo.replace('<', '')) {
+        badges.push({ label: `AFM1 ${lab.aflatoxina_m1}`, color: 'var(--c-warning)', tipo: 'precaucion' });
+      } else {
+        badges.push({ label: `AFM1 ${lab.aflatoxina_m1}`, color: 'var(--c-success)', tipo: 'ok' });
+      }
+    }
+
+    const apto = !bloqueante && alertas.length === 0;
+    return { apto, bloqueante, alertas, badges };
+  }
+
+  /**
    * Evalúa la calidad de un análisis de leche contra los umbrales
    * @param {object} lab — { grasa, proteina, somaticas, germenes, antibioticos, temperatura }
    * @returns {{ apto: boolean, alertas: string[], badges: object[] }}
@@ -667,18 +870,48 @@ window.ComunidadesService = (() => {
     ).join('');
   }
 
+  function getTiposOperadorLacteo() {
+    return TIPO_OPERADOR_LACTEO;
+  }
+
+  function getPlazosComunicacionLetraQ() {
+    return { ...PLAZOS_COMUNICACION_LETRA_Q };
+  }
+
+  function getTiposMovimientoLetraQ() {
+    return TIPOS_MOVIMIENTO_LETRA_Q;
+  }
+
+  function diasHabiles(fecha, numDias) {
+    if (!fecha) return '';
+    const d = new Date(fecha);
+    let count = 0;
+    while (count < numDias) {
+      d.setDate(d.getDate() + 1);
+      const diaSem = d.getDay();
+      if (diaSem !== 0 && diaSem !== 6) count++;
+    }
+    return d.toISOString().split('T')[0];
+  }
+
   // API pública
   return {
     COMUNIDADES,
     COSTES_LECHE_REF,
     ESTADOS_ANALITICA_LECHE,
     CALIDAD_LECHE_OVINO_UMBRALES,
+    CALIDAD_LECHE_UMBRALES,
     MOTIVOS_RECHAZO_LECHE,
     TIPOS_EXPLOTACION,
     SISTEMAS_EXPLOTACION,
     PRECIO_EXTRACTO_SECO_REF,
     TIPOS_EXPLOTACION_REGA,
     CLASIFICACION_ZOOTECNICA,
+    CLASIFICACION_ZOOTECNICA_LETRA_Q,
+    LABORATORIOS_LECHE,
+    TIPO_OPERADOR_LACTEO,
+    PLAZOS_COMUNICACION_LETRA_Q,
+    TIPOS_MOVIMIENTO_LETRA_Q,
     ESPECIES_AUTORIZABLES,
     ESPECIES_CON_DIB,
     PAISES_NACIMIENTO,
@@ -702,6 +935,8 @@ window.ComunidadesService = (() => {
     getProvincias,
     getTiposExplotacionREGA,
     getClasificacionZootecnica,
+    getClasificacionZootecnicaLetraQ,
+    esCompatibleLetraQ,
     getEspeciesAutorizables,
     especieRequiereDIB,
     getPaisesNacimiento,
@@ -725,11 +960,19 @@ window.ComunidadesService = (() => {
     getEstadosAnalitica,
     getEstadoAnalitica,
     getUmbralesCalidad,
+    getUmbralesCalidadEspecie,
+    getLaboratoriosLeche,
+    getLaboratorioDefault,
     evaluarCalidadLeche,
+    evaluarCalidadLecheEspecie,
     calcularExtractoSeco,
     calcularPrecioFinalUnitario,
     calcularMOFA,
     badgeEstadoAnalitica,
     badgesCalidadLeche,
+    getTiposOperadorLacteo,
+    getPlazosComunicacionLetraQ,
+    getTiposMovimientoLetraQ,
+    diasHabiles,
   };
 })();

@@ -61,49 +61,32 @@ const ContratosView = {
     }).join('');
 
     main.innerHTML = `
-      <!-- Cabecera de Sección Estandarizada -->
-      <div class="flex items-center gap-12 mb-14">
-        <span class="text-2xl" style="color:${moduleColor}; display:inline-flex; align-items:center;">
-          ${Icons.contratos()}
-        </span>
-        <div>
-          <h1 class="text-white font-900 text-lg uppercase tracking-wider" style="margin:0; line-height:1.2;">
-            <span style="color:${moduleColor}; margin-right:4px;">|</span> CONTRATOS DE COMPRA
-          </h1>
-          <div class="text-gray" style="font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
-            GESTIÓN DE CONTRATOS DE SUMINISTRO Y VENTA
+      <!-- Cabecera de Módulo: Resumen y acción principal -->
+      <div class="module-header">
+        <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(168,85,247,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-purple);">
+          <div class="flex items-center gap-12 mb-10">
+            <span class="text-3xl" style="color:var(--c-purple);">${Icons.documento()}</span>
+            <div>
+              <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">CONTRATOS DE COMPRA</h2>
+              <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Acuerdos comerciales de suministro y trazabilidad de precios.</p>
+            </div>
           </div>
+          <div class="grid grid-cols-2 gap-8 mt-12 py-8 border-top-222">
+            <div class="text-[0.6rem] text-gray uppercase font-900">Total Contratos: <strong class="text-white">${totalContratos}</strong></div>
+            <div class="text-[0.6rem] text-gray uppercase font-900">Vigentes: <strong class="text-success">${contratosActivos}</strong></div>
+          </div>
+        </div>
+        <div class="module-header-primary-action">
+          <button class="btn btn-create btn-lg w-full" onclick="ContratosView._crearContrato()">${Icons.agregar()} Nuevo Contrato</button>
         </div>
       </div>
 
-      <!-- Evolución Mensual (Estandarizada como Card de Fondo OLED sin bordes de color) -->
-      <div class="card mb-14 p-12 card-resumen" style="background:rgba(59,130,246,0.015); width:100%;">
-        <div class="text-xs text-white font-black uppercase tracking-wider mb-6 flex justify-between items-center" style="border-bottom:none; padding-bottom:0; margin-bottom:12px;">
-          <span><span style="color: ${moduleColor}; margin-right:4px;">|</span> EVOLUCIÓN MENSUAL (ÚLTIMOS 6 MESES)</span>
-          <span class="text-xs text-gray font-bold lowercase" style="font-variant: normal;">(${totalContratos} total)</span>
+      <!-- Evolución Mensual -->
+      <div class="card mb-14 p-12 card-resumen" style="background:rgba(255,255,255,0.01); width:100%;">
+        <div class="text-xs text-white font-black uppercase tracking-wider mb-8 flex justify-between items-center">
+          <span><span style="color: var(--c-purple); margin-right:4px;">|</span> ACTIVIDAD DE CONTRATOS</span>
         </div>
         <div class="flex gap-6">${mesesHtml}</div>
-      </div>
-
-      <!-- Balance Consolidado (Estandarizado en Card de Fondo OLED sin bordes de color) -->
-      <div class="card p-12 mb-14 border-222 card-total-3d card-resumen" style="background: rgba(59,130,246,0.015); width:100%;">
-        <div class="text-xs text-white font-black uppercase tracking-wider mb-6 flex items-center gap-6" style="border-bottom:none; padding-bottom:0; margin-bottom:12px;">
-          <span style="color: ${moduleColor}; margin-right:4px;">|</span> ${Icons.contratos()} RESUMEN DE CONTRATOS
-        </div>
-        <div class="flex flex-col">
-          <div class="py-8 flex justify-between items-center border-bottom-222">
-            <span class="text-xs text-gray uppercase font-900 flex items-center gap-4">${Icons.contratos()} Total Contratos</span>
-            <strong class="text-xl font-950" style="color: ${moduleColor};">${totalContratos} ${totalContratos === 1 ? "contrato" : "contratos"}</strong>
-          </div>
-          <div class="py-8 flex justify-between items-center border-bottom-222">
-            <span class="text-xs text-gray uppercase font-900 flex items-center gap-4">${Icons.check()} Contratos Activos</span>
-            <strong class="text-xl font-950 text-green">${contratosActivos} ${contratosActivos === 1 ? "contrato" : "contratos"}</strong>
-          </div>
-          <div class="py-8 flex justify-between items-center">
-            <span class="text-xs text-gray uppercase font-900 flex items-center gap-4">${Icons.dinero()} Valor Total Contratos</span>
-            <strong class="text-xl font-950 text-blue">€${this._calcularValorTotalContratos(contratos).toLocaleString()}</strong>
-          </div>
-        </div>
       </div>
 
       <!-- Filtro de búsqueda integrado (controla el listado) -->

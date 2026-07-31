@@ -32,32 +32,36 @@ const AgendaView = {
         ];
 
         main.innerHTML = `
+            <div class="mb-14">
+                ${App.renderCarruselPestanas([
+                    { key: 'todos', icon: Icons.buscar(), label: 'TODOS', color: 'var(--p-gold)' },
+                    { key: 'gegan', icon: Icons.animales(), label: 'ANIMALES', color: 'var(--c-orange)' },
+                    { key: 'rebanos', icon: Icons.rebanos(), label: 'REBAÑOS', color: 'var(--c-info)' },
+                    { key: 'sanidad', icon: Icons.sanidad(), label: 'SANIDAD', color: 'var(--c-purple)' },
+                    { key: 'carnico', icon: Icons.carne(), label: 'CARNE', color: 'var(--c-success)' },
+                    { key: 'lacteos', icon: Icons.leche(), label: 'LECHE', color: 'var(--c-info)' }
+                ], this._filtroModulo, 'AgendaView')}
+            </div>
+
             <div class="px-4">
                 <div class="module-header">
-                    <div class="module-header-kpis">
-                        <span class="module-mode-chip" style="--mode-color: var(--p-gold);">${Icons.objetivo()} AGENDA DE TRABAJO</span>
-                        <div class="module-header-kpi">
-                            <span class="module-header-kpi-label">Pendientes</span>
-                            <span class="module-header-kpi-value">${tareas.length}</span>
-                        </div>
-                    </div>
                     <div class="module-header-primary-action">
-                        <button class="btn btn-create btn-lg" onclick="window.WizardTarea.open({ onComplete: () => AgendaView.render() })">
+                        <button class="btn btn-create btn-lg w-full" onclick="window.WizardTarea.open({ onComplete: () => AgendaView.render() })">
                             ${Icons.fabPlus()} Nueva Tarea
                         </button>
                     </div>
                 </div>
 
-                <!-- Filtros de Agenda -->
-                <div class="mb-14">
-                    <div class="flex gap-8 overflow-x-auto pb-4 no-scrollbar" id="agenda-modulo-filters">
-                        ${modulos.map(m => `
-                            <button onclick="AgendaView._setFiltroModulo('${m.id}')"
-                                    class="chip-filter ${this._filtroModulo === m.id ? 'active' : ''}"
-                                    style="${this._filtroModulo === m.id ? 'border-color: var(--p-gold); color: var(--p-gold);' : ''}">
-                                ${m.label}
-                            </button>
-                        `).join('')}
+                <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(255,215,0,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--p-gold);">
+                    <div class="flex items-center gap-12 mb-10">
+                        <span class="text-3xl" style="color:var(--p-gold);">${Icons.objetivo()}</span>
+                        <div>
+                            <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">AGENDA DE TRABAJO</h2>
+                            <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Planificación de tareas, alertas sanitarias y recordatorios operativos.</p>
+                        </div>
+                    </div>
+                    <div class="mt-12 py-8 border-top-222">
+                        <span class="text-[0.6rem] text-gray uppercase font-900">Tareas Pendientes: <strong class="text-white">${tareas.length}</strong></span>
                     </div>
                 </div>
 
@@ -131,6 +135,11 @@ const AgendaView = {
     async _setFiltroModulo(moduloId) {
         this._filtroModulo = moduloId;
         await this.render();
+    },
+
+    _cambiarSubModulo(subModulo) {
+        this._filtroModulo = subModulo;
+        this.render();
     },
 
     async _setFiltroEstado(estado) {

@@ -95,24 +95,30 @@ const TransportistasView = {
     }).join('');
 
     main.innerHTML = `
-      <!-- Cabecera de Sección Estandarizada -->
-      <div class="flex items-center gap-12 mb-14">
-        <span class="text-2xl" style="color:${moduleColor}; display:inline-flex; align-items:center;">${Icons.transportistas()}</span>
-        <div>
-          <h1 class="text-white font-900 text-lg uppercase tracking-wider" style="margin:0; line-height:1.2;">
-            <span style="color:${moduleColor}; margin-right:4px;">|</span> TRANSPORTISTAS
-          </h1>
-          <div class="text-gray" style="font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
-            Gestión de Transportistas y Logística
+      <!-- Cabecera de Módulo: Resumen y acción principal -->
+      <div class="module-header">
+        <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(236,72,153,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-pink);">
+          <div class="flex items-center gap-12 mb-10">
+            <span class="text-3xl" style="color:var(--c-pink);">${Icons.transportistas()}</span>
+            <div>
+              <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">LOGÍSTICA Y TRANSPORTISTAS</h2>
+              <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Flota de transporte ganadero calificado y control de certificados.</p>
+            </div>
           </div>
+          <div class="grid grid-cols-2 gap-8 mt-12 py-8 border-top-222">
+            <div class="text-[0.6rem] text-gray uppercase font-900">Total Flota: <strong class="text-white">${transportistas.length}</strong></div>
+            <div class="text-[0.6rem] text-gray uppercase font-900">Activos: <strong class="text-success">${activoCount}</strong></div>
+          </div>
+        </div>
+        <div class="module-header-primary-action">
+          <button class="btn btn-create btn-lg w-full" onclick="TransportistasView._crearTransportista()">${Icons.agregar()} Nuevo Transportista</button>
         </div>
       </div>
 
-      <!-- Evolución Mensual (Estandarizada como Card de Fondo OLED sin bordes de color) -->
-      <div class="card mb-14 p-12 card-resumen" style="background:rgba(236,72,153,0.015); width:100%;">
-        <div class="text-xs text-white font-black uppercase tracking-wider mb-6 flex justify-between items-center" style="border-bottom:none; padding-bottom:0; margin-bottom:12px;">
-          <span><span style="color: ${moduleColor}; margin-right:4px;">|</span> EVOLUCIÓN MENSUAL (ÚLTIMOS 6 MESES)</span>
-          <span class="text-xs text-gray font-bold lowercase" style="font-variant: normal;">(${transportistas.length} total)</span>
+      <!-- Evolución Mensual -->
+      <div class="card mb-14 p-12 card-resumen" style="background:rgba(255,255,255,0.01); width:100%;">
+        <div class="text-xs text-white font-black uppercase tracking-wider mb-8 flex justify-between items-center">
+          <span><span style="color: var(--c-pink); margin-right:4px;">|</span> ACTIVIDAD LOGÍSTICA</span>
         </div>
         <div class="flex gap-6">${mesesHtml}</div>
       </div>

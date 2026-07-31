@@ -34,6 +34,12 @@
     contrato_lacteo_fecha_fin: '2027-12-31',
     contrato_lacteo_comprador: 'Lácteos La Serena SA',
     numero_infolac: 'INF-21005-901',
+    codigo_letra_q: 'TIT-21-00456',
+    clasificacion_zootecnica_leche: 'produccion_leche',
+    plazas_vacuno_leche: 50,
+    superficie_descanso_m2: 300,
+    metros_lineales_comedero: 3500,
+    num_cubiculos: 45,
     zonas: [
       { nombre: 'Parcela Norte 42ha', superficieGrafica: 42, superficie: 42, aforoMax: 200, aforo_maximo: 200, usoPrincipal: 'Pasto', uso: 'Pasto', localizacion: 'Pasto principal de vacuno', descripcion: 'Pasto principal de vacuno', codigo_pac: 'ES-AN-21005-001', distancia_agua_m: 150 },
       { nombre: 'Parcela Sur 28ha', superficieGrafica: 28, superficie: 28, aforoMax: 150, aforo_maximo: 150, usoPrincipal: 'Barbecho', uso: 'Barbecho', localizacion: 'Rotación y barbecho', descripcion: 'Rotación y barbecho', codigo_pac: 'ES-AN-21005-002', distancia_agua_m: 300 },
@@ -706,6 +712,149 @@
             creadoEn: new Date().toISOString()
           });
         } catch (e) { console.log('[SEED] Error com. carne:', e.message); }
+      }
+
+      // ═══════════════════════════════════════════════════════════════════
+      // DATOS DEMO LÁCTEOS v24 (Tanques, Balance, Analíticas, Control Lechero)
+      // ═══════════════════════════════════════════════════════════════════
+      var currentFlags = window.ModoContextoHelper ? window.ModoContextoHelper.getFlags(fincaId) : {leche: true, carne: true};
+      if (currentFlags && currentFlags.leche) {
+        try {
+          console.log('[SEED] Creando datos lácteos v24...');
+
+          // Fechas relativas
+          var hoy = new Date();
+          var hace2d = new Date(hoy.getTime() - 2*24*60*60*1000).toISOString().split('T')[0];
+          var hace5d = new Date(hoy.getTime() - 5*24*60*60*1000).toISOString().split('T')[0];
+          var hace15d = new Date(hoy.getTime() - 15*24*60*60*1000).toISOString().split('T')[0];
+          var hace20d = new Date(hoy.getTime() - 20*24*60*60*1000).toISOString().split('T')[0];
+          var hace25d = new Date(hoy.getTime() - 25*24*60*60*1000).toISOString().split('T')[0];
+          var hace45d = new Date(hoy.getTime() - 45*24*60*60*1000).toISOString().split('T')[0];
+
+          // TANQUES DE LECHE
+          var tanqueDefs = [
+            { demo: true, fincaId: fincaId, nombre: 'TANQUE PRINCIPAL', codigo_letra_q: 'T-21-001234',
+              capacidad_litros: 6000, tipo: 'tanque_frio', estado: 'activo',
+              temperatura_objetivo: 4, temperatura_actual: 3.5,
+              ultima_limpieza: hace15d,
+              proxima_limpieza: new Date(hoy.getTime() + 150*24*60*60*1000).toISOString().split('T')[0] },
+            { demo: true, fincaId: fincaId, nombre: 'TANQUE AUXILIAR', codigo_letra_q: 'T-21-001235',
+              capacidad_litros: 3000, tipo: 'tanque_frio', estado: 'activo',
+              temperatura_objetivo: 4, temperatura_actual: 4.1,
+              ultima_limpieza: hace30d,
+              proxima_limpieza: new Date(hoy.getTime() + 120*24*60*60*1000).toISOString().split('T')[0] },
+            { demo: true, fincaId: fincaId, nombre: 'CÁNTARA OVINO', codigo_letra_q: 'T-21-001236',
+              capacidad_litros: 500, tipo: 'cantara', estado: 'activo',
+              temperatura_objetivo: 4, temperatura_actual: null }
+          ];
+          var tanqueIds = [];
+          for (var tk = 0; tk < tanqueDefs.length; tk++) {
+            try {
+              var tkid = await window.TanquesLeche.create(tanqueDefs[tk]);
+              tanqueIds.push(tkid.id);
+            } catch (e) { console.log('[SEED] Error tanque:', e.message); }
+            await sleep(80);
+          }
+          var tanquePrincipalId = tanqueIds[0] || null;
+          console.log('[SEED] Tanques creados:', tanqueIds.length);
+
+          // BALANCE LÁCTEO
+          if (window.BalanceLacteo && tanquePrincipalId) {
+            var hace30d = new Date(hoy.getTime() - 30*24*60*60*1000).toISOString().split('T')[0];
+            var balanceDefs = [
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'entrada', fecha: hace25d, cantidad_litros: 650, referencia_tipo: 'produccion_leche', turno: 'AM', temperatura: 3.8 },
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'entrada', fecha: hace25d, cantidad_litros: 720, referencia_tipo: 'produccion_leche', turno: 'PM', temperatura: 3.9 },
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'salida', fecha: hace25d, cantidad_litros: 1370, referencia_tipo: 'comercializacion_leche', temperatura: 3.5 },
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'entrada', fecha: hace15d, cantidad_litros: 680, referencia_tipo: 'produccion_leche', turno: 'AM', temperatura: 3.7 },
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'entrada', fecha: hace15d, cantidad_litros: 710, referencia_tipo: 'produccion_leche', turno: 'PM', temperatura: 3.8 },
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'salida', fecha: hace15d, cantidad_litros: 1390, referencia_tipo: 'comercializacion_leche', temperatura: 3.5 },
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'entrada', fecha: hace5d, cantidad_litros: 690, referencia_tipo: 'produccion_leche', turno: 'AM', temperatura: 3.6 },
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'entrada', fecha: hace5d, cantidad_litros: 700, referencia_tipo: 'produccion_leche', turno: 'PM', temperatura: 3.7 },
+              // Deja stock residual (no vacía el tanque del todo): simula recogida pendiente
+              { fincaId: fincaId, tanqueId: tanquePrincipalId, tipo_movimiento: 'salida', fecha: hace5d, cantidad_litros: 1090, referencia_tipo: 'comercializacion_leche', temperatura: 3.5 }
+            ];
+            for (var bl = 0; bl < balanceDefs.length; bl++) {
+              try { await window.BalanceLacteo.registrar(balanceDefs[bl]); }
+              catch (e) { console.log('[SEED] Error balance:', e.message); }
+              await sleep(50);
+            }
+            console.log('[SEED] Balance lácteo creado:', balanceDefs.length, 'movimientos');
+          }
+
+          // ANALÍTICAS DE LECHE
+          if (window.AnaliticasLeche) {
+            var analiticaDefs = [
+              { demo: true, fincaId: fincaId, fecha_muestreo: hace25d, tipo_muestreo: 'autocontrol', especie: 'vacuno',
+                grasa: 3.8, proteina: 3.3, germenes_30C: 35000, celulas_somaticas: 180000,
+                inhibidores: false, aflatoxina_m1: 12, aflatoxina_m1_metodo: 'kit_rapido',
+                laboratorio_nombre: 'CICAP', nro_boletin: 'B-' + hace25d.replace(/-/g, ''),
+                estado: 'validado', tanqueId: tanquePrincipalId },
+              { demo: true, fincaId: fincaId, fecha_muestreo: hace15d, tipo_muestreo: 'autocontrol', especie: 'vacuno',
+                grasa: 3.9, proteina: 3.4, germenes_30C: 28000, celulas_somaticas: 150000,
+                inhibidores: false, aflatoxina_m1: 8,
+                laboratorio_nombre: 'CICAP', estado: 'validado', tanqueId: tanquePrincipalId },
+              { demo: true, fincaId: fincaId, fecha_muestreo: hace5d, tipo_muestreo: 'autocontrol', especie: 'vacuno',
+                grasa: 3.7, proteina: 3.2, germenes_30C: 60000, celulas_somaticas: 410000,
+                inhibidores: false, aflatoxina_m1: 18,
+                laboratorio_nombre: 'CICAP', estado: 'alerta', tanqueId: tanquePrincipalId },
+              { demo: true, fincaId: fincaId, fecha_muestreo: hace20d, tipo_muestreo: 'oficial', especie: 'ovino',
+                grasa: 7.1, proteina: 5.7, germenes_30C: 420000, celulas_somaticas: 650000,
+                inhibidores: false, laboratorio_nombre: 'CICAP', estado: 'validado' },
+              { demo: true, fincaId: fincaId, fecha_muestreo: hace2d, tipo_muestreo: 'contradictorio', especie: 'vacuno',
+                grasa: 3.9, proteina: 3.4, germenes_30C: 120000, celulas_somaticas: 450000,
+                inhibidores: false, aflatoxina_m1: 22, aflatoxina_m1_metodo: 'HPLC',
+                laboratorio_nombre: 'LPSA_CORDOBA', estado: 'alerta', tanqueId: tanquePrincipalId }
+            ];
+            for (var an = 0; an < analiticaDefs.length; an++) {
+              try { await window.AnaliticasLeche.create(analiticaDefs[an]); }
+              catch (e) { console.log('[SEED] Error analítica:', e.message); }
+              await sleep(60);
+            }
+            console.log('[SEED] Analíticas creadas:', analiticaDefs.length);
+          }
+
+          // CONTROL LECHERO OFICIAL (DHI)
+          var animalesLeche = await window.db.getAllFromIndex('animales', 'rebanoId', rebVacas.id).catch(() => []);
+          if (animalesLeche.length >= 3) {
+            var vaca1 = animalesLeche[0];
+            var vaca2 = animalesLeche[1];
+            var vaca3 = animalesLeche[2];
+
+            try {
+              await window.db.add('control_lechero', {
+                demo: true, fincaId: fincaId, rebanoId: rebVacas.id,
+                fecha_control: hace15d, organismo_control: 'CONAFE',
+                tecnico_responsable: 'Dr. Manuel Castillo',
+                media_rebano_litros: 27.5, media_rebano_grasa: 3.8,
+                media_rebano_proteina: 3.3, media_rebano_somaticas: 183000,
+                registros: [
+                  { animalId: vaca1.id, crotal: vaca1.numero_identificacion, lactacion_numero: 3, dias_en_leche: 120, turno: 'AM/PM', produccion_leche: 32, grasa: 3.9, proteina: 3.4, celulas_somaticas: 180000 },
+                  { animalId: vaca2.id, crotal: vaca2.numero_identificacion, lactacion_numero: 4, dias_en_leche: 185, turno: 'AM/PM', produccion_leche: 28, grasa: 3.8, proteina: 3.3, celulas_somaticas: 220000 },
+                  { animalId: vaca3.id, crotal: vaca3.numero_identificacion, lactacion_numero: 2, dias_en_leche: 65, turno: 'AM/PM', produccion_leche: 22, grasa: 3.7, proteina: 3.2, celulas_somaticas: 150000 }
+                ],
+                creadoEn: new Date().toISOString()
+              });
+              await window.db.add('control_lechero', {
+                demo: true, fincaId: fincaId, rebanoId: rebVacas.id,
+                fecha_control: hace45d, organismo_control: 'ACRIFLOR',
+                tecnico_responsable: 'Dra. Elena Ruiz',
+                media_rebano_litros: 26.8, media_rebano_grasa: 3.7,
+                media_rebano_proteina: 3.2, media_rebano_somaticas: 195000,
+                registros: [
+                  { animalId: vaca1.id, crotal: vaca1.numero_identificacion, lactacion_numero: 3, dias_en_leche: 100, turno: 'AM/PM', produccion_leche: 30, grasa: 3.8, proteina: 3.3, celulas_somaticas: 195000 },
+                  { animalId: vaca2.id, crotal: vaca2.numero_identificacion, lactacion_numero: 4, dias_en_leche: 165, turno: 'AM/PM', produccion_leche: 26, grasa: 3.7, proteina: 3.2, celulas_somaticas: 210000 },
+                  { animalId: vaca3.id, crotal: vaca3.numero_identificacion, lactacion_numero: 2, dias_en_leche: 45, turno: 'AM/PM', produccion_leche: 24, grasa: 3.6, proteina: 3.1, celulas_somaticas: 180000 }
+                ],
+                creadoEn: new Date().toISOString()
+              });
+              console.log('[SEED] Control lechero creado: 2 registros');
+            } catch (e) { console.log('[SEED] Error control lechero:', e.message); }
+          }
+
+          console.log('[SEED] Datos lácteos v24 completados');
+        } catch (e) {
+          console.log('[SEED] Error general en datos lácteos v24:', e.message);
+        }
       }
 
       // Seed completado

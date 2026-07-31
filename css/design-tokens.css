@@ -90,8 +90,8 @@
     --shadow-md: 0 4px 20px rgb(0 0 0 / 50%);
 
     /* ── SAFE AREAS (Android vertical) ── */
-    --safe-top: env(safe-area-inset-top);
-    --safe-bottom: env(safe-area-inset-bottom);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 24px);
 }
 
 /* ── MODO CLARO (Light Pro) ──

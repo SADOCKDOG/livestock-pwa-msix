@@ -420,6 +420,16 @@ const Fincas = {
                 capacidad_maxima: datos.capacidad_maxima != null ? Number(datos.capacidad_maxima) : null,
                 especies_autorizadas: Array.isArray(datos.especies_autorizadas) ? datos.especies_autorizadas : [],
                 zonas: zonasProcesadas,
+                // Campos módulo lácteo v24 (Letra Q, bienestar animal, ambiental)
+                codigo_letra_q: (datos.codigo_letra_q || '').trim().toUpperCase(),
+                clasificacion_zootecnica_leche: datos.clasificacion_zootecnica_leche || '',
+                plazas_vacuno_leche: datos.plazas_vacuno_leche != null ? Number(datos.plazas_vacuno_leche) : null,
+                superficie_descanso_m2: datos.superficie_descanso_m2 != null ? Number(datos.superficie_descanso_m2) : null,
+                metros_lineales_comedero: datos.metros_lineales_comedero != null ? Number(datos.metros_lineales_comedero) : null,
+                num_cubiculos: datos.num_cubiculos != null ? Number(datos.num_cubiculos) : null,
+                capacidad_balsa_purines_m3: datos.capacidad_balsa_purines_m3 != null ? Number(datos.capacidad_balsa_purines_m3) : null,
+                tiene_evaluacion_ambiental: !!datos.tiene_evaluacion_ambiental,
+                numero_infolac: (datos.numero_infolac || '').trim(),
                 creadoEn: new Date().toISOString()
             };
 

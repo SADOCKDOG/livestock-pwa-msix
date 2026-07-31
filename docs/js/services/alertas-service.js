@@ -16,6 +16,7 @@ const AlertasService = {
     const defaults = {
       alertSanidad: true, alertTrazabilidad: true, alertPAC: true,
       alertADSG: true, alertINCOLAC: true, alertContratos: false,
+      alertLacteo: true, // NUEVO: alertas de módulo lácteo
     };
     try {
       const cfg = await window.db.get('meta', 'appConfig');
@@ -43,14 +44,15 @@ const AlertasService = {
    * Obtener todas las alertas agrupadas
    */
   async getAll() {
-    const [sanitarias, trazabilidad, administrativas, calendario, agenda] = await Promise.all([
+    const [sanitarias, trazabilidad, administrativas, calendario, agenda, lacteo] = await Promise.all([
       this.obtenerAlertasSanitarias(),
       this.obtenerAlertasTrazabilidad(),
       this.obtenerAlertasAdministrativas(),
       this.obtenerCalendarioPreventivo(),
       this.obtenerAlertasAgenda(),
+      this.obtenerAlertasLacteo(), // NUEVO
     ]);
-    const alertas = { sanitarias, trazabilidad, administrativas, calendario, agenda };
+    const alertas = { sanitarias, trazabilidad, administrativas, calendario, agenda, lacteo };
     this._notify(alertas);
     return alertas;
   },
@@ -414,16 +416,55 @@ const AlertasService = {
   },
 
   /**
+   * NUEVO: Alertas de módulo lácteo (v24)
+   * Bienestar animal, ambiental, trazabilidad Letra Q, stock tanques, limpieza
+   */
+  async obtenerAlertasLacteo() {
+    try {
+      const prefs = await this._getPrefs();
+      if (prefs.alertLacteo === false) return [];
+      
+      if (!window.MotorLacteo) {
+        console.warn('[AlertasService] MotorLacteo no disponible');
+        return [];
+      }
+
+      const fincas = await window.db.getAll('fincas');
+      const finca = fincas?.[0];
+      if (!finca) return [];
+
+      // Obtener todas las alertas lácteas desde MotorLacteo
+      const alertas = await window.MotorLacteo.getAllAlertas(finca.id);
+
+      // Mapear al formato estándar de AlertasService
+      return alertas.map((a, idx) => ({
+        id: `lacteo-${idx}`,
+        tipo: 'lacteo',
+        seccion: a.tipo?.toLowerCase() || 'general',
+        mensaje: a.mensaje,
+        codigo: a.codigo || null,
+        urgencia: a.nivel === 'DANGER' ? 'rojo' : 'amarillo',
+        accion: null,
+        diasRestantes: null,
+      }));
+    } catch (e) {
+      console.error('[AlertasService] Error alertas lácteas:', e);
+      return [];
+    }
+  },
+
+  /**
    * Número total de alertas activas (para badges en la UI)
    */
   async getActiveCount() {
-    const [sanitarias, trazabilidad, administrativas, agenda] = await Promise.all([
+    const [sanitarias, trazabilidad, administrativas, agenda, lacteo] = await Promise.all([
       this.obtenerAlertasSanitarias(),
       this.obtenerAlertasTrazabilidad(),
       this.obtenerAlertasAdministrativas(),
       this.obtenerAlertasAgenda(),
+      this.obtenerAlertasLacteo(),
     ]);
-    return sanitarias.length + trazabilidad.length + administrativas.length + agenda.length;
+    return sanitarias.length + trazabilidad.length + administrativas.length + agenda.length + lacteo.length;
   },
 };
 
@@ -434,6 +475,9 @@ if (window.EventBus) {
   const eventosRecalculo = [
     'tratamiento:added', 'tratamiento:deleted',
     'animal:created', 'animal:updated',
+    'tanque:created', 'tanque:updated', 'tanque:deleted',
+    'analitica:created', 'analitica:updated',
+    'balance:registered',
   ];
   eventosRecalculo.forEach(event => {
     window.EventBus.on(event, () => {
@@ -444,4 +488,4 @@ if (window.EventBus) {
   });
 }
 
-console.log('[AlertasService] Servicio de alertas unificado listo v1.0.0');
+console.log('[AlertasService] Servicio de alertas unificado listo v1.2.0 (con alertas lácteas)');

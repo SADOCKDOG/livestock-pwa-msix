@@ -297,10 +297,27 @@ const App = {
   async updateHeader() {
     const finca = await Fincas.getActive();
     const headerEl = document.getElementById("nombre-finca-header");
-    if (headerEl && finca) {
-      headerEl.innerHTML = finca.rega || finca.codigo_REGA || 'SIN REGA';
-      headerEl.onclick = () => (location.hash = "/ajustes");
-      headerEl.style.cursor = "pointer";
+    const modeEl = document.getElementById("finca-mode-chip-header");
+
+    if (finca) {
+      if (headerEl) {
+        headerEl.innerHTML = finca.rega || finca.codigo_REGA || 'SIN REGA';
+        headerEl.onclick = () => (location.hash = "/ajustes");
+        headerEl.style.cursor = "pointer";
+      }
+
+      const modeContainer = document.getElementById("finca-mode-container");
+      if (modeEl && modeContainer && window.ModoContextoHelper) {
+        const flags = await window.ModoContextoHelper.getEffectiveFlags(finca.id);
+        const meta = window.ModoContextoHelper.getModeMetaEffective(flags);
+        modeEl.innerHTML = meta.label;
+        modeEl.style.color = meta.color;
+        modeContainer.style.display = 'flex';
+      }
+    } else if (headerEl) {
+      headerEl.innerHTML = 'SIN FINCA';
+      const modeContainer = document.getElementById("finca-mode-container");
+      if (modeContainer) modeContainer.style.display = 'none';
     }
   },
 
@@ -1011,7 +1028,6 @@ const App = {
       if (navAnimales) navAnimales.style.display = 'none';
       const navRebanos = document.getElementById('nav-rebanos');
       if (navRebanos) navRebanos.style.display = 'none';
-
       const sidebarAnimales = document.getElementById('sidebar-animales');
       if (sidebarAnimales) sidebarAnimales.style.display = 'none';
       const sidebarRebanos = document.getElementById('sidebar-rebanos');
@@ -1161,19 +1177,6 @@ const App = {
       }
     }
 
-    // 4. Update Header Icon
-    if (activeSvg) {
-      const headerRouteIcon = document.getElementById('header-route-icon');
-      if (headerRouteIcon) {
-        headerRouteIcon.innerHTML = '';
-        const clonedSvg = activeSvg.cloneNode(true);
-        clonedSvg.style.display = 'block';
-        clonedSvg.setAttribute('width', '20');
-        clonedSvg.setAttribute('height', '20');
-        headerRouteIcon.appendChild(clonedSvg);
-      }
-    }
-
     // 5. Sidebar "Más" button — mirror bottom-nav "Más" state
     const sidebarMore = document.getElementById('sidebar-more');
     if (sidebarMore) {
@@ -1184,6 +1187,19 @@ const App = {
       } else {
         sidebarMore.classList.remove('active');
         if (sidebarMoreLabel) sidebarMoreLabel.textContent = 'Más';
+      }
+    }
+
+    // 4. Update Header Icon
+    if (activeSvg) {
+      const headerRouteIcon = document.getElementById('header-route-icon');
+      if (headerRouteIcon) {
+        headerRouteIcon.innerHTML = '';
+        const clonedSvg = activeSvg.cloneNode(true);
+        clonedSvg.style.display = 'block';
+        clonedSvg.setAttribute('width', '20');
+        clonedSvg.setAttribute('height', '20');
+        headerRouteIcon.appendChild(clonedSvg);
       }
     }
 
