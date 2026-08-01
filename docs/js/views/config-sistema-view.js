@@ -244,16 +244,17 @@ const ConfigSistemaView = {
 
   _getStandardPalette() {
     return [
-      { id: 'gold',   hex: '#FFFC55' },
-      { id: 'blue',   hex: '#4FADF5' },
-      { id: 'green',  hex: '#10b981' },
-      
-      { id: 'red',    hex: '#ef4444' },
-      
-      
-      { id: 'indigo', hex: '#8b5cf6' },
-      { id: 'lime',   hex: '#C5FA50' },
-      { id: 'steel',  hex: '#B1B1B1' }
+      { id: 'gold',     hex: '#FFFC55' },
+      { id: 'blue',     hex: '#4FADF5' },
+      { id: 'green',    hex: '#10b981' },
+
+      { id: 'red',      hex: '#ef4444' },
+
+
+      { id: 'indigo',   hex: '#8b5cf6' },
+      { id: 'lime',     hex: '#C5FA50' },
+      { id: 'steel',    hex: '#B1B1B1' },
+      { id: 'graphite', hex: '#4B4B4B' }
     ];
   },
 

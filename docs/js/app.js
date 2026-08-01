@@ -190,6 +190,12 @@ const App = {
           if (cfg?.value?.temaClaroColor && cfg.value.temaClaroColor !== 'arena') {
             document.body.setAttribute('data-tema-claro', cfg.value.temaClaroColor);
           }
+        } else if (isDesktop) {
+          // El claro-por-defecto de escritorio (css/desktop.css, sección 9) se activa
+          // por ancho de pantalla, no por atributo: hace falta marcar 'oscuro' explícito
+          // para que el usuario pueda desactivarlo con el toggle de Modo Oscuro.
+          document.body.setAttribute('data-modo', 'oscuro');
+          document.documentElement.style.colorScheme = 'dark';
         }
         if (cfg?.value?.glowMarco === false) document.body.classList.add('glow-marco-off');
         if (cfg?.value?.glowLaterales !== true) document.body.classList.add('glow-laterales-off');

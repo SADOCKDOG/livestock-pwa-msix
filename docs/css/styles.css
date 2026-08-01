@@ -189,7 +189,9 @@ header {
 .header-banner-text {
     font-size: 0.55rem;
     font-weight: 900;
-    color: var(--text-p);
+    /* Fijo (no var(--text-p)): el header mantiene fondo oscuro en
+       cualquier tema, así que su texto siempre debe ser claro. */
+    color: #FFFFFF;
     letter-spacing: 1px;
     text-transform: uppercase;
     text-shadow: 0 0 5px rgba(0,0,0,1);
@@ -371,7 +373,9 @@ nav.bottom-nav {
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    color: var(--text-p);
+    /* Fijo (no var(--text-p)): el bottom-nav mantiene fondo oscuro en
+       cualquier tema, así que su texto/icono siempre debe ser claro. */
+    color: rgba(255, 255, 255, 0.85);
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
     font-size: var(--fs-tiny);
     font-weight: 700;
@@ -4069,6 +4073,7 @@ body[data-tema="blue"]   { --p-gold: #4FADF5; --p-gold-dark: #1d4ed8; --p-cork: 
 body[data-tema="green"]  { --p-gold: var(--c-success); --p-gold-dark: var(--c-success); --p-cork: var(--c-success); --p-cork-dark: var(--c-success); }
 body[data-tema="purple"] { --p-gold: var(--c-purple); --p-gold-dark: #6d28d9; --p-cork: var(--c-purple); --p-cork-dark: #7c3aed; }
 body[data-tema="red"]    { --p-gold: var(--c-danger); --p-gold-dark: #b91c1c; --p-cork: #f87171; --p-cork-dark: #dc2626; }
+body[data-tema="graphite"] { --p-gold: #9A9A9A; --p-gold-dark: #6B6B6B; --p-cork: #9A9A9A; --p-cork-dark: #6B6B6B; }
 .theme-dot { outline: none; }
 .theme-dot:active { transform: scale(0.9); }
 .theme-dot.active { border-color: var(--p-gold); box-shadow: 0 0 12px var(--p-gold); }

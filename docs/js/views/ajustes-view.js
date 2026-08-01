@@ -273,8 +273,9 @@ const AjustesView = {
   async _toggleTema(checked) {
     await this._saveConfig({ temaOscuro: checked });
     document.documentElement.style.colorScheme = checked ? 'dark' : 'light';
-    if (checked) document.body.removeAttribute('data-modo');
-    else document.body.setAttribute('data-modo', 'claro');
+    // 'oscuro' fuerza el tema oscuro incluso en escritorio (ver css/desktop.css,
+    // sección 9: el claro-por-defecto de escritorio se excluye con este atributo).
+    document.body.setAttribute('data-modo', checked ? 'oscuro' : 'claro');
     App.toast(checked ? 'Modo oscuro' : 'Modo claro', "info");
   },
 

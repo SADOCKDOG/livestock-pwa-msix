@@ -72,7 +72,9 @@
     width: 56px;
     padding: 8px 0;
     text-decoration: none;
-    color: var(--text-p);
+    /* Fijo (no var(--text-p)): la sidebar mantiene fondo oscuro en
+       cualquier tema, así que su texto/icono siempre debe ser claro. */
+    color: rgba(255, 255, 255, 0.85);
     font-size: 0.55rem;
     font-weight: 700;
     gap: 3px;
@@ -310,9 +312,17 @@
    9. MODO CLARO por defecto en escritorio
       (AL FINAL — prevalece en cascada sobre
        las definiciones estructurales de arriba)
+      Excluido con body[data-modo="oscuro"]
+      (AjustesView._toggleTema / js/app.js init)
+      para que el toggle de Modo Oscuro funcione
+      también en escritorio.
+      El "chrome" (header, bottom-nav, sidebar, FAB)
+      NUNCA se aclara aquí: mantiene su fondo oscuro
+      fijo y sus iconos/textos originales en cualquier
+      tema, igual que en móvil.
    ============================================ */
 @media (min-width: 1024px) {
-  :root {
+  body:not([data-modo="oscuro"]) {
     --bg: #EBE5D8;
     --surface: #FFFFFF;
     --surface-light: #E1D9C8;
@@ -326,288 +336,238 @@
     --text-s: #55534C;
     --text-d: #9A968A;
     --shadow-md: 0 4px 20px rgb(0 0 0 / 12%);
+    background-color: var(--bg);
   }
 
   /* Componentes con color fijo pensado para OLED negro */
-  .section-header-neon,
-  .section-header-theme {
+  body:not([data-modo="oscuro"]) .section-header-neon,
+  body:not([data-modo="oscuro"]) .section-header-theme {
     color: var(--text-p) !important;
     text-shadow: none;
   }
-  .kpi-pill,
-  .section-header,
-  .filter-pill {
+  body:not([data-modo="oscuro"]) .kpi-pill,
+  body:not([data-modo="oscuro"]) .section-header,
+  body:not([data-modo="oscuro"]) .filter-pill {
     background: var(--surface-light);
   }
-  .wizard-check-label {
+  body:not([data-modo="oscuro"]) .wizard-check-label {
     background: rgba(0, 0, 0, 0.04);
     border-color: var(--border);
     color: var(--text-s);
   }
-  .wizard-check-label:has(input:checked) {
+  body:not([data-modo="oscuro"]) .wizard-check-label:has(input:checked) {
     background: rgba(0, 0, 0, 0.06);
     color: var(--text-p);
   }
-  .card-registro-quick .quick-title {
+  body:not([data-modo="oscuro"]) .card-registro-quick .quick-title {
     color: var(--text-p) !important;
   }
-  .text-white {
+  body:not([data-modo="oscuro"]) .text-white {
     color: var(--text-p);
   }
-  .form-input,
-  .premium-input,
-  .form-select {
+  body:not([data-modo="oscuro"]) .form-input,
+  body:not([data-modo="oscuro"]) .premium-input,
+  body:not([data-modo="oscuro"]) .form-select {
     background: rgba(0, 0, 0, 0.03);
     border-color: var(--border-input);
     color: var(--text-p);
   }
-  .form-input::placeholder,
-  .premium-input::placeholder {
+  body:not([data-modo="oscuro"]) .form-input::placeholder,
+  body:not([data-modo="oscuro"]) .premium-input::placeholder {
     color: var(--text-d);
   }
-  .form-label,
-  label {
+  body:not([data-modo="oscuro"]) .form-label,
+  body:not([data-modo="oscuro"]) label {
     color: var(--text-s);
   }
-  .rebaño-tab,
-  .gasto-tab {
+  body:not([data-modo="oscuro"]) .rebaño-tab,
+  body:not([data-modo="oscuro"]) .gasto-tab {
     background: rgba(0, 0, 0, 0.03);
     color: var(--text-s);
   }
-  .rebaño-tab:hover,
-  .gasto-tab:hover {
+  body:not([data-modo="oscuro"]) .rebaño-tab:hover,
+  body:not([data-modo="oscuro"]) .gasto-tab:hover {
     background: rgba(0, 0, 0, 0.06);
     color: var(--text-p);
   }
-  .detail-value {
+  body:not([data-modo="oscuro"]) .detail-value {
     color: var(--text-p);
   }
-  .detail-label,
-  .empty-state-text {
+  body:not([data-modo="oscuro"]) .detail-label,
+  body:not([data-modo="oscuro"]) .empty-state-text {
     color: var(--text-s);
   }
-  .empty-state-search {
+  body:not([data-modo="oscuro"]) .empty-state-search {
     color: var(--text-d);
   }
-  .text-gray,
-  .text-999,
-  .text-777,
-  .text-aaa,
-  .text-ccc,
-  .text-gray-400,
-  .text-zinc-200 {
+  body:not([data-modo="oscuro"]) .text-gray,
+  body:not([data-modo="oscuro"]) .text-999,
+  body:not([data-modo="oscuro"]) .text-777,
+  body:not([data-modo="oscuro"]) .text-aaa,
+  body:not([data-modo="oscuro"]) .text-ccc,
+  body:not([data-modo="oscuro"]) .text-gray-400,
+  body:not([data-modo="oscuro"]) .text-zinc-200 {
     color: var(--text-s);
   }
-  .text-gray-500,
-  .text-333,
-  .text-444,
-  .text-555,
-  .text-neutral {
+  body:not([data-modo="oscuro"]) .text-gray-500,
+  body:not([data-modo="oscuro"]) .text-333,
+  body:not([data-modo="oscuro"]) .text-444,
+  body:not([data-modo="oscuro"]) .text-555,
+  body:not([data-modo="oscuro"]) .text-neutral {
     color: var(--text-d);
   }
 
   /* Ajustes de componentes específicos para fondo claro */
-  body {
-    background-color: var(--bg);
-  }
-  .card {
+  body:not([data-modo="oscuro"]) .card {
     background: var(--surface);
     box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
     border-color: var(--border);
   }
-  .card h2, .card h3 {
+  body:not([data-modo="oscuro"]) .card h2,
+  body:not([data-modo="oscuro"]) .card h3 {
     border-bottom-color: var(--border);
   }
 
   /* Marco neón: reducir intensidad sobre fondo claro */
-  body::after {
+  body:not([data-modo="oscuro"])::after {
     --haz-intensity: 30%;
     border-left-color: color-mix(in srgb, var(--header-neon-color, #FFFFFF) 40%, var(--text-p));
     border-right-color: color-mix(in srgb, var(--header-neon-color, #FFFFFF) 40%, var(--text-p));
   }
 
-  /* Header y bottom-nav (cuando visible): fondo claro contrastado */
-  header,
-  header#main-header {
-    background: #E2DFD8;
-    border-bottom-color: #C5C2BA;
-  }
-
-  nav.bottom-nav {
-    background: #E2DFD8;
-    border-top-color: #C5C2BA;
-  }
-
-  /* Sidebar escritorio: fondo claro contrastado */
-  .desktop-sidebar {
-    background: #E2DFD8;
-    border-right-color: #C5C2BA;
-    box-shadow:
-      5px 0 16px -3px rgba(0,0,0,0.06),
-      inset -6px 0 14px -6px rgba(0,0,0,0.03);
-  }
-  .desktop-sidebar .sidebar-item {
-    color: var(--text-s);
-  }
-  .desktop-sidebar .sidebar-item:hover {
-    background: rgba(0,0,0,0.06);
-  }
-  .desktop-sidebar .sidebar-item svg {
-    filter: none;
-  }
-  .desktop-sidebar .sidebar-item.active {
-    color: color-mix(in srgb, var(--header-neon-color, #C5FA50) 45%, var(--text-p));
-    text-shadow: none;
-    background: color-mix(in srgb, var(--header-neon-color, #C5FA50) 22%, transparent);
-  }
-  .desktop-sidebar .sidebar-item.active svg {
-    filter: none;
-  }
-
   /* More-sheet / dropdown: fondo claro */
-  .desktop-sidebar .sidebar-more-panel {
+  body:not([data-modo="oscuro"]) .desktop-sidebar .sidebar-more-panel {
     background: rgba(255, 255, 255, 0.97);
     border-color: var(--border);
     box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   }
-  .more-sheet {
+  body:not([data-modo="oscuro"]) .more-sheet {
     background: rgba(255, 255, 255, 0.97);
   }
-  .more-sheet-item {
+  body:not([data-modo="oscuro"]) .more-sheet-item {
     background: rgba(0,0,0,0.02);
   }
-  .more-sheet-item:active {
+  body:not([data-modo="oscuro"]) .more-sheet-item:active {
     background: rgba(0,0,0,0.04);
   }
 
   /* Input fields */
-  input, textarea, select {
+  body:not([data-modo="oscuro"]) input,
+  body:not([data-modo="oscuro"]) textarea,
+  body:not([data-modo="oscuro"]) select {
     background: var(--surface-input);
     color: var(--text-p);
     border-color: var(--border-input);
   }
 
   /* Wizard / modales */
-  .wizard-card {
+  body:not([data-modo="oscuro"]) .wizard-card {
     background: var(--surface);
     border-color: var(--border);
   }
-  .wizard-overlay {
+  body:not([data-modo="oscuro"]) .wizard-overlay {
     background: rgba(0,0,0,0.4);
   }
-  .error-dialog {
+  body:not([data-modo="oscuro"]) .error-dialog {
     background: var(--surface);
     border-color: var(--border);
   }
-  .tour-flotante-card {
+  body:not([data-modo="oscuro"]) .tour-flotante-card {
     background: var(--surface);
     border-color: var(--border);
   }
-  .modal-val-wrap {
+  body:not([data-modo="oscuro"]) .modal-val-wrap {
     background: var(--surface);
     border-color: var(--border);
   }
 
   /* Botones secundarios */
-  .btn-ghost {
+  body:not([data-modo="oscuro"]) .btn-ghost {
     color: var(--text-s);
   }
 
   /* Scrollbar */
-  ::-webkit-scrollbar-thumb {
+  body:not([data-modo="oscuro"]) ::-webkit-scrollbar-thumb {
     background: var(--text-d);
   }
 
   /* Header dropdown */
-  .header-dropdown-content {
+  body:not([data-modo="oscuro"]) .header-dropdown-content {
     background: var(--surface);
     border-color: var(--border);
   }
 
   /* Forzar colores oscuros en textos con #FFF inline sobre fondos claros */
-  .card-registro [style*="color: #FFF"],
-  .card-registro [style*="color:#FFF"],
-  .card-registro [style*="color: #fff"],
-  .card-registro [style*="color:#fff"],
-  .card-registro [style*="color: rgb(255, 255, 255)"] {
+  body:not([data-modo="oscuro"]) .card-registro [style*="color: #FFF"],
+  body:not([data-modo="oscuro"]) .card-registro [style*="color:#FFF"],
+  body:not([data-modo="oscuro"]) .card-registro [style*="color: #fff"],
+  body:not([data-modo="oscuro"]) .card-registro [style*="color:#fff"],
+  body:not([data-modo="oscuro"]) .card-registro [style*="color: rgb(255, 255, 255)"] {
     color: var(--text-p) !important;
   }
 
   /* Fondos rgba(255,255,255,0.0X) apenas visibles sobre blanco → oscurecer */
-  .card-registro {
+  body:not([data-modo="oscuro"]) .card-registro {
     background: rgba(0, 0, 0, 0.03) !important;
   }
-  .card-registro [style*="background: rgba(255,255,255,0.0"],
-  .card-registro [style*="background: rgba(255, 255, 255, 0.0"] {
+  body:not([data-modo="oscuro"]) .card-registro [style*="background: rgba(255,255,255,0.0"],
+  body:not([data-modo="oscuro"]) .card-registro [style*="background: rgba(255, 255, 255, 0.0"] {
     background: rgba(0, 0, 0, 0.03) !important;
   }
 
   /* Badge dorado: texto dorado sobre fondo claro necesita fondo dorado para contraste */
-  .bg-pill-gold {
+  body:not([data-modo="oscuro"]) .bg-pill-gold {
     background: rgba(204, 143, 0, 0.12) !important;
   }
 
   /* KPI "Bajas" con icono — asegurar visibilidad */
-  .kpi-pill,
-  .s-val {
-    color: var(--text-p) !important;
-  }
-
-  /* FAB Nueva Actividad — fondo claro, texto oscuro */
-  .fab-container {
-    background: var(--surface);
-    color: var(--text-p);
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  }
-  .fab-container [style*="background"],
-  .fab-container .fab-label {
+  body:not([data-modo="oscuro"]) .kpi-pill,
+  body:not([data-modo="oscuro"]) .s-val {
     color: var(--text-p) !important;
   }
 
   /* Títulos de sección del more-sheet: amarillo/azul sobre blanco → oscurecer */
-  .more-sheet-section-title[style*="color: var(--c-success)"],
-  .more-sheet-section-title[style*="--c-success"] {
+  body:not([data-modo="oscuro"]) .more-sheet-section-title[style*="color: var(--c-success)"],
+  body:not([data-modo="oscuro"]) .more-sheet-section-title[style*="--c-success"] {
     color: #4a7a00 !important;
   }
-  .more-sheet-section-title[style*="color: var(--c-info)"],
-  .more-sheet-section-title[style*="--c-info"] {
+  body:not([data-modo="oscuro"]) .more-sheet-section-title[style*="color: var(--c-info)"],
+  body:not([data-modo="oscuro"]) .more-sheet-section-title[style*="--c-info"] {
     color: #1a5fa8 !important;
   }
-  .more-sheet-section-title[style*="color: var(--c-warning)"],
-  .more-sheet-section-title[style*="--c-warning"] {
+  body:not([data-modo="oscuro"]) .more-sheet-section-title[style*="color: var(--c-warning)"],
+  body:not([data-modo="oscuro"]) .more-sheet-section-title[style*="--c-warning"] {
     color: #996600 !important;
   }
 
   /* ============================================
-     9b. CONTRASTE mejorado (sidebar/header oscuros,
-         mode-switch, tabs, carrusel)
+     9b. CONTRASTE mejorado (mode-switch, tabs, carrusel)
      ============================================ */
 
   /* Mode-switch: contenedor más oscuro para separar los botones */
-  .ganaderia-mode-switch,
-  .comer-mode-switch,
-  .expro-mode-switch {
+  body:not([data-modo="oscuro"]) .ganaderia-mode-switch,
+  body:not([data-modo="oscuro"]) .comer-mode-switch,
+  body:not([data-modo="oscuro"]) .expro-mode-switch {
     background: #DDDAD2;
     border-color: #C5C2BA;
   }
 
   /* Botones de modo inactivos: legibles sobre contenedor oscuro */
-  .ganaderia-mode-btn,
-  .comer-mode-btn,
-  .expro-mode-btn {
+  body:not([data-modo="oscuro"]) .ganaderia-mode-btn,
+  body:not([data-modo="oscuro"]) .comer-mode-btn,
+  body:not([data-modo="oscuro"]) .expro-mode-btn {
     color: var(--text-s);
   }
-  .ganaderia-mode-btn:hover,
-  .comer-mode-btn:hover,
-  .expro-mode-btn:hover {
+  body:not([data-modo="oscuro"]) .ganaderia-mode-btn:hover,
+  body:not([data-modo="oscuro"]) .comer-mode-btn:hover,
+  body:not([data-modo="oscuro"]) .expro-mode-btn:hover {
     background: rgba(0, 0, 0, 0.05);
   }
 
   /* Botones de modo activos: fondo sólido del color de módulo + texto blanco */
-  .ganaderia-mode-btn.active,
-  .comer-mode-btn.active,
-  .expro-mode-btn.active {
+  body:not([data-modo="oscuro"]) .ganaderia-mode-btn.active,
+  body:not([data-modo="oscuro"]) .comer-mode-btn.active,
+  body:not([data-modo="oscuro"]) .expro-mode-btn.active {
     background: var(--mode-color);
     color: #FFFFFF;
     border-color: transparent;
@@ -615,25 +575,38 @@
   }
 
   /* Tabs de vista inactivos: más oscuros para destacar sobre cards */
-  .carne-tab, .comer-tab, .gasto-tab, .hibrido-tab, .leche-tab, .prod-tab,
-  .rebaño-tab {
+  body:not([data-modo="oscuro"]) .carne-tab,
+  body:not([data-modo="oscuro"]) .comer-tab,
+  body:not([data-modo="oscuro"]) .gasto-tab,
+  body:not([data-modo="oscuro"]) .hibrido-tab,
+  body:not([data-modo="oscuro"]) .leche-tab,
+  body:not([data-modo="oscuro"]) .prod-tab,
+  body:not([data-modo="oscuro"]) .rebaño-tab {
     background: #D5D2CA;
     color: var(--text-s);
     border-color: #C5C2BA;
   }
-  .carne-tab:hover, .comer-tab:hover, .gasto-tab:hover, .hibrido-tab:hover,
-  .leche-tab:hover, .prod-tab:hover, .rebaño-tab:hover {
+  body:not([data-modo="oscuro"]) .carne-tab:hover,
+  body:not([data-modo="oscuro"]) .comer-tab:hover,
+  body:not([data-modo="oscuro"]) .gasto-tab:hover,
+  body:not([data-modo="oscuro"]) .hibrido-tab:hover,
+  body:not([data-modo="oscuro"]) .leche-tab:hover,
+  body:not([data-modo="oscuro"]) .prod-tab:hover,
+  body:not([data-modo="oscuro"]) .rebaño-tab:hover {
     background: #CFCCC4;
     color: var(--text-p);
   }
-  .carne-tab.active {
+  body:not([data-modo="oscuro"]) .carne-tab.active {
     background: var(--c-danger);
     border-color: var(--c-danger);
     color: #FFFFFF;
     box-shadow: 0 0 10px rgba(232, 85, 95, 0.25);
   }
-  .comer-tab.active, .gasto-tab.active, .hibrido-tab.active, .leche-tab.active,
-  .prod-tab.active {
+  body:not([data-modo="oscuro"]) .comer-tab.active,
+  body:not([data-modo="oscuro"]) .gasto-tab.active,
+  body:not([data-modo="oscuro"]) .hibrido-tab.active,
+  body:not([data-modo="oscuro"]) .leche-tab.active,
+  body:not([data-modo="oscuro"]) .prod-tab.active {
     background: var(--p-gold-dark);
     border-color: var(--p-gold-dark);
     color: #FFFFFF;
@@ -641,36 +614,36 @@
   }
 
   /* Carrusel: marco sobre fondo claro */
-  .carrusel-marco {
+  body:not([data-modo="oscuro"]) .carrusel-marco {
     background: rgba(220, 217, 210, 0.9);
     box-shadow:
       0 0 10px color-mix(in srgb, var(--mode-color, #C5FA50) 30%, transparent),
       inset 0 0 8px color-mix(in srgb, var(--mode-color, #C5FA50) 15%, transparent);
   }
-  .carrusel-marco-label {
+  body:not([data-modo="oscuro"]) .carrusel-marco-label {
     color: color-mix(in srgb, var(--mode-color, #C5FA50) 45%, var(--text-p));
     text-shadow: none;
   }
-  .carrusel-marco-chevron {
+  body:not([data-modo="oscuro"]) .carrusel-marco-chevron {
     color: color-mix(in srgb, var(--mode-color, #C5FA50) 55%, var(--text-p));
   }
-  .carrusel-marco-icon {
+  body:not([data-modo="oscuro"]) .carrusel-marco-icon {
     filter: drop-shadow(0 0 3px currentColor);
   }
 
   /* Carrusel: menú desplegable claro */
-  .carrusel-menu {
+  body:not([data-modo="oscuro"]) .carrusel-menu {
     background: rgba(255, 255, 255, 0.97);
     border-color: var(--border);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   }
-  .carrusel-menu-item {
+  body:not([data-modo="oscuro"]) .carrusel-menu-item {
     color: var(--text-s);
   }
-  .carrusel-menu-item:active {
+  body:not([data-modo="oscuro"]) .carrusel-menu-item:active {
     background: rgba(0, 0, 0, 0.04);
   }
-  .carrusel-menu-item.active {
+  body:not([data-modo="oscuro"]) .carrusel-menu-item.active {
     color: var(--mode-color);
     border-color: var(--mode-color);
     background: color-mix(in srgb, var(--mode-color, #C5FA50) 14%, transparent);
@@ -678,7 +651,7 @@
   }
 
   /* Carrusel: flechas laterales claras */
-  .carrusel-flecha {
+  body:not([data-modo="oscuro"]) .carrusel-flecha {
     background: rgba(255, 255, 255, 0.9);
     border-color: var(--border);
     box-shadow: 0 0 6px color-mix(in srgb, var(--mode-color, #C5FA50) 30%, transparent);
