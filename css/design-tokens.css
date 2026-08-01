@@ -225,3 +225,21 @@ body[data-modo="claro"] .text-555,
 body[data-modo="claro"] .text-neutral {
     color: var(--text-d);
 }
+/* .btn-secondary/.error-dialog-btn.secondary (ej. "CANCELAR" en diálogos de
+   confirmación): usa var(--header-neon-color, #FFF) pensado para fondo oscuro;
+   sobre el .card/.error-dialog claro queda casi ilegible (texto claro sobre
+   fondo claro). Ver css/styles.css:579. */
+body[data-modo="claro"] .btn-secondary,
+body[data-modo="claro"] .btn--secondary,
+body[data-modo="claro"] .wizard-btn-secondary,
+body[data-modo="claro"] .error-dialog-btn.secondary {
+    background: color-mix(in srgb, var(--text-s) 12%, transparent);
+    color: var(--text-s);
+    border-color: color-mix(in srgb, var(--text-s) 35%, transparent);
+}
+body[data-modo="claro"] .btn-secondary:hover,
+body[data-modo="claro"] .btn--secondary:hover,
+body[data-modo="claro"] .wizard-btn-secondary:hover {
+    background: color-mix(in srgb, var(--text-s) 22%, transparent);
+    color: var(--text-p);
+}
