@@ -171,10 +171,9 @@ const App = {
         this._config = storedCfg?.value || {};
         const cfg = storedCfg;
 
-        // Desktop (≥1024px): modo claro por defecto salvo preferencia explícita guardada
+        // Oscuro por defecto en cualquier dispositivo, salvo preferencia explícita guardada.
         const isDesktop = window.innerWidth >= 1024;
-        const hasTemaSaved = cfg?.value && 'temaOscuro' in cfg.value;
-        const useLightMode = (isDesktop && !hasTemaSaved) || (cfg?.value?.temaOscuro === false);
+        const useLightMode = cfg?.value?.temaOscuro === false;
 
         const mostrar = cfg?.value?.mostrarContextos;
         if (mostrar === false) {
