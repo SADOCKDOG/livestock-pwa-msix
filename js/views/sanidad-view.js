@@ -66,7 +66,7 @@ const SanidadView = {
     if (activos.length === 0) return '';
 
     return `
-      <div class="mb-14 px-4">
+      <div class="mb-14 px-4" data-guide="alertas-supresion">
         <div class="inf-section-title mb-8 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-danger">
           <span style="color: var(--c-danger); margin-right: 4px;">|</span> ALERTA: PERIODOS DE SUPRESIÓN DE SEGURIDAD (SIGGAN)
         </div>
@@ -194,10 +194,10 @@ const SanidadView = {
             </div>
           </div>
           <div class="module-header-primary-action">
-            <button class="btn btn-create btn-lg w-full" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">${Icons.fabPlus()} Aplicar Tratamiento</button>
+            <button class="btn btn-create btn-lg w-full" data-guide="btn-tratamiento" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">${Icons.fabPlus()} Aplicar Tratamiento</button>
           </div>
           <div class="module-header-secondary-actions">
-            <button class="widget-link-btn widget-link-btn--neon neon-info" style="border:none; cursor:pointer;" onclick="window.WizardVacunacion ? window.WizardVacunacion.registrar(null, { onSaved: () => App.route() }) : App.toastError('Módulo de vacunación no disponible')">${Icons.documento()}<span class="widget-link-label">Vacunación</span></button>
+            <button class="widget-link-btn widget-link-btn--neon neon-info" data-guide="btn-vacunacion" style="border:none; cursor:pointer;" onclick="window.WizardVacunacion ? window.WizardVacunacion.registrar(null, { onSaved: () => App.route() }) : App.toastError('Módulo de vacunación no disponible')">${Icons.documento()}<span class="widget-link-label">Vacunación</span></button>
             <button class="widget-link-btn widget-link-btn--neon neon-accent" style="border:none; cursor:pointer;" onclick="App._abrirWizardCrotales()">${Icons.documento()}<span class="widget-link-label">Crotales</span></button>
             <button class="widget-link-btn widget-link-btn--neon neon-warning" style="border:none; cursor:pointer;" onclick="App._abrirWizardGuiaMovimiento()">${Icons.documento()}<span class="widget-link-label">Guía Mov.</span></button>
           </div>
@@ -214,17 +214,21 @@ const SanidadView = {
           </div>
         </div>
 
-        <div class="inf-section-title mb-10 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray">
+        <div class="inf-section-title mb-10 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray" data-guide="seccion-vacunaciones">
           <span style="color: var(--c-info); margin-right: 4px;">|</span> ${Icons.documento()} VACUNACIONES (LIBRO ADSG)
         </div>
         ${this.renderVacunaciones(vacunaciones)}
 
-        <div class="inf-section-title mb-10 mt-14 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray">
+        <div class="inf-section-title mb-10 mt-14 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray" data-guide="seccion-historial">
           <span style="color: var(--c-purple); margin-right: 4px;">|</span> ${Icons.documento()} HISTORIAL CLÍNICO VETERINARIO
         </div>
 
         ${this.renderHistorial(this.enriquecer(tratamientosFiltrados))}
       </div>`;
+    // FAB Guía interactiva
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/ganaderia', 'sanidad');
+    }
   },
 
   _buscar(value) {

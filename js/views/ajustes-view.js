@@ -200,6 +200,24 @@ const AjustesView = {
         </div>
       </div>
 
+      <!-- ===================== GUIAS INTERACTIVAS ===================== -->
+      <div class="card">
+        <h3 class="flex items-center gap-10 mt-0 text-white font-900 uppercase text-lg tracking-wider">
+          <span style="color: var(--c-info);">|</span> ${Icons.ayuda()} GUÍAS INTERACTIVAS
+        </h3>
+        <p class="text-gray mt-5 text-sm">Activa/desactiva el asistente paso a paso y gestiona qué guías se han visto.</p>
+        <div class="grid gap-10 mt-15">
+          <label class="flex items-center gap-10 text-sm text-white cursor-pointer bg-black border border-222 p-10 rounded-sm">
+            <input type="checkbox" ${config.guides?.enabled !== false ? 'checked' : ''} onchange="AjustesView._toggleGuias(this.checked)"> Guías interactivas activadas
+          </label>
+        </div>
+        <div class="grid gap-10 mt-15">
+          <button class="btn btn-secondary w-full" onclick="AjustesView._reiniciarGuias()">
+            ${Icons.rotacion()} Reiniciar todas las guías
+          </button>
+        </div>
+      </div>
+
       <!-- ===================== AYUDA Y SOPORTE ===================== -->
       <div class="card">
         <h3 class="flex items-center gap-10 mt-0 text-white font-900 uppercase text-lg tracking-wider">
@@ -235,7 +253,9 @@ const AjustesView = {
       fabColor: '#FFFFFF', fabIntensidad: 40,
       colorTema: 'gold', temaClaroColor: 'arena', formatoFecha: 'es-ES', moneda: '€', especies: [],
       alertSanidad: true, alertTrazabilidad: true, alertPAC: true,
-      alertADSG: true, alertINCOLAC: true, alertContratos: false
+      alertADSG: true, alertINCOLAC: true, alertContratos: false,
+      // Guías interactivas (contrato con GuideManager, spec §3.3)
+      guides: { enabled: true, seen: [], dismissed: [] }
     };
     try {
       const stored = await window.db.get('meta', 'appConfig');
@@ -267,6 +287,23 @@ const AjustesView = {
   async _toggleAutoBackup(checked) {
     await this._saveConfig({ autoBackup: checked });
     App.toast(checked ? 'Backup automático activado' : 'Backup automático desactivado', "info");
+  },
+
+  // ===================== GUIAS INTERACTIVAS =====================
+
+  // El contrato con GuideManager es appConfig.guides = { enabled, seen[], dismissed[] }
+  // (spec §3.3). El motor lee exactamente estas claves; no usar nombres alternativos.
+  async _toggleGuias(checked) {
+    const guides = (await this._loadConfig()).guides || {};
+    await this._saveConfig({ guides: { ...guides, enabled: checked } });
+    App.toast(checked ? 'Guías interactivas activadas' : 'Guías interactivas desactivadas', "info");
+  },
+
+  async _reiniciarGuias() {
+    if (!await Confirm.confirm("Reiniciar guías", "¿Marcar todas las guías como no vistas? Se volverán a mostrar al entrar en cada sección.", true)) return;
+    const guides = (await this._loadConfig()).guides || {};
+    await this._saveConfig({ guides: { ...guides, seen: [], dismissed: [] } });
+    App.toast('Todas las guías reiniciadas', "success");
   },
 
   async _toggleTema(checked) {
