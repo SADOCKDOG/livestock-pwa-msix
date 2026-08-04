@@ -101,6 +101,83 @@ const App = {
     "/agenda": "renderAgenda",
   },
 
+
+  /**
+   * Aplica las preferencias visuales guardadas (tema claro/oscuro, colores, glow,
+   * haz de luz, FAB, opacidad de banner).
+   *
+   * Se llama ANTES de comprobar si hay finca: cuando no la hay, init() muestra el
+   * asistente y hace return, así que si esto viviera después la pantalla de
+   * Bienvenida se quedaba sin tema aplicado — en escritorio salía en claro pese a
+   * que el modo oscuro es el valor por defecto.
+   */
+  async _aplicarPreferenciasVisuales() {
+    try {
+      const storedCfg = await window.db.get('meta', 'appConfig');
+      this._config = storedCfg?.value || {};
+      const cfg = storedCfg;
+
+      // Oscuro por defecto en cualquier dispositivo, salvo preferencia explícita guardada.
+      const isDesktop = window.innerWidth >= 1024;
+      const useLightMode = cfg?.value?.temaOscuro === false;
+
+      const mostrar = cfg?.value?.mostrarContextos;
+      if (mostrar === false) {
+        document.body.classList.add('hide-context');
+        document.querySelectorAll('.card-dark-gradient, .card-total-3d').forEach(c => c.classList.add('compact'));
+      }
+      if (cfg?.value?.colorTema && cfg.value.colorTema !== 'gold') {
+        document.body.setAttribute('data-tema', cfg.value.colorTema);
+      }
+      if (useLightMode) {
+        document.body.setAttribute('data-modo', 'claro');
+        document.documentElement.style.colorScheme = 'light';
+        if (cfg?.value?.temaClaroColor && cfg.value.temaClaroColor !== 'arena') {
+          document.body.setAttribute('data-tema-claro', cfg.value.temaClaroColor);
+        }
+      } else if (isDesktop) {
+        // El claro-por-defecto de escritorio (css/desktop.css, sección 9) se activa
+        // por ancho de pantalla, no por atributo: hace falta marcar 'oscuro' explícito
+        // para que el usuario pueda desactivarlo con el toggle de Modo Oscuro.
+        document.body.setAttribute('data-modo', 'oscuro');
+        document.documentElement.style.colorScheme = 'dark';
+      }
+      if (cfg?.value?.glowMarco === false) document.body.classList.add('glow-marco-off');
+      if (cfg?.value?.glowLaterales !== true) document.body.classList.add('glow-laterales-off');
+      if (cfg?.value?.glowBotones === false) document.body.classList.add('glow-botones-off');
+      if (cfg?.value?.glowTarjetas === false) document.body.classList.add('glow-tarjetas-off');
+
+      // Cargar intensidad y color de haz
+      const hazInt = cfg?.value?.hazLuzIntensidad ?? 50;
+      document.documentElement.style.setProperty('--haz-intensity', hazInt + '%');
+      document.documentElement.style.setProperty('--haz-intensity-num', hazInt);
+
+      const hazColor = cfg?.value?.hazLuzColor || '';
+      if (hazColor) {
+        document.documentElement.style.setProperty('--haz-luz-color', hazColor);
+      } else {
+        document.documentElement.style.removeProperty('--haz-luz-color');
+      }
+
+      const fColor = cfg?.value?.fabColor || '#FFFFFF';
+      if (fColor) {
+        document.documentElement.style.setProperty('--fab-user-color', fColor);
+        document.documentElement.style.setProperty('--fab-neon-color', fColor);
+      } else {
+        document.documentElement.style.removeProperty('--fab-user-color');
+        document.documentElement.style.removeProperty('--fab-neon-color');
+      }
+
+      const fInt = cfg?.value?.fabIntensidad ?? 40;
+      document.documentElement.style.setProperty('--fab-intensity', fInt + '%');
+      document.documentElement.style.setProperty('--fab-intensity-num', fInt);
+
+      const bOpacity = cfg?.value?.bannerOpacity ?? 0.77;
+      document.documentElement.style.setProperty('--banner-opacity', bOpacity);
+
+    } catch (_) {}
+  },
+
   async init() {
     try {
       console.log("App Livestock: Iniciando v" + window.APP_INFO.version + "...");
@@ -152,6 +229,12 @@ const App = {
         });
       }
 
+      // Las preferencias visuales se aplican ANTES de decidir si hay que mostrar el
+      // asistente: si no, la pantalla de Bienvenida (que hace `return` y corta el resto
+      // de init) se quedaba con el claro-por-defecto de escritorio, justo la primera
+      // pantalla que ve un usuario nuevo.
+      await App._aplicarPreferenciasVisuales();
+
       const fincas = await Fincas.list();
       if (fincas.length === 0 || !(await Fincas.getActiveId())) {
         await AsistenteConfiguracion.mostrarAsistente();
@@ -165,71 +248,6 @@ const App = {
       App._setupHardwareBackButton();
       await App._ejecutarMigracionesFondo();
       App._initScrollShadows();
-      // Cargar preferencias visuales
-      try {
-        const storedCfg = await window.db.get('meta', 'appConfig');
-        this._config = storedCfg?.value || {};
-        const cfg = storedCfg;
-
-        // Oscuro por defecto en cualquier dispositivo, salvo preferencia explícita guardada.
-        const isDesktop = window.innerWidth >= 1024;
-        const useLightMode = cfg?.value?.temaOscuro === false;
-
-        const mostrar = cfg?.value?.mostrarContextos;
-        if (mostrar === false) {
-          document.body.classList.add('hide-context');
-          document.querySelectorAll('.card-dark-gradient, .card-total-3d').forEach(c => c.classList.add('compact'));
-        }
-        if (cfg?.value?.colorTema && cfg.value.colorTema !== 'gold') {
-          document.body.setAttribute('data-tema', cfg.value.colorTema);
-        }
-        if (useLightMode) {
-          document.body.setAttribute('data-modo', 'claro');
-          document.documentElement.style.colorScheme = 'light';
-          if (cfg?.value?.temaClaroColor && cfg.value.temaClaroColor !== 'arena') {
-            document.body.setAttribute('data-tema-claro', cfg.value.temaClaroColor);
-          }
-        } else if (isDesktop) {
-          // El claro-por-defecto de escritorio (css/desktop.css, sección 9) se activa
-          // por ancho de pantalla, no por atributo: hace falta marcar 'oscuro' explícito
-          // para que el usuario pueda desactivarlo con el toggle de Modo Oscuro.
-          document.body.setAttribute('data-modo', 'oscuro');
-          document.documentElement.style.colorScheme = 'dark';
-        }
-        if (cfg?.value?.glowMarco === false) document.body.classList.add('glow-marco-off');
-        if (cfg?.value?.glowLaterales !== true) document.body.classList.add('glow-laterales-off');
-        if (cfg?.value?.glowBotones === false) document.body.classList.add('glow-botones-off');
-        if (cfg?.value?.glowTarjetas === false) document.body.classList.add('glow-tarjetas-off');
-
-        // Cargar intensidad y color de haz
-        const hazInt = cfg?.value?.hazLuzIntensidad ?? 50;
-        document.documentElement.style.setProperty('--haz-intensity', hazInt + '%');
-        document.documentElement.style.setProperty('--haz-intensity-num', hazInt);
-
-        const hazColor = cfg?.value?.hazLuzColor || '';
-        if (hazColor) {
-          document.documentElement.style.setProperty('--haz-luz-color', hazColor);
-        } else {
-          document.documentElement.style.removeProperty('--haz-luz-color');
-        }
-
-        const fColor = cfg?.value?.fabColor || '#FFFFFF';
-        if (fColor) {
-          document.documentElement.style.setProperty('--fab-user-color', fColor);
-          document.documentElement.style.setProperty('--fab-neon-color', fColor);
-        } else {
-          document.documentElement.style.removeProperty('--fab-user-color');
-          document.documentElement.style.removeProperty('--fab-neon-color');
-        }
-
-        const fInt = cfg?.value?.fabIntensidad ?? 40;
-        document.documentElement.style.setProperty('--fab-intensity', fInt + '%');
-        document.documentElement.style.setProperty('--fab-intensity-num', fInt);
-
-        const bOpacity = cfg?.value?.bannerOpacity ?? 0.77;
-        document.documentElement.style.setProperty('--banner-opacity', bOpacity);
-
-      } catch (_) {}
 
       // Delegado global de interacción táctil con los pickers de fecha
       document.body.addEventListener('click', (e) => {
