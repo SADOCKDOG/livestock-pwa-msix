@@ -1,62 +1,13 @@
 /* css/layout.css - Estilos estructurales extraídos de index.html (Premium OLED) */
 
-#main-header {
-    padding: 10px 12px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 8px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-
-.header-logo-container {
-    position: relative;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-self: center;
-}
-
-#app-logo {
-    height: 32px;
-    width: auto;
-    position: relative;
-    z-index: 1;
-    filter: drop-shadow(0 0 6px var(--header-neon-color, rgba(197, 250, 80, 0.5)));
-}
-
-#header-context {
-    cursor: pointer;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border, #444);
-    padding: 6px 12px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 8px -2px var(--header-neon-color, transparent);
-    transition: box-shadow 0.3s ease;
-}
-
-#header-route-icon {
-    color: var(--header-neon-color, var(--text-s));
-    display: flex;
-    align-items: center;
-}
-
-#nombre-finca-header {
-    color: var(--p-gold);
-    text-shadow: 0 0 6px rgba(255, 230, 0, 0.6);
-    font-size: 0.75rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+/* #main-header, .header-logo-container, #app-logo, #header-context,
+   #header-route-icon y #nombre-finca-header vivían aquí duplicados con un
+   diseño antiguo (grid/padding/position:sticky) que, por especificidad de
+   ID, ganaba por accidente sobre el diseño actual de css/styles.css (rega-badge
+   con haz de luz, header-banner-frame, etc.), dejando el header con una caja
+   de contenido demasiado baja (padding 10px arriba/abajo) para su contenido
+   real y desbordando por debajo del borde. Eliminado: css/styles.css es la
+   única fuente de verdad para el header. */
 
 #startup-rescue {
     display: none;
