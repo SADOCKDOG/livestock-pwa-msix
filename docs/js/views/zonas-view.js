@@ -127,13 +127,13 @@ const ZonasView = {
             </div>
           `;
           botonRotacionHtml = `
-            <button onclick="event.stopPropagation(); App.toastError('Esta parcela está bajo cuarentena fitosanitaria activa. Rotación suspendida.');" class="widget-link-btn widget-link-btn--neon neon-danger px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem] opacity-45 cursor-not-allowed">
+            <button onclick="event.stopPropagation(); App.toastError('Esta parcela está bajo cuarentena fitosanitaria activa. Rotación suspendida.');" class="widget-link-btn widget-link-btn--neon neon-danger px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem] opacity-45 cursor-not-allowed" data-guide="btn-rotar-bloqueado">
               ✕ CUARENTENA ACTIVA (BLOQUEADO)
             </button>
           `;
         } else {
           botonRotacionHtml = `
-            <button onclick="event.stopPropagation(); ZonasView._abrirRotacion('${z.nombre.replace(/'/g, "\\'")}')" class="widget-link-btn widget-link-btn--neon neon-success px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]">
+            <button onclick="event.stopPropagation(); ZonasView._abrirRotacion('${z.nombre.replace(/'/g, "\\'")}')" class="widget-link-btn widget-link-btn--neon neon-success px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]" data-guide="btn-rotar-lote">
               ⇄ Rotar Lote / Rebaño
             </button>
           `;
@@ -199,7 +199,7 @@ const ZonasView = {
               ${parcelasAfectadasHtml}
             </div>
             <div class="flex justify-end">
-              <button onclick="App.toast('Abriendo panel de asistente de rotación de pastos...', 'info'); location.hash='/sistema?tab=interfaz'" class="widget-link-btn widget-link-btn--neon neon-danger px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]">
+              <button onclick="App.toast('Abriendo panel de asistente de rotación de pastos...', 'info'); location.hash='/sistema?tab=interfaz'" class="widget-link-btn widget-link-btn--neon neon-danger px-10 py-5 min-h-0 h-auto font-900 uppercase tracking-wider text-[0.62rem]" data-guide="btn-sugerir-rotacion">
                 ⇄ Sugerir Rotación Preventiva
               </button>
             </div>
@@ -229,7 +229,7 @@ const ZonasView = {
             </div>
           </div>
           <div class="module-header-primary-action">
-            <button class="btn btn-create btn-lg w-full" onclick="ZonasView._crearZona()">${Icons.agregar()} Nueva Zona</button>
+            <button class="btn btn-create btn-lg w-full" data-guide="btn-nueva-zona" onclick="ZonasView._crearZona()">${Icons.agregar()} Nueva Zona</button>
           </div>
         </div>
 
@@ -259,6 +259,10 @@ const ZonasView = {
         <div class="grid gap-12">${fichasHtml}</div>`;
     }
     main.innerHTML = html;
+    // FAB Guía interactiva
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/ganaderia', 'zonas');
+    }
   },
 
   async renderDetalle(params) {

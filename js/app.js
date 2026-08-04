@@ -710,7 +710,7 @@ const App = {
     const next = tabs[(idx + 1) % n];
     const menuId = `carrusel-menu-${viewName}`;
     const colorModulo = App.CARRUSEL_COLOR_MODULO[viewName] || active.color;
-    const cerrarYNavegar = (key) => `App.cerrarCarruselMenu(); ${viewName}._cambiarSubModulo('${key}')`;
+    const cerrarYNavegar = (key) => `App._cambiarSubmoduloConGuia('${viewName}', '${key}')`;
 
     const flechaIzq = single ? '' : `
         <button type="button" class="carrusel-flecha carrusel-flecha-izq pestana-flecha-activa" onclick="${cerrarYNavegar(prev.key)}" aria-label="Anterior: ${prev.label}" title="${prev.label}">
@@ -724,11 +724,11 @@ const App = {
         </button>`;
     const dots = single ? '' : `
       <div class="carrusel-dots" role="tablist" aria-label="Todas las secciones">
-        ${tabs.map(t => `<span class="carrusel-dot ${t.key === activeKey ? 'active' : ''}" onclick="${cerrarYNavegar(t.key)}" title="${t.label}"></span>`).join('')}
+        ${tabs.map(t => `<span class="carrusel-dot ${t.key === activeKey ? 'active' : ''}" data-tab="${t.key}" onclick="${cerrarYNavegar(t.key)}" title="${t.label}"></span>`).join('')}
       </div>`;
     const menu = single ? '' : `
       <div class="carrusel-menu" id="${menuId}" role="listbox" aria-label="Todos los submódulos">
-        ${tabs.map(t => `<button type="button" class="carrusel-menu-item ${t.key === activeKey ? 'active' : ''}" role="option" aria-selected="${t.key === activeKey}" onclick="${cerrarYNavegar(t.key)}"><span class="carrusel-menu-item-icon" style="color:${t.color};">${t.icon}</span><span>${t.label}</span></button>`).join('')}
+        ${tabs.map(t => `<button type="button" class="carrusel-menu-item ${t.key === activeKey ? 'active' : ''}" data-tab="${t.key}" role="option" aria-selected="${t.key === activeKey}" onclick="${cerrarYNavegar(t.key)}"><span class="carrusel-menu-item-icon" style="color:${t.color};">${t.icon}</span><span>${t.label}</span></button>`).join('')}
       </div>`;
 
     return `
@@ -777,6 +777,142 @@ const App = {
     if (!menu) return;
     if (menu.contains(e.target) || e.target.closest(`#${menu.id}-trigger`)) return;
     App.cerrarCarruselMenu();
+  },
+
+  _viewForMethod(methodName) {
+    const map = {
+      renderGanaderia: 'GanaderiaView',
+      renderRebanos: 'GanaderiaView',
+      renderDetalleRebano: 'GanaderiaView',
+      renderZonas: 'GanaderiaView',
+      renderDetalleZona: 'GanaderiaView',
+      renderInstalaciones: 'GanaderiaView',
+      renderDetalleInstalacion: 'GanaderiaView',
+      renderSaneamientos: 'GanaderiaView',
+      renderDetalleSaneamiento: 'GanaderiaView',
+      renderSubexplotaciones: 'GanaderiaView',
+      renderDetalleSubexplotacion: 'GanaderiaView',
+      renderBotiquin: 'GanaderiaView',
+      renderDetalleBotiquin: 'GanaderiaView',
+      renderBitacoraAnimal: 'GanaderiaView',
+      renderAnimales: 'GanaderiaView',
+      renderDetalleAnimal: 'GanaderiaView',
+      renderExplotacion: 'ExplotacionView',
+      renderGastos: 'ExplotacionView',
+      renderSilos: 'ExplotacionView',
+      renderFitosanitarios: 'ExplotacionView',
+      renderProveedores: 'ExplotacionView',
+      renderComercializacion: 'ComercializacionView',
+      renderDetalleLeche: 'ComercializacionView',
+      renderDetalleVentaCarne: 'ComercializacionView',
+      renderCompradores: 'ComercializacionView',
+      renderComprador: 'ComercializacionView',
+      renderContrato: 'ComercializacionView',
+      renderTransportistas: 'ComercializacionView',
+    };
+    return map[methodName] || null;
+  },
+
+  /**
+   * Cambia de sub-módulo y dispara guía si corresponde.
+   * Usado desde el carrusel de pestañas para reemplazar `cerrarYNavegar`.
+   * @param {string} viewName - Nombre global de la vista (ej. 'GanaderiaView')
+   * @param {string} tabKey - Clave del sub-módulo (ej. 'animales', 'rebanos')
+   */
+  async _cambiarSubmoduloConGuia(viewName, tabKey) {
+    const viewInstance = window[viewName];
+    if (!viewInstance || typeof viewInstance._cambiarSubModulo !== 'function') {
+      console.warn('[App._cambiarSubmoduloConGuia] Vista o método no encontrado:', viewName);
+      return;
+    }
+    // Cerrar menú del carrusel si está abierto
+    App.cerrarCarruselMenu && App.cerrarCarruselMenu();
+    // Ejecutar cambio de sub-módulo (devuelve Promise si render es async)
+    const renderPromise = viewInstance._cambiarSubModulo(tabKey);
+    if (renderPromise && typeof renderPromise.then === 'function') {
+      await renderPromise;
+    }
+    // Disparar evento para que GuideManager re-ancle la guía
+    if (window.EventBus) {
+      EventBus.emit('view:tabChanged', { viewName, tabKey });
+    }
+  },
+
+  /**
+   * Renderiza el FAB "Guía" flotante para la ruta/tab actual.
+   * Debe llamarse después de renderizar el contenido de la sub-vista.
+   * @param {string} route - Ruta hash normalizada (ej: '/ganaderia', '/explotacion', '/comercializacion')
+   * @param {string|null} tab - Clave del sub-módulo (ej: 'animales', 'silos') o null para panorámica
+   * @param {HTMLElement} [container=document.body] - Contenedor donde insertar el FAB
+   */
+  renderGuideFab(route, tab, container = document.body) {
+    // Se retira siempre primero: al cambiar de tab el FAB anterior apuntaría a la guía
+    // del tab que se acaba de abandonar, y si el nuevo tab no tiene guía debe desaparecer.
+    container.querySelector('#guide-fab')?.remove();
+
+    if (!window.GuideManager || !GuideManager.isEnabled || !GuideManager.isEnabled()) return;
+    if (!window.GuideRegistry) return;
+
+    // Guarda: sin finca activa no hay guías disponibles
+    const activeFincaId = localStorage.getItem('activeFincaIdLivestock');
+    if (!activeFincaId) return;
+
+    const flags = window.ModoContextoHelper ? ModoContextoHelper.getFlags() : { leche: true, carne: false };
+    // Buscar guía para este tab; si no hay, buscar panorámica
+    const guide = GuideRegistry.getByRouteTab(route, tab, flags) || GuideRegistry.getPanoramica(route, flags);
+    if (!guide) return; // No hay guía para esta vista
+
+    const fab = document.createElement('button');
+    fab.id = 'guide-fab';
+    fab.type = 'button';
+    fab.className = 'guide-fab';
+    fab.setAttribute('aria-label', 'Abrir guía interactiva');
+    const iconoAyuda = (typeof Icons.ayuda === 'function' && Icons.ayuda()) || (typeof Icons.info === 'function' && Icons.info()) || '';
+    fab.innerHTML = `${iconoAyuda} <span>Guía</span>`;
+    fab.style.cssText = `
+      position: fixed;
+      right: 20px;
+      bottom: calc(150px + var(--safe-bottom));
+      z-index: 3000;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      color: var(--text-p);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+      animation: guide-fab-pulse 2s ease-in-out infinite;
+      cursor: pointer;
+    `;
+
+    // Estilos animación (inyectar una vez)
+    if (!document.getElementById('guide-fab-style')) {
+      const style = document.createElement('style');
+      style.id = 'guide-fab-style';
+      style.textContent = `
+        @keyframes guide-fab-pulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05); }
+          50% { box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 2px var(--c-info, #00d4ff); }
+        }
+        .guide-fab:hover { transform: scale(1.05); }
+        .guide-fab:active { transform: scale(0.98); }
+      `;
+      document.head.appendChild(style);
+    }
+
+    fab.addEventListener('click', () => {
+      if (window.GuideManager && typeof GuideManager.start === 'function') {
+        GuideManager.start(guide.id);
+      }
+    });
+
+    container.appendChild(fab);
   },
 
   /**
@@ -1257,12 +1393,30 @@ const App = {
 
     main.innerHTML = '<div class="loader">Cargando...</div>';
     App.clearExitGuard(); // La vista que se va a renderizar registrará su propia guarda si la necesita
+
+    // El FAB "Guía" y el tour cuelgan de <body>, no de #app-content, así que no se
+    // limpian solos al cambiar de vista: en rutas sin guía (Ajustes, Informes…) el FAB
+    // de la vista anterior seguía flotando. Cada vista con guía vuelve a pintarlo.
+    document.getElementById('guide-fab')?.remove();
+    if (window.GuideManager && typeof GuideManager.skip === 'function') GuideManager.skip();
     try {
       await App._ensureRouteScripts(path);
       const methodName = App.routes[path];
       if (methodName && typeof App[methodName] === "function") {
         await App[methodName](params);
-        
+
+        // Auto-start guide for this view/tab (if enabled and first visit)
+        try {
+          const viewName = App._viewForMethod(methodName);
+          const viewInstance = viewName ? window[viewName] : null;
+          const tab = viewInstance?._activeSubModule || params.get('tab') || null;
+          if (window.GuideManager && typeof GuideManager.maybeStart === 'function') {
+            GuideManager.maybeStart(path, tab);
+          }
+        } catch (e) {
+          console.warn('[GuideManager] Error en auto-start:', e);
+        }
+
         // Restablecer el scroll al inicio de la página en cada navegación
         window.scrollTo(0, 0);
         document.documentElement.scrollTop = 0;
@@ -1830,9 +1984,9 @@ const App = {
   // servicios) siguen cargando siempre, porque el Dashboard los usa todos
   // desde sus accesos directos.
   _viewGroups: {
-    gegan: ['js/views/sanidad-view.js', 'js/views/patrimonio-view.js', 'js/views/ganaderia-view.js', 'js/views/animales-view.js', 'js/views/rebanos-view.js', 'js/views/zonas-view.js', 'js/views/instalaciones-view.js', 'js/views/saneamientos-view.js', 'js/views/subexplotaciones-view.js', 'js/views/botiquin-view.js', 'js/views/bitacora-animal-view.js'],
-    expro: ['js/views/explotacion-view.js', 'js/views/silos-view.js', 'js/views/fitosanitarios-view.js', 'js/views/gastos-view.js', 'js/views/proveedores-view.js', 'js/views/wizards/wizard-traslado.js', 'js/views/wizards/wizard-censo.js', 'js/views/wizards/wizard-crotales.js', 'js/views/wizards/wizard-guia-movimiento.js'],
-    comer: ['js/views/comercializacion-view.js', 'js/views/compradores-view.js', 'js/views/contratos-view.js', 'js/views/transportistas-view.js'],
+    gegan: ['js/views/sanidad-view.js', 'js/views/patrimonio-view.js', 'js/views/ganaderia-view.js', 'js/views/animales-view.js', 'js/views/rebanos-view.js', 'js/views/zonas-view.js', 'js/views/instalaciones-view.js', 'js/views/saneamientos-view.js', 'js/views/subexplotaciones-view.js', 'js/views/botiquin-view.js', 'js/views/bitacora-animal-view.js', 'js/guides/gegan-sanidad.js', 'js/guides/gegan-panoramica.js', 'js/guides/gegan-animales.js', 'js/guides/gegan-rebanos.js', 'js/guides/gegan-patrimonio.js', 'js/guides/gegan-zonas.js'],
+    expro: ['js/views/explotacion-view.js', 'js/views/silos-view.js', 'js/views/fitosanitarios-view.js', 'js/views/gastos-view.js', 'js/views/proveedores-view.js', 'js/views/wizards/wizard-traslado.js', 'js/views/wizards/wizard-censo.js', 'js/views/wizards/wizard-crotales.js', 'js/views/wizards/wizard-guia-movimiento.js', 'js/guides/expro-panoramica.js', 'js/guides/expro-explotacion.js', 'js/guides/expro-lacteo.js', 'js/guides/expro-silos.js', 'js/guides/expro-fitosanitarios.js', 'js/guides/expro-gastos.js', 'js/guides/expro-proveedores.js', 'js/guides/expro-tramites.js'],
+    comer: ['js/views/comercializacion-view.js', 'js/views/compradores-view.js', 'js/views/contratos-view.js', 'js/views/transportistas-view.js', 'js/guides/comer-panoramica.js', 'js/guides/comer-leche.js', 'js/guides/comer-carne.js', 'js/guides/comer-compradores.js', 'js/guides/comer-contratos.js', 'js/guides/comer-transportistas.js'],
     informes: ['js/views/informes-view.js', 'js/views/informes-data.js', 'js/views/informes-export.js'],
     cuaderno: ['js/views/cuaderno-view.js'],
     documentos: ['js/views/documentos-view.js'],
@@ -1868,7 +2022,7 @@ const App = {
     if (!App._viewGroupLoadPromises[groupName]) {
       App._viewGroupLoadPromises[groupName] = Promise.all(files.map(src => new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = src + '?v=6.29.1';
+        s.src = src + '?v=6.47';
         s.async = false;
         s.onload = resolve;
         s.onerror = reject;

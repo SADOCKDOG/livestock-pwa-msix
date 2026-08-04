@@ -449,6 +449,13 @@ const Icons = {
       '<line x1="12" y1="8" x2="12.01" y2="8"/>'
     );
   },
+  ayuda() {
+    // Signo de interrogación (diferente de info() que es un círculo con i)
+    return this._svg(
+      '<circle cx="12" cy="12" r="10"/>' +
+      '<path d="M12 7c0-1.1.9-2 2-2s2 .9 2 2c0 .82-.46 1.54-1.16 1.88.6.27 1.16.98 1.16 1.83 0 1.3-1.54 2.2-2.84 2.2-1.1 0-2.04-.54-2.04-1.27 0-.8.4-1.4 1-1.4.27 0 .46.04.77.07-.44.13-.78.42-.78.8 0 .46.4.8.8.8.26 0 .46-.06.67-.13.35.6 1.22 1.06 2.34 1.06.98 0 1.84-.56 1.84-1.47 0-.6-.5-1.14-1.3-1.34zM12 20h2v2h-2v-2z"/>'
+    );
+  },
   importar() {
     return this._svg(
       '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>' +
@@ -558,6 +565,9 @@ const Icons = {
     );
   }
 };
+
+// Exponer en window para el navegador (guías interactivas, comunidades-service)
+window.Icons = Icons;
 
 // Exportar para uso en módulos
 if (typeof module !== 'undefined' && module.exports) {

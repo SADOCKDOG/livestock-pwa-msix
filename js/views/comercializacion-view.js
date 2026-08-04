@@ -289,6 +289,11 @@ const ComercializacionView = {
         }
         break;
     }
+
+    // FAB Guía interactiva para CoMer
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/comercializacion', this._activeSubModule);
+    }
   },
 
   _cambiarSubModulo(subModulo) {

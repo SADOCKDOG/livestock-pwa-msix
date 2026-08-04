@@ -132,6 +132,10 @@ const RebanosView = {
     // Actualizar datos filtrados para la lista
     this._cachedData = { rebanos: filteredRebanos, eventos };
     this._renderLista();
+    // FAB Guía interactiva
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/ganaderia', 'rebanos');
+    }
   },
 
   _CATEGORIAS: [

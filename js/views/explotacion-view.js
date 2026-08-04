@@ -83,6 +83,10 @@ const ExplotacionView = {
     } else {
       await ExplotacionLacteaView.render(subContainer);
     }
+    // FAB Guía interactiva para sub-tabs de láctea
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/explotacion', 'lacteo');
+    }
   },
 
   _fmtFecha(dateStr) {
@@ -315,6 +319,11 @@ const ExplotacionView = {
           this._cambiarSubModulo('explotacion');
         }
         break;
+    }
+
+    // FAB Guía interactiva para ExPro
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/explotacion', this._activeSubModule);
     }
   },
 

@@ -293,6 +293,21 @@
         await sleep(80);
       }
 
+      // 9b. Gastos Fitosanitarios (ExPro > Fitosanitarios) — libro de campo oficial.
+      // Espeja la demo Android para que expro.fitosanitarios esté disponible con datos.
+      var fitoFecha1 = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var fitoFecha2 = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var fitoFecha3 = new Date(Date.now() - 70 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var fitosDefs = [
+        { demo: true, concepto: 'Herbicida Glifosato 36% — Parcela Norte', fecha: fitoFecha1, monto: 214.50, categoria: 'Fitosanitarios', origen_modulo: 'general', modo_explotacion: null, proveedorId: null, control_normativo: { registroProducto: 'ES-00124-GLF', dosisAplicada: '3 L/ha', plazoSeguridadDias: 15, aptoComercializacion: true, verificadoEn: fitoFecha1 + 'T09:00:00.000Z' } },
+        { demo: true, concepto: 'Tratamiento barbecho — Parcela Sur', fecha: fitoFecha2, monto: 156.75, categoria: 'Fitosanitarios', origen_modulo: 'general', modo_explotacion: null, proveedorId: null, control_normativo: { registroProducto: 'ES-00331-24D', dosisAplicada: '2 L/ha', plazoSeguridadDias: 7, aptoComercializacion: true, verificadoEn: fitoFecha2 + 'T09:00:00.000Z' } },
+        { demo: true, concepto: 'Fungicida preventivo — Parcela Norte', fecha: fitoFecha3, monto: 98.20, categoria: 'Fitosanitarios', origen_modulo: 'general', modo_explotacion: null, proveedorId: null, control_normativo: { registroProducto: 'ES-00876-AZO', dosisAplicada: '1,5 L/ha', plazoSeguridadDias: 21, aptoComercializacion: false, verificadoEn: fitoFecha3 + 'T09:00:00.000Z' } }
+      ];
+      for (var fg = 0; fg < fitosDefs.length; fg++) {
+        try { await Gastos.save(fitosDefs[fg]); } catch (e) { console.log('[SEED] Error gasto fitosanitario:', e.message); }
+        await sleep(80);
+      }
+
       // 10. Sanitarios (alineados con ejemplos de manual)
       var sanDefs = [
         {

@@ -128,6 +128,10 @@ const AnimalesView = {
 
     main.innerHTML = html;
     AnimalesView._cache = { animales, rebanoMap, sanitariosAll };
+    // FAB Guía interactiva
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/ganaderia', 'animales');
+    }
   },
 
   _aplicarFiltros(animales, rebanoMap) {
