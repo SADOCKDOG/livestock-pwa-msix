@@ -154,12 +154,23 @@ header {
 
 /* Header contextual — título de vista + botón volver */
 #header-context {
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border, #444);
+    padding: 6px 12px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    position: relative;
-    cursor: pointer;
+    gap: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px -2px var(--header-neon-color, transparent);
+    transition: box-shadow 0.3s ease;
+}
+#header-route-icon {
+    color: var(--header-neon-color, var(--text-s));
+    display: flex;
+    align-items: center;
 }
 #header-view-title {
     display: flex;
@@ -303,7 +314,7 @@ header {
 
 /* CONTENIDO CON MARGEN COMPACTO */
 main#app-content {
-    margin-top: 12px;
+    margin-top: calc(62px + var(--safe-top) + 12px);
     padding: 12px 12px calc(100px + var(--safe-bottom));
     max-width: 100%;
     box-sizing: border-box;
