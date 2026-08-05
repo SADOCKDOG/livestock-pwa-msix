@@ -359,7 +359,7 @@ const ComercializacionView = {
         <div id="comer-sub-content"></div>
       </div>`;
 
-    const subContent = document.getElementById('comer-sub-content');
+    const subContent = container.querySelector('#comer-sub-content');
     this._renderSeccion(subContent, {
       icon: Icons.leche(),
       title: 'Entregas Leche',
@@ -437,7 +437,7 @@ const ComercializacionView = {
         <div id="comer-sub-content"></div>
       </div>`;
 
-    const subContent = document.getElementById('comer-sub-content');
+    const subContent = container.querySelector('#comer-sub-content');
     this._renderSeccion(subContent, {
       icon: Icons.carne(),
       title: 'Ventas Carne',
