@@ -46,13 +46,11 @@ const GanaderiaView = {
 
     main.innerHTML = `
       <!-- Carrusel circular de secciones de Ganadería: marco centrado con la sección activa -->
-      <div class="mb-14">
-        ${App.renderCarruselPestanas(
-          ['animales', 'rebanos', 'patrimonio', 'zonas', 'sanidad'].filter(tab => allowedSubModules.includes(tab)).map(tab => ({ key: tab, icon: moduloMeta[tab].icon, label: tab.toUpperCase(), color: moduloMeta[tab].color })),
-          this._activeSubModule,
-          'GanaderiaView'
-        )}
-      </div>
+      ${App.renderCarruselPestanas(
+        ['animales', 'rebanos', 'patrimonio', 'zonas', 'sanidad'].filter(tab => allowedSubModules.includes(tab)).map(tab => ({ key: tab, icon: moduloMeta[tab].icon, label: tab.toUpperCase(), color: moduloMeta[tab].color })),
+        this._activeSubModule,
+        'GanaderiaView'
+      )}
 
       <!-- Cabecera Maestra de Ganadería Consolidada -->
       <div class="flex items-center gap-12 mb-14 px-4 animate-fade-in">

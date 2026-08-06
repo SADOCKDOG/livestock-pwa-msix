@@ -228,8 +228,7 @@ const ExplotacionView = {
 
     main.innerHTML = `
       <!-- Carrusel circular de secciones de Explotación y Soporte: marco centrado con la sección activa -->
-      <div class="mb-14">
-        ${App.renderCarruselPestanas([
+      ${App.renderCarruselPestanas([
           { key: 'explotacion', icon: Icons.finca(), label: 'EXPRO', color: 'var(--c-success)' },
           { key: 'lacteo', icon: Icons.leche(), label: 'LÁCTEA', color: 'var(--c-info)' },
           { key: 'silos', icon: Icons.silos(), label: 'SILOS', color: 'var(--c-success)' },
@@ -237,8 +236,7 @@ const ExplotacionView = {
           { key: 'gastos', icon: Icons.dinero(), label: 'FINANZAS', color: 'var(--c-purple)' },
           { key: 'proveedores', icon: Icons.proveedores(), label: 'PROVEEDORES', color: 'var(--c-purple)' },
           { key: 'tramites', icon: Icons.documento(), label: 'TRÁMITES', color: 'var(--c-info)' },
-        ], this._activeSubModule, 'ExplotacionView')}
-      </div>
+      ], this._activeSubModule, 'ExplotacionView')}
 
       <!-- Cabecera de Módulo: Acción principal (KPIs movidos a tarjetas de contenido) -->
       <div class="module-header px-4">
