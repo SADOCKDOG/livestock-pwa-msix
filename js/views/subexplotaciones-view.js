@@ -126,10 +126,10 @@ const SubexplotacionesView = {
           <textarea id="sub-edit-notas" class="premium-input min-h-60 resize-none">${sub.notas || ''}</textarea></div>
         </div>
         <div class="flex justify-between items-center mt-20">
-          <button class="btn btn-danger" onclick="SubexplotacionesView._eliminarSubexplotacion(${index})">${Icons.eliminar()} Eliminar</button>
+          <button class="btn btn--icon btn-danger" onclick="SubexplotacionesView._eliminarSubexplotacion(${index})" aria-label="Eliminar subexplotación" title="Eliminar subexplotación">${Icons.eliminar()}</button>
           <div class="flex gap-10">
-            <button class="btn btn-secondary" onclick="SubexplotacionesView._salirEdicion()">${Icons.cerrar()} Cancelar</button>
-            <button class="btn btn-success" onclick="SubexplotacionesView._guardarSubexplotacion(${index})">${Icons.guardar()} Guardar</button>
+            <button class="btn btn--inline btn-secondary" onclick="SubexplotacionesView._salirEdicion()">${Icons.cerrar()} Cancelar</button>
+            <button class="btn btn--inline btn-success" onclick="SubexplotacionesView._guardarSubexplotacion(${index})">${Icons.guardar()} Guardar</button>
           </div>
         </div>
       </div>`;

@@ -303,7 +303,7 @@ const TrazabilidadView = {
         </div>
 
         <div class="text-center mt-20 pb-40">
-          <button onclick="App._navigateBack()" class="btn btn-secondary">← Volver al animal</button>
+          <button onclick="App._navigateBack()" class="btn btn--inline btn-secondary">← Volver al animal</button>
         </div>
       </div>
     `;

@@ -34,7 +34,7 @@ const MargenAnimalView = {
     if (filas.length === 0) {
       html += `<div class="empty-state"><p class="empty-state-text">Sin animales con datos suficientes para calcular margen.</p></div>`;
     } else {
-      html += `<div class="mb-15"><button class="btn btn-secondary" onclick="MargenAnimalView._toggleOrden()">Ordenar: ${this._orden === 'asc' ? 'Peor primero' : 'Mejor primero'}</button></div>`;
+      html += `<div class="mb-15"><button class="btn btn--inline btn-secondary" onclick="MargenAnimalView._toggleOrden()">Ordenar: ${this._orden === 'asc' ? 'Peor primero' : 'Mejor primero'}</button></div>`;
       html += `<div class="flex flex-col gap-8">`;
       filas.forEach((f) => {
         const color = f.margenNeto >= 0 ? 'var(--c-success)' : 'var(--c-danger)';

@@ -412,9 +412,9 @@ const SilosView = {
                 </div>
             </div>
 
-            <div class="flex gap-10 justify-end">
-                <button class="btn btn-dark" onclick="ModalManager.close('load-silo-modal')">CANCELAR</button>
-                <button class="btn btn-primary" onclick="SilosView._guardarCargaSilo(${id})">REGISTRAR</button>
+            <div class="flex gap-10 justify-between">
+                <button class="btn btn--inline btn-dark" onclick="ModalManager.close('load-silo-modal')">CANCELAR</button>
+                <button class="btn btn--inline btn-primary" onclick="SilosView._guardarCargaSilo(${id})">REGISTRAR</button>
             </div>
         </div>
         `;
@@ -558,9 +558,9 @@ const SilosView = {
                 </div>
             </div>
 
-            <div class="flex gap-10 justify-end">
-                <button class="btn btn-dark" onclick="ModalManager.close('consume-silo-modal')">CANCELAR</button>
-                <button class="btn btn-primary" onclick="SilosView._guardarConsumoSilo(${id})" style="background-color:var(--c-danger); border-color:var(--c-danger);">REGISTRAR CONSUMO</button>
+            <div class="flex gap-10 justify-between">
+                <button class="btn btn--inline btn-dark" onclick="ModalManager.close('consume-silo-modal')">CANCELAR</button>
+                <button class="btn btn--inline btn-primary" onclick="SilosView._guardarConsumoSilo(${id})" style="background-color:var(--c-danger); border-color:var(--c-danger);">REGISTRAR CONSUMO</button>
             </div>
         </div>
         `;
@@ -727,7 +727,7 @@ const SilosView = {
                 </div>
             </div>
 
-            <div class="flex gap-10 justify-end">
+            <div class="flex gap-10 justify-between">
                 <button type="button" class="wizard-btn-action wizard-btn-secondary" onclick="ModalManager.close('silo-form-modal')">${Icons.cerrar()} Cancelar</button>
                 <button type="button" class="wizard-btn-action wizard-btn-success" onclick="SilosView._guardarFormularioSilo(${id})">${Icons.guardar()} Guardar Silo</button>
             </div>

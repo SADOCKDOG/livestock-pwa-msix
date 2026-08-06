@@ -500,6 +500,43 @@ nav.bottom-nav {
     cursor: not-allowed;
 }
 
+/* ── VARIANTES DE BOTÓN ──
+   `.btn` nace a ancho completo, correcto para la acción principal de una pantalla.
+   Pero esa base la heredan también los botones agrupados (parejas CANCELAR/CONFIRMAR
+   de los modales, tríadas de acción de las fichas): dentro de un contenedor flex se
+   pelean por el 100% del ancho y quedan desproporcionados.
+   Aditivo a propósito: no se toca `.btn`, así que ningún botón cambia hasta que se le
+   añada la clase. */
+.btn--inline {
+    /* `inline-flex` y no `flex`: `.btn` es un flex de nivel bloque, así que `width:auto`
+       por sí solo seguiría ocupando toda la línea en un contenedor normal. */
+    display: inline-flex;
+    width: auto;
+    height: 48px;
+    /* 16px y no 20: con tres controles en fila el último se salía 7px del contenedor
+       en un móvil de 392px. */
+    padding: 0 16px;
+    border-radius: var(--r-lg, 14px);
+    font-size: 0.9rem;
+}
+
+/* Explícito para la acción principal, para distinguir "ancho completo porque lo quiero"
+   de "ancho completo por herencia". */
+.btn--block {
+    width: 100%;
+}
+
+/* Solo icono. Para la acción destructiva cuando comparte fila con otras dos: tres
+   botones con texto suman ~429px sobre ~353 útiles y el más corto acababa recortado a
+   media palabra. Lleva siempre aria-label, único nombre accesible sin texto visible. */
+.btn--icon {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    flex: 0 0 auto;
+    border-radius: var(--r-lg, 14px);
+}
+
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

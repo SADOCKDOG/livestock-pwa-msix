@@ -220,10 +220,10 @@ const BotiquinView = {
         </div>
 
         <div class="flex justify-between items-center mt-20">
-          <button class="btn btn-danger" onclick="BotiquinView._eliminarProducto(${id})">${Icons.eliminar()} Eliminar</button>
+          <button class="btn btn--icon btn-danger" onclick="BotiquinView._eliminarProducto(${id})" aria-label="Eliminar producto" title="Eliminar producto">${Icons.eliminar()}</button>
           <div class="flex gap-10">
-            <button class="btn btn-secondary" onclick="BotiquinView._salirEdicion()">${Icons.cerrar()} Cancelar</button>
-            <button class="btn btn-success" onclick="BotiquinView._guardarProducto(${id})">${Icons.guardar()} Guardar</button>
+            <button class="btn btn--inline btn-secondary" onclick="BotiquinView._salirEdicion()">${Icons.cerrar()} Cancelar</button>
+            <button class="btn btn--inline btn-success" onclick="BotiquinView._guardarProducto(${id})">${Icons.guardar()} Guardar</button>
           </div>
         </div>
       </div>`;

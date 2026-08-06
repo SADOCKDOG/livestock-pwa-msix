@@ -157,9 +157,9 @@ const CuadernoDigitalView = {
       <div class="text-center mb-25">
         <div class="text-gold text-82">RD 787/2023 — Explotación Ganadera</div>
         <div class="mt-8 flex justify-center gap-10 flex-wrap">
-          <button class="btn btn-primary" onclick="CuadernoDigitalView._exportarPDF()">${Icons.exportar()} Exportar PDF Completo</button>
-          <button class="btn btn-secondary" onclick="CuadernoDigitalView._exportarCSV()">${Icons.grafico()} Exportar CSV (SIGGAN)</button>
-          <button class="btn btn-secondary" onclick="CuadernoDigitalView._imprimir()">${Icons.documento()} Imprimir</button>
+          <button class="btn btn--inline btn-primary" onclick="CuadernoDigitalView._exportarPDF()">${Icons.exportar()} Exportar PDF Completo</button>
+          <button class="btn btn--inline btn-secondary" onclick="CuadernoDigitalView._exportarCSV()">${Icons.grafico()} Exportar CSV (SIGGAN)</button>
+          <button class="btn btn--inline btn-secondary" onclick="CuadernoDigitalView._imprimir()">${Icons.documento()} Imprimir</button>
         </div>
       </div>
 
