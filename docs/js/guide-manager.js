@@ -669,6 +669,13 @@
     // Estado
     isEnabled,
 
+    // ¿Hay un tour montado ahora mismo? App.route() lo consulta para no cerrarlo ni
+    // recolocar el scroll cuando la navegación la ha provocado la propia guía: las
+    // panorámicas cambian de submódulo por diseño para enseñar el siguiente paso.
+    isRunning() {
+      return !!_state.currentGuide;
+    },
+
     // Auto-arranque: evalúa precondiciones y arranca si procede
     async maybeStart(route, tab) {
       await _hydrate();
