@@ -16,7 +16,9 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.5;
-    overflow-x: hidden;
+    /* Ver nota en main#app-content: `clip` no crea contenedor de scroll y deja
+       funcionar `position: sticky` en los descendientes. */
+    overflow-x: clip;
     min-height: 100vh;
 }
 
@@ -318,7 +320,11 @@ main#app-content {
     padding: 12px 12px calc(100px + var(--safe-bottom));
     max-width: 100%;
     box-sizing: border-box;
-    overflow-x: hidden;
+    /* `clip` en vez de `hidden`: recorta igual el desbordamiento lateral, pero
+       NO convierte el elemento en contenedor de scroll. Con `hidden`, el
+       carrusel sticky se anclaba a este main en vez de al viewport y no
+       llegaba a fijarse nunca. */
+    overflow-x: clip;
     min-height: 100vh;
 }
 
@@ -3476,6 +3482,29 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .carrusel-modulo {
   width: 100%;
   box-sizing: border-box;
+  /* Anclado bajo el header fijo (62px + safe-top): el submódulo activo es la
+     referencia de "dónde estoy" y debe seguir visible al recorrer la vista,
+     igual que las tabs de sección bajo la app bar. z-index por debajo del
+     header (2000) y por encima del contenido. Los márgenes negativos
+     compensan el padding lateral de main#app-content para que el fondo
+     llegue a los bordes y el contenido no asome por los lados al pasar. */
+  position: sticky;
+  /* El header ocupa 62px + safe-top, pero el anclaje real queda ~8px por
+     debajo del `top` declarado por el flujo del contenedor. Se ancla algo más
+     arriba a propósito: el header tapa el sobrante (que es solo padding), así
+     que quedan pegados sin franja intermedia. Tirar por lo bajo es lo seguro —
+     un `top` mayor dejaría un hueco por el que se vería pasar el contenido.
+     z-index por debajo del header (2000 aquí, 1000 en Android): mismo valor en
+     ambos repos para que el header siempre gane al solaparse. */
+  top: calc(54px + var(--safe-top));
+  z-index: 900;
+  background: rgba(12, 12, 12, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  margin-left: -12px;
+  margin-right: -12px;
+  margin-bottom: 14px; /* heredado del wrapper .mb-14 que envolvía al carrusel */
+  padding: 14px 12px 4px; /* holgura superior: absorbe el solape bajo el header */
 }
 .carrusel-pestanas-wrapper {
   position: relative;

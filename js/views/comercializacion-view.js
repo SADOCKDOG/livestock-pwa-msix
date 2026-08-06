@@ -228,16 +228,14 @@ const ComercializacionView = {
 
     main.innerHTML = `
       <!-- Carrusel circular de secciones de Comercialización: marco centrado con la sección activa -->
-      <div class="mb-14">
-        ${App.renderCarruselPestanas(
-          ['leche', 'carne', 'compradores', 'contratos', 'transportistas'].filter(tab => allowedSubModules.includes(tab)).map(tab => {
-            const meta = this._getSubModuleMeta(tab);
-            return { key: tab, icon: meta.icon, label: tab.toUpperCase(), color: meta.color };
-          }),
-          this._activeSubModule,
-          'ComercializacionView'
-        )}
-      </div>
+      ${App.renderCarruselPestanas(
+        ['leche', 'carne', 'compradores', 'contratos', 'transportistas'].filter(tab => allowedSubModules.includes(tab)).map(tab => {
+          const meta = this._getSubModuleMeta(tab);
+          return { key: tab, icon: meta.icon, label: tab.toUpperCase(), color: meta.color };
+        }),
+        this._activeSubModule,
+        'ComercializacionView'
+      )}
 
       <div class="module-header px-4">
         ${headerPrimaryHtml ? `<div class="module-header-primary-action">${headerPrimaryHtml}</div>` : ''}
