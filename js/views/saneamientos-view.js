@@ -132,10 +132,10 @@ const SaneamientosView = {
           <textarea id="s-edit-notas" class="premium-input min-h-60 resize-none">${san.notas || ''}</textarea></div>
         </div>
         <div class="flex justify-between items-center mt-20">
-          <button class="btn btn-danger" onclick="SaneamientosView._anularSaneamiento(${san.id})">${Icons.eliminar()} Anular</button>
+          <button class="btn btn--icon btn-danger" onclick="SaneamientosView._anularSaneamiento(${san.id})" aria-label="Anular saneamiento" title="Anular saneamiento">${Icons.eliminar()}</button>
           <div class="flex gap-10">
-            <button class="btn btn-secondary" onclick="SaneamientosView._salirEdicion()">${Icons.cerrar()} Cancelar</button>
-            <button class="btn btn-success" onclick="SaneamientosView._guardarSaneamiento(${san.id})">${Icons.guardar()} Guardar</button>
+            <button class="btn btn--inline btn-secondary" onclick="SaneamientosView._salirEdicion()">${Icons.cerrar()} Cancelar</button>
+            <button class="btn btn--inline btn-success" onclick="SaneamientosView._guardarSaneamiento(${san.id})">${Icons.guardar()} Guardar</button>
           </div>
         </div>
       </div>`;
