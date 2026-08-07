@@ -9,6 +9,18 @@
    real y desbordando por debajo del borde. Eliminado: css/styles.css es la
    única fuente de verdad para el header. */
 
+/* Mientras la app arranca, el chrome (sidebar de escritorio, nav inferior y header)
+   ya está pintado y es pulsable, pero sus onclick llaman a `App.*` y App no existe
+   hasta que terminan de cargar los ~108 scripts. Tocar cualquier control en ese hueco
+   lanzaba "App is not defined" y el window.onerror lo mostraba como error grave.
+   La clase la pone el script de arranque de index.html y la retira en cuanto App
+   existe. Se bloquea el puntero, no la visibilidad: el chrome sigue viéndose. */
+html.app-cargando .desktop-sidebar,
+html.app-cargando nav.bottom-nav,
+html.app-cargando header {
+    pointer-events: none;
+}
+
 #startup-rescue {
     display: none;
     text-align: center;
