@@ -701,6 +701,21 @@
       _ensureVisible(target);
       _updateSpotlight(state.overlay, target);
       _positionPopover(state.popover, target);
+
+      // Re-anclaje tras las transiciones CSS del propio target. Los .carrusel-dot pasan
+      // de 6 a 16px de ancho en 0.25s al activarse: medidos a mitad de camino, el
+      // agujero quedaba ~10px descentrado respecto al dot ya expandido. Se vuelve a
+      // medir cuando la transición ha terminado. El timer se cancela al cambiar de paso
+      // y en _cleanup, para no reanclar sobre una guía que ya no está en pantalla.
+      clearTimeout(state._reanclaje);
+      state._reanclaje = setTimeout(() => {
+        if (_state.currentGuide !== state) return;
+        const t = state.step.target ? _qs(state.step.target) : null;
+        if (t && _esResaltable(t)) {
+          _updateSpotlight(state.overlay, t);
+          _positionPopover(state.popover, t);
+        }
+      }, 320);
     } else {
       // Paso narrativo (target: null o target ausente) — centrar popover en viewport
       state.overlay._hole.setAttribute('x', '-9999');
@@ -933,6 +948,7 @@
 
         // Limpiar observer si activo
         _teardownObserver();
+        clearTimeout(state._reanclaje);  // re-anclaje pendiente del spotlight
 
         // Eliminar DOM (incluye cualquier resto huérfano de un tour anterior)
         state.overlay?.remove();
