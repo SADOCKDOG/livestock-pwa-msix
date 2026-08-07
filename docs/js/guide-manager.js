@@ -501,6 +501,11 @@
     const state = _state.currentGuide;
     if (!state) return;
 
+    // Si venimos de otro paso con launch, su observer sigue conectado y su nodo de
+    // pausa está a punto de perderse. Sin esto quedaban observers huérfanos vigilando
+    // el body, y el wizard anterior ya no lo reconocía nadie al cerrarse.
+    if (state._observer) _teardownObserver();
+
     state._nodoPausa = null; // aún no existe el wizard
 
     state._observer = new MutationObserver(muts => {
@@ -610,6 +615,14 @@
 
     state.stepIndex = index;
     state.step = steps[index];
+
+    // Al cambiar de paso el popover SIEMPRE vuelve a verse. Un paso con `launch` lo
+    // oculta mientras el wizard está abierto y solo lo restauraba al detectar que ese
+    // nodo concreto se eliminaba del DOM; si el usuario avanzaba antes de cerrarlo, esa
+    // detección se perdía y la guía seguía corriendo con el popover invisible el resto
+    // del recorrido — parecía que "se escondía abajo y no dejaba seguir". Si este paso
+    // vuelve a abrir un wizard, _runLaunchStep lo ocultará de nuevo al detectarlo.
+    _showPopover();
 
     const pop = state.popover;
     const color = pop?._color || _getPillarColor(state.guide.pillar);
