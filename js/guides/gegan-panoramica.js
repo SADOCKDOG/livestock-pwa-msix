@@ -51,7 +51,7 @@
       {
         title: 'Carrusel de pestañas (navegación principal)',
         body: 'El **carrusel horizontal** en la parte superior permite cambiar entre pestañas sin recargar la app. Cada pestaña tiene su icono y color. Desliza o click para navegar. La guía se reinicia al cambiar de pestaña.',
-        target: '.mb-14 .carrusel-pestanas, .mb-14 [data-carrusel]',
+        target: '.carrusel-pestanas, [data-carrusel]',
         waitFor: 1500,
         position: 'below'
       },
