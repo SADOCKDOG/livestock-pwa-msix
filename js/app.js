@@ -1996,7 +1996,7 @@ const App = {
   // servicios) siguen cargando siempre, porque el Dashboard los usa todos
   // desde sus accesos directos.
   _viewGroups: {
-    gegan: ['js/views/sanidad-view.js', 'js/views/patrimonio-view.js', 'js/views/ganaderia-view.js', 'js/views/animales-view.js', 'js/views/rebanos-view.js', 'js/views/zonas-view.js', 'js/views/instalaciones-view.js', 'js/views/saneamientos-view.js', 'js/views/subexplotaciones-view.js', 'js/views/botiquin-view.js', 'js/views/bitacora-animal-view.js', 'js/guides/gegan-sanidad.js', 'js/guides/gegan-panoramica.js', 'js/guides/gegan-animales.js', 'js/guides/gegan-rebanos.js', 'js/guides/gegan-patrimonio.js', 'js/guides/gegan-zonas.js'],
+    gegan: ['js/views/sanidad-view.js', 'js/views/patrimonio-view.js', 'js/views/ganaderia-view.js', 'js/views/animales-view.js', 'js/views/rebanos-view.js', 'js/views/zonas-view.js', 'js/views/instalaciones-view.js', 'js/views/saneamientos-view.js', 'js/views/subexplotaciones-view.js', 'js/views/botiquin-view.js', 'js/views/bitacora-animal-view.js', 'js/views/margen-animal-view.js', 'js/guides/gegan-sanidad.js', 'js/guides/gegan-panoramica.js', 'js/guides/gegan-animales.js', 'js/guides/gegan-rebanos.js', 'js/guides/gegan-patrimonio.js', 'js/guides/gegan-zonas.js'],
     expro: ['js/views/explotacion-view.js', 'js/views/silos-view.js', 'js/views/fitosanitarios-view.js', 'js/views/gastos-view.js', 'js/views/proveedores-view.js', 'js/views/wizards/wizard-traslado.js', 'js/views/wizards/wizard-censo.js', 'js/views/wizards/wizard-crotales.js', 'js/views/wizards/wizard-guia-movimiento.js', 'js/guides/expro-panoramica.js', 'js/guides/expro-explotacion.js', 'js/guides/expro-lacteo.js', 'js/guides/expro-silos.js', 'js/guides/expro-fitosanitarios.js', 'js/guides/expro-gastos.js', 'js/guides/expro-proveedores.js', 'js/guides/expro-tramites.js'],
     comer: ['js/views/comercializacion-view.js', 'js/views/compradores-view.js', 'js/views/contratos-view.js', 'js/views/transportistas-view.js', 'js/guides/comer-panoramica.js', 'js/guides/comer-leche.js', 'js/guides/comer-carne.js', 'js/guides/comer-compradores.js', 'js/guides/comer-contratos.js', 'js/guides/comer-transportistas.js'],
     informes: ['js/views/informes-view.js', 'js/views/informes-data.js', 'js/views/informes-export.js'],
@@ -2846,7 +2846,11 @@ const App = {
   },
 
   async renderMargenAnimal(params) {
-    if (window.MargenAnimalView) { await MargenAnimalView.render(); }
+    if (window.MargenAnimalView) {
+      await MargenAnimalView.render();
+    } else {
+      document.getElementById("app-content").innerHTML = '<div class="loader">Cargando margen por animal...</div>';
+    }
   },
 
   async renderImportadorRFID(params) {
