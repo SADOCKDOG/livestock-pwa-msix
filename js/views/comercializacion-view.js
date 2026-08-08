@@ -152,9 +152,14 @@ const ComercializacionView = {
           const fVence = new Date(hoy.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
           cCarne.fecha_fin = fVence;
           await window.db.put('contratos_compra', cCarne).catch(() => {});
-          
-          setTimeout(() => { location.hash = '#/comercializacion'; }, 100);
-          return;
+          // Antes se salía aquí con `return` y se reprogramaba la ruta con
+          // `location.hash = '#/comercializacion'`, pero ya estábamos en esa
+          // ruta: asignar el mismo valor al hash no dispara `hashchange`, la
+          // re-navegación no llegaba nunca y la vista se quedaba con el
+          // "Cargando..." de forma indefinida en la PRIMERA visita con datos
+          // demo (en la segunda ya hay contrato venciendo y no se entra aquí).
+          // No hace falta repintar la ruta: `cCarne` es una referencia dentro
+          // de `contratos`, así que el filtro de abajo ya ve la fecha nueva.
         }
       }
     }
