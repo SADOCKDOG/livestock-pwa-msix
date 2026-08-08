@@ -779,7 +779,7 @@ const InformesView = {
     setTimeout(() => {
       const ctxR = document.getElementById("chart-repro-kpis");
       if (ctxR && kpisRepro.tasaFertilidadPct !== undefined) {
-        new Chart(ctxR.getContext("2d"), {
+        this._nuevoChart(ctxR, {
           type: 'doughnut',
           data: { labels: ['Éxito', 'Fallo'], datasets: [{ data: [kpisRepro.tasaFertilidadPct, 100 - kpisRepro.tasaFertilidadPct], backgroundColor: ['#4FADF5', '#3730a3'], borderColor: '#111', borderWidth: 4 }] },
           options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
@@ -854,7 +854,7 @@ const InformesView = {
     setTimeout(() => {
       const ctxS = document.getElementById("chart-sanidad-kpis");
       if (ctxS && estadisticasSanidad.porCategoria?.length > 0) {
-        new Chart(ctxS.getContext("2d"), {
+        this._nuevoChart(ctxS, {
           type: 'pie',
           data: {
             labels: estadisticasSanidad.porCategoria.map(c => c.categoria),
@@ -1164,7 +1164,7 @@ const InformesView = {
           card.appendChild(canvasWrap);
           const c = document.getElementById('chart-compradores');
           if (c) {
-            new Chart(c.getContext("2d"), {
+            this._nuevoChart(c, {
               type: 'bar',
               data: {
                 labels: data.slice(0, 8).map(c => c.nombre.length > 15 ? c.nombre.substring(0,15)+'…' : c.nombre),
@@ -1278,7 +1278,7 @@ const InformesView = {
             const cats = {};
             data.forEach(p => { Object.entries(p.categorias).forEach(([c, t]) => { cats[c] = (cats[c] || 0) + t; }); });
             const entries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
-            new Chart(ctx.getContext("2d"), {
+            this._nuevoChart(ctx, {
               type: 'doughnut',
               data: {
                 labels: entries.map(e => e[0]),
@@ -2463,6 +2463,19 @@ const InformesView = {
 
   // ===================== GRÁFICOS =====================
 
+  /**
+   * Crea un Chart destruyendo antes el que hubiera en ese canvas. Sin esto, volver a
+   * una vista de Informes re-ejecutaba new Chart() sobre un canvas ya ocupado y
+   * Chart.js lanzaba "Canvas is already in use", que el onerror global mostraba como
+   * banner rojo a pantalla completa (enmascarado como "Script error." por ser el CDN
+   * un origen distinto). Portado de LIVESTOCK-MANAGER.
+   */
+  _nuevoChart(canvas, config) {
+    const previo = Chart.getChart(canvas);
+    if (previo) previo.destroy();
+    return this._nuevoChart(canvas, config);
+  },
+
   _renderGraficosGeneral(d) {
     const { margenA, lecheStats, kpisRepro, estadisticasSanidad } = d;
     setTimeout(() => {
@@ -2474,7 +2487,7 @@ const InformesView = {
   _renderScatter(canvasId, data, color) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
-    new Chart(ctx.getContext("2d"), {
+    this._nuevoChart(ctx, {
       type: "scatter",
       data: { datasets: [{ label: "Animales", data, backgroundColor: color, pointRadius: 5 }] },
       options: {
@@ -2488,7 +2501,7 @@ const InformesView = {
   _renderBarrasZonas(canvasId, rentZ) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
-    new Chart(ctx.getContext("2d"), {
+    this._nuevoChart(ctx, {
       type: "bar",
       data: {
         labels: rentZ.map(z => z.zona), datasets: [
@@ -2503,7 +2516,7 @@ const InformesView = {
   _renderLecheTimeline(canvasId, timeline) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
-    new Chart(ctx.getContext("2d"), {
+    this._nuevoChart(ctx, {
       type: 'line',
       data: {
         labels: timeline.map(r => { const d = r.fecha.split('-'); return d[1] + '/' + d[2]; }),
