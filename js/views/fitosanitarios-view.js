@@ -107,7 +107,10 @@ const FitosanitariosView = {
              style="background:#0C0C0C; border:1px solid #1c1c1c; cursor:pointer;"
              onclick="FitosanitariosView._abrirFichaTratamiento(${r.id})"
              title="Ver Ficha Técnica de Tratamiento">
-            <div class="flex items-center gap-10 min-w-0">
+            <!-- flex-1: sin el, este bloque no reclama espacio dentro del
+                 justify-between y se encoge hasta el ancho del icono, dejando
+                 el titulo (truncate) con ancho 0, es decir invisible. -->
+            <div class="flex items-center gap-10 min-w-0 flex-1">
                 <div class="flex items-center justify-center rounded-sm flex-shrink-0" style="width:36px; height:36px; background:#181818; color:#C5FA50; border:1px solid #222;">
                     ${Icons.fitosanitario()}
                 </div>
@@ -122,9 +125,13 @@ const FitosanitariosView = {
                 </div>
             </div>
 
-            <div class="text-right flex-shrink-0" style="font-family:'IBM Plex Mono', monospace;">
-                <div class="text-xs font-black text-white">${r.monto.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €</div>
-                <div class="text-[0.5rem] text-gray-500 font-950 uppercase mt-2">CATEGORÍA: FITOSANITARIOS</div>
+            <!-- Sin flex-shrink-0: este bloque reservaba su ancho maximo (240 de
+                 300 px, por la etiqueta de categoria) y ahogaba al titulo de la
+                 izquierda hasta dejarlo con ancho 0, es decir invisible. Solo el
+                 importe se protege con .nowrap para que no se parta. -->
+            <div class="text-right" style="font-family:'IBM Plex Mono', monospace; max-width:38%;">
+                <div class="text-xs font-black text-white nowrap">${r.monto.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €</div>
+                <div class="text-[0.5rem] text-gray-500 font-950 uppercase mt-2">FITOSANITARIOS</div>
             </div>
         </div>
         `;

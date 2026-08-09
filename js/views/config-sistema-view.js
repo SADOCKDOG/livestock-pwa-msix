@@ -144,6 +144,10 @@ const ConfigSistemaView = {
         <div class="flex flex-wrap gap-8 justify-center theme-dots-container">
           ${palette.map(c => `
             <button class="theme-dot ${config.colorTema === c.id ? 'active' : ''}"
+              type="button"
+              aria-label="Color de acento ${c.nombre}"
+              aria-pressed="${config.colorTema === c.id}"
+              title="${c.nombre}"
               style="background:${c.hex};" onclick="ConfigSistemaView._action('cambiarColor', '${c.id}')">
               ${config.colorTema === c.id ? '✓' : ''}
             </button>
@@ -244,16 +248,16 @@ const ConfigSistemaView = {
 
   _getStandardPalette() {
     return [
-      { id: 'gold',     hex: '#FFFC55' },
-      { id: 'blue',     hex: '#4FADF5' },
-      { id: 'green',    hex: '#10b981' },
+      { id: 'gold',     hex: '#FFFC55', nombre: 'Dorado' },
+      { id: 'blue',     hex: '#4FADF5', nombre: 'Azul' },
+      { id: 'green',    hex: '#10b981', nombre: 'Verde' },
 
-      { id: 'red',      hex: '#ef4444' },
+      { id: 'red',      hex: '#ef4444', nombre: 'Rojo' },
 
 
-      { id: 'indigo',   hex: '#8b5cf6' },
-      { id: 'lime',     hex: '#C5FA50' },
-      { id: 'steel',    hex: '#B1B1B1' },
+      { id: 'indigo',   hex: '#8b5cf6', nombre: 'Violeta' },
+      { id: 'lime',     hex: '#C5FA50', nombre: 'Lima' },
+      { id: 'steel',    hex: '#B1B1B1', nombre: 'Acero' },
       { id: 'graphite', hex: '#4B4B4B' }
     ];
   },
