@@ -7,8 +7,8 @@
  */
 
 const InformesView = {
-  _currentTab: 'carne',
-  _currentCategory: 'gegan',
+  _currentTab: 'general',
+  _currentCategory: 'general',
   _cachedData: null,
 
   /** Formatea un número en es-ES con decimales fijos (auditoría F5: coherencia decimal). */
@@ -17,43 +17,54 @@ const InformesView = {
   },
 
   _categories: {
+    general: {
+      label: "General",
+      icon: 'grafico',
+      tabs: {
+        "general": "General",
+        "por-finca": "Por Finca",
+        "alertas": "Alertas",
+        "eficiencia": "Eficiencia",
+        "rent-esp": "Rent. Especie"
+      }
+    },
     gegan: {
       label: "GeGan",
       icon: 'animales',
       tabs: {
-        "general": "General",
-        "por-finca": "Por Finca",
-        "alertas": "Alertas",
-        "carne": "Cárnico",
-        "leche": "Lácteo",
+        "censo": "Censo",
+        "rotacion": "Rotación",
         "reproductivo": "Repro",
         "sanidad": "Sanidad",
-        "fitosanitario": "Fitosanitario",
-        "curva-prod": "Curva",
-        "censo": "Censo",
-        "coste-prod": "Coste/Animal",
-        "eficiencia": "Eficiencia",
-        "rotacion": "Rotación",
-        "rent-esp": "Rent. Especie"
+        "carne": "Cárnico",
+        "coste-prod": "Coste/Animal"
       }
     },
     expro: {
-      label: "Expro",
+      label: "ExPro",
       icon: 'finca',
       tabs: {
-        "general": "General",
-        "por-finca": "Por Finca",
-        "alertas": "Alertas",
-        "cargas": "Aforos"
+        "produccion": "Producción",
+        "leche": "Lácteo",
+        "curva-prod": "Curva",
+        "cargas": "Aforos",
+        "fitosanitario": "Fitosanitario",
+        "silos": "Silos",
+        "tramites": "Trámites",
+        "proveedores": "Proveedores",
+        "gastos": "Gastos"
       }
     },
     comer: {
-      label: "Comer",
+      label: "CoMer",
       icon: 'compradores',
       tabs: {
         "ventas": "Ventas",
+        "margenes": "Márgenes",
         "compradores": "Compradores",
-        "proveedores": "Proveedores"
+        "contratos-vencimiento": "Contratos",
+        "transportistas-resumen": "Transportistas",
+        "albaranes": "Albaranes"
       }
     },
     libros: {
@@ -81,7 +92,7 @@ const InformesView = {
     for (const [catKey, cat] of Object.entries(this._categories)) {
       if (tab in cat.tabs) return catKey;
     }
-    return 'gegan'; // Default to gegan instead of general
+    return 'general'; // Default to general
   },
 
   _obtenerIconoDeSubTab(tab) {
@@ -110,6 +121,15 @@ const InformesView = {
       case 'subvenciones': return Icons.pac();
       case 'exportar': return Icons.exportar();
       case 'rent-esp': return Icons.reproduccion(); // Using reproduction icon for species profitability
+      case 'silos': return Icons.silos();
+      case 'tramites': return Icons.documento();
+      case 'contratos-vencimiento': return Icons.contratos();
+      case 'transportistas-resumen': return Icons.transportistas();
+      // Nuevas pestañas Fase B
+      case 'produccion': return Icons.grafico();
+      case 'gastos': return Icons.gastos();
+      case 'margenes': return Icons.dinero();
+      case 'albaranes': return Icons.libroVentas();
       default: return '';
     }
   },
@@ -118,9 +138,10 @@ const InformesView = {
     const activeCatKey = this._currentCategory;
     // Colores por categoría
     const catColors = {
+      general: 'var(--c-primary)',    // Primary for General (transversal entry point)
       gegan: 'var(--c-success)',      // Green for GeGan (livestock/production)
-      expro: 'var(--c-info)',         // Blue for Expro (farm operations)
-      comer: 'var(--c-warning)',      // Orange/Yellow for Comer (commerce/trade)
+      expro: 'var(--c-info)',         // Blue for ExPro (farm operations)
+      comer: 'var(--c-warning)',      // Orange/Yellow for CoMer (commerce/trade)
       libros: 'var(--c-purple)'       // Purple for Libros (record books/ledgers)
     };
     const activeColor = catColors[activeCatKey] || 'var(--c-success)';
@@ -175,6 +196,24 @@ const InformesView = {
     return catsHtml + subTabsHtml;
   },
 
+  /**
+   * Centra `el` horizontalmente dentro de su contenedor de scroll más cercano,
+   * calculando scrollLeft a mano en vez de usar el.scrollIntoView(). scrollIntoView
+   * con inline:'center' puede "escaparse" al contenedor padre (o al documento) en
+   * algunos motores WebView de Android bajo llamadas repetidas con behavior:'smooth',
+   * produciendo un desplazamiento horizontal de página completa que no se reproduce
+   * en Chrome de escritorio. container.scrollTo() está acotado por definición al
+   * propio elemento, así que no puede arrastrar el scroll de nada fuera de él.
+   */
+  _centrarEnScroll(el) {
+    if (!el) return;
+    const container = el.closest('.scroll-shadow-container');
+    if (!container) return;
+    const target = el.offsetLeft - (container.clientWidth - el.offsetWidth) / 2;
+    const max = container.scrollWidth - container.clientWidth;
+    container.scrollTo({ left: Math.max(0, Math.min(target, max)), behavior: 'smooth' });
+  },
+
   _cambiarCategoria(catKey) {
     this._currentCategory = catKey;
     const firstTab = Object.keys(this._categories[catKey].tabs).find(t => this._esTabPermitida(t));
@@ -182,21 +221,23 @@ const InformesView = {
     this._actualizarHeader();
     // Scroll automático al tab activo de categoría
     requestAnimationFrame(() => {
-      const el = document.getElementById(`inf-cat-${catKey}`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      const tel = document.getElementById(`inf-tab-${firstTab}`);
-      if (tel) tel.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      this._centrarEnScroll(document.getElementById(`inf-cat-${catKey}`));
+      this._centrarEnScroll(document.getElementById(`inf-tab-${firstTab}`));
     });
     this._renderTabActual();
   },
 
   _cambiarTab(tab) {
     this._currentTab = tab;
+    // Sincroniza la categoría activa con la del tab destino — necesario cuando
+    // se navega directamente a un tab de otra categoría (ej. atajos del menú
+    // "Más": Libro Ventas -> comer, Informe REGA/Exportación -> libros), ya
+    // que _cambiarTab no pasa por _cambiarCategoria.
+    this._currentCategory = this._obtenerCategoriaDeTab(tab);
     this._actualizarHeader();
     // Scroll automático al sub-tab activo
     requestAnimationFrame(() => {
-      const el = document.getElementById(`inf-tab-${tab}`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      this._centrarEnScroll(document.getElementById(`inf-tab-${tab}`));
     });
     this._renderTabActual();
   },
@@ -236,7 +277,12 @@ const InformesView = {
         compradoresData, proveedoresData,         fitosanitarioData, alertasData, porFincaData,
         ventasPorRebano, lechePorRebano,
         pygData, costeProdData, rotacionData, cargasData, eficienciaData, flujoCajaData,
-        rentEspData, curvaProdData, breakEvenData, pacData, sanitariosRaw
+        rentEspData, curvaProdData, breakEvenData, pacData, sanitariosRaw,
+        tanqueStock, controlLechero, marAnimalMedio,
+        rendimientoLechePorAnimal, indiceRenuevo, costoProduccionLeche,
+        silosData, tramitesData, contratosVencimientoData,
+        produccion, gastosOperativos, margenes, albaranes,
+        movimientosEntrada, botiquinStock, pedidosCrotales
       ] = await Promise.all([
         Analitica.obtenerRentabilidadFinca(fId).catch(() => null),
         Analitica.obtenerMargenPorAnimal(fId).catch(() => []),
@@ -274,6 +320,22 @@ const InformesView = {
         Analitica.obtenerBreakEven(fId).catch(() => ({ costesFijos: 0, costesVariables: 0, ingresosTotal: 0, breakEvenKg: 0, breakEvenLitros: 0, margenSeguridadKg: '0%', margenSeguridadLitros: '0%', cubiertoCarne: false, cubiertoLeche: false, numRebanos: 0, numMeses: 0 })),
         this._obtenerDatosPAC(fId),
         window.db.getAll('sanitarios_ganado').catch(() => []),
+        this._obtenerStockTanques(fId).catch(() => []),
+        this._obtenerControlLechero(fId).catch(() => {}),
+        this._obtenerMargenAnimalMedio(fId).catch(() => ({promedio: 0, total: 0, count: 0})),
+        this._obtenerRendimientoLechePorAnimal(fId).catch(() => ({promedio: 0, totalLitros: 0, totalAnimalesDias: 0})),
+        this._obtenerIndiceRenuevo(fId).catch(() => ({promedio: 0, totalAnimales: 0, nuevasEntradas: 0})),
+        this._obtenerCostoProduccionLeche(fId).catch(() => ({costoPorLitro: 0, totalCostosSanidad: 0, totalLitrosLeche: 0})),
+        this._obtenerSilos(fId).catch(() => ({silos: [], totalCapacidad: 0, totalStock: 0, alertasStockBajo: 0})),
+        this._obtenerTramites(fId).catch(() => ({porCampana: [], restriccionesActivas: 0, totalSaneamientos: 0})),
+        this._obtenerContratosVencimiento(fId).catch(() => ({contratos: [], proximosAVencer: 0, vencidos: 0})),
+        this._obtenerProduccion(fId).catch(() => ({porTipo: [], total: 0, timeline: []})),
+        this._obtenerGastosOperativos(fId).catch(() => ({porCategoria: [], porProveedor: [], porMes: []})),
+        this._obtenerMargenes(fId).catch(() => ({margenCarneNeto: 0, mofaLeche: 0, margenTotal: 0})),
+        this._obtenerAlbaranes(fId).catch(() => []),
+        window.db.getAllFromIndex('movimientos_ganado', 'fincaId', Number(fId)).catch(() => []),
+        this._obtenerBotiquinStock(fId).catch(() => ({productos: [], lotes: [], stockBajo: [], proxCaducar: [], totalProductos: 0, totalLotes: 0})),
+        (window.PedidosCrotales ? window.PedidosCrotales.list(fId) : Promise.resolve([])).catch(() => []),
       ]);
 
       // Cachear data para los tabs
@@ -286,7 +348,12 @@ const InformesView = {
         compradoresData, proveedoresData, fitosanitarioData, alertasData, porFincaData,
         ventasPorRebano, lechePorRebano,
         pygData, costeProdData, rotacionData, cargasData, eficienciaData, flujoCajaData,
-        rentEspData, curvaProdData, breakEvenData, pacData, sanitariosRaw
+        rentEspData, curvaProdData, breakEvenData, pacData, sanitariosRaw,
+        tanqueStock, controlLechero, marAnimalMedio,
+        rendimientoLechePorAnimal, indiceRenuevo, costoProduccionLeche,
+        silosData, tramitesData, contratosVencimientoData,
+        produccion, gastosOperativos, margenes, albaranes,
+        movimientosEntrada, botiquinStock, pedidosCrotales
       };
 
       await chartLoadPromise;
@@ -327,12 +394,20 @@ const InformesView = {
         case 'proveedores': this._renderProveedores(content, d); break;
         case 'rega': this._renderRega(content, d); break;
         case 'cargas': this._renderCargas(content, d); break;
+        case 'produccion': this._renderProduccion(content, d); break;
+        case 'gastos': this._renderGastos(content, d); break;
+        case 'margenes': this._renderMargenes(content, d); break;
+        case 'albaranes': this._renderAlbaranes(content, d); break;
         case 'pyg': this._renderPyG(content, d); break;
         case 'flujo-caja': this._renderFlujoCaja(content, d); break;
         case 'breakeven': this._renderBreakEven(content, d); break;
         case 'subvenciones': this._renderSubvenciones(content, d); break;
         case 'exportar': this._renderExportar(content, d); break;
         case 'rent-esp': this._renderRentabilidadEspecie(content, d); break;
+        case 'silos': this._renderSilos(content, d); break;
+        case 'tramites': this._renderTramites(content, d); break;
+        case 'contratos-vencimiento': this._renderContratosVencimiento(content, d); break;
+        case 'transportistas-resumen': this._renderTransportistasResumen(content, d); break;
         default: this._renderGeneral(content, d);
       }
     } catch (e) {
@@ -514,8 +589,198 @@ const InformesView = {
     this._renderGraficosGeneral(d);
   },
 
+  _renderGastos(content, d) {
+    const { gastosOperativos } = d;
+    const porCategoria = (gastosOperativos?.porCategoria || []);
+    const porProveedor = (gastosOperativos?.porProveedor || []);
+    const porMes = (gastosOperativos?.porMes || []);
+    const totalGastos = porCategoria.reduce((s, c) => s + c.total, 0);
+
+    content.innerHTML = this._sectionActionsHTML('gastos', 'Gastos') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.gastos()} Gastos Operativos</div>
+        <div class="card p-12 mb-14 border-222" style="background: rgba(255, 255, 255, 0.02);">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Total Gastos</small>
+              <span class="text-xl text-amber font-950">${UI.formatCurrency(totalGastos)}</span>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Categorías</small>
+              <span class="text-xl text-blue font-950">${porCategoria.length}</span>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Proveedores</small>
+              <span class="text-xl text-green font-950">${porProveedor.length}</span>
+            </div>
+          </div>
+        </div>
+
+        ${porCategoria.length > 0 ? `
+        <div class="inf-section-title uppercase font-900 mb-8">Por categoría</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          ${porCategoria.map(c => `
+            <div class="info-box-sm flex justify-between items-center">
+              <span class="text-ccc text-sm uppercase font-900">${c.categoria}</span>
+              <span class="text-white font-950 text-md">${UI.formatCurrency(c.total)}</span>
+            </div>`).join('')}
+        </div>` : ''}
+
+        ${porProveedor.length > 0 ? `
+        <div class="inf-section-title uppercase font-900 mb-8">Por proveedor</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          ${porProveedor.map(p => `
+            <div class="info-box-sm flex justify-between items-center">
+              <span class="text-ccc text-sm uppercase font-900">${p.proveedor}</span>
+              <span class="text-white font-950 text-md">${UI.formatCurrency(p.total)}</span>
+            </div>`).join('')}
+        </div>` : ''}
+
+        ${porMes.length > 1
+        ? '<div class="chart-wrap"><canvas id="chart-gastos-mes" class="chart-canvas"></canvas></div>'
+        : ''}
+      </div>
+    `;
+    setTimeout(() => {
+      if (porMes.length > 1) {
+        const ctx = document.getElementById('chart-gastos-mes');
+        if (ctx) {
+          this._nuevoChart(ctx, {
+            type: 'bar',
+            data: {
+              labels: porMes.map(m => m.mes),
+              datasets: [{
+                label: 'Gastos',
+                data: porMes.map(m => m.total),
+                backgroundColor: 'rgba(251,191,36,0.6)',
+                borderColor: '#fbbf24',
+                borderWidth: 1
+              }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+          });
+        }
+      }
+    }, 50);
+  },
+
+  _renderMargenes(content, d) {
+    const { margenes } = d;
+    const margenCarne = margenes?.margenCarneNeto || 0;
+    const mofaLeche = margenes?.mofaLeche || 0;
+    const margenTotal = margenes?.margenTotal || 0;
+
+    content.innerHTML = this._sectionActionsHTML('margenes', 'Márgenes') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.dinero()} Márgenes Comerciales</div>
+        <div class="card p-12 mb-14 border-222" style="background: rgba(255, 255, 255, 0.02);">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Margen Neto Carne</small>
+              <span class="text-xl ${margenCarne >= 0 ? 'text-green' : 'text-red'} font-950">${margenCarne >= 0 ? '+' : ''}${UI.formatCurrency(margenCarne)}</span>
+              <small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Transporte + Matanza deducidos</small>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">MOFA Leche</small>
+              <span class="text-xl ${mofaLeche >= 0 ? 'text-green' : 'text-red'} font-950">${mofaLeche >= 0 ? '+' : ''}${UI.formatCurrency(mofaLeche)}</span>
+              <small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Ingresos − Alimentación (período)</small>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Margen Total</small>
+              <span class="text-xl ${margenTotal >= 0 ? 'text-green' : 'text-red'} font-950">${margenTotal >= 0 ? '+' : ''}${UI.formatCurrency(margenTotal)}</span>
+              <small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Carne + Leche combinado</small>
+            </div>
+          </div>
+        </div>
+
+        ${margenCarne !== 0 || mofaLeche !== 0
+        ? '<div class="chart-wrap"><canvas id="chart-margenes" class="chart-canvas"></canvas></div>'
+        : '<div class="empty-state border border-222"><div class="empty-state-icon" style="color:#555;">${Icons.dinero()}</div><p class="empty-state-text uppercase font-900 text-xs">Sin datos de margen. Registra ventas y albaranes para ver el cálculo.</p></div>'}
+      </div>
+    `;
+    setTimeout(() => {
+      const ctx = document.getElementById('chart-margenes');
+      if (ctx && (margenCarne !== 0 || mofaLeche !== 0)) {
+        this._nuevoChart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Margen Carne', 'MOFA Leche'],
+            datasets: [{
+              data: [Math.abs(margenCarne), Math.abs(mofaLeche)],
+              backgroundColor: ['#4FADF5', '#4ADE80'],
+              borderColor: '#111',
+              borderWidth: 2
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
+        });
+      }
+    }, 50);
+  },
+
+  _renderAlbaranes(content, d) {
+    const { albaranes } = d;
+    const lista = (albaranes || []).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    const totalImporte = lista.reduce((s, a) => s + (a.importe || 0), 0);
+    const totalKg = lista.reduce((s, a) => s + (a.cantidad || 0), 0);
+
+    content.innerHTML = this._sectionActionsHTML('albaranes', 'Albaranes') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.libroVentas()} Albaranes Emitidos</div>
+        <div class="card p-12 mb-14 border-222" style="background: rgba(255, 255, 255, 0.02);">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Total Albaranes</small>
+              <span class="text-xl text-blue font-950">${lista.length}</span>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Importe Total</small>
+              <span class="text-xl text-amber font-950 truncate w-full px-4" title="${UI.formatCurrency(totalImporte)}">${UI.formatCurrency(totalImporte)}</span>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Total kg</small>
+              <span class="text-xl text-green font-950">${InformesView._fmt(totalKg, 1)}</span>
+            </div>
+          </div>
+        </div>
+
+        ${lista.length === 0 ? `<div class="empty-state"><div class="empty-state-icon">${Icons.libroVentas()}</div><p class="empty-state-text">No hay albaranes registrados</p></div>` : `
+        <div class="table-scroll scroll-shadow-container mt-10">
+          <table class="inf-table tbl-accent-blue">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>TIPO</th>
+                <th>Importe</th>
+                <th>Cantidad (kg/L)</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>${lista.map(a => `
+              <tr>
+                <td class="nowrap">${a.fecha ? UI.formatDate(a.fecha) : '-'}</td>
+                <td><span class="badge badge-sm ${a.tipo === 'Leche' ? 'badge-gold' : 'badge-amber'}">${a.tipo}</span></td>
+                <td class="text-right font-bold text-amber">${UI.formatCurrency(a.importe)}</td>
+                <td class="text-right">${InformesView._fmt(a.cantidad, 1)}</td>
+                <td><span class="badge badge-sm ${a.estado === 'entregado' ? 'badge-green' : 'badge-amber'}">${a.estado || '—'}</span></td>
+              </tr>`).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" class="text-right text-gray">TOTALES</td>
+                <td class="text-right font-bold text-amber">${UI.formatCurrency(totalImporte)}</td>
+                <td class="text-right font-bold">${InformesView._fmt(totalKg, 1)}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>`}
+      </div>
+    `;
+  },
+
   _renderCarne(content, d) {
-    const { rent, margenA, ventasHist, gastosCat, rentZ, ventasPorRebano, eventos } = d;
+    const { rent, margenA, ventasHist, gastosCat, rentZ, ventasPorRebano, eventos, movimientosEntrada, animales } = d;
     const totalIngresos = rent?.detalles?.carne || 0;
     const totalVentas = ventasHist.length;
     const kgTotal = ventasHist.reduce((s, v) => s + (v.kg || 0), 0);
@@ -592,6 +857,8 @@ const InformesView = {
               </div>
             </div>`).join('')}
         </div>` : ''}
+
+        <div id="chart-ica-cebo"></div>
       </div>
     `;
 
@@ -602,10 +869,140 @@ const InformesView = {
         if (rentZ?.length > 0) this._renderBarrasZonas('chart-rentabilidad-zonas-carne', rentZ);
       } catch (e) { console.error('[Carne charts]', e); }
     }, 50);
+
+    // ICA de Cierre — Tandas de Cebo (SIGGAN)
+    // Una tanda = animales de un movimiento de entrada con motivo 'cebo' (movimientos_ganado,
+    // ver js/movimientos.js — NO existen los campos origen/motivo_tarea/tandaId/movimientoId
+    // en este store). El vínculo con pesajes/consumos se hace por animalId/rebanoId, no por
+    // un id de tanda explícito, porque el modelo no lo tiene.
+    const movimientosEntradaSiggan = (movimientosEntrada || []).filter(m => m.tipo === 'entrada');
+    const tandasCebo = movimientosEntradaSiggan.filter(m => m.motivo === 'cebo');
+    const pesajesTotal = (eventos || []).filter(e => e.motivo_tarea === 'control_peso');
+    const consumosSiloTotal = (eventos || []).filter(e => e.motivo_tarea === 'alimentacion');
+    const animalesPorId = new Map((animales || []).map(a => [Number(a.id), a]));
+
+    const icaSection = document.getElementById('chart-ica-cebo');
+    if (icaSection) {
+      icaSection.innerHTML = tandasCebo.length > 0 ? `
+      <div class="inf-section-title uppercase font-900 mt-14">ICA de Cierre — Tandas de Cebo (SIGGAN)</div>
+      <div class="card p-12 mb-14 border-222" style="background: rgba(79,173,245,0.03);">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center mb-10">
+          <div class="info-box-center py-8">
+            <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Tandas activas</small>
+            <span class="text-xl text-blue font-950">${tandasCebo.length}</span>
+          </div>
+          <div class="info-box-center py-8">
+            <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Animales en tanda</small>
+            <span class="text-xl text-green font-950">${InformesView._fmt(tandasCebo.reduce((s, t) => s + (t.num_animales || 0), 0), 0)}</span>
+          </div>
+          <div class="info-box-center py-8">
+            <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Pesajes registrados</small>
+            <span class="text-xl text-amber font-950">${pesajesTotal.length}</span>
+          </div>
+          <div class="info-box-center py-8">
+            <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Consumos silo</small>
+            <span class="text-xl text-violet font-950">${consumosSiloTotal.length}</span>
+          </div>
+        </div>
+        <div class="table-scroll scroll-shadow-container">
+          <table class="inf-table inf-table-sm tbl-accent-blue">
+            <thead><tr><th>Movimiento</th><th>Fecha entrada</th><th>Animales</th><th>Peso último control (kg)</th><th>Pesajes</th><th>Consumo silo (kg)</th></tr></thead>
+            <tbody>${tandasCebo.map(t => {
+              const idsTanda = (t.animalId || []).map(Number);
+              const pesajes = pesajesTotal.filter(p => idsTanda.includes(Number(p.entidad_id)));
+              // Consumo de silo se registra por rebaño, no por animal — se atribuye a la
+              // tanda vía el rebaño del primer animal de la tanda.
+              const rebanoId = idsTanda.length > 0 ? animalesPorId.get(idsTanda[0])?.rebanoId : null;
+              const consumos = rebanoId != null
+                ? consumosSiloTotal.filter(c => Number(c.rebanoId) === Number(rebanoId) && new Date(c.fecha) >= new Date(t.fecha))
+                : [];
+              const ultimoPesaje = pesajes.length > 0 ? pesajes.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))[0] : null;
+              return `<tr>
+                <td><strong>${t.numero_guia || t.id}</strong></td>
+                <td>${t.fecha ? UI.formatDate(t.fecha) : '-'}</td>
+                <td class="font-900">${t.num_animales || 0}</td>
+                <td class="text-right">${ultimoPesaje ? InformesView._fmt(ultimoPesaje.valor_neto, 1) : '—'}</td>
+                <td class="text-center">${pesajes.length}</td>
+                <td class="text-right">${InformesView._fmt(consumos.reduce((s, c) => s + (c.valor_neto || 0), 0), 1)}</td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>` : '';
+    }
+  },
+
+  _renderProduccion(content, d) {
+    const { produccion } = d;
+    const porTipo = (produccion?.porTipo || []);
+    const total = produccion?.total || 0;
+    const timeline = (produccion?.timeline || []);
+
+    content.innerHTML = this._sectionActionsHTML('produccion', 'Producción') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.grafico()} Control de Producción</div>
+        <div class="card p-12 mb-14 border-222" style="background: rgba(255, 255, 255, 0.02);">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Registros (90d)</small>
+              <span class="text-xl text-blue font-950">${total}</span>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Tipos activos</small>
+              <span class="text-xl text-green font-950">${porTipo.length}</span>
+            </div>
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Total kg pesados</small>
+              <span class="text-xl text-amber font-950">${InformesView._fmt(porTipo.filter(t => /pesaje|control/i.test(t.tipo)).reduce((s, t) => s + (t.totalKg || 0), 0), 1)}</span>
+            </div>
+          </div>
+        </div>
+
+        ${porTipo.length > 0 ? `
+        <div class="inf-section-title uppercase font-900 mb-8">Por tipo de evento</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          ${porTipo.map(t => `
+            <div class="info-box-sm flex justify-between items-center">
+              <span class="text-ccc text-sm uppercase font-900">${t.tipo}</span>
+              <div class="text-right">
+                <span class="text-white font-950 text-md">${t.count}</span>
+                <span class="text-gray text-xs ml-6">${InformesView._fmt(t.totalKg || 0, 1)} kg</span>
+              </div>
+            </div>`).join('')}
+        </div>` : ''}
+
+        ${timeline.length > 1
+        ? '<div class="chart-wrap"><canvas id="chart-prod-timeline" class="chart-canvas"></canvas></div>'
+        : '<div class="inf-small p-16 text-center text-555">Se necesitan al menos 2 registros para mostrar la evolución.</div>'}
+      </div>
+    `;
+    setTimeout(() => {
+      if (timeline.length > 1) {
+        const ctx = document.getElementById('chart-prod-timeline');
+        if (ctx) {
+          this._nuevoChart(ctx, {
+            type: 'line',
+            data: {
+              labels: timeline.map(t => t.fecha),
+              datasets: [{
+                label: 'Producción',
+                data: timeline.map(t => t.cantidad),
+                borderColor: '#4FADF5',
+                backgroundColor: 'rgba(79,173,245,0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3
+              }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+          });
+        }
+      }
+    }, 50);
   },
 
   _renderLeche(content, d) {
-    const { lecheStats, lechePorRebano, _cachedLeche } = d;
+    const { lecheStats, lechePorRebano, _cachedLeche, tanqueStock, controlLechero, marAnimalMedio, rendimientoLechePorAnimal, indiceRenuevo, costoProduccionLeche } = d;
     const rawLeche = _cachedLeche || [];
     if (!lecheStats || lecheStats.totalLitros === 0) {
       content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${Icons.leche()}</div><p class="empty-state-text">No hay datos de producción lechera registrados.</p></div>`;
@@ -621,8 +1018,9 @@ const InformesView = {
     const mofaTotal = rawLeche.reduce((s, e) => s + (e.mofa || 0), 0);
     const importeTotal = rawLeche.reduce((s, e) => s + (e.importe_total || e.cantidad * e.precioBase || 0), 0);
     const mofaRatio = importeTotal > 0 ? InformesView._fmt(((mofaTotal / importeTotal) * 100), 1) : 0;
-    // Umbrales de calidad
-    const umbrales = window.ComunidadesService?.CALIDAD_LECHE_OVINO_UMBRALES || null;
+    // Umbrales de calidad - usar especie específica
+    const especieAnimal = (d._cachedLeche || [])[0]?.especie_leche || 'vacuno';
+    const umbrales = window.ComunidadesService?.getUmbralesCalidadEspecie(especieAnimal) || null;
     const semaforo = (valor, min, max) => {
       if (valor == null) return '#555';
       if (min != null && valor < min) return 'var(--c-danger)';
@@ -662,6 +1060,69 @@ const InformesView = {
               <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">MOFA Total</small>
               <span class="text-xl font-950 ${mofaTotal >= 0 ? 'text-green' : 'text-red'} truncate w-full px-4" title="${(mofaTotal >= 0 ? '+' : '')}${UI.formatCurrency(Math.round(mofaTotal))}">${(mofaTotal >= 0 ? '+' : '')}${UI.formatCurrency(Math.round(mofaTotal))}</span>
             </div>
+
+            <!-- Nuevos indicadores: Tanques, Control Lechero, Margen Animal -->
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Stock Tanques</small>
+              <span class="text-xl text-white font-950">
+                ${tanqueStock && tanqueStock.length > 0
+                  ? `${InformesView._fmt(tanqueStock.reduce((sum, t) => sum + (t.stock_actual || 0), 0))} L`
+                  : '0 L'
+                }
+              </span>
+              ${tanqueStock && tanqueStock.length > 0
+                ? `<small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Cap: ${InformesView._fmt(tanqueStock.reduce((sum, t) => sum + (t.capacidad_litros || 0), 0))} L</small>`
+                : ''
+              }
+            </div>
+
+            <div class="info-box-center py-10"
+                 style="border-left:3px solid ${controlLechero && Object.keys(controlLechero).length > 0
+                   ? semaforo(
+                       (controlLechero.media_rebano_grasa || 0) + (controlLechero.media_rebano_proteina || 0),
+                       (umbrales?.grasa?.min || 0) + (umbrales?.proteina?.min || 0),
+                       null
+                     )
+                   : '#555'}"
+            >
+              <small class="s-lbl uppercase font-900">Grasa + Proteína</small>
+              <div class="inf-val-md font-950" style="color:${controlLechero && Object.keys(controlLechero).length > 0
+                ? semaforo(
+                    (controlLechero.media_rebano_grasa || 0) + (controlLechero.media_rebano_proteina || 0),
+                    (umbrales?.grasa?.min || 0) + (umbrales?.proteina?.min || 0),
+                    null
+                  )
+                : '#555'}">
+                ${controlLechero && Object.keys(controlLechero).length > 0
+                  ? `${((controlLechero.media_rebano_grasa || 0) + (controlLechero.media_rebano_proteina || 0)).toFixed(2)}%`
+                  : '—'
+                }
+              </div>
+              ${controlLechero && Object.keys(controlLechero).length > 0 && umbrales
+                ? `<small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Obj: ≥${((umbrales?.grasa?.min || 0) + (umbrales?.proteina?.min || 0)).toFixed(2)}%</small>`
+                : ''
+              }
+            </div>
+
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Margen Medio</small>
+              <span class="text-xl text-white font-950">${InformesView._fmt(marAnimalMedio.promedio || 0, 2)} €/cab</span>
+            </div>
+
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Rendimiento Leche/Animal</small>
+              <span class="text-xl text-white font-950">${rendimientoLechePorAnimal ? InformesView._fmt(rendimientoLechePorAnimal.promedio, 2) : '0,00'} L/día</span>
+            </div>
+
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Índice de Renovación</small>
+              <span class="text-xl text-white font-950">${indiceRenuevo ? InformesView._fmt(indiceRenuevo.promedio, 2) : '0,00'} %</span>
+            </div>
+
+            <div class="info-box-center py-10">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Costo Producción Leche</small>
+              <span class="text-xl text-white font-950">${costoProduccionLeche ? InformesView._fmt(costoProduccionLeche.costoPorLitro, 4) : '0,0000'} €/L</span>
+            </div>
           </div>
         </div>
 
@@ -684,10 +1145,10 @@ const InformesView = {
               <div class="inf-val-md font-950" style="color:${semaforo(esMedia, umbrales?.extracto_seco?.min, null)}">${InformesView._fmt(esMedia, 2)}%</div>
               ${umbrales ? `<small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Obj: ≥${umbrales.extracto_seco.min}%</small>` : ''}
             </div>
-            <div class="info-box-center py-10" style="border-left:3px solid ${semaforo(somaticasMedia, null, umbrales?.somaticas?.max)};">
+            <div class="info-box-center py-10" style="border-left:3px solid ${semaforo(somaticasMedia, null, umbrales?.celulas_somaticas?.max)};">
               <small class="s-lbl uppercase font-900">CÉL. SOMÁTICAS</small>
-              <div class="inf-val-md font-950" style="color:${semaforo(somaticasMedia, null, umbrales?.somaticas?.max)}">${UI.formatNumber(Math.round(somaticasMedia))}</div>
-              ${umbrales ? `<small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Obj: ≤${InformesView._fmt((umbrales.somaticas.max / 1000), 0)}k</small>` : ''}
+              <div class="inf-val-md font-950" style="color:${semaforo(somaticasMedia, null, umbrales?.celulas_somaticas?.max)}">${UI.formatNumber(Math.round(somaticasMedia))}</div>
+              ${umbrales?.celulas_somaticas?.max ? `<small class="text-gray text-[0.55rem] uppercase font-800 mt-4">Obj: ≤${InformesView._fmt((umbrales.celulas_somaticas.max / 1000), 0)}k</small>` : ''}
             </div>
           </div>
         </div>` : ''}
@@ -789,7 +1250,7 @@ const InformesView = {
   },
 
   _renderSanidad(content, d) {
-    const { estadisticasSanidad, gastosCat, rebanos, animales, eventos, sanitariosRaw } = d;
+    const { estadisticasSanidad, gastosCat, rebanos, animales, eventos, sanitariosRaw, botiquinStock } = d;
     // Calcular coste sanitario por animal
     const gastosSanitarios = (gastosCat || []).filter(g => (g.categoria || '').toLowerCase() === 'sanidad');
     const totalGastoSanidad = gastosSanitarios.reduce((s, g) => s + g.total, 0);
@@ -864,6 +1325,54 @@ const InformesView = {
         });
       }
     }, 50);
+
+    // Botiquín stock/caducidades
+    if (botiquinStock?.totalProductos > 0) {
+      const botiquinEl = document.createElement('div');
+      botiquinEl.className = 'inf-report card report-section   report-card mt-14';
+      botiquinEl.innerHTML = `
+        <div class="inf-card-title flex items-center gap-6">${Icons.sanidad()} Stock Botiquín</div>
+        <div class="card p-12 mb-14 border-222" style="background: rgba(255, 255, 255, 0.02);">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-8">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Productos</small>
+              <span class="text-xl text-blue font-950">${botiquinStock.totalProductos}</span>
+            </div>
+            <div class="info-box-center py-8">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Lotes</small>
+              <span class="text-xl text-green font-950">${botiquinStock.totalLotes}</span>
+            </div>
+            <div class="info-box-center py-8">
+              <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Stock bajo</small>
+              <span class="text-xl font-950 ${botiquinStock.stockBajo.length > 0 ? 'text-red' : 'text-green'}">${botiquinStock.stockBajo.length}</span>
+            </div>
+          </div>
+        </div>
+        ${botiquinStock.proxCaducar.length > 0 ? `
+        <div class="card card-tint-amber mb-10 p-12">
+          <div class="inf-section-title mb-8 text-amber uppercase font-900">${Icons.alerta()} Próximos a caducar (30 días)</div>
+          <div class="grid grid-cols-1 gap-6">
+            ${botiquinStock.proxCaducar.map(p => `
+              <div class="info-box-sm flex justify-between items-center">
+                <span class="text-ccc text-sm font-900">${p.nombre}</span>
+                <span class="text-amber font-800 text-xs">Lote: ${p.lote || '-'} — Caduca: ${p.caducidad}</span>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+        ${botiquinStock.stockBajo.length > 0 ? `
+        <div class="card card-tint-red mb-10 p-12">
+          <div class="inf-section-title mb-8 text-red uppercase font-900">${Icons.alerta()} Stock bajo</div>
+          <div class="grid grid-cols-1 gap-6">
+            ${botiquinStock.stockBajo.map(p => `
+              <div class="info-box-sm flex justify-between items-center">
+                <span class="text-ccc text-sm font-900">${p.nombre}</span>
+                <span class="text-red font-800 text-xs">${InformesView._fmt(p.cantidadActual, 0)} / ${InformesView._fmt(p.cantidadMinima, 0)} ${p.unidad || 'dosis'}</span>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+      `;
+      content.querySelector('.report-section:last-child')?.appendChild(botiquinEl);
+    }
   },
 
   _renderCenso(content, d) {
@@ -972,7 +1481,7 @@ const InformesView = {
           </div>
         </div>
 
-        ${ventas.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">${Icons.exportacion()}</div><p class="empty-state-text">No hay ventas registradas</p></div>' : `
+        ${ventas.length === 0 ? `<div class="empty-state"><div class="empty-state-icon">${Icons.exportacion()}</div><p class="empty-state-text">No hay ventas registradas</p></div>` : `
         <div class="table-scroll scroll-shadow-container mt-10">
           <table class="inf-table tbl-accent-blue">
             <thead>
@@ -1009,7 +1518,7 @@ const InformesView = {
                   <td class="text-right text-blue">${InformesView._fmt((v.importe_iva || 0), 2)}€</td>
                   <td class="text-right text-red">${InformesView._fmt(irpf, 2)}€</td>
                   <td class="text-right font-bold text-green">${InformesView._fmt(neto, 2)}€</td>
-                  <td class="text-center">${tieneDimoe ? '${Icons.check()} DIMOE' : '${Icons.check()} SIGGAN'}</td>
+                  <td class="text-center">${tieneDimoe ? `${Icons.check()} DIMOE` : `${Icons.check()} SIGGAN`}</td>
                 </tr>`;
               }).join('')}
             </tbody>
@@ -1061,8 +1570,77 @@ const InformesView = {
           </div>
         </div>`;
         })() : ''}
+
+        ${ventas.length > 1 ? (() => {
+          const porMes = {};
+          ventas.forEach(v => {
+            const mes = (v.fechaSacrificio || v.fecha_emision || '').slice(0, 7);
+            if (!mes) return;
+            const kg = v.pesoCanal || v.pesoVivo || 0;
+            const base = (v.precio_total || 0) - (v.importe_iva || 0);
+            if (!porMes[mes]) porMes[mes] = { kg: 0, base: 0, num: 0 };
+            porMes[mes].kg += kg;
+            porMes[mes].base += base;
+            porMes[mes].num++;
+          });
+          const evolucion = Object.entries(porMes).map(([mes, d]) => ({
+            mes,
+            precioMedio: d.kg > 0 ? (d.base / d.kg) : 0,
+            kg: d.kg,
+            num: d.num
+          })).sort((a, b) => a.mes.localeCompare(b.mes));
+
+          return evolucion.length > 1 ? `
+        <div class="inf-section-title uppercase font-900 mt-14">Evolución temporal — Precio medio €/kg</div>
+        <div class="chart-wrap mb-10"><canvas id="chart-ventas-evolucion" class="chart-canvas"></canvas></div>` : '';
+        })() : ''}
       </div>
     `;
+
+    // Gráfico de evolución temporal de precios medios
+    setTimeout(() => {
+      const evolucionData = (() => {
+        const porMes = {};
+        ventas.forEach(v => {
+          const mes = (v.fechaSacrificio || v.fecha_emision || '').slice(0, 7);
+          if (!mes) return;
+          const kg = v.pesoCanal || v.pesoVivo || 0;
+          const base = (v.precio_total || 0) - (v.importe_iva || 0);
+          if (!porMes[mes]) porMes[mes] = { kg: 0, base: 0, num: 0 };
+          porMes[mes].kg += kg;
+          porMes[mes].base += base;
+          porMes[mes].num++;
+        });
+        return Object.entries(porMes).map(([mes, d]) => ({
+          mes,
+          precioMedio: d.kg > 0 ? (d.base / d.kg) : 0,
+          kg: d.kg,
+          num: d.num
+        })).sort((a, b) => a.mes.localeCompare(b.mes));
+      })();
+
+      if (evolucionData.length > 1) {
+        const ctxE = document.getElementById('chart-ventas-evolucion');
+        if (ctxE) {
+          this._nuevoChart(ctxE, {
+            type: 'line',
+            data: {
+              labels: evolucionData.map(e => e.mes),
+              datasets: [{
+                label: '€/kg medio',
+                data: evolucionData.map(e => InformesView._fmt(e.precioMedio, 2)),
+                borderColor: '#4FADF5',
+                backgroundColor: 'rgba(79,173,245,0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3
+              }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+          });
+        }
+      }
+    }, 100);
   },
 
   // ===================== INFORME COMPRADORES =====================
@@ -1106,7 +1684,7 @@ const InformesView = {
           </div>
         </div>` : ''}
 
-        ${data.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">${Icons.edificio()}</div><p class="empty-state-text">No hay ventas registradas con compradores.</p></div>' : `
+        ${data.length === 0 ? `<div class="empty-state"><div class="empty-state-icon">${Icons.edificio()}</div><p class="empty-state-text">No hay ventas registradas con compradores.</p></div>` : `
         <div class="table-scroll scroll-shadow-container">
           <table class="inf-table tbl-accent-blue">
             <thead><tr>
@@ -1223,7 +1801,7 @@ const InformesView = {
           </div>
         </div>` : ''}
 
-        ${data.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">${Icons.paquete()}</div><p class="empty-state-text">No hay gastos registrados con proveedores.</p></div>' : `
+        ${data.length === 0 ? `<div class="empty-state"><div class="empty-state-icon">${Icons.paquete()}</div><p class="empty-state-text">No hay gastos registrados con proveedores.</p></div>` : `
         <div class="table-scroll scroll-shadow-container">
           <table class="inf-table tbl-accent-amber">
             <thead><tr>
@@ -1327,7 +1905,7 @@ const InformesView = {
           ${data.zonas.map(z => `<span class="badge badge-green text-2xs">${Icons.fitosanitario()} ${z}</span>`).join('')}
         </div>` : ''}
 
-        ${data.registros.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">${Icons.fitosanitario()}</div><p class="empty-state-text">No hay gastos fitosanitarios registrados.</p></div>' : `
+        ${data.registros.length === 0 ? `<div class="empty-state"><div class="empty-state-icon">${Icons.fitosanitario()}</div><p class="empty-state-text">No hay gastos fitosanitarios registrados.</p></div>` : `
         <div class="table-scroll scroll-shadow-container">
           <table class="inf-table tbl-accent-green">
             <thead><tr>
@@ -1585,7 +2163,7 @@ const InformesView = {
     content.innerHTML = this._sectionActionsHTML('rega', 'REGA') + `
       <div class="inf-report mb-14">
         <!-- KPIs Unificados -->
-        <div class="card p-12 mb-14 border-222 style="--registro-color: var(--c-gray);"--registro-color: var(--c-gray);"" style="background: rgba(255, 255, 255, 0.02);">
+        <div class="card p-12 mb-14 border-222" style="--registro-color: var(--c-gray); background: rgba(255, 255, 255, 0.02);">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
             <div class="info-box-center py-10">
               <small class="text-neutral block text-[0.62rem] mb-4 uppercase font-800">Censo Total</small>
@@ -1606,7 +2184,7 @@ const InformesView = {
           </div>
         </div>
         <!-- Datos Explotación -->
-        <div class="card report-section   report-card style="--registro-color: var(--c-gold);"--registro-color: var(--c-gold);"">
+        <div class="card report-section   report-card" style="--registro-color: var(--c-gold);">
           <div class="inf-card-title">${Icons.finca()} Datos de la Explotación</div>
           <div class="grid grid-cols-2 gap-8 text-sm">
             <div><span class="text-gray">Nombre:</span> <strong>${finca.nombre || 'N/D'}</strong></div>
@@ -1632,9 +2210,9 @@ const InformesView = {
         </div>
 
         <!-- Resumen Censo -->
-        <div class="card report-section   report-card style="--registro-color: var(--c-success);"--registro-color: var(--c-success);"">
+        <div class="card report-section   report-card" style="--registro-color: var(--c-success);">
           <div class="inf-card-title">${Icons.animales()} Censo Actual</div>
-          <div class="card p-12 mb-12 border-222 style="--registro-color: var(--c-gray);"--registro-color: var(--c-gray);"" style="background:rgba(255,255,255,0.02);">
+          <div class="card p-12 mb-12 border-222" style="--registro-color: var(--c-gray); background:rgba(255,255,255,0.02);">
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center">
               <div class="info-box-center py-6">
                 <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Total Animales</small>
@@ -1734,9 +2312,9 @@ const InformesView = {
         </div>
 
         <!-- Movimientos recientes -->
-        <div class="card report-section   report-card style="--registro-color: var(--c-purple);"--registro-color: var(--c-purple);"">
+        <div class="card report-section   report-card" style="--registro-color: var(--c-purple);">
           <div class="inf-card-title">${Icons.paquete()} Últimos Movimientos</div>
-          ${eventosRecientes.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">${Icons.paquete()}</div><p class="empty-state-text">Sin movimientos registrados</p></div>' : `
+          ${eventosRecientes.length === 0 ? `<div class="empty-state"><div class="empty-state-icon">${Icons.paquete()}</div><p class="empty-state-text">Sin movimientos registrados</p></div>` : `
           <div class="table-scroll scroll-shadow-container">
             <table class="inf-table inf-table-sm tbl-accent-purple">
               <thead><tr>
@@ -2053,6 +2631,218 @@ const InformesView = {
             }).join('')}</tbody>
           </table>
         </div>` : `<div class="empty-state border border-222"><div class="empty-state-icon" style="color:#555;">${Icons.balanza()}</div><p class="empty-state-text uppercase font-900 text-xs">Sin zonas configuradas o sin datos de ocupación.</p></div>`}
+      </div>`;
+  },
+
+  /** Silos: stock actual vs. capacidad, % ocupación, alertas de stock bajo */
+  _renderSilos(content, d) {
+    const { silosData } = d;
+    const data = silosData || { silos: [], totalCapacidad: 0, totalStock: 0, alertasStockBajo: 0 };
+    const colorPct = (p) => p < 20 ? 'var(--c-danger)' : p < 50 ? 'var(--c-warning)' : 'var(--c-success)';
+
+    content.innerHTML = this._sectionActionsHTML('silos', 'Silos') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.silos()} Stock de Alimentación</div>
+        <div class="card p-12 mb-14 border-222 style="background:rgba(255,255,255,0.02);">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Capacidad Total</small>
+              <span class="text-xl text-blue font-950">${InformesView._fmt(data.totalCapacidad, 0)} kg</span>
+            </div>
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Stock Actual</small>
+              <span class="text-xl text-green font-950">${InformesView._fmt(data.totalStock, 0)} kg</span>
+            </div>
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Alertas Stock Bajo</small>
+              <span class="text-xl font-950 ${data.alertasStockBajo > 0 ? 'text-red' : 'text-green'}">${data.alertasStockBajo}</span>
+            </div>
+          </div>
+        </div>
+        ${data.silos.length > 0 ? `
+        <div class="table-scroll scroll-shadow-container">
+          <table class="inf-table inf-table-sm tbl-accent-amber">
+            <thead><tr><th>Silo</th><th>Alimento</th><th class="text-center">Stock</th><th class="text-center">Capacidad</th><th class="text-center">%</th></tr></thead>
+            <tbody>${data.silos.map(s => `
+              <tr>
+                <td><strong>${s.nombre}</strong></td>
+                <td class="text-gray">${s.alimento || '—'}</td>
+                <td class="text-center">${InformesView._fmt(s.stock, 0)} kg</td>
+                <td class="text-center">${InformesView._fmt(s.capacidad, 0)} kg</td>
+                <td class="text-center font-bold" style="color:${colorPct(s.pct)}">${s.pct}%</td>
+              </tr>`).join('')}</tbody>
+          </table>
+        </div>` : `<div class="empty-state border border-222"><div class="empty-state-icon" style="color:#555;">${Icons.silos()}</div><p class="empty-state-text uppercase font-900 text-xs">Sin silos configurados.</p></div>`}
+      </div>`;
+  },
+
+  /** Trámites: estado sanitario por campaña de saneamiento + restricciones de movimiento activas */
+  _renderTramites(content, d) {
+    const { tramitesData, docsLegales, pedidosCrotales } = d;
+    const data = tramitesData || { porCampana: [], restriccionesActivas: 0, totalSaneamientos: 0 };
+    const colorCalificacion = (c) => (c || '').toLowerCase().includes('indemne') || (c || '').toLowerCase().startsWith('t3') || (c || '').toLowerCase().startsWith('m3') || (c || '').toLowerCase().startsWith('b4') ? 'var(--c-success)' : 'var(--c-warning)';
+
+    content.innerHTML = this._sectionActionsHTML('tramites', 'Trámites') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.documento()} Estado Sanitario y Trámites</div>
+        <div class="card p-12 mb-14 border-222 style="background:rgba(255,255,255,0.02);">
+          <div class="grid grid-cols-2 gap-8 text-center">
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Saneamientos Registrados</small>
+              <span class="text-xl text-blue font-950">${data.totalSaneamientos}</span>
+            </div>
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Restricciones Activas</small>
+              <span class="text-xl font-950 ${data.restriccionesActivas > 0 ? 'text-red' : 'text-green'}">${data.restriccionesActivas}</span>
+            </div>
+          </div>
+        </div>
+        ${data.restriccionesActivas > 0 ? `<div class="card card-tint-red mb-14 p-12>
+          <div class="flex items-center gap-8"><span class="text-xl">${Icons.alerta()}</span><div><strong class="text-red">${data.restriccionesActivas} ${data.restriccionesActivas === 1 ? 'campaña con restricción' : 'campañas con restricción'}</strong><span class="text-gray text-sm block">Movimientos restringidos por resultado sanitario</span></div></div>
+        </div>` : ''}
+        ${data.porCampana.length > 0 ? `
+        <div class="table-scroll scroll-shadow-container">
+          <table class="inf-table inf-table-sm tbl-accent-blue">
+            <thead><tr><th>Campaña</th><th>Fecha</th><th>Calificación</th><th>Próxima actuación</th><th>Restricción</th></tr></thead>
+            <tbody>${data.porCampana.map(s => `
+              <tr>
+                <td><strong>${s.campana}</strong></td>
+                <td>${s.fecha ? UI.formatDate(s.fecha) : '—'}</td>
+                <td class="font-bold" style="color:${colorCalificacion(s.calificacion)}">${s.calificacion || 'Sin calificar'}</td>
+                <td>${s.proxima_actuacion ? UI.formatDate(s.proxima_actuacion) : '—'}</td>
+                <td>${s.restriccion_movimientos ? `<span class="badge badge-sm badge-red">${Icons.alerta()} Restringido</span>` : '<span class="badge badge-sm badge-green">Sin restricción</span>'}</td>
+              </tr>`).join('')}</tbody>
+          </table>
+        </div>` : `<div class="empty-state border border-222"><div class="empty-state-icon" style="color:#555;">${Icons.documento()}</div><p class="empty-state-text uppercase font-900 text-xs">Sin saneamientos registrados.</p></div>`}
+      </div>
+
+      ${(docsLegales || []).filter(d => d.tipo === 'dimoe').length > 0 ? `
+      <div class="inf-report card report-section   report-card mt-14">
+        <div class="inf-card-title flex items-center gap-6">${Icons.documento()} Guías DIMOE Emitidas</div>
+        <div class="table-scroll scroll-shadow-container">
+          <table class="inf-table inf-table-sm tbl-accent-blue">
+            <thead><tr><th>Fecha emisión</th><th>Nº guía</th><th>Destino</th><th>Motivo</th><th>Transportista</th></tr></thead>
+            <tbody>${docsLegales.filter(d => d.tipo === 'dimoe').map(d => `
+              <tr>
+                <td>${d.fecha_emision ? UI.formatDate(d.fecha_emision) : '-'}</td>
+                <td>${d.numero || '-'}</td>
+                <td>${d.destino_nombre || '-'}</td>
+                <td class="text-gray text-xs">${d.motivo || '-'}</td>
+                <td class="text-xs text-gray">${d.transportista_nombre || '-'}${d.transportista_nif ? ` (${d.transportista_nif})` : ''}</td>
+              </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>` : ''}
+
+      ${(pedidosCrotales || []).length > 0 ? `
+      <div class="inf-report card report-section   report-card mt-14">
+        <div class="inf-card-title flex items-center gap-6">${Icons.documento()} Pedidos de Crotales</div>
+        <div class="table-scroll scroll-shadow-container">
+          <table class="inf-table inf-table-sm tbl-accent-blue">
+            <thead><tr><th>Fecha pedido</th><th>Especie</th><th>Tipo</th><th>Cantidad</th><th>Estado</th><th>Seguimiento</th></tr></thead>
+            <tbody>${pedidosCrotales.map(p => `
+              <tr>
+                <td>${p.fecha_pedido ? UI.formatDate(p.fecha_pedido) : '-'}</td>
+                <td>${p.especie || '-'}</td>
+                <td>${p.tipo || '-'}</td>
+                <td class="text-right font-900">${p.cantidad || 0}</td>
+                <td><span class="badge badge-sm ${p.estado === 'entregado' ? 'badge-green' : (p.estado === 'pendiente' ? 'badge-amber' : 'badge-blue')}">${p.estado || 'pendiente'}</span></td>
+                <td class="text-xs text-gray">${p.numero_seguimiento || '-'}</td>
+              </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>` : ''}
+    `;
+  },
+
+  /** Contratos próximos a vencer o ya vencidos */
+  _renderContratosVencimiento(content, d) {
+    const { contratosVencimientoData } = d;
+    const data = contratosVencimientoData || { contratos: [], proximosAVencer: 0, vencidos: 0 };
+
+    content.innerHTML = this._sectionActionsHTML('contratos-vencimiento', 'Contratos') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.contratos()} Vencimiento de Contratos</div>
+        <div class="card p-12 mb-14 border-222 style="background:rgba(255,255,255,0.02);">
+          <div class="grid grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Total Contratos</small>
+              <span class="text-xl text-blue font-950">${data.contratos.length}</span>
+            </div>
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Vencen en 60 días</small>
+              <span class="text-xl font-950 ${data.proximosAVencer > 0 ? 'text-amber' : 'text-green'}">${data.proximosAVencer}</span>
+            </div>
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Vencidos</small>
+              <span class="text-xl font-950 ${data.vencidos > 0 ? 'text-red' : 'text-green'}">${data.vencidos}</span>
+            </div>
+          </div>
+        </div>
+        ${data.contratos.length > 0 ? `
+        <div class="table-scroll scroll-shadow-container">
+          <table class="inf-table inf-table-sm tbl-accent-amber">
+            <thead><tr><th>Contrato</th><th>Tipo</th><th>Comprador</th><th class="text-center">Vence</th><th>Estado</th></tr></thead>
+            <tbody>${data.contratos.map(c => `
+              <tr>
+                <td><strong>${c.numero_contrato || '—'}</strong></td>
+                <td class="text-gray">${c.tipo || '—'}</td>
+                <td>${c.comprador}</td>
+                <td class="text-center">${c.fecha_fin ? UI.formatDate(c.fecha_fin) : '—'}</td>
+                <td>${c.vencido ? '<span class="badge badge-sm badge-red">Vencido</span>' : c.proximoAVencer ? `<span class="badge badge-sm badge-amber">${c.diasRestantes}d restantes</span>` : '<span class="badge badge-sm badge-green">Vigente</span>'}</td>
+              </tr>`).join('')}</tbody>
+          </table>
+        </div>` : `<div class="empty-state border border-222"><div class="empty-state-icon" style="color:#555;">${Icons.contratos()}</div><p class="empty-state-text uppercase font-900 text-xs">Sin contratos registrados.</p></div>`}
+      </div>`;
+  },
+
+  /** Resumen de transportistas: autorizaciones, capacidad, vencimientos de desinsectación */
+  _renderTransportistasResumen(content, d) {
+    const { transportistas } = d;
+    const lista = transportistas || [];
+    const hoy = new Date();
+    const conVencimiento = lista.map(t => {
+      const venceFecha = t.desinsectacion_vencimiento ? new Date(t.desinsectacion_vencimiento) : null;
+      const diasRestantes = venceFecha ? Math.ceil((venceFecha - hoy) / (1000 * 60 * 60 * 24)) : null;
+      return { ...t, diasRestantes, vencido: diasRestantes !== null && diasRestantes < 0, proximoAVencer: diasRestantes !== null && diasRestantes >= 0 && diasRestantes <= 30 };
+    });
+    const vencidos = conVencimiento.filter(t => t.vencido).length;
+    const proximos = conVencimiento.filter(t => t.proximoAVencer).length;
+
+    content.innerHTML = this._sectionActionsHTML('transportistas-resumen', 'Transportistas') + `
+      <div class="inf-report card report-section   report-card">
+        <div class="inf-card-title flex items-center gap-6">${Icons.transportistas()} Transportistas</div>
+        <div class="card p-12 mb-14 border-222 style="background:rgba(255,255,255,0.02);">
+          <div class="grid grid-cols-3 gap-8 text-center">
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Total</small>
+              <span class="text-xl text-blue font-950">${lista.length}</span>
+            </div>
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Desinsect. Vence en 30d</small>
+              <span class="text-xl font-950 ${proximos > 0 ? 'text-amber' : 'text-green'}">${proximos}</span>
+            </div>
+            <div class="info-box-center py-6">
+              <small class="text-neutral block text-[0.6rem] mb-4 uppercase font-800">Desinsect. Vencida</small>
+              <span class="text-xl font-950 ${vencidos > 0 ? 'text-red' : 'text-green'}">${vencidos}</span>
+            </div>
+          </div>
+        </div>
+        ${conVencimiento.length > 0 ? `
+        <div class="table-scroll scroll-shadow-container">
+          <table class="inf-table inf-table-sm tbl-accent-blue">
+            <thead><tr><th>Transportista</th><th>Vehículo</th><th class="text-center">Capacidad</th><th>Desinsectación</th></tr></thead>
+            <tbody>${conVencimiento.map(t => `
+              <tr>
+                <td><strong>${t.nombre}</strong></td>
+                <td class="text-gray">${t.tipo_vehiculo || '—'} (${t.matricula || '—'})</td>
+                <td class="text-center">${t.capacidad_animales || '—'}</td>
+                <td>${t.desinsectacion_vencimiento
+                  ? (t.vencido ? '<span class="badge badge-sm badge-red">Vencida</span>' : t.proximoAVencer ? `<span class="badge badge-sm badge-amber">${t.diasRestantes}d restantes</span>` : '<span class="badge badge-sm badge-green">Vigente</span>')
+                  : '<span class="text-gray">—</span>'}</td>
+              </tr>`).join('')}</tbody>
+          </table>
+        </div>` : `<div class="empty-state border border-222"><div class="empty-state-icon" style="color:#555;">${Icons.transportistas()}</div><p class="empty-state-text uppercase font-900 text-xs">Sin transportistas registrados.</p></div>`}
       </div>`;
   },
 
@@ -2464,16 +3254,17 @@ const InformesView = {
   // ===================== GRÁFICOS =====================
 
   /**
-   * Crea un Chart destruyendo antes el que hubiera en ese canvas. Sin esto, volver a
-   * una vista de Informes re-ejecutaba new Chart() sobre un canvas ya ocupado y
-   * Chart.js lanzaba "Canvas is already in use", que el onerror global mostraba como
-   * banner rojo a pantalla completa (enmascarado como "Script error." por ser el CDN
-   * un origen distinto). Portado de LIVESTOCK-MANAGER.
+   * Crea un Chart sobre un canvas ya existente. Chart.js asocia cada canvas a un
+   * único Chart: si el render se re-ejecuta (p. ej. al volver a la pestaña general
+   * de Informes) y se intenta `new Chart()` sobre el mismo canvas, lanza
+   * "Canvas is already in use... must be destroyed before the canvas can be reused",
+   * que el onerror global muestra como banner rojo. Se destruye el chart previo
+   * con Chart.getChart(canvas) antes de crear el nuevo.
    */
   _nuevoChart(canvas, config) {
     const previo = Chart.getChart(canvas);
     if (previo) previo.destroy();
-    return this._nuevoChart(canvas, config);
+    return new Chart(canvas.getContext('2d'), config);
   },
 
   _renderGraficosGeneral(d) {

@@ -1,0 +1,310 @@
+[
+  {
+    "ruta": "#/",
+    "nombre": "Dashboard",
+    "chars": 1588,
+    "muestra": "| REGISTRO RÁPIDO DE ACTIVIDAD ACCESO DIRECTO A OPERACIONES DE CAMPO D",
+    "problemas": []
+  },
+  {
+    "ruta": "#/ganaderia",
+    "nombre": "GeGan · carrusel",
+    "chars": 1090,
+    "muestra": "ANIMALES ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | CENSO DE ANIMALES",
+    "problemas": []
+  },
+  {
+    "ruta": "#/ganaderia?tab=animales",
+    "nombre": "GeGan · Animales",
+    "chars": 1090,
+    "muestra": "ANIMALES ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | CENSO DE ANIMALES",
+    "problemas": []
+  },
+  {
+    "ruta": "#/ganaderia?tab=rebanos",
+    "nombre": "GeGan · Rebaños",
+    "chars": 706,
+    "muestra": "REBANOS ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | LOTES Y REBAÑOS AG",
+    "problemas": []
+  },
+  {
+    "ruta": "#/ganaderia?tab=patrimonio",
+    "nombre": "GeGan · Patrimonio",
+    "chars": 1078,
+    "muestra": "PATRIMONIO ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | PATRIMONIO Y GA",
+    "problemas": []
+  },
+  {
+    "ruta": "#/ganaderia?tab=zonas",
+    "nombre": "GeGan · Zonas",
+    "chars": 1297,
+    "muestra": "ZONAS ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | ZONAS Y PARCELAS UBI",
+    "problemas": []
+  },
+  {
+    "ruta": "#/ganaderia?tab=sanidad",
+    "nombre": "GeGan · Sanidad",
+    "chars": 796,
+    "muestra": "SANIDAD ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | LEGISLACIÓN SANITA",
+    "problemas": []
+  },
+  {
+    "ruta": "#/animales",
+    "nombre": "Animales (lista)",
+    "chars": 1090,
+    "muestra": "ANIMALES ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | CENSO DE ANIMALES",
+    "problemas": []
+  },
+  {
+    "ruta": "#/rebanos",
+    "nombre": "Rebaños",
+    "chars": 706,
+    "muestra": "REBANOS ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | LOTES Y REBAÑOS AG",
+    "problemas": []
+  },
+  {
+    "ruta": "#/zonas",
+    "nombre": "Zonas",
+    "chars": 1297,
+    "muestra": "ZONAS ANIMALES REBANOS PATRIMONIO ZONAS SANIDAD | ZONAS Y PARCELAS UBI",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion",
+    "nombre": "ExPro · carrusel",
+    "chars": 3612,
+    "muestra": "EXPRO EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMITES ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion?tab=lacteo",
+    "nombre": "ExPro · Láctea",
+    "chars": 854,
+    "muestra": "LÁCTEA EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMITES",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion?tab=silos",
+    "nombre": "ExPro · Silos",
+    "chars": 339,
+    "muestra": "SILOS EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMITES ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion?tab=tanques",
+    "nombre": "ExPro · Tanques",
+    "chars": 69,
+    "muestra": "EXPRO EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMITES",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion?tab=fitosanitarios",
+    "nombre": "ExPro · Fitosanitarios",
+    "chars": 581,
+    "muestra": "FITOSANITARIOS EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion?tab=finanzas",
+    "nombre": "ExPro · Finanzas",
+    "chars": 69,
+    "muestra": "EXPRO EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMITES",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion?tab=proveedores",
+    "nombre": "ExPro · Proveedores",
+    "chars": 515,
+    "muestra": "PROVEEDORES EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/explotacion?tab=tramites",
+    "nombre": "ExPro · Trámites",
+    "chars": 298,
+    "muestra": "TRÁMITES EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMIT",
+    "problemas": []
+  },
+  {
+    "ruta": "#/comercializacion",
+    "nombre": "CoMer · carrusel",
+    "chars": 916,
+    "muestra": "LECHE LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS Registrar Retir",
+    "problemas": []
+  },
+  {
+    "ruta": "#/comercializacion?tab=leche",
+    "nombre": "CoMer · Leche",
+    "chars": 916,
+    "muestra": "LECHE LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS Registrar Retir",
+    "problemas": []
+  },
+  {
+    "ruta": "#/comercializacion?tab=carne",
+    "nombre": "CoMer · Carne",
+    "chars": 837,
+    "muestra": "CARNE LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS Registrar Venta",
+    "problemas": []
+  },
+  {
+    "ruta": "#/comercializacion?tab=compradores",
+    "nombre": "CoMer · Compradores",
+    "chars": 1021,
+    "muestra": "COMPRADORES LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS | CARTERA",
+    "problemas": []
+  },
+  {
+    "ruta": "#/comercializacion?tab=contratos",
+    "nombre": "CoMer · Contratos",
+    "chars": 750,
+    "muestra": "CONTRATOS LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS | CONTRATOS",
+    "problemas": []
+  },
+  {
+    "ruta": "#/comercializacion?tab=transportistas",
+    "nombre": "CoMer · Transportistas",
+    "chars": 856,
+    "muestra": "TRANSPORTISTAS LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS | LOGÍ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/informes",
+    "nombre": "Informes",
+    "chars": 685,
+    "muestra": "GENERAL GEGAN EXPRO COMER LIBROS GENERAL POR FINCA ALERTAS EFICIENCIA ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/cuaderno",
+    "nombre": "Cuaderno digital (libros)",
+    "chars": 3168,
+    "muestra": "CENSO 7 REPROD. 0 partos SANIDAD 0 activos VENTAS 5 Censo Movimientos ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/documentos",
+    "nombre": "Documentos",
+    "chars": 1235,
+    "muestra": "| MODO INTERNO SIGGAN Genera la documentación desde Livestock Manager ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/trazabilidad",
+    "nombre": "Trazabilidad",
+    "chars": 72,
+    "muestra": "Selecciona un animal para consultar su trazabilidad 360°. Ir a Animale",
+    "problemas": []
+  },
+  {
+    "ruta": "#/botiquin",
+    "nombre": "Botiquín",
+    "chars": 405,
+    "muestra": "| BOTIQUÍN / ALMACÉN 4 PRODUCTOS IVERMECTINA 1% INYECTABLE DESPARASITA",
+    "problemas": []
+  },
+  {
+    "ruta": "#/saneamientos",
+    "nombre": "Saneamientos",
+    "chars": 270,
+    "muestra": "| SANEAMIENTOS 2 CAMPAÑAS BRUCELOSIS BOVINA (B. ABORTUS) CALIFICADA 27",
+    "problemas": []
+  },
+  {
+    "ruta": "#/instalaciones",
+    "nombre": "Instalaciones",
+    "chars": 214,
+    "muestra": "| INSTALACIONES 3 REGISTROS ALOJAMIENTO GANADERO BOVINO DE LECHE 850 m",
+    "problemas": []
+  },
+  {
+    "ruta": "#/subexplotaciones",
+    "nombre": "Subexplotaciones",
+    "chars": 260,
+    "muestra": "| SUBEXPLOTACIONES 2 ESPECIES DECLARADAS POR SEPARADO VACAS Subexplota",
+    "problemas": []
+  },
+  {
+    "ruta": "#/gastos",
+    "nombre": "Gastos",
+    "chars": 1908,
+    "muestra": "FINANZAS EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMIT",
+    "problemas": []
+  },
+  {
+    "ruta": "#/compradores",
+    "nombre": "Compradores",
+    "chars": 1021,
+    "muestra": "COMPRADORES LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS | CARTERA",
+    "problemas": []
+  },
+  {
+    "ruta": "#/proveedores",
+    "nombre": "Proveedores",
+    "chars": 515,
+    "muestra": "PROVEEDORES EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/transportistas",
+    "nombre": "Transportistas",
+    "chars": 856,
+    "muestra": "TRANSPORTISTAS LECHE CARNE COMPRADORES CONTRATOS TRANSPORTISTAS | LOGÍ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/agenda",
+    "nombre": "Agenda",
+    "chars": 713,
+    "muestra": "TODOS TODOS ANIMALES REBAÑOS SANIDAD CARNE LECHE Nueva Tarea AGENDA DE",
+    "problemas": []
+  },
+  {
+    "ruta": "#/albaranes-ventas",
+    "nombre": "Albaranes de venta",
+    "chars": 412,
+    "muestra": "| COMERCIALIZACIÓN ALBARANES, VENTAS Y ENTREGAS | EVOLUCIÓN MENSUAL (Ú",
+    "problemas": []
+  },
+  {
+    "ruta": "#/margen-animal",
+    "nombre": "Margen por animal",
+    "chars": 561,
+    "muestra": "| MARGEN ECONÓMICO POR ANIMAL Ordenar: Peor primero ES123456789014 Cos",
+    "problemas": []
+  },
+  {
+    "ruta": "#/silos",
+    "nombre": "Silos",
+    "chars": 339,
+    "muestra": "SILOS EXPRO LÁCTEA SILOS FITOSANITARIOS FINANZAS PROVEEDORES TRÁMITES ",
+    "problemas": []
+  },
+  {
+    "ruta": "#/manuales",
+    "nombre": "Manuales",
+    "chars": 3315,
+    "muestra": "| MANUALES Guías de usuario y ejemplos prácticos Manual de Usuario Gen",
+    "problemas": []
+  },
+  {
+    "ruta": "#/ajustes",
+    "nombre": "Ajustes",
+    "chars": 1152,
+    "muestra": "| SISTEMA Y SEGURIDAD Centro de control técnico. Gestiona la aparienci",
+    "problemas": []
+  },
+  {
+    "ruta": "#/sistema",
+    "nombre": "Sistema",
+    "chars": 579,
+    "muestra": "← Volver a Ajustes | SISTEMA Y SEGURIDAD Gestión integral de la plataf",
+    "problemas": []
+  },
+  {
+    "ruta": "#/alertas",
+    "nombre": "Alertas",
+    "chars": 1030,
+    "muestra": "GENERAL GEGAN EXPRO COMER LIBROS GENERAL POR FINCA ALERTAS EFICIENCIA ",
+    "problemas": []
+  }
+]

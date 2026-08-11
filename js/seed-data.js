@@ -45,7 +45,9 @@
       { nombre: 'Parcela Sur 28ha', superficieGrafica: 28, superficie: 28, aforoMax: 150, aforo_maximo: 150, usoPrincipal: 'Barbecho', uso: 'Barbecho', localizacion: 'Rotación y barbecho', descripcion: 'Rotación y barbecho', codigo_pac: 'ES-AN-21005-002', distancia_agua_m: 300 },
       { nombre: 'Pastos Este 15ha', superficieGrafica: 15, superficie: 15, aforoMax: 250, aforo_maximo: 250, usoPrincipal: 'Pasto', uso: 'Pasto', localizacion: 'Pastos de ovino', descripcion: 'Pastos de ovino', codigo_pac: 'ES-AN-21005-003', distancia_agua_m: 80 },
       { nombre: 'Cercado de Cebo 1ha', superficieGrafica: 1, superficie: 1, aforoMax: 10, aforo_maximo: 10, usoPrincipal: 'Pasto', uso: 'Pasto', localizacion: 'Cercado intensivo temporal', descripcion: 'Pruebas de sobrepastoreo', codigo_pac: 'ES-AN-21005-004', distancia_agua_m: 10 }
-    ]
+    ],
+    instalaciones: [],
+    subexplotaciones: []
   };
 
   function sleep(ms) {
@@ -111,6 +113,26 @@
         console.log('[SEED] Error registrando ADSG:', e.message);
       }
 
+      // 1b. Instalaciones y subexplotaciones (viven dentro del documento finca, patrón zonas[])
+      try {
+        var fincaObj = await window.db.get('fincas', fincaId);
+        var tiposInst = await window.db.getAll('instalaciones_tipo').catch(() => []);
+        var _tipoPorNombre = function (nombre) { var t = tiposInst.find(function (x) { return x.nombre === nombre; }); return t ? t.id : (tiposInst[0] ? tiposInst[0].id : null); };
+        fincaObj.instalaciones = [
+          { tipoId: _tipoPorNombre('Alojamiento ganadero bovino de leche'), superficie_m2: 850, plazas_alojamiento: 50, volumen_m3: null, notas: 'Nave de ordeño 2x12 espina de pez con sala de espera', creadoEn: Date.now() },
+          { tipoId: _tipoPorNombre('Alojamiento ganadero bovino de carne'), superficie_m2: 420, plazas_alojamiento: 30, volumen_m3: null, notas: 'Establo de cebo — cercado intensivo', creadoEn: Date.now() },
+          { tipoId: _tipoPorNombre('Cámaras frigoríficas'), superficie_m2: 45, plazas_alojamiento: null, volumen_m3: 120, notas: 'Sala de tanques — 2 tanques refrigeración 8.000 L', creadoEn: Date.now() }
+        ];
+        fincaObj.subexplotaciones = [
+          { especieId: 1, tipo_explotacion: 'Producción y reproducción', sistema_explotacion: 'semiextensivo', capacidad_maxima: 50, notas: 'Vacuno de leche — núcleo frisona', creadoEn: Date.now() },
+          { especieId: 3, tipo_explotacion: 'Cebo o engorde (Cebadero)', sistema_explotacion: 'extensivo', capacidad_maxima: 200, notas: 'Ovino de carne — merina en pastos este', creadoEn: Date.now() }
+        ];
+        await Fincas.save(fincaObj);
+        console.log('[SEED] Instalaciones (3) y subexplotaciones (2) añadidas a la finca');
+      } catch (e) {
+        console.log('[SEED] Error instalaciones/subexplotaciones:', e.message);
+      }
+
       // 2. Rebaños
       var rebDefs = [
         { demo: true, nombre: 'Vacas Frisonas', tipo: 'Láctea', especie: 'Vacas', zonaActual: 'Parcela Norte 42ha', capacidad_total: 50, fincaId: fincaId, tipo_explotacion_rega: 'Producción y reproducción' },
@@ -155,12 +177,19 @@
 
       // 4. Pesajes de seguimiento de peso para vaca1 (vaca lechera — motivo control_peso para no contaminar cárnica)
       if (vaca1) {
+        // Los 2 últimos usan fechas relativas a "hoy" (dentro de los 90 días) para que
+        // Informes > ExPro > Producción tenga kg pesados recientes que sumar; el resto
+        // queda con fechas fijas de calendario como histórico de seguimiento.
+        var pesajeHace60d = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        var pesajeHace20d = new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         var pesajes = [
           { fecha: '2025-01-15', valor_neto: 585 },
           { fecha: '2025-02-15', valor_neto: 590 },
           { fecha: '2025-03-15', valor_neto: 588 },
           { fecha: '2025-04-15', valor_neto: 592 },
-          { fecha: '2025-05-15', valor_neto: 595 }
+          { fecha: '2025-05-15', valor_neto: 595 },
+          { fecha: pesajeHace60d, valor_neto: 598 },
+          { fecha: pesajeHace20d, valor_neto: 601 }
         ];
         for (var p = 0; p < pesajes.length; p++) {
           try {
@@ -240,8 +269,8 @@
             compradorId: compCarne.id,
             numero_contrato: 'CT-2026-001',
             tipo: 'carne',
-            fecha_inicio: '2026-01-01',
-            fecha_fin: '2026-12-31',
+            fecha_inicio: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            fecha_fin: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             iva_pct: 21,
             retencion_pct: 0,
             condiciones: 'Mínimo 500 kg/entrega. Transporte a cargo del comprador.',
@@ -290,21 +319,6 @@
       ];
       for (var g = 0; g < gastosDefs.length; g++) {
         try { await Gastos.save(gastosDefs[g]); } catch (e) { console.log('[SEED] Error gasto:', e.message); }
-        await sleep(80);
-      }
-
-      // 9b. Gastos Fitosanitarios (ExPro > Fitosanitarios) — libro de campo oficial.
-      // Espeja la demo Android para que expro.fitosanitarios esté disponible con datos.
-      var fitoFecha1 = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      var fitoFecha2 = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      var fitoFecha3 = new Date(Date.now() - 70 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      var fitosDefs = [
-        { demo: true, concepto: 'Herbicida Glifosato 36% — Parcela Norte', fecha: fitoFecha1, monto: 214.50, categoria: 'Fitosanitarios', origen_modulo: 'general', modo_explotacion: null, proveedorId: null, control_normativo: { registroProducto: 'ES-00124-GLF', dosisAplicada: '3 L/ha', plazoSeguridadDias: 15, aptoComercializacion: true, verificadoEn: fitoFecha1 + 'T09:00:00.000Z' } },
-        { demo: true, concepto: 'Tratamiento barbecho — Parcela Sur', fecha: fitoFecha2, monto: 156.75, categoria: 'Fitosanitarios', origen_modulo: 'general', modo_explotacion: null, proveedorId: null, control_normativo: { registroProducto: 'ES-00331-24D', dosisAplicada: '2 L/ha', plazoSeguridadDias: 7, aptoComercializacion: true, verificadoEn: fitoFecha2 + 'T09:00:00.000Z' } },
-        { demo: true, concepto: 'Fungicida preventivo — Parcela Norte', fecha: fitoFecha3, monto: 98.20, categoria: 'Fitosanitarios', origen_modulo: 'general', modo_explotacion: null, proveedorId: null, control_normativo: { registroProducto: 'ES-00876-AZO', dosisAplicada: '1,5 L/ha', plazoSeguridadDias: 21, aptoComercializacion: false, verificadoEn: fitoFecha3 + 'T09:00:00.000Z' } }
-      ];
-      for (var fg = 0; fg < fitosDefs.length; fg++) {
-        try { await Gastos.save(fitosDefs[fg]); } catch (e) { console.log('[SEED] Error gasto fitosanitario:', e.message); }
         await sleep(80);
       }
 
@@ -365,8 +379,29 @@
           enfermedad: 'Mamitis'
         }
       ];
+      // Coste de cada tratamiento (€), usado para vincular en registro_eventos
+      // y que MargenAnimal.calcularCosteSanidad() tenga algo que prorratear.
+      var sanCostes = [180, 96, 45];
       for (var s = 0; s < sanDefs.length; s++) {
-        try { await Sanitarios.save(sanDefs[s]); } catch (e) { console.log('[SEED] Error sanitario:', e.message); }
+        try {
+          var sanId = await Sanitarios.save(sanDefs[s]);
+          // Vincular coste al botiquín (Libro Maestro) para que MargenAnimal
+          // pueda prorratear el gasto de sanidad entre los animales del rebaño.
+          await window.db.add('registro_eventos', {
+            demo: true,
+            fincaId: fincaId,
+            fecha: sanDefs[s].fecha,
+            tipo_entidad: 'botiquin',
+            origen_tipo: 'tratamiento',
+            origen_id: sanId,
+            costeTotal: sanCostes[s],
+            valor_neto: sanCostes[s],
+            unidad: '€',
+            motivo_tarea: 'sanidad',
+            rol_contable: 'GASTO',
+            creadoEn: new Date().toISOString()
+          });
+        } catch (e) { console.log('[SEED] Error sanitario:', e.message); }
         await sleep(80);
       }
 
@@ -492,8 +527,14 @@
       }
 
       // 13. Producción de leche (Individual, Lote y Expedición Tanque)
+      // Fechas relativas a "hoy" (no fijas de calendario) para que coincidan
+      // con la ventana temporal del resto de datos lácteos demo (comercializacion_leche,
+      // balance_lacteo) y MargenAnimal.calcularIngresoLeche() tenga litros recientes
+      // que sumar, en vez de depender de que el usuario use "Registrar Ordeño" a mano.
       var prodLecheVacas = [vaca1, vaca2, vaca3];
-      var lecheFechas = [`${currentYear}-03-01`, `${currentYear}-03-15`, `${currentYear}-04-01`, `${currentYear}-04-15`, `${currentYear}-05-01`];
+      var lecheFechas = [28, 21, 14, 7, 1].map(function (d) {
+        return new Date(Date.now() - d * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      });
       for (var plv = 0; plv < prodLecheVacas.length; plv++) {
         if (!prodLecheVacas[plv]) continue;
         for (var lf = 0; lf < lecheFechas.length; lf++) {
@@ -729,6 +770,42 @@
         } catch (e) { console.log('[SEED] Error com. carne:', e.message); }
       }
 
+      // 15b. Segunda venta de carne (oveja4, mes distinto) — para que Informes > CoMer >
+      // Ventas tenga >1 mes con datos y pueda dibujar la evolución temporal de precios.
+      if (oveja4 && compCarne) {
+        try {
+          var pesoVivoV2 = 45, pesoCanalV2 = 22;
+          var fechaSacrificio2 = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          await window.db.add('comercializacion_carne', {
+            demo: true,
+            animalId: oveja4.id,
+            compradorId: compCarne.id,
+            contratoId: contCarneId || null,
+            fechaSacrificio: fechaSacrificio2,
+            codigoMatadero: 'ES10.05/M',
+            pesoVivo: pesoVivoV2,
+            pesoCanal: pesoCanalV2,
+            rendimientoCanal: +((pesoCanalV2 / pesoVivoV2) * 100).toFixed(2),
+            fincaId: fincaId,
+            snap_zona: rebOvejas.zonaActual,
+            snap_especie: rebOvejas.especie,
+            snap_tipo: rebOvejas.tipo,
+            nifComprador: compCarne.nif_cif,
+            razonSocial: compCarne.nombre,
+            IVA: 10,
+            retencionREAGP: 0,
+            Gasto_Transporte: 12,
+            Gasto_Matanza: 9,
+            numero_albaran: 'ALB-2025-0008',
+            precio_total: +(pesoCanalV2 * 4.6).toFixed(2),
+            creadoEn: new Date().toISOString()
+          });
+          var oveja4Vendida = await Animales.get(oveja4.id);
+          if (oveja4Vendida) { oveja4Vendida.estado = 'vendido'; await Animales.save(oveja4Vendida); }
+        } catch (e) { console.log('[SEED] Error 2ª venta carne:', e.message); }
+        await sleep(80);
+      }
+
       // ═══════════════════════════════════════════════════════════════════
       // DATOS DEMO LÁCTEOS v24 (Tanques, Balance, Analíticas, Control Lechero)
       // ═══════════════════════════════════════════════════════════════════
@@ -871,6 +948,350 @@
           console.log('[SEED] Error general en datos lácteos v24:', e.message);
         }
       }
+
+      // 16. Saneamientos (GeGan > Sanidad > Saneamientos; alimenta ExPro > Trámites y banner Guía 365)
+      var sanFecha2025 = '2025-11-14';
+      var sanFecha2026 = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var sanProxima = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var saneamientosDefs = [
+        {
+          fincaId: fincaId,
+          campana: 'tuberculosis',
+          fecha: sanFecha2025,
+          veterinario: DEMO_FINCA.adsg_veterinario,
+          veterinario_colegiado: DEMO_FINCA.adsg_vet_colegiado,
+          adsg_nombre: DEMO_FINCA.adsg_nombre,
+          especie: 'Bovino',
+          num_examinados: 6,
+          num_positivos: 0,
+          calificacion: 'indemne',
+          tubo: '',
+          sexo: '',
+          restriccion_movimientos: false,
+          motivo_restriccion: '',
+          proxima_actuacion: '',
+          notas: 'Campaña anual TBC 2025. Explotación oficialmente indemne (T3).'
+        },
+        {
+          fincaId: fincaId,
+          campana: 'brucelosis_b',
+          fecha: sanFecha2026,
+          veterinario: DEMO_FINCA.adsg_veterinario,
+          veterinario_colegiado: DEMO_FINCA.adsg_vet_colegiado,
+          adsg_nombre: DEMO_FINCA.adsg_nombre,
+          especie: 'Bovino',
+          num_examinados: 6,
+          num_positivos: 1,
+          calificacion: 'calificada',
+          tubo: '',
+          sexo: '',
+          restriccion_movimientos: true,
+          motivo_restriccion: 'Positivo en brucelosis bovina',
+          proxima_actuacion: sanProxima,
+          notas: '1 positivo en rasquiña — animal aislado. Reconocimiento de resaneo programado.'
+        }
+      ];
+      for (var sn = 0; sn < saneamientosDefs.length; sn++) {
+        try {
+          var saneaId = await Saneamientos.save(saneamientosDefs[sn]);
+          // Saneamientos.save construye su propio objeto y NO propaga `demo`: parchear
+          var sanObj = await window.db.get('saneamientos', saneaId);
+          if (sanObj) { sanObj.demo = true; await window.db.put('saneamientos', sanObj); }
+        } catch (e) { console.log('[SEED] Error saneamiento:', e.message); }
+        await sleep(80);
+      }
+      console.log('[SEED] Saneamientos creados: 2');
+
+      // 17. Pedidos de crotales (ExPro > Trámites > Crotales)
+      var crotFechaEntregado = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+      var crotFechaPendiente = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+      var pedidosCrotalesDefs = [
+        {
+          demo: true,
+          fincaId: fincaId,
+          especie: 'Bovino',
+          tipo: 'Bandera + Botón (EID)',
+          cantidad: 25,
+          adsg_nombre: DEMO_FINCA.adsg_nombre,
+          adsg_codigo: DEMO_FINCA.adsg_codigo,
+          adsg_veterinario: DEMO_FINCA.adsg_veterinario,
+          adsg_vet_colegiado: DEMO_FINCA.adsg_vet_colegiado,
+          adsg_vet_nif: DEMO_FINCA.adsg_vet_nif,
+          estado: 'entregado',
+          fecha_pedido: crotFechaEntregado,
+          acuse_manual: 'ACUSE-2026-0412'
+        },
+        {
+          demo: true,
+          fincaId: fincaId,
+          especie: 'Ovino',
+          tipo: 'Crotal Visual Clásico',
+          cantidad: 100,
+          adsg_nombre: DEMO_FINCA.adsg_nombre,
+          adsg_codigo: DEMO_FINCA.adsg_codigo,
+          adsg_veterinario: DEMO_FINCA.adsg_veterinario,
+          adsg_vet_colegiado: DEMO_FINCA.adsg_vet_colegiado,
+          adsg_vet_nif: DEMO_FINCA.adsg_vet_nif,
+          estado: 'pendiente',
+          fecha_pedido: crotFechaPendiente,
+          acuse_manual: ''
+        }
+      ];
+      for (var crotI = 0; crotI < pedidosCrotalesDefs.length; crotI++) {
+        try { await PedidosCrotales.save(pedidosCrotalesDefs[crotI]); }
+        catch (e) { console.log('[SEED] Error pedido crotales:', e.message); }
+        await sleep(80);
+      }
+      console.log('[SEED] Pedidos de crotales creados: 2');
+
+      // 18. Gastos fitosanitarios (ExPro > Fitosanitarios; informe ExPro > Fitosanitario)
+      // Vía Gastos.save como el wizard real; snap_zona se preserva gracias al fix de gastos.js
+      var fitoFecha1 = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var fitoFecha2 = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var fitoFecha3 = new Date(Date.now() - 70 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var fitosDefs = [
+        {
+          demo: true,
+          fincaId: fincaId,
+          concepto: 'Herbicida Glifosato 36% — Parcela Norte',
+          fecha: fitoFecha1,
+          monto: 214.50,
+          categoria: 'Fitosanitarios',
+          snap_zona: 'Parcela Norte 42ha',
+          origen_modulo: 'general',
+          modo_explotacion: null,
+          proveedorId: null,
+          control_normativo: {
+            registroProducto: 'ES-00124-GLF',
+            dosisAplicada: '3 L/ha',
+            plazoSeguridadDias: 15,
+            aptoComercializacion: true,
+            verificadoEn: fitoFecha1 + 'T09:00:00.000Z'
+          }
+        },
+        {
+          demo: true,
+          fincaId: fincaId,
+          concepto: 'Tratamiento barbecho — Parcela Sur',
+          fecha: fitoFecha2,
+          monto: 156.75,
+          categoria: 'Fitosanitarios',
+          snap_zona: 'Parcela Sur 28ha',
+          origen_modulo: 'general',
+          modo_explotacion: null,
+          proveedorId: null,
+          control_normativo: {
+            registroProducto: 'ES-00331-24D',
+            dosisAplicada: '2 L/ha',
+            plazoSeguridadDias: 7,
+            aptoComercializacion: true,
+            verificadoEn: fitoFecha2 + 'T10:30:00.000Z'
+          }
+        },
+        {
+          demo: true,
+          fincaId: fincaId,
+          concepto: 'Fungicida preventivo — Parcela Norte',
+          fecha: fitoFecha3,
+          monto: 98.20,
+          categoria: 'Fitosanitarios',
+          snap_zona: 'Parcela Norte 42ha',
+          origen_modulo: 'general',
+          modo_explotacion: null,
+          proveedorId: null,
+          control_normativo: {
+            registroProducto: 'ES-00876-AZO',
+            dosisAplicada: '1,5 L/ha',
+            plazoSeguridadDias: 21,
+            aptoComercializacion: false,
+            verificadoEn: fitoFecha3 + 'T08:15:00.000Z'
+          }
+        }
+      ];
+      for (var ft = 0; ft < fitosDefs.length; ft++) {
+        try { await Gastos.save(fitosDefs[ft]); }
+        catch (e) { console.log('[SEED] Error gasto fitosanitario:', e.message); }
+        await sleep(80);
+      }
+      console.log('[SEED] Gastos fitosanitarios creados: 3');
+
+      // 19. Costes fijos (Break-Even: catsFijas de js/analitica.js — reconocidos sin tilde
+      // gracias a la normalización NFD; las categorías replican las del wizard)
+      var cfFecha1 = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var cfFecha2 = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var cfFecha3 = new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var costesFijosDefs = [
+        { demo: true, concepto: 'Factura eléctrica nave ordeño', fecha: cfFecha1, monto: 412.30, categoria: 'Electricidad', snap_zona: 'Parcela Norte 42ha', proveedorId: null },
+        { demo: true, concepto: 'Factura eléctrica sala tanques', fecha: cfFecha2, monto: 287.95, categoria: 'Electricidad', snap_zona: 'Parcela Norte 42ha', proveedorId: null },
+        { demo: true, concepto: 'Nómina operario ordeño (mes)', fecha: cfFecha3, monto: 1350.00, categoria: 'Personal', proveedorId: null },
+        { demo: true, concepto: 'Seguro explotación anual (recibo)', fecha: cfFecha2, monto: 640.00, categoria: 'Seguros', proveedorId: null },
+        { demo: true, concepto: 'Gestoría — trimestre', fecha: cfFecha1, monto: 210.00, categoria: 'Gestoria', proveedorId: null }
+      ];
+      for (var cf = 0; cf < costesFijosDefs.length; cf++) {
+        try { await Gastos.save(costesFijosDefs[cf]); }
+        catch (e) { console.log('[SEED] Error coste fijo:', e.message); }
+        await sleep(80);
+      }
+      console.log('[SEED] Costes fijos creados: 5');
+
+      // 20. Subvenciones PAC (Informes > Libros > PAC; en la app real se crean desde el propio informe)
+      var pacDefs = [
+        {
+          demo: true,
+          tipo: 'pac',
+          anio: 2024,
+          concepto: 'PAC 2024 — Ayuda básica + eco-esquemas',
+          regimen: 'PAC Base',
+          importe_solicitado: 18500.00,
+          importe_cobrado: 18500.00,
+          fecha_emision: '2024-12-16',
+          fincaId: fincaId,
+          creadoEn: '2024-12-16T10:00:00.000Z'
+        },
+        {
+          demo: true,
+          tipo: 'pac',
+          anio: 2025,
+          concepto: 'PAC 2025 — Ayuda básica + eco-esquemas',
+          regimen: 'PAC Verde',
+          importe_solicitado: 19200.00,
+          importe_cobrado: 12480.00,
+          fecha_emision: '2025-12-15',
+          fincaId: fincaId,
+          creadoEn: '2025-12-15T10:00:00.000Z'
+        }
+      ];
+      for (var pd = 0; pd < pacDefs.length; pd++) {
+        try { await window.db.add('documentos_legales', pacDefs[pd]); }
+        catch (e) { console.log('[SEED] Error documento PAC:', e.message); }
+        await sleep(60);
+      }
+      console.log('[SEED] Documentos PAC creados: 2');
+
+      // 21. Botiquín (GeGan > Sanidad > Botiquín) — productos + lotes
+      var botCaducaPronto = new Date(Date.now() + 18 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var botCaducaLejos = new Date(Date.now() + 400 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var botCaducaMedio = new Date(Date.now() + 150 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var botiquinDefs = [
+        { nombre: 'Vacuna Lengua Azul BTV-4', tipo: 'vacuna', unidad: 'dosis', cantidadActual: 42, cantidadMinima: 20, lote: 'LBTV4-2026-031', caducidad: botCaducaPronto },
+        { nombre: 'Oxitetraciclina 20% LA', tipo: 'antibiotico', unidad: 'ml', cantidadActual: 15, cantidadMinima: 100, lote: 'OXI-2025-118', caducidad: botCaducaMedio },
+        { nombre: 'Ivermectina 1% inyectable', tipo: 'desparasitante', unidad: 'dosis', cantidadActual: 60, cantidadMinima: 30, lote: '', caducidad: null },
+        { nombre: 'Meloxicam 20 mg/ml', tipo: 'medicamento', unidad: 'ml', cantidadActual: 3, cantidadMinima: 50, lote: 'MLX-2026-007', caducidad: botCaducaLejos }
+      ];
+      for (var bq = 0; bq < botiquinDefs.length; bq++) {
+        try {
+          var bqDef = botiquinDefs[bq];
+          var bqId = await window.db.add('config_botiquin', {
+            demo: true,
+            fincaId: fincaId,
+            nombre: bqDef.nombre,
+            tipo: bqDef.tipo,
+            unidad: bqDef.unidad,
+            cantidadActual: bqDef.cantidadActual,
+            cantidadMinima: bqDef.cantidadMinima,
+            lote: bqDef.lote,
+            caducidad: bqDef.caducidad,
+            notas: '',
+            creadoEn: new Date().toISOString()
+          });
+          if (bqDef.lote) {
+            await window.db.add('botiquin_lotes', {
+              demo: true,
+              productoId: bqId,
+              lote: bqDef.lote,
+              caducidad: bqDef.caducidad,
+              cantidad: bqDef.cantidadActual,
+              creadoEn: new Date().toISOString()
+            });
+          }
+        } catch (e) { console.log('[SEED] Error producto botiquín:', e.message); }
+        await sleep(60);
+      }
+      console.log('[SEED] Botiquín creado: 4 productos, 3 lotes');
+
+      // 22. Vacunaciones de rebaño (GeGan > Sanidad; modelo jerárquico ADSG)
+      var vacFecha1 = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var vacFecha2 = new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var vacProxDosis = new Date(Date.now() + 155 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var vacunacionesDefs = [
+        {
+          fincaId: fincaId,
+          rebanoId: rebVacas.id,
+          fecha: vacFecha1,
+          veterinario: DEMO_FINCA.adsg_veterinario,
+          veterinario_colegiado: DEMO_FINCA.adsg_vet_colegiado,
+          observaciones: 'Campaña obligatoria lengua azul 2026 — rebaño completo.',
+          tipos_vacuna: [
+            { tipo: 'Lengua azul (BTV-4)', lote: 'LBTV4-2026-012', dosis: '2 ml', nombre_comercial: 'Bluevac BTV4' }
+          ],
+          animales_vacunados: [
+            { categoria: 'Vacas adultas', cantidad: 3 }
+          ],
+          animales_totales: 3,
+          completa: true,
+          cerrada: true
+        },
+        {
+          fincaId: fincaId,
+          rebanoId: rebOvejas.id,
+          fecha: vacFecha2,
+          veterinario: DEMO_FINCA.adsg_veterinario,
+          veterinario_colegiado: DEMO_FINCA.adsg_vet_colegiado,
+          observaciones: 'Primovacunación madres. Próxima dosis recuerdo: ' + vacProxDosis + '.',
+          tipos_vacuna: [
+            { tipo: 'Clostridiosis (Covexin 10)', lote: 'CVX-2026-045', dosis: '2 ml', nombre_comercial: 'Covexin 10' }
+          ],
+          animales_vacunados: [
+            { categoria: 'Ovejas adultas', cantidad: 3 },
+            { categoria: 'Corderos', cantidad: 1 }
+          ],
+          animales_totales: 4,
+          completa: false,
+          cerrada: false
+        }
+      ];
+      for (var vc = 0; vc < vacunacionesDefs.length; vc++) {
+        try {
+          var vacId = await Vacunaciones.save(vacunacionesDefs[vc]);
+          // Vacunaciones.save construye su propio objeto y NO propaga `demo`: parchear
+          var vacObj = await window.db.get('vacunaciones', vacId);
+          if (vacObj) { vacObj.demo = true; await window.db.put('vacunaciones', vacObj); }
+        } catch (e) { console.log('[SEED] Error vacunación:', e.message); }
+        await sleep(80);
+      }
+      console.log('[SEED] Vacunaciones creadas: 2');
+
+      // 23. Agenda (Menú Más > Agenda + widgets) — db.add directo para no disparar
+      // NotificacionesService con datos demo (AgendaService.add las programaría)
+      var agVencida = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var agManana = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var agMes = new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      var agendaDefs = [
+        { modulo_id: 'sanidad', entidad_id: rebVacas.id, titulo: 'Recuerdo vacuna lengua azul', descripcion: 'Segunda dosis rebaño vacas frisonas — campaña obligatoria', fecha_planificada: vacProxDosis, prioridad: 'alta', es_alerta: true },
+        { modulo_id: 'lacteos', entidad_id: null, titulo: 'Limpieza circuito tanque 1', descripcion: 'Limpieza alcalina + ácida del circuito de ordeño', fecha_planificada: agManana, prioridad: 'media', es_alerta: false },
+        { modulo_id: 'general', entidad_id: null, titulo: 'Revisión documentación PAC 2026', descripcion: 'Preparar justificantes eco-esquemas para la solicitud', fecha_planificada: agMes, prioridad: 'baja', es_alerta: false },
+        { modulo_id: 'silos', entidad_id: null, titulo: 'Pedido pienso concentrado', descripcion: 'Silo 1 por debajo del 25% — llamar a Piensos El Trébol', fecha_planificada: agVencida, prioridad: 'alta', es_alerta: false }
+      ];
+      for (var ag = 0; ag < agendaDefs.length; ag++) {
+        try {
+          await window.db.add('agenda_tareas', {
+            demo: true,
+            fincaId: fincaId,
+            modulo_id: agendaDefs[ag].modulo_id,
+            entidad_id: agendaDefs[ag].entidad_id,
+            titulo: agendaDefs[ag].titulo,
+            descripcion: agendaDefs[ag].descripcion,
+            fecha_planificada: agendaDefs[ag].fecha_planificada,
+            prioridad: agendaDefs[ag].prioridad,
+            es_alerta: agendaDefs[ag].es_alerta,
+            estado: 'pendiente',
+            creadoEn: new Date().toISOString(),
+            actualizadoEn: new Date().toISOString()
+          });
+        } catch (e) { console.log('[SEED] Error tarea agenda:', e.message); }
+        await sleep(60);
+      }
+      console.log('[SEED] Tareas de agenda creadas: 4');
 
       // Seed completado
       localStorage.setItem('seed_data_completed', 'true');
