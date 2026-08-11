@@ -55,13 +55,7 @@ window.PedidosCrotales = (() => {
     }
 
     try {
-      const tx = window.db.transaction([STORE_NAME], 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      const result = await new Promise((resolve, reject) => {
-        const req = store.put(pedidoData);
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
+      const result = await window.db.put(STORE_NAME, pedidoData);
       console.log(`[PedidosCrotales] Pedido guardado: id=${result}, nº=${pedidoData.numero_seguimiento}`);
       return result;
     } catch (e) {
@@ -77,13 +71,8 @@ window.PedidosCrotales = (() => {
    */
   async function get(id) {
     try {
-      const tx = window.db.transaction([STORE_NAME], 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      return await new Promise((resolve, reject) => {
-        const req = store.get(id);
-        req.onsuccess = () => resolve(req.result || null);
-        req.onerror = () => reject(req.error);
-      });
+      const pedido = await window.db.get(STORE_NAME, Number(id));
+      return pedido || null;
     } catch (e) {
       console.error('[PedidosCrotales] Error al recuperar:', e.message);
       return null;
@@ -100,22 +89,8 @@ window.PedidosCrotales = (() => {
       const activeFincaId = fincaId || (await window.Fincas?.getActiveId());
       if (!activeFincaId) return [];
 
-      const tx = window.db.transaction([STORE_NAME], 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const index = store.index('fincaId');
-      
-      return await new Promise((resolve, reject) => {
-        const req = index.getAll(activeFincaId);
-        req.onsuccess = () => {
-          const pedidos = req.result || [];
-          pedidos.sort((a, b) => new Date(b.fecha_pedido) - new Date(a.fecha_pedido));
-          resolve(pedidos);
-        };
-        req.onerror = () => {
-          console.warn('[PedidosCrotales] Error en list():', req.error);
-          resolve([]);
-        };
-      });
+      const pedidos = await window.db.getAllFromIndex(STORE_NAME, 'fincaId', Number(activeFincaId));
+      return (pedidos || []).sort((a, b) => new Date(b.fecha_pedido) - new Date(a.fecha_pedido));
     } catch (e) {
       console.error('[PedidosCrotales] Error al listar:', e.message);
       return [];
@@ -134,23 +109,18 @@ window.PedidosCrotales = (() => {
       const pedido = await get(id);
       if (!pedido) throw new Error(`Pedido ${id} no encontrado`);
 
+      const estadoAnterior = pedido.estado;
       pedido.estado = nuevoEstado;
       pedido.eventos = pedido.eventos || [];
       pedido.eventos.push({
         fecha: new Date().toISOString(),
-        estado_anterior: pedido.estado,
+        estado_anterior: estadoAnterior,
         estado_nuevo: nuevoEstado,
         descripcion: evento
       });
       pedido.actualizadoEn = new Date().toISOString();
 
-      const tx = window.db.transaction([STORE_NAME], 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      await new Promise((resolve, reject) => {
-        const req = store.put(pedido);
-        req.onsuccess = () => resolve();
-        req.onerror = () => reject(req.error);
-      });
+      await window.db.put(STORE_NAME, pedido);
       console.log(`[PedidosCrotales] Estado actualizado: ${id} → ${nuevoEstado}`);
     } catch (e) {
       console.error('[PedidosCrotales] Error actualizando estado:', e.message);
@@ -165,13 +135,7 @@ window.PedidosCrotales = (() => {
    */
   async function remove(id) {
     try {
-      const tx = window.db.transaction([STORE_NAME], 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      await new Promise((resolve, reject) => {
-        const req = store.delete(id);
-        req.onsuccess = () => resolve();
-        req.onerror = () => reject(req.error);
-      });
+      await window.db.delete(STORE_NAME, Number(id));
       console.log(`[PedidosCrotales] Pedido eliminado: ${id}`);
     } catch (e) {
       console.error('[PedidosCrotales] Error al eliminar:', e.message);

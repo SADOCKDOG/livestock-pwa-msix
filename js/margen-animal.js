@@ -26,7 +26,7 @@ const MargenAnimal = {
   /** Precio unitario de leche vigente hoy, o null si no hay ninguno. */
   async _precioLecheVigente() {
     if (!window.Compradores || !window.Contratos) return null;
-    const compradoresLeche = await window.Compradores.list({ tipo: 'leche' }).catch(() => []);
+    const compradoresLeche = await window.Compradores.list({ tipo: 'láctico' }).catch(() => []);
     const hoy = new Date();
     for (const comprador of compradoresLeche) {
       const contrato = await window.Contratos.getActivo(comprador.id, 'leche');
