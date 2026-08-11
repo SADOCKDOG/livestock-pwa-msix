@@ -40,9 +40,11 @@ const ZonasView = {
           await Rebanos.save(rCebo).catch(() => {});
         }
 
-        // Recargar la vista suavemente para que los cambios surtan efecto en caliente
-        setTimeout(() => { location.hash = '#/zonas'; }, 100);
-        return;
+        // No se recarga la ruta: ya estamos en #/zonas y reasignar el hash al
+        // mismo valor no dispara `hashchange`, así que el refresco no llegaba
+        // nunca y la vista se quedaba en "Cargando..." (mismo fallo que había
+        // en comercializacion-view.js). `finca.zonas` y `rebanos` son las
+        // referencias que usa el render de abajo, y ya tienen los cambios.
       }
     }
 
