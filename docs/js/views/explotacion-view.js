@@ -365,7 +365,9 @@ const ExplotacionView = {
       guia365BannerHtml = `
         <div class="card p-12 mb-14 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(10,10,10,0.9)); border-left: 4px solid ${isGuia365Active ? 'var(--c-success)' : 'var(--c-warning)'}; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
           <div class="flex items-center justify-between gap-10">
-            <div class="flex items-center gap-10 min-w-0">
+            <!-- flex-1: mismo motivo que en fitosanitarios-view.js — sin el, el
+                 bloque no reclama espacio dentro del justify-between. -->
+            <div class="flex items-center gap-10 min-w-0 flex-1">
               <div class="flex items-center justify-center rounded-sm flex-shrink-0" style="width:36px; height:36px; background:#181818; color:${isGuia365Active ? 'var(--c-success)' : 'var(--c-warning)'}; border:1px solid #222; font-weight:900; font-size: 0.8rem;">
                 365
               </div>
