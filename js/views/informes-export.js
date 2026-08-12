@@ -1076,7 +1076,7 @@ Object.assign(window.InformesView, {
   // ==========================================
   _renderExportar(content, d) {
     if (!window.ExportService) {
-      content.innerHTML = `<div class="card empty-state>ExportService no disponible. Recarga la aplicación.</div>`;
+      content.innerHTML = `<div class="card empty-state">ExportService no disponible. Recarga la aplicación.</div>`;
       return;
     }
 
