@@ -6,3 +6,8 @@ node_modules/
 
 # Paquetes generados por PWABuilder (binarios, regenerables, no van a git)
 store-packages/
+
+# Artefactos de Playwright y capturas de depuracion (regenerables)
+playwright-report/
+test-results/
+screenshots/

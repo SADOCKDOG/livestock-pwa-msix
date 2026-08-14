@@ -8,6 +8,7 @@
     "serve": "npx --yes http-server . -p 8080 -c-1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.0"
+    "@playwright/test": "^1.62.0",
+    "chrome-remote-interface": "^0.34.0"
   }
 }
