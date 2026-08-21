@@ -568,7 +568,7 @@ const DocumentosView = {
             ${doc.isMovimiento ? `<p><strong>Tipo:</strong> ${doc.dataRaw.tipo ?? '—'} · <strong>Animales:</strong> ${doc.dataRaw.num_animales ?? '—'}</p>` : ''}
           </div>
           <div style="padding:20px;border:1px solid #ccc;background:#f9f9f9;font-size:0.85rem;margin-top:40px;">
-            <p style="margin:0;"><strong>Documento generado por Livestock Manager Premium</strong></p>
+            <p style="margin:0;"><strong>Documento generado por Livestock Manager Soporte</strong></p>
             <p style="margin:5px 0 0 0;color:#555;">Plataforma profesional de gestión ganadera y trazabilidad industrial.</p>
           </div>
         </div>`;

@@ -1,5 +1,5 @@
 /**
- * TrazabilidadView - Livestock Manager Premium v4.0
+ * TrazabilidadView - Livestock Manager Soporte v4.0
  * Panel de Trazabilidad 360°: Timeline completo del ciclo de vida de un animal.
  */
 
@@ -392,7 +392,7 @@ const TrazabilidadView = {
           <thead><tr style="background:#f5f5f5;"><th style="padding:8px 10px;text-align:left;font-size:10px;color:#888;text-transform:uppercase;">Fecha</th><th style="padding:8px 10px;width:30px;"></th><th style="padding:8px 10px;text-align:left;font-size:10px;color:#888;text-transform:uppercase;">Evento</th></tr></thead>
           <tbody>${timeline.map(item => renderItemHtml(item)).join('')}</tbody>
         </table>`}
-        <div style="margin-top:30px;padding-top:10px;text-align:center;font-size:9px;color:#999;">Generado por Livestock Manager Premium — ${fecha}</div>
+        <div style="margin-top:30px;padding-top:10px;text-align:center;font-size:9px;color:#999;">Generado por Livestock Manager Soporte — ${fecha}</div>
       `;
       document.body.appendChild(pdfEl);
 

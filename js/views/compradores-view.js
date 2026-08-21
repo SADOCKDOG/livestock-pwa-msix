@@ -1,5 +1,5 @@
 /**
- * CompradoresView - Livestock Manager Premium v4.2.0
+ * CompradoresView - Livestock Manager Soporte v4.2.0
  * Vista modular de compradores y contratos.
  * Ofrece dos gestiones unificadas en la parte superior: Compradores y Contratos, con trazabilidad completa.
  */

@@ -1,5 +1,5 @@
 /**
- * Transportistas - Livestock Manager Premium v4.0
+ * Transportistas - Livestock Manager Soporte v4.0
  * Modelo de datos para registro de transportistas con trazabilidad de expediciones.
  */
 

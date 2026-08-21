@@ -1,5 +1,5 @@
 /**
- * Movimientos de Ganado — Livestock Manager Premium
+ * Movimientos de Ganado — Livestock Manager Soporte
  * Submódulo de movimientos OFICIALES inter-explotación (guía de origen y
  * sanidad pecuaria), independiente del traslado interno entre rebaños/zonas.
  *

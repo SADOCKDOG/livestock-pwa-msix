@@ -1,5 +1,5 @@
 /**
- * TransportistasView - Livestock Manager Premium v4.0
+ * TransportistasView - Livestock Manager Soporte v4.0
  * Vista de gestión de transportistas con listado, detalle y formulario.
  */
 

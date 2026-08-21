@@ -1,12 +1,12 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'livestock_premium_purchased';
-  var PRODUCT_ID = 'premium_unlock';
+  var STORAGE_KEY = 'livestock_support_purchased';
+  var PRODUCT_ID = 'support_unlock';
   // InAppOfferToken del complemento en Partner Center. Es independiente del id
   // de Google Play: si al crear el add-on se usa otro token, hay que cambiarlo
   // aqui, porque la Digital Goods API no permite listar los ids disponibles.
-  var MS_STORE_PRODUCT_ID = 'premium_unlock';
+  var MS_STORE_PRODUCT_ID = 'support_unlock';
   var MS_STORE_BILLING = 'https://store.microsoft.com/billing';
 
   if (window.FREE_MODE === false) {
@@ -16,7 +16,7 @@
 
   var PurchaseManager = {
     _initialized: false,
-    // Lectura síncrona: las vistas del primer render ya conocen el estado Premium
+    // Lectura síncrona: las vistas del primer render ya conocen el estado Soporte
     _purchased: (function () {
       try { return localStorage.getItem(STORAGE_KEY) === 'true'; } catch (e) { return false; }
     })(),
@@ -33,7 +33,7 @@
     purchase: function () {
       var self = this;
       if (self._purchased) {
-        App.toast('Ya eres Premium. Todas las funciones están desbloqueadas.', 'success');
+        App.toast('Ya eres Soporte. Todas las funciones están desbloqueadas.', 'success');
         return;
       }
       if (self._dgs) {
@@ -63,7 +63,7 @@
         // En la Store no hay «restaurar» como tal: se vuelve a preguntar que
         // posee el usuario, que es lo que reconstruye el derecho.
         self._sincronizarConStore().then(function (ok) {
-          if (ok) App.toast('Premium restaurado.', 'success');
+          if (ok) App.toast('Soporte restaurado.', 'success');
           else App.toast('No se encontraron compras asociadas a esta cuenta.', 'info');
         });
         return;
@@ -103,24 +103,24 @@
       });
     },
 
-    /** Pregunta a la Store que posee el usuario y ajusta el estado Premium. */
+    /** Pregunta a la Store que posee el usuario y ajusta el estado Soporte. */
     _sincronizarConStore: function () {
       var self = this;
       if (!self._dgs) return Promise.resolve(false);
       return self._dgs.listPurchases().then(function (compras) {
-        var tienePremium = (compras || []).some(function (c) {
+        var tieneSoporte = (compras || []).some(function (c) {
           return c.itemId === MS_STORE_PRODUCT_ID;
         });
-        if (tienePremium) {
+        if (tieneSoporte) {
           self._markPurchased();
         } else if (self._purchased) {
           // Estaba marcado en local pero la Store dice que no: se revoca, para
-          // que un localStorage manipulado no conceda Premium.
+          // que un localStorage manipulado no conceda Soporte.
           self._purchased = false;
           try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-          console.log('[PurchaseManager] Premium revocado: la Store no lo reconoce');
+          console.log('[PurchaseManager] Soporte revocado: la Store no lo reconoce');
         }
-        return tienePremium;
+        return tieneSoporte;
       }).catch(function (e) {
         console.warn('[PurchaseManager] listPurchases fallo:', e && e.message);
         return false;
@@ -149,7 +149,7 @@
           // de conceder nada, en vez de fiarse solo de la respuesta.
           return self._sincronizarConStore().then(function (ok) {
             if (respuesta && respuesta.complete) respuesta.complete(ok ? 'success' : 'fail');
-            if (ok) App.toast('Premium activado. Gracias por tu compra.', 'success');
+            if (ok) App.toast('Soporte activado. Gracias por tu compra.', 'success');
             else App.toastError('No se pudo confirmar la compra. Usa «Restaurar compras».');
           });
         });
@@ -203,7 +203,7 @@
           if (window.PremiumManager && window.PremiumManager.cleanDemoData) {
             window.PremiumManager.cleanDemoData().then(function (n) {
               if (n > 0) {
-                App.toast('Datos demo eliminados. Bienvenido a Premium');
+                App.toast('Datos demo eliminados. Bienvenido a Soporte');
                 setTimeout(function () { window.location.reload(); }, 1500);
               }
             });
@@ -226,11 +226,11 @@
 
       store.error(function (err) {
         console.error('[PurchaseManager] error:', err && err.code, err && err.message);
-        // Autocuración: si Google responde "ya comprado", marcar Premium localmente
+        // Autocuración: si Google responde "ya comprado", marcar Soporte localmente
         var msg = (err && err.message) || '';
         if ((err && err.code === 6777003) || /already owned|ya has comprado/i.test(msg)) {
           self._markPurchased();
-          App.toast('Compra Premium restaurada.', 'success');
+          App.toast('Compra Soporte restaurada.', 'success');
         }
       });
 
@@ -262,7 +262,7 @@
       this._purchased = true;
       this._initialized = true;
       try { localStorage.setItem(STORAGE_KEY, 'true'); } catch (e) {}
-      console.log('[PurchaseManager] Premium marcado como comprado');
+      console.log('[PurchaseManager] Soporte marcado como comprado');
       // Repintar la vista actual para que desaparezcan los banners/candados Free
       if (!yaEstaba && window.App && typeof App.route === 'function') {
         try { App.route(); } catch (e) {}

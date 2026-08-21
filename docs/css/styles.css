@@ -3182,7 +3182,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .btn-ghost           { background:transparent; border:none; cursor:pointer; }
 .wizard-overlay      { position:fixed; inset:0; z-index:7000; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; }
 .wizard-card         { background:var(--surface-input); border-radius: var(--r-lg); border:1px solid var(--border); width:100%; max-width:500px; max-height:90vh; display:flex; flex-direction:column; margin:15px; }
-/* ===== INFORMES TAB NAVIGATION (Premium) ===== */
+/* ===== INFORMES TAB NAVIGATION (Soporte) ===== */
 .informes-categories, .informes-tabs { display: flex; gap: 8px; scrollbar-width: none; }
 .informes-categories::-webkit-scrollbar, .informes-tabs::-webkit-scrollbar { display: none; }
 
@@ -4264,7 +4264,7 @@ body.glow-tarjetas-off .status-badge {
     box-shadow: none !important; /* !important: user preference */
 }
 
-/* -- STATUS BADGES (Neon Premium) -- */
+/* -- STATUS BADGES (Neon Soporte) -- */
 .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: var(--r-sm); font-size: 0.65rem; font-weight: 950; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 .status-badge.badge-info { background: color-mix(in srgb, var(--c-info) 10%, transparent); color: var(--c-info); border: 1px solid var(--c-info); box-shadow: 0 0 10px color-mix(in srgb, var(--c-info) 50%, transparent), inset 0 0 8px color-mix(in srgb, var(--c-info) 30%, transparent); }
 .status-badge.badge-danger { background: color-mix(in srgb, var(--c-danger) 10%, transparent); color: var(--c-danger); border: 1px solid var(--c-danger); box-shadow: 0 0 10px color-mix(in srgb, var(--c-danger) 50%, transparent), inset 0 0 8px color-mix(in srgb, var(--c-danger) 30%, transparent); }

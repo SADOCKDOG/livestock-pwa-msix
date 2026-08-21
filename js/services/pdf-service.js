@@ -1,5 +1,5 @@
 /**
- * PdfService - Livestock Manager Premium v4.0
+ * PdfService - Livestock Manager Soporte v4.0
  * Servicio unificado de generación de PDFs: albaranes, facturas, certificados.
  * Utiliza html2pdf (CDN) para la conversión a PDF.
  */
@@ -148,7 +148,7 @@ const PdfService = {
         </div>
 
         <div style="margin-top:30px; text-align:center; font-size:0.8rem; border-top:1px solid #eee; padding-top:20px;">
-          <p>Documento generado electrónicamente por Livestock Manager Premium v4.0</p>
+          <p>Documento generado electrónicamente por Livestock Manager Soporte v4.0</p>
           <p>${numeroSerie || ''}</p>
         </div>
       </div>
@@ -208,7 +208,7 @@ const PdfService = {
         </div>` : ''}
 
         <div style="margin-top:40px; text-align:center; font-size:0.8rem; border-top:1px solid #eee; padding-top:20px;">
-          <p>Documento generado electrónicamente por Livestock Manager Premium v4.0</p>
+          <p>Documento generado electrónicamente por Livestock Manager Soporte v4.0</p>
         </div>
       </div>
     `;

@@ -141,7 +141,7 @@ const SilosView = {
                     : this._cachedSilos.map(s => this._renderSiloCard(s)).join('')}
             </div>
 
-            <!-- FAB (Botón de Acción Flotante) Premium -->
+            <!-- FAB (Botón de Acción Flotante) Soporte -->
             <div class="fab-container" style="--fab-neon-color: var(--c-success);" onclick="SilosView._abrirFormularioSilo()">
                 <span class="fab-label">Nuevo Silo</span>
                 <button class="fab-btn">${Icons.fabPlus()}</button>

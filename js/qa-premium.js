@@ -1,15 +1,15 @@
 /**
- * Livestock Manager - Premium QA Test Suite v1.0.0
+ * Livestock Manager - Soporte QA Test Suite v1.0.0
  *
- * Pruebas automatizadas del límite Free/Premium (1 finca en Free, ilimitadas
- * en Premium), verificado contra CADA vía de alta de finca conocida
+ * Pruebas automatizadas del límite Free/Soporte (1 finca en Free, ilimitadas
+ * en Soporte), verificado contra CADA vía de alta de finca conocida
  * (Fincas.save() para una finca nueva, Fincas.crearNueva()), para detectar
  * automáticamente si una futura vía nueva olvida comprobar el límite.
  *
  * EJECUCIÓN: Pegar en la consola del navegador (DevTools) con la app abierta.
- * Uso: await PremiumQA.runAll();
+ * Uso: await SoporteQA.runAll();
  */
-const PremiumQA = {
+const SoporteQA = {
   _MARKER: 'PREMIUM-QA',
   _results: [],
 
@@ -57,11 +57,11 @@ const PremiumQA = {
   /**
    * Verifica que, con al menos una finca ya existente, el límite Free (1 finca)
    * bloquea toda alta nueva vía Fincas.save() y Fincas.crearNueva() — y que
-   * Premium (o datos.demo) no se ve afectado.
+   * Soporte (o datos.demo) no se ve afectado.
    */
   async testLimiteFincaFree() {
     const M = 'LÍMITE FREE — 1 FINCA';
-    this._log('RUN', M, 'Iniciando validación del límite Free/Premium de fincas');
+    this._log('RUN', M, 'Iniciando validación del límite Free/Soporte de fincas');
 
     if (!this._assert(window.PremiumManager, M, 'PremiumManager disponible', 'PRE-REQ')) return false;
     if (!this._assert(window.Fincas, M, 'Fincas disponible', 'PRE-REQ')) return false;
@@ -104,7 +104,7 @@ const PremiumQA = {
       return this._assert(!threw, M, 'Free NO bloquea altas marcadas como demo (datos.demo=true)', 'DEMO');
     }) && ok;
 
-    // 4) Premium (isFree()=false) + finca ya existente → NO debe bloquear
+    // 4) Soporte (isFree()=false) + finca ya existente → NO debe bloquear
     ok = await this._conIsFreeForzado(false, async () => {
       let threw = false;
       try {
@@ -112,7 +112,7 @@ const PremiumQA = {
       } catch (e) {
         threw = true;
       }
-      return this._assert(!threw, M, 'Premium NO bloquea el alta de una 2ª finca', 'PREMIUM');
+      return this._assert(!threw, M, 'Soporte NO bloquea el alta de una 2ª finca', 'PREMIUM');
     }) && ok;
 
     // 5) Editar la finca activa (esEdicion=true) NUNCA debe pasar por el límite de altas, ni en Free
@@ -134,7 +134,7 @@ const PremiumQA = {
 
   async runAll() {
     console.log('\n' + '='.repeat(75));
-    console.log('🧪 PREMIUM QA SUITE v1.0 — Límite Free/Premium');
+    console.log('🧪 PREMIUM QA SUITE v1.0 — Límite Free/Soporte');
     console.log('📅 ' + new Date().toLocaleString());
     console.log('='.repeat(75) + '\n');
 
@@ -178,5 +178,5 @@ const PremiumQA = {
   }
 };
 
-window.PremiumQA = PremiumQA;
-console.log('✅ Premium QA Suite v1.0 cargado. Ejecuta: await PremiumQA.runAll()');
+window.SoporteQA = SoporteQA;
+console.log('✅ Soporte QA Suite v1.0 cargado. Ejecuta: await SoporteQA.runAll()');

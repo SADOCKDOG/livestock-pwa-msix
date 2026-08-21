@@ -396,7 +396,7 @@ const CuadernoDigitalView = {
       <!-- Pie -->
       <div class="text-center p-20 text-555 mt-25 text-2xs border-top-222">
         Documento generado el ${new Date().toLocaleString('es-ES')} · Cuaderno Digital RD 787/2023<br>
-        Livestock Manager Premium — v${window.APP_INFO.version}
+        Livestock Manager Soporte — v${window.APP_INFO.version}
       </div>
     </div>`;
   },
@@ -852,7 +852,7 @@ const CuadernoDigitalView = {
     </table>` : '<p>Sin transportistas registrados.</p>'}
 
     <div class="footer">
-      <p>Documento generado electrónicamente con Livestock Manager Premium</p>
+      <p>Documento generado electrónicamente con Livestock Manager Soporte</p>
       <p>Cuaderno Digital según RD 787/2023 — Fecha: ${new Date().toLocaleString('es-ES')}</p>
     </div>`;
   },

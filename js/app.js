@@ -1564,7 +1564,7 @@ const App = {
                     </table>
                 </div>
                 <div style="margin-top:40px; text-align:center; font-size:0.8rem; border-top:1px solid #eee; padding-top:20px;">
-                    <p>Documento generado electrónicamente por Livestock Manager Premium v${window.APP_INFO.version}</p>
+                    <p>Documento generado electrónicamente por Livestock Manager Soporte v${window.APP_INFO.version}</p>
                 </div>`;
 
     DocumentViewer.show({
@@ -3013,7 +3013,7 @@ const App = {
 
   async exportBackup() {
     if (window.PremiumManager && window.PremiumManager.isFree()) {
-      App.toastError("La exportación de copias de seguridad solo está disponible en la versión Premium");
+      App.toastError("La exportación de copias de seguridad solo está disponible en la versión Soporte");
       return;
     }
     try {
@@ -3105,7 +3105,7 @@ const App = {
 
   async importBackup(event) {
     if (window.PremiumManager && window.PremiumManager.isFree()) {
-      App.toastError("La importación de copias de seguridad solo está disponible en la versión Premium");
+      App.toastError("La importación de copias de seguridad solo está disponible en la versión Soporte");
       return;
     }
     const file = event.target.files[0];
@@ -3146,7 +3146,7 @@ const App = {
 
   async _showFincaForm() {
     if (window.PremiumManager && window.PremiumManager.isFree()) {
-      App.toastError('La creación de múltiples fincas solo está disponible en Premium');
+      App.toastError('La creación de múltiples fincas solo está disponible en Soporte');
       return;
     }
     if (window.WizardFinca) {

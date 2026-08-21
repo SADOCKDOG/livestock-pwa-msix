@@ -1,6 +1,6 @@
 /**
- * ContratosView - Livestock Manager Premium v4.2.0
- * Vista de contratos de compra: diseño Premium Neón con trazabilidad de precios.
+ * ContratosView - Livestock Manager Soporte v4.2.0
+ * Vista de contratos de compra: diseño Soporte Neón con trazabilidad de precios.
  */
 
 const ContratosView = {

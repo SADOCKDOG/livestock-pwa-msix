@@ -371,7 +371,7 @@ Object.assign(window.InformesView, {
         </div>
         <div style="width:100%;">${seccionesHtml}</div>
         <div style="margin-top:30px; padding-top:12px;  text-align:center; font-size:0.65rem; color:#999; width:100%;">
-          Informe generado por Livestock Manager Premium — ${fecha}
+          Informe generado por Livestock Manager Soporte — ${fecha}
         </div>
       `;
 
@@ -1275,7 +1275,7 @@ Object.assign(window.InformesView, {
         <h1 style="color:#d97706;">Livestock Manager</h1>
         <p>Informe generado el ${new Date().toLocaleDateString()}.</p>
         <p><em>La librería de exportación PDF no pudo cargarse (sin conexión). Vuelve a intentarlo con conexión a internet.</em></p>
-        <hr><p style="color:#999;font-size:0.7rem;">Livestock Manager Premium</p>
+        <hr><p style="color:#999;font-size:0.7rem;">Livestock Manager Soporte</p>
       </div>`;
     DocumentViewer.show({
       id: 'doc-viewer-informes-fallback',

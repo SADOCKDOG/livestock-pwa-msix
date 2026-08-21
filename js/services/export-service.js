@@ -478,7 +478,7 @@ const ExportService = {
    */
    async descargar(content, filename, mime = 'text/csv;charset=utf-8') {
     if (window.PremiumManager && window.PremiumManager.isFree()) {
-      if (window.App?.toast) App.toast('La exportación solo está disponible en Premium', 'error');
+      if (window.App?.toast) App.toast('La exportación solo está disponible en Soporte', 'error');
       return;
     }
     // 1️⃣ Capacitor Filesystem + Share (funciona en Android nativo)

@@ -1,5 +1,5 @@
 /**
- * ProveedoresView - Livestock Manager Premium v4.0
+ * ProveedoresView - Livestock Manager Soporte v4.0
  * Vista de proveedores: lista, detalle con trazabilidad de gastos, formulario.
  */
 

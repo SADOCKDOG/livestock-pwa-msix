@@ -1,5 +1,5 @@
 /**
- * LIFESTOCK MANAGER - MOTOR DE REGLAS DE NEGOCIO Y TRAZABILIDAD (v3.3.5 Premium)
+ * LIFESTOCK MANAGER - MOTOR DE REGLAS DE NEGOCIO Y TRAZABILIDAD (v3.3.5 Soporte)
  * Módulo centralizado para la ejecución de validaciones sanitarias, comerciales, analíticas e importación de backups.
  */
 

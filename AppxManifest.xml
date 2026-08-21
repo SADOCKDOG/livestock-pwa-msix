@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:mp="http://schemas.microsoft.com/appx/2014/manifest"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+  <Identity
+      Name="YourPublisher.YourProduct"
+      Publisher="YourPublisher"
+      Version="1.0.0.0"/>
+  <Properties>
+    <DisplayName>Livestock Manager</DisplayName>
+    <PublisherDisplayName>YourPublisher</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Resources>
+    <Resource Language="es-ES"/>
+  </Resources>
+  <Dependencies>
+    <Dependency Name="Microsoft.Windows.ButtonBar"/>
+  </Dependencies>
+  <Resources>
+    <Resource Language="es-ES"/>
+  </Resources>
+  <Applications>
+    <Application Id="App"
+                 Executable="App.exe"
+                 EntryPoint="App">
+      <uap:VisualElements
+          ViewMode="default"
+          TargetViewMode="default"
+          BackgroundColor="#FFFFFF">
+        <uap:SplashScreen BackgroundColor="#FFFFFF"/>
+        <uap:DefaultTile
+            ShowNameOnLogoList="false"
+            AscendingTileRank="0"
+            DisplayName="Livestock Manager"/>
+      </uap:VisualElements>
+      <uap:Extension Category="windows.startupTask">
+        <uap:Task name="StartApp">
+          <uap:ural:LogonTrigger/>
+        </uap:Task>
+      </uap:Extension>
+    </Application>
+  </Applications>
+  <BuildOptions>
+    <BuildSelection>Package</BuildSelection>
+    <PackageCertificateKeyFile>cert.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>cert-thumbprint</PackageCertificateThumbprint>
+  </BuildOptions>
+  <Version</Version>
+  <Platforms>
+    <Platform Name="Windows10"/>
+  </Platforms>
+  <Features />
+  <CustomAttributes>
+    <CustomAttribute Id="PackageRetailProductId" Name="PackageRetailProductId">
+      <CustomAttributeValue>support_unlock</CustomAttributeValue>
+    </CustomAttribute>
+  </CustomAttributes>
+</Package>

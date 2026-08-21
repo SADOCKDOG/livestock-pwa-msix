@@ -1,5 +1,5 @@
 /**
- * Wizard Tarea/Recordatorio — Livestock Manager Premium
+ * Wizard Tarea/Recordatorio — Livestock Manager Soporte
  * Permite crear tareas planificadas y alertas personalizadas vinculadas a cualquier módulo.
  */
 window.WizardTarea = {

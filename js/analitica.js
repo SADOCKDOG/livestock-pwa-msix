@@ -1,11 +1,11 @@
 /**
- * Analítica Ganadera - Motor de Cálculo Financiero v3.2.1 Premium
+ * Analítica Ganadera - Motor de Cálculo Financiero v3.2.1 Soporte
  * Procesamiento avanzado de márgenes por animal, rentabilidad por zona y balances.
  */
 
 const Analitica = {
     /**
-     * Calcula la rentabilidad total de una finca con desglose Premium
+     * Calcula la rentabilidad total de una finca con desglose Soporte
      */
     async obtenerRentabilidadFinca(fincaId) {
         const fId = Number(fincaId);

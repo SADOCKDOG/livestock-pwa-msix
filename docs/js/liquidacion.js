@@ -1,5 +1,5 @@
 /**
- * Liquidación Económica - Livestock Manager Premium v4.0
+ * Liquidación Económica - Livestock Manager Soporte v4.0
  * Cálculos automáticos de importes de venta: IVA, retenciones, totales.
  *
  * Uso:

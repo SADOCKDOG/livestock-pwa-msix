@@ -50,7 +50,7 @@ const AjustesView = {
           </div>
           <div class="flex-1">
             <div class="text-white font-900 text-base uppercase tracking-wider">Livestock Manager FREE</div>
-            <p class="text-gray text-xs mt-4">Actualiza a Premium para funciones profesionales.</p>
+            <p class="text-gray text-xs mt-4">Actualiza a Soporte para funciones profesionales.</p>
           </div>
         </div>
         <button class="btn w-full mt-15" style="background:linear-gradient(135deg,var(--c-warning),#b45309); color:#fff; font-weight:900;" onclick="window.PurchaseManager && window.PurchaseManager.purchase()">
@@ -232,10 +232,10 @@ const AjustesView = {
 
       <!-- ===================== FOOTER ===================== -->
       <div class="text-center p-40 about-card">
-        <img src="icons/Logo aplicación.png" alt="Livestock Manager Premium" class="about-logo" style="height:64px; margin-bottom:20px;">
+        <img src="icons/Logo aplicación.png" alt="Livestock Manager Soporte" class="about-logo" style="height:64px; margin-bottom:20px;">
         <div class="text-white font-900 text-xl uppercase mt-4">David Asuar Arteaga</div>
         <div class="mt-40 text-[0.65rem] text-444 uppercase font-900 tracking-widest about-footer">
-          © 2026 Livestock Manager Premium · v${window.APP_INFO.version}<br>
+          © 2026 Livestock Manager Soporte · v${window.APP_INFO.version}<br>
           Todos los derechos reservados.
         </div>
       </div>`;

@@ -129,12 +129,12 @@ const DashboardView = {
         </div>
         <div class="flex-1" style="line-height:1.4;">
           <div class="text-white text-xs font-900 uppercase tracking-wider">Versi&oacute;n Gratuita</div>
-          <div class="text-gray text-[0.6rem] mt-2">Actualiza a Premium para desbloquear todas las funciones</div>
+          <div class="text-gray text-[0.6rem] mt-2">Actualiza a Soporte para desbloquear todas las funciones</div>
         </div>
-        <button onclick="window.PurchaseManager && window.PurchaseManager.purchase()" style="flex-shrink:0;background:linear-gradient(135deg,var(--c-warning),var(--c-warning));border:none;padding:8px 16px;border-radius:10px;color:#fff;font-size:var(--fs-tiny);font-weight:900;text-transform:uppercase;cursor:pointer;">${Icons.estrella()} Premium</button>
+        <button onclick="window.PurchaseManager && window.PurchaseManager.purchase()" style="flex-shrink:0;background:linear-gradient(135deg,var(--c-warning),var(--c-warning));border:none;padding:8px 16px;border-radius:10px;color:#fff;font-size:var(--fs-tiny);font-weight:900;text-transform:uppercase;cursor:pointer;">${Icons.estrella()} Soporte</button>
       </div>
       ` : ''}
-      <!-- Registro Rápido Bento Grid (Propuesta de visualización Premium Integrada) -->
+      <!-- Registro Rápido Bento Grid (Propuesta de visualización Soporte Integrada) -->
       <div class="bento-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; animation: fadeInUp 0.4s ease;">
         <div class="card" style="grid-column: span 12; margin-bottom: 0; padding: 24px;">
           

@@ -1,5 +1,5 @@
 /**
- * Wizard Censo Anual SIGGAN — Livestock Manager Premium
+ * Wizard Censo Anual SIGGAN — Livestock Manager Soporte
  * Consolida el censo de la explotación a una fecha de referencia (por defecto
  * 1 de enero) por especie y categoría, y genera el documento de declaración
  * censal exigido por SIGGAN (Junta de Andalucía).
