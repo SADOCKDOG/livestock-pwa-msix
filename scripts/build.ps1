@@ -1,4 +1,4 @@
-$root = Split-Path -Parent $PSScriptRoot
+﻿$root = Split-Path -Parent $PSScriptRoot
 $docs = Join-Path $root "docs"
 
 if (Test-Path $docs) {
@@ -25,4 +25,8 @@ foreach ($file in $toExclude) {
 
 Write-Host "Build completado en $docs"
 
-# El bloque que antes copiaba el .msixbundle queda comentadointencionalmente.
+# El paquete MSIX no se copia aqui, y no hay ningun bloque que descomentar: se
+# elimino a proposito. docs/ es lo que publica GitHub Pages, asi que dejar ahi
+# el instalador de la version de pago lo pondria a descarga libre, sin pasar
+# por la Store ni por la verificacion de licencia. El bundle se genera y se
+# firma fuera (PWABuilder / makeappx) y se sube directamente a Partner Center.
