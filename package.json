@@ -6,10 +6,12 @@
   "scripts": {
     "build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1",
     "serve": "npx --yes http-server . -p 8080 -c-1",
-    "prebuild:pago": "powershell -NoProfile -Command \"Copy-Item -Path ../LIVESTOCK-MANAGER/js/mode-config-con-pago.js -Destination js/mode-config.js -Force\"",
-    "prebuild:demo": "powershell -NoProfile -Command \"Copy-Item -Path ../LIVESTOCK-MANAGER/js/mode-config-sin-pago.js -Destination js/mode-config.js -Force\"",
+    "prebuild:pago": "powershell -NoProfile -Command \"Copy-Item -Path js/mode-config-con-pago.js -Destination js/mode-config.js -Force\"",
+    "prebuild:demo": "powershell -NoProfile -Command \"Copy-Item -Path js/mode-config-sin-pago.js -Destination js/mode-config.js -Force\"",
     "build:pago": "npm run prebuild:pago && npm run build",
-    "build:demo": "npm run prebuild:demo && npm run build"
+    "build:demo": "npm run prebuild:demo && npm run build",
+    "build:free": "npm run build:pago",
+    "build:premium": "npm run build:demo"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.0",
