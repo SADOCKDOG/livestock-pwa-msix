@@ -11,3 +11,6 @@ store-packages/
 playwright-report/
 test-results/
 screenshots/
+
+# Manifiesto MSIX: se genera con la identidad real de la Store, no se versiona
+AppxManifest.xml
