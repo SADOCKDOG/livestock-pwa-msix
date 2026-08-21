@@ -1,5 +1,5 @@
 /**
- * Módulo ADSG — Livestock Manager Soporte
+ * Módulo ADSG — Livestock Manager Premium
  * Gestión de Agrupaciones de Defensa Sanitaria Ganadera
  */
 window.ADSGs = (() => {

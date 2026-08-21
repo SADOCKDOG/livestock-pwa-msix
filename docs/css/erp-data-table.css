@@ -1,0 +1,216 @@
+/**
+ * erp-data-table.css — Estilos para Data Tables Densas ERP
+ * Diseñado para legibilidad, alto contraste y optimización espacial
+ */
+
+.erp-table-wrapper {
+  background: var(--surface, #1E1E1E);
+  border: 1px solid var(--border, #27272A);
+  border-radius: var(--r-md, 14px);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.erp-table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface-light, #2A2A2A);
+  border-bottom: 1px solid var(--border, #27272A);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.erp-table-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-input, #121212);
+  border: 1px solid var(--border, #27272A);
+  padding: 4px 10px;
+  border-radius: var(--r-sm, 6px);
+  width: 260px;
+  max-width: 100%;
+}
+
+.erp-search-input {
+  background: transparent;
+  border: none;
+  color: var(--text-p, #FFF);
+  font-size: var(--fs-sm, 0.85rem);
+  width: 100%;
+  outline: none;
+}
+
+.erp-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.erp-counter-badge {
+  font-size: var(--fs-label, 0.75rem);
+  color: var(--text-s, #B1B1B1);
+}
+
+.btn-erp-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border, #27272A);
+  color: var(--text-p, #FFF);
+  padding: 4px 10px;
+  border-radius: var(--r-sm, 6px);
+  font-size: var(--fs-label, 0.75rem);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-erp-secondary:hover {
+  background: var(--brand, #1F5FA8);
+  border-color: var(--brand, #1F5FA8);
+}
+
+.erp-table-responsive {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.erp-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--fs-sm, 0.85rem);
+}
+
+.erp-data-table th {
+  background: var(--surface-light, #2A2A2A);
+  color: var(--text-s, #B1B1B1);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border, #27272A);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.erp-data-table th.sortable {
+  cursor: pointer;
+}
+
+.erp-data-table th.sortable:hover {
+  color: var(--text-p, #FFF);
+  background: color-mix(in srgb, var(--surface-light) 80%, white);
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sort-indicator {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.35;
+}
+
+.sort-indicator .icon {
+  width: 12px;
+  height: 12px;
+}
+
+.sort-indicator.active {
+  opacity: 1;
+  color: var(--brand, #1F5FA8);
+}
+
+.erp-data-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle, #222222);
+  color: var(--text-p, #FFF);
+  white-space: nowrap;
+}
+
+.erp-data-table tbody tr:hover {
+  background: var(--brand-soft, rgba(31, 95, 168, 0.15));
+}
+
+.erp-empty-td {
+  padding: 24px !important;
+  color: var(--text-d, #777);
+  font-style: italic;
+}
+
+.erp-table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--surface-light, #2A2A2A);
+  border-top: 1px solid var(--border, #27272A);
+}
+
+.btn-erp-pagi {
+  background: transparent;
+  border: 1px solid var(--border, #27272A);
+  color: var(--text-p, #FFF);
+  padding: 4px 10px;
+  border-radius: var(--r-sm, 6px);
+  font-size: var(--fs-label, 0.75rem);
+  cursor: pointer;
+}
+
+.btn-erp-pagi:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagi-info {
+  font-size: var(--fs-label, 0.75rem);
+  color: var(--text-s, #B1B1B1);
+}
+
+/* Modo Claro Adaptativo */
+body[data-modo="claro"] .erp-data-table td {
+  color: var(--text, #1F2A37);
+}
+
+body[data-modo="claro"] .erp-table-wrapper {
+  background: #FFFFFF;
+  border-color: var(--border, #D6DCE3);
+}
+
+body[data-modo="claro"] .erp-table-toolbar,
+body[data-modo="claro"] .erp-data-table th,
+body[data-modo="claro"] .erp-table-pagination {
+  background: var(--surface-light, #EEF1F5);
+  border-color: var(--border, #D6DCE3);
+  color: var(--text-muted, #5C6B7A);
+}
+
+body[data-modo="claro"] .erp-search-input {
+  color: var(--text, #1F2A37);
+}
+
+body[data-modo="claro"] .btn-erp-secondary,
+body[data-modo="claro"] .btn-erp-pagi {
+  border-color: var(--border, #D6DCE3);
+  color: var(--text, #1F2A37);
+}
+
+/* ---------------------------------------------------------------------------
+   Colores de campo heredados de las tarjetas
+   ---------------------------------------------------------------------------
+   Al pasar los listados de tarjetas a tabla, los campos conservan el color que
+   los identificaba: el identificador en dorado, los importes en verde, las
+   alertas en rojo. Se aplican con `cellClass` en la definición de columna.
+   --------------------------------------------------------------------------- */
+.erp-data-table td.erp-cell-id       { color: var(--p-gold, #E4B33E); font-weight: 900; }
+.erp-data-table td.erp-cell-ok       { color: var(--c-success, #15803D); font-weight: 800; }
+.erp-data-table td.erp-cell-alerta   { color: var(--c-danger, #DC2626); font-weight: 800; }
+.erp-data-table td.erp-cell-aviso    { color: var(--c-warning, #B45309); font-weight: 800; }
+.erp-data-table td.erp-cell-info     { color: var(--c-info, #1F5FA8); font-weight: 800; }
+.erp-data-table td.erp-cell-tenue    { color: var(--text-d, #777); }

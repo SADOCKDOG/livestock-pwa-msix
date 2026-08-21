@@ -5,6 +5,9 @@
  * implementación original. Ver docs/PLAN-MEJORA-SIGGAN.md.
  */
 const SaneamientosView = {
+  _cache: [],
+  _vistaModo: 'cards',
+
   async render() {
     if (window.App) App.updateHeaderColor('saneamientos');
     const main = document.getElementById("app-content");
@@ -20,9 +23,24 @@ const SaneamientosView = {
 
     const registros = await window.Saneamientos.list({ fincaId: finca.id });
 
+    // Datos normalizados para la tabla densa ERP (calificación ya resuelta)
+    this._cache = registros.map(s => {
+      const calif = califPorValor.get(s.calificacion) || { label: s.calificacion || 'Sin calificar', color: '#888888' };
+      return {
+        id: s.id,
+        campana: window.Saneamientos.labelCampana(s.campana),
+        fecha: s.fecha || null,
+        calificacion: calif.label,
+        calificacionColor: calif.color,
+        examinados: Number(s.num_examinados || 0),
+        positivos: Number(s.num_positivos || 0),
+        restriccion: !!s.restriccion_movimientos
+      };
+    });
+
     let html = '';
     if (registros.length === 0) {
-      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.sanidad()}</div><p class="empty-state-text">Sin campañas de saneamiento registradas.</p><div class="text-center mt-20"><button class="btn btn-create btn-lg" onclick="SaneamientosView._crearSaneamiento()">${Icons.agregar()} Registrar primer saneamiento</button></div></div>`;
+      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.sanidad()}</div><p class="empty-state-text">Sin campañas de saneamiento registradas.</p><div class="text-center mt-20"><button class="widget-link-btn widget-link-btn--neon neon-success" onclick="SaneamientosView._crearSaneamiento()">${Icons.agregar()}<span class="widget-link-label">Nuevo primer Saneamiento</span></button></div></div>`;
     } else {
       const moduleColor = (window.getModuleColor && window.getModuleColor('/saneamientos')) || 'var(--c-info)';
       let fichasHtml = '';
@@ -36,6 +54,7 @@ const SaneamientosView = {
         fichasHtml += App._cardRegistro({
           icon: Icons.sanidad(),
           title: window.Saneamientos.labelCampana(s.campana),
+          tipo: window.Saneamientos.labelCampana(s.campana),
           subtitle: `<span class="badge badge-sm uppercase" style="background:${calif.color}20; color:${calif.color}; border:1px solid ${calif.color}60;">${calif.label}</span>`,
           metadata: metadata.join(''),
           color: moduleColor,
@@ -54,15 +73,114 @@ const SaneamientosView = {
               ${registros.length} ${registros.length === 1 ? 'campaña' : 'campañas'}
             </div>
           </div>
+          <div class="ml-auto flex gap-6">
+            <button class="btn-erp-secondary btn-sm" id="btn-san-vista-cards" onclick="SaneamientosView._setVistaModo('cards')">Tarjetas</button>
+            <button class="btn-erp-secondary btn-sm" id="btn-san-vista-tabla" onclick="SaneamientosView._setVistaModo('tabla')">Tabla ERP</button>
+          </div>
         </div>
-        <div class="grid gap-12">${fichasHtml}</div>`;
+        <fieldset class="erp-action-group">
+          <legend>Registro de Saneamientos</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="SaneamientosView._crearSaneamiento()">${Icons.agregar()}<span class="widget-link-label">Nuevo Saneamiento</span></button>
+          </div>
+        </fieldset>
+        <div class="erp-filtros" data-filtros-para="san-lista">
+          <input type="search" class="form-input search-input" placeholder="Buscar campaña, calificación o fecha...">
+          <select class="form-select" data-etiqueta-todos="Todas las campañas"></select>
+        </div>
+        <div class="grid gap-12" id="san-lista" data-ver-mas="10">${fichasHtml}</div>
+        <div id="san-erp-table-container" class="mt-12" style="display:none;"></div>`;
     }
 
-    main.innerHTML = html + `
-      <div class="fab-container" onclick="SaneamientosView._crearSaneamiento()">
-        <span class="fab-label">Nuevo Saneamiento</span>
-        <button class="fab-btn">${Icons.fabPlus()}</button>
-      </div>`;
+    main.innerHTML = html;
+
+    // Restaurar modo de vista (por defecto "tabla" en escritorio >= 1024px)
+    if (this._cache.length > 0) {
+      const modoGuardado = localStorage.getItem('saneamientos_view_mode') || 'tabla';
+      this._setVistaModo(modoGuardado, false);
+    }
+  },
+
+  /** Alterna entre el listado de tarjetas (móvil) y la tabla densa ERP (escritorio). */
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('saneamientos_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-san-vista-cards');
+    const btnTabla = document.getElementById('btn-san-vista-tabla');
+    const contenedorCards = document.getElementById('san-lista');
+    const contenedorTabla = document.getElementById('san-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'grid';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cache) return;
+
+    const tableData = this._cache.map(s => ({
+      id: s.id,
+      campana: s.campana,
+      fecha: s.fecha ? new Date(s.fecha).toLocaleDateString('es-ES') : '—',
+      calificacion: s.calificacion,
+      calificacionColor: s.calificacionColor,
+      examinados: s.examinados,
+      positivos: s.positivos,
+      restriccion: s.restriccion ? 'RESTRINGIDO' : 'LIBRE'
+    }));
+
+    new window.ErpDataTable({
+      containerId: 'san-erp-table-container',
+      title: 'Saneamientos',
+      pageSize: 15,
+      columns: [
+        { key: 'campana', label: 'Campaña', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'fecha', label: 'Fecha', sortable: true },
+        {
+          key: 'calificacion',
+          label: 'Calificación',
+          sortable: true,
+          render: (val, row) => `<span class="badge" style="background:${row.calificacionColor}20; color:${row.calificacionColor}; border:1px solid ${row.calificacionColor}60;">${val}</span>`
+        },
+        { key: 'examinados', label: 'Examinados', sortable: true, align: 'right' },
+        {
+          key: 'positivos',
+          label: 'Positivos',
+          sortable: true,
+          align: 'right',
+          cellClass: (v) => (Number(v) > 0 ? 'erp-cell-alerta' : 'erp-cell-tenue')
+        },
+        {
+          key: 'restriccion',
+          label: 'Movimientos',
+          sortable: true,
+          render: (val) => `<span class="badge ${val === 'LIBRE' ? 'badge-success' : 'badge-danger'}">${val}</span>`
+        },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='/saneamiento?id=${id}'">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   async renderDetalle(params) {

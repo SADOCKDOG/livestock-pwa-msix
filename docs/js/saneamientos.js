@@ -1,5 +1,5 @@
 /**
- * Saneamientos — Livestock Manager Soporte
+ * Saneamientos — Livestock Manager Premium
  * Registro de campañas oficiales de saneamiento ganadero (tuberculosis,
  * brucelosis, leucosis, lengua azul, etc.) vinculadas a la ADSG, conforme a
  * SIGGAN (Junta de Andalucía).

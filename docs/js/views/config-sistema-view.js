@@ -60,8 +60,6 @@ const ConfigSistemaView = {
 
   async _renderInterfaz(container, config) {
     const palette = this._getStandardPalette();
-    const esDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
-    const esClaroActivo = document.body.getAttribute('data-modo') === 'claro';
     container.innerHTML = `
       <div class="card p-14 mb-16" style="background: rgba(255,255,255,0.02); border: 1px solid #27272a;">
         <div class="section-header-theme mb-15 font-900 uppercase tracking-wider text-[0.7rem] text-gray"><span style="color: var(--c-purple); margin-right: 4px;">|</span> ${Icons.foto()} APARIENCIA BASE</div>
@@ -69,11 +67,11 @@ const ConfigSistemaView = {
           <label class="wizard-check-label">
             <input type="checkbox" ${config.temaOscuro !== false ? 'checked' : ''} onchange="ConfigSistemaView._action('toggleTema', this.checked)">
             <div class="flex flex-col">
-              <span class="font-bold">${esDesktop ? 'MODO OSCURO' : 'MODO OSCURO (OLED)'}</span>
-              <span class="text-[0.65rem] text-aaa">${esDesktop ? 'Tema oscuro alternativo.' : 'Optimizado para pantallas AMOLED.'}</span>
+              <span class="font-bold">MODO OSCURO (OLED)</span>
+              <span class="text-[0.65rem] text-aaa">Optimizado para pantallas AMOLED.</span>
             </div>
           </label>
-          ${esClaroActivo ? `
+          ${config.temaOscuro === false ? `
           <div class="wizard-input-group">
             <label class="wizard-label">PALETA DE MODO CLARO</label>
             <select class="wizard-input font-800 text-xs" onchange="ConfigSistemaView._action('cambiarTemaClaroColor', this.value)">
@@ -248,17 +246,16 @@ const ConfigSistemaView = {
 
   _getStandardPalette() {
     return [
-      { id: 'gold',     hex: '#FFFC55', nombre: 'Dorado' },
-      { id: 'blue',     hex: '#4FADF5', nombre: 'Azul' },
-      { id: 'green',    hex: '#10b981', nombre: 'Verde' },
-
-      { id: 'red',      hex: '#ef4444', nombre: 'Rojo' },
-
-
-      { id: 'indigo',   hex: '#8b5cf6', nombre: 'Violeta' },
-      { id: 'lime',     hex: '#C5FA50', nombre: 'Lima' },
-      { id: 'steel',    hex: '#B1B1B1', nombre: 'Acero' },
-      { id: 'graphite', hex: '#4B4B4B' }
+      // `nombre` es la etiqueta accesible del selector: son botones de color
+      // puro, sin texto ni icono, así que sin él un lector de pantalla solo
+      // anuncia "botón".
+      { id: 'gold',   hex: '#FFFC55', nombre: 'Dorado'  },
+      { id: 'blue',   hex: '#4FADF5', nombre: 'Azul'    },
+      { id: 'green',  hex: '#10b981', nombre: 'Verde'   },
+      { id: 'red',    hex: '#ef4444', nombre: 'Rojo'    },
+      { id: 'indigo', hex: '#8b5cf6', nombre: 'Violeta' },
+      { id: 'lime',   hex: '#C5FA50', nombre: 'Lima'    },
+      { id: 'steel',  hex: '#B1B1B1', nombre: 'Acero'   }
     ];
   },
 

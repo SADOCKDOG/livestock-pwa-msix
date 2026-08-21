@@ -1,5 +1,5 @@
 /**
- * LIFESTOCK MANAGER - MOTOR DE REGLAS DE NEGOCIO Y TRAZABILIDAD (v3.3.5 Soporte)
+ * LIFESTOCK MANAGER - MOTOR DE REGLAS DE NEGOCIO Y TRAZABILIDAD (v3.3.5 Premium)
  * Módulo centralizado para la ejecución de validaciones sanitarias, comerciales, analíticas e importación de backups.
  */
 
@@ -265,7 +265,12 @@ const MotorTrazabilidad = {
           )
         );
       }
-      const storesDisponibles = [
+      // El orden importa: «fincas» y los catalogos van primero porque el resto
+      // cuelga de sus ids. Lo que no este en esta lista se restaura despues, en
+      // el orden en que lo declare la base. Antes era una lista fija de 20 y
+      // descartaba en silencio cualquier almacen que no estuviera en ella
+      // (analiticas, balance lacteo, tanques, movimientos, saneamientos...).
+      const ORDEN_PREFERENTE = [
         "fincas",
         "config_especies",
         "config_tipos_produccion",
@@ -286,6 +291,11 @@ const MotorTrazabilidad = {
         "transportistas",
         "documentos_legales",
         "meta",
+      ];
+      const todosLosStores = Array.from(db.objectStoreNames);
+      const storesDisponibles = [
+        ...ORDEN_PREFERENTE.filter((s) => todosLosStores.includes(s)),
+        ...todosLosStores.filter((s) => !ORDEN_PREFERENTE.includes(s)),
       ];
       const storesAInyectar = storesDisponibles.filter(
         (store) => data[store] && Array.isArray(data[store])

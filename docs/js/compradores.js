@@ -1,5 +1,5 @@
 /**
- * Compradores - Livestock Manager Soporte v4.0
+ * Compradores - Livestock Manager Premium v4.0
  * Modelo de datos para registro de compradores con trazabilidad de ventas.
  */
 

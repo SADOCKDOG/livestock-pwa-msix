@@ -1,5 +1,5 @@
 /**
- * ProveedoresView - Livestock Manager Soporte v4.0
+ * ProveedoresView - Livestock Manager Premium v4.0
  * Vista de proveedores: lista, detalle con trazabilidad de gastos, formulario.
  */
 
@@ -27,23 +27,34 @@ const ProveedoresView = {
               </div>
             </div>
           </div>
+          <fieldset class="erp-action-group">
+            <legend>Registro de Proveedores</legend>
+            <div class="erp-action-group-body">
+              <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="ProveedoresView.renderFormulario()">${Icons.agregar()}<span class="widget-link-label">Nuevo Proveedor</span></button>
+            </div>
+          </fieldset>
 
           <div class="mb-16">
             <div id="prov-kpis"></div>
-            <div class="flex gap-8 mb-14">
+            <!-- Búsqueda + interruptor de vista (Tarjetas / Tabla ERP) -->
+            <div class="flex gap-8 mb-14 items-center">
               <input type="search" id="search-proveedores" placeholder="Buscar por nombre, NIF o ciudad..."
                 oninput="ProveedoresView._filtrar(this.value)"
                 class="form-input search-input flex-1" style="margin-top:0;">
+              <div class="flex gap-4" style="flex-shrink:0;">
+                <button class="btn-erp-secondary btn-sm" id="btn-prov-vista-cards" onclick="ProveedoresView._setVistaModo('cards')">Tarjetas</button>
+                <button class="btn-erp-secondary btn-sm" id="btn-prov-vista-tabla" onclick="ProveedoresView._setVistaModo('tabla')">Tabla ERP</button>
+              </div>
             </div>
           </div>
           <div id="prov-lista"><div class="loader">Cargando proveedores...</div></div>
+          <div id="prov-erp-table-container" class="mt-12" style="display:none;"></div>
 
-          <!-- Botón Flotante de Acción con viñeta -->
-          <div class="fab-container" onclick="ProveedoresView.renderFormulario()">
-            <span class="fab-label">Nuevo Proveedor</span>
-            <button class="fab-btn" aria-label="Añadir"><span aria-hidden="true">${Icons.fabPlus()}</span></button>
-          </div>
           `;
+
+        // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px); la tabla se pinta al llegar los datos en _cargarDatos
+        const modoGuardado = localStorage.getItem('proveedores_view_mode') || 'tabla';
+        this._setVistaModo(modoGuardado, false);
 
         await this._cargarDatos();
     },
@@ -82,18 +93,20 @@ const ProveedoresView = {
             if (f && (!m.ultimaCompra || f > m.ultimaCompra)) m.ultimaCompra = f;
         });
         this._cachedData = proveedores;
-        this._renderLista(proveedores);
+        this._cachedFiltrados = proveedores;
+        if (this._vistaModo === 'tabla') this._renderErpTable(); else this._renderLista(proveedores);
     },
 
     _filtrar(texto) {
         if (!this._cachedData) return;
-        if (!texto) return this._renderLista(this._cachedData);
-        const q = texto.toLowerCase();
-        const filtrados = this._cachedData.filter(p =>
+        const q = (texto || '').toLowerCase();
+        const filtrados = !q ? this._cachedData : this._cachedData.filter(p =>
             (p.nombre || '').toLowerCase().includes(q) ||
             (p.nif_cif || '').toLowerCase().includes(q) ||
             (p.ciudad || '').toLowerCase().includes(q)
         );
+        this._cachedFiltrados = filtrados;
+        if (this._vistaModo === 'tabla') return this._renderErpTable();
         this._renderLista(filtrados);
     },
 
@@ -106,7 +119,7 @@ const ProveedoresView = {
               <div class="empty-state border border-222">
                 <div class="empty-state-icon" style="color:#555;">${Icons.proveedores()}</div>
                 <p class="empty-state-text uppercase font-900 text-xs">${this._cachedData?.length === 0 ? 'Aún no hay proveedores registrados.' : 'No hay proveedores con ese filtro.'}</p>
-                <button onclick="ProveedoresView.renderFormulario()"
+                <button onclick="ProveedoresView.renderFormulario()" data-guide="btn-vacio-proveedores"
                   class="widget-link-btn widget-link-btn--neon neon-success px-16 mt-10">
                   ${Icons.agregar()} <span class="widget-link-label">REGISTRAR PRIMERO</span>
                 </button>
@@ -141,6 +154,93 @@ const ProveedoresView = {
           color: 'var(--c-purple)',
           onClick: `location.hash='#/proveedor?id=${p.id}'`
         }); }).join('')}</div>`;
+    },
+
+    // ============================================
+    // VISTA TABLA ERP (desktop)
+    // ============================================
+
+    _setVistaModo(modo, guardar = true) {
+        this._vistaModo = modo;
+        if (guardar) {
+            try { localStorage.setItem('proveedores_view_mode', modo); } catch (_) {}
+        }
+
+        const btnCards = document.getElementById('btn-prov-vista-cards');
+        const btnTabla = document.getElementById('btn-prov-vista-tabla');
+        const contenedorCards = document.getElementById('prov-lista');
+        const contenedorTabla = document.getElementById('prov-erp-table-container');
+
+        if (btnCards && btnTabla) {
+            btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+            btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+        }
+
+        if (modo === 'tabla') {
+            if (contenedorCards) contenedorCards.style.display = 'none';
+            if (contenedorTabla) {
+                contenedorTabla.style.display = 'block';
+                this._renderErpTable();
+            }
+        } else {
+            if (contenedorTabla) contenedorTabla.style.display = 'none';
+            if (contenedorCards) {
+                contenedorCards.style.display = 'block';
+                // Al conmutar a Tarjetas desde Tabla, los datos ya estan cargados
+                // pero _renderLista solo se invoca en modo 'cards' al cargar; hay
+                // que pintarlas ahora o el contenedor quedaria con el loader.
+                if (this._cachedFiltrados) this._renderLista(this._cachedFiltrados);
+            }
+        }
+    },
+
+    _renderErpTable() {
+        if (!window.ErpDataTable || !this._cachedData) return;
+
+        const lista = this._cachedFiltrados || this._cachedData;
+        const tableData = lista.map(p => {
+            const m = (this._cachedMetricasProveedor || {})[p.id];
+            return {
+                id: p.id,
+                nombre: p.nombre || '—',
+                nif_cif: p.nif_cif || '—',
+                ciudad: (p.ciudad || '—').toUpperCase(),
+                telefono: p.telefono || '—',
+                categorias: Array.isArray(p.categorias) && p.categorias.length
+                    ? p.categorias.map(c => this._labelCat(c)).join(', ')
+                    : '—',
+                ultimaCompra: m && m.ultimaCompra ? m.ultimaCompra.toLocaleDateString('es-ES') : '—',
+                estado: p.activo === false ? 'INACTIVO' : 'ACTIVO'
+            };
+        });
+
+        new window.ErpDataTable({
+            containerId: 'prov-erp-table-container',
+            title: 'Proveedores',
+            pageSize: 15,
+            columns: [
+                { key: 'nombre', label: 'Nombre', sortable: true, cellClass: 'erp-cell-id' },
+                { key: 'nif_cif', label: 'NIF/CIF', sortable: true },
+                { key: 'ciudad', label: 'Ciudad', sortable: true },
+                { key: 'telefono', label: 'Teléfono', sortable: false },
+                { key: 'categorias', label: 'Categorías', sortable: false },
+                { key: 'ultimaCompra', label: 'Última compra', sortable: true },
+                {
+                    key: 'estado',
+                    label: 'Estado',
+                    sortable: true,
+                    render: (val) => `<span class="badge ${val === 'ACTIVO' ? 'badge-success' : 'badge-gray'}">${val}</span>`
+                },
+                {
+                    key: 'id',
+                    label: 'Ficha',
+                    sortable: false,
+                    align: 'center',
+                    render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='#/proveedor?id=${id}'">Ver Ficha</button>`
+                }
+            ],
+            data: tableData
+        }).render();
     },
 
     // ============================================

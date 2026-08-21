@@ -50,7 +50,7 @@ const AjustesView = {
           </div>
           <div class="flex-1">
             <div class="text-white font-900 text-base uppercase tracking-wider">Livestock Manager FREE</div>
-            <p class="text-gray text-xs mt-4">Actualiza a Soporte para funciones profesionales.</p>
+            <p class="text-gray text-xs mt-4">Actualiza a Premium para funciones profesionales.</p>
           </div>
         </div>
         <button class="btn w-full mt-15" style="background:linear-gradient(135deg,var(--c-warning),#b45309); color:#fff; font-weight:900;" onclick="window.PurchaseManager && window.PurchaseManager.purchase()">
@@ -143,7 +143,7 @@ const AjustesView = {
             <div>${f.id !== activeId ? `<button onclick="AjustesView._cambiarFincaActiva(${f.id})" class="btn btn-secondary btn-sm">Activar</button>` : `<span style="font-size: 1.1rem; font-weight: 800; border: 1px solid var(--c-success); color: var(--c-success); background: rgba(204,255,0,0.1); padding: 6px 12px; border-radius: 8px; display: inline-block;">ACTIVA</span>`}</div>
           </div>`).join("")}
         </div>
-        ${!isFree ? `<button class="btn btn-create btn-full mt-15" onclick="App._showFincaForm()">${Icons.agregar()} Nueva Finca</button>` : ''}
+        ${!isFree ? `<button class="widget-link-btn widget-link-btn--neon neon-success" onclick="App._showFincaForm()">${Icons.agregar()}<span class="widget-link-label">Nueva Finca</span></button>` : ''}
       </div>
 
       <!-- ===================== ADSG Y SANIDAD ===================== -->
@@ -158,7 +158,7 @@ const AjustesView = {
               <button class="btn btn-secondary btn-sm" onclick="AjustesView._editarADSG(${a.id})">${Icons.editar()}</button>
             </div>`).join('')}
         </div>
-        <button class="btn btn-create btn-full mt-15" onclick="AjustesView._nuevoADSG()">${Icons.agregar()} Nueva ADSG</button>
+        <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="AjustesView._nuevoADSG()">${Icons.agregar()}<span class="widget-link-label">Nueva ADSG</span></button>
       </div>
 
       <!-- ===================== OBJETIVOS DE EXPLOTACIÓN ===================== -->
@@ -180,7 +180,7 @@ const AjustesView = {
           <span style="color: var(--c-orange);">|</span> ${Icons.reproduccion()} ESPECIES Y RAZAS
         </h3>
         <div id="especies-container" class="mt-15">${this._renderEspecies(config)}</div>
-        <button class="btn btn-create btn-full mt-15" onclick="AjustesView._agregarEspecie()">${Icons.agregar()} Añadir Especie</button>
+        <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="AjustesView._agregarEspecie()">${Icons.agregar()}<span class="widget-link-label">Añadir Especie</span></button>
       </div>
 
       <!-- ===================== GESTIÓN DE ALERTAS ===================== -->
@@ -232,10 +232,10 @@ const AjustesView = {
 
       <!-- ===================== FOOTER ===================== -->
       <div class="text-center p-40 about-card">
-        <img src="icons/Logo aplicación.png" alt="Livestock Manager Soporte" class="about-logo" style="height:64px; margin-bottom:20px;">
+        <img src="icons/Logo aplicación.png" alt="Livestock Manager Premium" class="about-logo" style="height:64px; margin-bottom:20px;">
         <div class="text-white font-900 text-xl uppercase mt-4">David Asuar Arteaga</div>
         <div class="mt-40 text-[0.65rem] text-444 uppercase font-900 tracking-widest about-footer">
-          © 2026 Livestock Manager Soporte · v${window.APP_INFO.version}<br>
+          © 2026 Livestock Manager Premium · v${window.APP_INFO.version}<br>
           Todos los derechos reservados.
         </div>
       </div>`;
@@ -289,29 +289,11 @@ const AjustesView = {
     App.toast(checked ? 'Backup automático activado' : 'Backup automático desactivado', "info");
   },
 
-  // ===================== GUIAS INTERACTIVAS =====================
-
-  // El contrato con GuideManager es appConfig.guides = { enabled, seen[], dismissed[] }
-  // (spec §3.3). El motor lee exactamente estas claves; no usar nombres alternativos.
-  async _toggleGuias(checked) {
-    const guides = (await this._loadConfig()).guides || {};
-    await this._saveConfig({ guides: { ...guides, enabled: checked } });
-    App.toast(checked ? 'Guías interactivas activadas' : 'Guías interactivas desactivadas', "info");
-  },
-
-  async _reiniciarGuias() {
-    if (!await Confirm.confirm("Reiniciar guías", "¿Marcar todas las guías como no vistas? Se volverán a mostrar al entrar en cada sección.", true)) return;
-    const guides = (await this._loadConfig()).guides || {};
-    await this._saveConfig({ guides: { ...guides, seen: [], dismissed: [] } });
-    App.toast('Todas las guías reiniciadas', "success");
-  },
-
   async _toggleTema(checked) {
     await this._saveConfig({ temaOscuro: checked });
     document.documentElement.style.colorScheme = checked ? 'dark' : 'light';
-    // 'oscuro' fuerza el tema oscuro incluso en escritorio (ver css/desktop.css,
-    // sección 9: el claro-por-defecto de escritorio se excluye con este atributo).
-    document.body.setAttribute('data-modo', checked ? 'oscuro' : 'claro');
+    if (checked) document.body.removeAttribute('data-modo');
+    else document.body.setAttribute('data-modo', 'claro');
     App.toast(checked ? 'Modo oscuro' : 'Modo claro', "info");
   },
 
@@ -357,6 +339,23 @@ const AjustesView = {
   async _guardarPreferencia(key, val) {
     await this._saveConfig({ [key]: val });
     App.toast('Preferencia guardada', 'success');
+  },
+
+  // ===================== GUIAS INTERACTIVAS =====================
+
+  // El contrato con GuideManager es appConfig.guides = { enabled, seen[], dismissed[] }
+  // (spec §3.3). El motor lee exactamente estas claves; no usar nombres alternativos.
+  async _toggleGuias(checked) {
+    const guides = (await this._loadConfig()).guides || {};
+    await this._saveConfig({ guides: { ...guides, enabled: checked } });
+    App.toast(checked ? 'Guías interactivas activadas' : 'Guías interactivas desactivadas', "info");
+  },
+
+  async _reiniciarGuias() {
+    if (!await Confirm.confirm("Reiniciar guías", "¿Marcar todas las guías como no vistas? Se volverán a mostrar al entrar en cada sección.", true)) return;
+    const guides = (await this._loadConfig()).guides || {};
+    await this._saveConfig({ guides: { ...guides, seen: [], dismissed: [] } });
+    App.toast('Todas las guías reiniciadas', "success");
   },
 
 
@@ -444,17 +443,14 @@ const AjustesView = {
   async _abrirWizardRetroiluminacion() {
     const config = await this._loadConfig();
     const colors = [
-      { name: 'Neon Lime', hex: '#C5FA50' },
-      { name: 'Neon Red', hex: '#E8555F' },
-      { name: 'Neon Blue', hex: '#4FADF5' },
-      { name: 'Neon Gold', hex: '#FFFC55' },
-      
-      
-      
-      { name: 'Neon Green', hex: '#10b981' },
-      { name: 'Neon Indigo', hex: '#8b5cf6' },
-      { name: 'Steel Grey', hex: '#B1B1B1' },
-      { name: 'White Backlit', hex: '#FFFFFF' }
+      { name: 'Lima Éxito', hex: '#CCFF00' },
+      { name: 'Rojo Peligro', hex: '#FF4444' },
+      { name: 'Azul Info', hex: '#3b82f6' },
+      { name: 'Oro Premium', hex: '#FFB300' },
+      { name: 'Verde Esmeralda', hex: '#10b981' },
+      { name: 'Violeta', hex: '#A855F7' },
+      { name: 'Gris Acero', hex: '#B1B1B1' },
+      { name: 'Blanco', hex: '#FFFFFF' }
     ];
 
     const steps = [

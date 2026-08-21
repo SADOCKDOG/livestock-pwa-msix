@@ -6,6 +6,7 @@
  */
 const SanidadView = {
   _filtro: '',
+  _filtroTipo: '',
   _renderOpts: null,
 
   _fmtFecha(dateStr) {
@@ -115,7 +116,7 @@ const SanidadView = {
         <span class="text-555 text-xs uppercase font-800 tracking-wider">${opts.emptyText || 'No se encontraron tratamientos'}</span>
       </div>`;
     }
-    return `<div class="grid gap-10">${lista.map(t => {
+    return `<div class="grid gap-10" id="sanidad-historial-lista" data-ver-mas="10">${lista.map(t => {
       const soloCarne = opts.tipo === 'carne';
       const soloLeche = opts.tipo === 'leche';
       const hasSupresion = soloCarne ? t.enSupresionCarne : soloLeche ? t.enSupresionLeche : t.enSupresion;
@@ -124,6 +125,7 @@ const SanidadView = {
       const permanente = t.indefinidoLeche && !soloCarne;
       return App._cardRegistro({
         icon: Icons.sanidad(),
+        tipo: t.tipo_tratamiento || 'Sin tipo',
         title: t.medicamento || t.tipo_tratamiento,
         subtitle: `Crotal: <strong style="color: var(--p-gold); font-weight: 950;">${t.snap_identificacion || t.animalId || 'Rebaño'}</strong>`,
         metadata: `<span>${this._fmtFecha(t.fecha)}</span><span>·</span><span>${t.tipo_tratamiento}</span>`,
@@ -162,15 +164,22 @@ const SanidadView = {
       : [];
     const tratamientos = await Sanitarios.list().catch(() => []);
     const filtro = this._filtro.trim().toLowerCase();
-    const tratamientosFiltrados = filtro ? tratamientos.filter(t => {
+    // Tipos presentes en los datos, para poblar el selector junto al buscador
+    const tiposDisponibles = [...new Set(tratamientos.map(t => (t.tipo_tratamiento || '').trim()).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, 'es'));
+    let tratamientosFiltrados = filtro ? tratamientos.filter(t => {
       const medicamento = (t.medicamento || '').toLowerCase();
       const tipo = (t.tipo_tratamiento || '').toLowerCase();
       const crotal = (t.snap_identificacion || t.animalId || '').toString().toLowerCase();
       const veterinario = (t.veterinario_prescriptor || '').toLowerCase();
       return medicamento.includes(filtro) || tipo.includes(filtro) || crotal.includes(filtro) || veterinario.includes(filtro);
     }) : tratamientos;
+    if (this._filtroTipo) {
+      tratamientosFiltrados = tratamientosFiltrados.filter(t => (t.tipo_tratamiento || '') === this._filtroTipo);
+    }
 
     const enriquecidos = this.enriquecer(tratamientos);
+    this._cacheTabla = this.enriquecer(tratamientosFiltrados);
     const supresionesActivas = enriquecidos.filter(t => t.enSupresion);
     const modoFlags = window.ModoContextoHelper ? window.ModoContextoHelper.getFlags() : null;
     const modoMeta = window.ModoContextoHelper
@@ -193,27 +202,20 @@ const SanidadView = {
               <div class="text-[0.6rem] text-gray uppercase font-900">En Supresión: <strong class="${supresionesActivas.length > 0 ? 'text-danger' : 'text-success'}">${supresionesActivas.length}</strong></div>
             </div>
           </div>
-          <div class="module-header-primary-action">
-            <button class="btn btn-create btn-lg w-full" data-guide="btn-tratamiento" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">${Icons.fabPlus()} Aplicar Tratamiento</button>
-          </div>
-          <div class="module-header-secondary-actions">
-            <button class="widget-link-btn widget-link-btn--neon neon-info" data-guide="btn-vacunacion" style="border:none; cursor:pointer;" onclick="window.WizardVacunacion ? window.WizardVacunacion.registrar(null, { onSaved: () => App.route() }) : App.toastError('Módulo de vacunación no disponible')">${Icons.documento()}<span class="widget-link-label">Vacunación</span></button>
-            <button class="widget-link-btn widget-link-btn--neon neon-accent" style="border:none; cursor:pointer;" onclick="App._abrirWizardCrotales()">${Icons.documento()}<span class="widget-link-label">Crotales</span></button>
-            <button class="widget-link-btn widget-link-btn--neon neon-warning" style="border:none; cursor:pointer;" onclick="App._abrirWizardGuiaMovimiento()">${Icons.documento()}<span class="widget-link-label">Guía Mov.</span></button>
-          </div>
+          <fieldset class="erp-action-group erp-action-group--modulo">
+            <legend>Acciones de Registro</legend>
+            <div class="erp-action-group-body">
+              <button class="widget-link-btn widget-link-btn--neon neon-info" data-guide="btn-vacunacion" onclick="window.WizardVacunacion ? window.WizardVacunacion.registrar(null, { onSaved: () => App.route() }) : App.toastError('Módulo de vacunación no disponible')">${Icons.documento()}<span class="widget-link-label">Vacunación</span></button>
+              <button class="widget-link-btn widget-link-btn--neon neon-accent" onclick="App._abrirWizardCrotales()">${Icons.documento()}<span class="widget-link-label">Crotales</span></button>
+              <button class="widget-link-btn widget-link-btn--neon neon-warning" onclick="App._abrirWizardGuiaMovimiento()">${Icons.documento()}<span class="widget-link-label">Guía Mov.</span></button>
+            </div>
+          </fieldset>
         </div>
       </div>
 
       ${this.renderAlertasSupresion(enriquecidos)}
 
       <div class="px-4">
-        <div class="flex items-center gap-8 mb-14">
-          <div class="search-input-wrapper flex-1" style="position: relative;">
-            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #555;">${Icons.buscar()}</span>
-            <input type="text" id="sanidad-filtro-buscar" value="${this._filtro}" oninput="SanidadView._buscar(this.value)" placeholder="Buscar medicamento, tipo, crotal o veterinario..." class="w-100" style="padding-left: 36px; background: rgba(255,255,255,0.03); border: 1px solid #27272a; border-radius: 8px; color: white; min-height: 40px; box-sizing: border-box;">
-          </div>
-        </div>
-
         <div class="inf-section-title mb-10 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray" data-guide="seccion-vacunaciones">
           <span style="color: var(--c-info); margin-right: 4px;">|</span> ${Icons.documento()} VACUNACIONES (LIBRO ADSG)
         </div>
@@ -223,12 +225,128 @@ const SanidadView = {
           <span style="color: var(--c-purple); margin-right: 4px;">|</span> ${Icons.documento()} HISTORIAL CLÍNICO VETERINARIO
         </div>
 
+        <div class="flex justify-end gap-6 mb-8">
+          <button class="btn-erp-secondary btn-sm" id="btn-san-vista-cards" onclick="SanidadView._setVistaModo('cards')">Tarjetas</button>
+          <button class="btn-erp-secondary btn-sm" id="btn-san-vista-tabla" onclick="SanidadView._setVistaModo('tabla')">Tabla ERP</button>
+        </div>
+
+        <fieldset class="erp-action-group">
+          <legend>Registro de Tratamientos</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" data-guide="btn-tratamiento" onclick="window.WizardTratamiento ? window.WizardTratamiento.registrar(null) : App.toastError('Módulo de tratamiento no disponible')">${Icons.fabPlus()}<span class="widget-link-label">Aplicar Tratamiento</span></button>
+          </div>
+        </fieldset>
+
+        <div class="erp-filtros">
+          <input type="search" id="sanidad-filtro-buscar" value="${this._filtro}"
+                 oninput="SanidadView._buscar(this.value)"
+                 placeholder="Buscar medicamento, tipo, crotal o veterinario..."
+                 class="form-input search-input">
+          <select id="sanidad-filtro-tipo" class="form-select" onchange="SanidadView._filtrarPorTipo(this.value)">
+            <option value="" ${this._filtroTipo === '' ? 'selected' : ''}>Todos los tipos</option>
+            ${tiposDisponibles.map(tp => `<option value="${tp}" ${this._filtroTipo === tp ? 'selected' : ''}>${tp.toUpperCase()}</option>`).join('')}
+          </select>
+        </div>
+
         ${this.renderHistorial(this.enriquecer(tratamientosFiltrados))}
-      </div>`;
+        <div id="sanidad-erp-table-container" class="mt-12" style="display:none;"></div>
+        </div>`;
+    const modoGuardado = localStorage.getItem('sanidad_view_mode') || 'tabla';
+    this._setVistaModo(modoGuardado, false);
+
     // FAB Guía interactiva
     if (window.App && typeof App.renderGuideFab === 'function') {
       App.renderGuideFab('/ganaderia', 'sanidad');
     }
+  },
+
+  /** Filtra el historial por tipo de tratamiento (selector junto al buscador). */
+  _filtrarPorTipo(value) {
+    this._filtroTipo = value || '';
+    if (this._renderOpts) {
+      const container = document.getElementById('ganaderia-tab-content');
+      if (container) this.render(container, this._renderOpts);
+    }
+  },
+
+  /** Alterna el historial clínico entre tarjetas y tabla densa ERP. */
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('sanidad_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-san-vista-cards');
+    const btnTabla = document.getElementById('btn-san-vista-tabla');
+    const contenedorCards = document.getElementById('sanidad-historial-lista');
+    const contenedorTabla = document.getElementById('sanidad-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'grid';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cacheTabla) return;
+
+    const tableData = this._cacheTabla.map(t => {
+      const permanente = t.indefinidoLeche;
+      const dias = t.enSupresionCarne ? t.diasRestantesCarne : t.diasRestantesLeche;
+      const tipoSup = t.enSupresionCarne && t.enSupresionLeche ? 'CARNE/LECHE'
+        : t.enSupresionLeche ? 'LECHE' : 'CARNE';
+      return {
+        id: t.id,
+        medicamento: t.medicamento || t.tipo_tratamiento || '—',
+        tipo: t.tipo_tratamiento || '—',
+        crotal: t.snap_identificacion || t.animalId || 'Rebaño',
+        fecha: this._fmtFecha(t.fecha),
+        veterinario: t.veterinario_prescriptor || '—',
+        supresion: permanente ? 'PERMANENTE'
+          : t.enSupresion ? `${dias}D (${tipoSup})`
+          : 'Sin supresión',
+        _enSupresion: !!t.enSupresion || !!permanente
+      };
+    });
+
+    new window.ErpDataTable({
+      containerId: 'sanidad-erp-table-container',
+      title: 'Historial clínico veterinario',
+      pageSize: 15,
+      columns: [
+        { key: 'medicamento', label: 'Medicamento', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'tipo', label: 'Tipo', sortable: true },
+        // el crotal iba en dorado dentro de la tarjeta
+        { key: 'crotal', label: 'Crotal / Rebaño', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'fecha', label: 'Fecha', sortable: true },
+        { key: 'veterinario', label: 'Veterinario', sortable: true },
+        {
+          key: 'supresion',
+          label: 'Supresión',
+          sortable: true,
+          cellClass: (v, row) => (row._enSupresion ? 'erp-cell-alerta' : 'erp-cell-tenue')
+        },
+        {
+          key: 'id',
+          label: 'Acciones',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="SanidadView._abrirOpcionesTratamiento(${id})">Ver</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   _buscar(value) {
@@ -248,7 +366,7 @@ const SanidadView = {
         <span class="text-555 text-xs uppercase font-800 tracking-wider">Sin vacunaciones registradas</span>
       </div>`;
     }
-    return `<div class="grid gap-10">${lista.map((v) => {
+    return `<div class="grid gap-10" data-ver-mas="10">${lista.map((v) => {
       const tiposLabel = (v.tipos_vacuna || []).map((t) => t.tipo).filter(Boolean).join(', ') || 'Sin tipo';
       return App._cardRegistro({
         icon: Icons.sanidad(),

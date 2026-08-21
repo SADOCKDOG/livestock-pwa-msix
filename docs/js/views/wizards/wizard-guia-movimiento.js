@@ -1,5 +1,5 @@
 /**
- * Wizard Guía de Movimiento SIGGAN — Livestock Manager Soporte
+ * Wizard Guía de Movimiento SIGGAN — Livestock Manager Premium
  * Genera la guía de origen y sanidad pecuaria para movimientos
  * inter-explotación (entrada/salida) y la registra como movimiento oficial,
  * dirigida a la plataforma de la comunidad (SIGGAN / BADIGEX / PIMA).
@@ -515,7 +515,7 @@ window.WizardGuiaMovimiento = {
         </div>
         <div style="text-align:right; font-size:0.75rem; color:#777; align-self:flex-end;">
           Fecha de Emisión: <strong>${new Date().toLocaleDateString('es-ES')}</strong><br/>
-          Livestock Manager Soporte v4.8
+          Livestock Manager Premium v4.8
         </div>
       </div>
     </div>`;

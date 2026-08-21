@@ -38,7 +38,7 @@ const Gastos = {
               const todos = await window.db.getAllFromIndex('gastos_ganaderia', 'fincaId', fincaActivaId);
               const noDemo = todos.filter(g => !g.demo);
               if (noDemo.length >= window.PremiumManager.maxGastos()) {
-                throw new Error('Has alcanzado el límite de gastos en la versión gratuita (máx. ' + window.PremiumManager.maxGastos() + '). Actualiza a Soporte para añadir más.');
+                throw new Error('Has alcanzado el límite de gastos en la versión gratuita (máx. ' + window.PremiumManager.maxGastos() + '). Actualiza a Premium para añadir más.');
               }
             }
 
@@ -57,6 +57,11 @@ const Gastos = {
             const gastoData = {
                 ...data,
                 ...snapMetadata,
+                // El wizard fija snap_zona explícitamente para Fitosanitarios/Electricidad
+                // (sin rebaño): no dejar que el snapshot lo pise con "Sin zona"
+                snap_zona: data.snap_zona || snapMetadata.snap_zona,
+                snap_especie: data.snap_especie || snapMetadata.snap_especie,
+                snap_tipo: data.snap_tipo || snapMetadata.snap_tipo,
                 fincaId: fincaActivaId,
                 comunidad_autonoma: fincaActiva?.comunidad_autonoma || null,
                 monto: Number(data.monto),

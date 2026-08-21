@@ -194,6 +194,10 @@ const DocumentosView = {
 
       main.innerHTML = this._renderHTML(docsUnificados, ventaMap);
       this._setupFilters();
+
+      // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
+      const modoGuardado = localStorage.getItem('documentos_view_mode') || 'tabla';
+      this._setVistaModo(modoGuardado, false);
     } catch (e) {
       console.error('[Documentos] Error:', e);
       main.innerHTML = `<div class="card text-center p-40 text-red" style="border: 1px solid var(--c-danger); background: rgba(255, 68, 68, 0.05);">Error: ${e.message}</div>`;
@@ -229,7 +233,7 @@ const DocumentosView = {
     return `
       ${bannerInterno}
       <div class="card p-12 mb-14 border-222 card-resumen" style="background: rgba(168,85,247,0.015); width:100%;">
-        <div class="text-xs text-white font-black uppercase tracking-wider mb-6 flex items-center gap-6"><span style="color: #4FADF5; margin-right:4px;">|</span> ${Icons.documento()} DOCUMENTOS</div>
+        <div class="text-xs text-white font-black uppercase tracking-wider mb-6 flex items-center gap-6"><span style="color: var(--c-info); margin-right:4px;">|</span> ${Icons.documento()} DOCUMENTOS</div>
         <div class="grid grid-cols-3 md:grid-cols-6 gap-4 mb-6">
           <div class="bg-dark rounded-lg p-6 text-center border border-222">
             <div class="text-[0.5rem] text-gray uppercase font-800 tracking-wider">TOTAL</div>
@@ -258,25 +262,34 @@ const DocumentosView = {
         </div>
       </div>
 
-      <div class="card p-12 mb-14 border-222 card-dark-gradient card-resumen pb-24" style="background: rgba(168,85,247,0.015); width:100%;">
-        <div class="section-header-theme" style="--theme-color: #4FADF5; font-weight:900;"><span style="color: #4FADF5; margin-right:4px;">|</span> ACCESOS Y ACCIONES</div>
-        <div class="grid grid-cols-2 gap-10 max-w-320 mx-auto mt-10">
-          <button class="widget-link-btn widget-link-btn--neon neon-warning" onclick="DocumentosView._abrirAsistenteConsulta()">
-            ${Icons.buscar()}
-            <span class="widget-link-label">Consultar / Imprimir</span>
-          </button>
-          <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="DocumentosView._exportDocs()">
-            ${Icons.exportar()}
-            <span class="widget-link-label">Exportar Todo</span>
-          </button>
-        </div>
-        <div class="mt-4"><span class="text-xs text-aaa leading-relaxed">${Icons.documento()} Consulta y reimpresión de documentos oficiales por tipo y explotación</span></div>
-      </div>
-
       <div class="card p-16" style="border: 1px solid #27272a; background: #1E1E1E; width:100%;">
-        <div class="text-xs text-white font-black uppercase tracking-wider mb-12 flex items-center gap-6"><span style="color: var(--c-info); margin-right: 4px;">|</span> ${Icons.documento()} ÚLTIMOS DOCUMENTOS</div>
-        <div id="docs-lista">${this._renderLista(docsRecientes, ventaMap)}</div>
-        ${docs.length > 5 ? `<div class="text-center mt-6 pt-6 border-top-222"><span class="text-[0.6rem] text-gray font-900 uppercase tracking-wider">${docs.length - 5} documentos más · usa "Consultar / Imprimir" para ver todos</span></div>` : ''}
+        <div class="text-xs text-white font-black uppercase tracking-wider mb-12 flex items-center gap-6" style="justify-content: space-between;">
+          <span class="flex items-center gap-6"><span style="color: var(--c-info); margin-right: 4px;">|</span> ${Icons.documento()} REGISTRO DOCUMENTAL</span>
+          <div class="flex gap-4">
+            <button class="btn-erp-secondary btn-sm" id="btn-docs-vista-cards" onclick="DocumentosView._setVistaModo('cards')">Tarjetas</button>
+            <button class="btn-erp-secondary btn-sm" id="btn-docs-vista-tabla" onclick="DocumentosView._setVistaModo('tabla')">Tabla ERP</button>
+          </div>
+        </div>
+        <fieldset class="erp-action-group">
+          <legend>Acciones de Registro</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-warning" onclick="DocumentosView._abrirAsistenteConsulta()">
+              ${Icons.buscar()}
+              <span class="widget-link-label">Consultar / Imprimir</span>
+            </button>
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="DocumentosView._exportDocs()">
+              ${Icons.exportar()}
+              <span class="widget-link-label">Exportar Todo</span>
+            </button>
+          </div>
+        </fieldset>
+        <div class="erp-filtros" data-filtros-para="docs-lista">
+          <input type="search" class="form-input search-input" placeholder="Buscar documento por tipo, número o fecha...">
+          <select class="form-select" data-etiqueta-todos="Todos los tipos"></select>
+        </div>
+        <div id="docs-lista" data-ver-mas="10">${this._renderLista(docsRecientes, ventaMap)}</div>
+        <div id="docs-erp-table-container" class="mt-12" style="display:none;"></div>
+        ${docs.length > 5 ? `<div id="docs-mas-nota" class="text-center mt-6 pt-6 border-top-222"><span class="text-[0.6rem] text-gray font-900 uppercase tracking-wider">${docs.length - 5} documentos más · usa "Consultar / Imprimir" para ver todos</span></div>` : ''}
       </div>
     `;
   },
@@ -334,7 +347,7 @@ const DocumentosView = {
 
     return `<div class="grid gap-10">
       ${filtrados.map(doc => {
-        const color = colors[doc.tipo] || '#666';
+        const color = colors[doc.tipo] || 'var(--text-d)';
         const label = labels[doc.tipo] || doc.tipo;
         const fecha = this._fmtFecha(doc.createdAt || doc.fecha);
         const esBorrador = (doc.estado === 'borrador');
@@ -450,20 +463,27 @@ const DocumentosView = {
     document.body.appendChild(overlay);
   },
 
+  /** Filtro por tipo compartido entre tarjetas y tabla ERP (incluye los casos especiales dimoe/cierres). */
+  _docsFiltradosPorTipo(tipo) {
+    const docs = this._cachedDocs || [];
+    if (!tipo || tipo === 'todos') return docs;
+    return docs.filter(d => {
+      if (tipo === 'dimoe') return d.tipo === 'dimoe' || d.isMovimiento;
+      if (tipo === 'cierres') return d.estado === 'borrador';
+      return (d.tipo || '') === tipo;
+    });
+  },
+
   _filtrarYMostrar(tipo) {
     if (tipo === 'informes') {
       location.hash = '#/informes?tab=exportar';
       return;
     }
-    const docs = this._cachedDocs || [];
-    const filtrados = tipo === 'todos' ? docs : docs.filter(d => {
-      if (tipo === 'dimoe') return d.tipo === 'dimoe' || d.isMovimiento;
-      if (tipo === 'cierres') return d.estado === 'borrador';
-      return (d.tipo || '') === tipo;
-    });
+    this._filtroTipo = tipo;
+    if (this._vistaModo === 'tabla') return this._renderErpTable();
     const lista = document.getElementById('docs-lista');
     if (lista) {
-      lista.innerHTML = this._renderLista(filtrados, this._ventaMap || {});
+      lista.innerHTML = this._renderLista(this._docsFiltradosPorTipo(tipo), this._ventaMap || {});
     }
   },
 
@@ -476,6 +496,148 @@ const DocumentosView = {
     if (lista) {
       lista.innerHTML = this._renderLista(this._cachedDocs || [], this._ventaMap || {});
     }
+  },
+
+  // ============================================
+  // VISTA TABLA ERP (desktop)
+  // ============================================
+
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('documentos_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-docs-vista-cards');
+    const btnTabla = document.getElementById('btn-docs-vista-tabla');
+    const contenedorCards = document.getElementById('docs-lista');
+    const contenedorTabla = document.getElementById('docs-erp-table-container');
+    const notaMas = document.getElementById('docs-mas-nota');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (notaMas) notaMas.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (notaMas) notaMas.style.display = 'block';
+      if (contenedorCards) contenedorCards.style.display = 'block';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cachedDocs) return;
+
+    // Mismos mapas de color/etiqueta que _renderLista
+    const colors = {
+      dimoe: 'var(--c-success)',
+      factura: 'var(--c-info)',
+      certificado: 'var(--c-warning)',
+      dib: 'var(--c-purple)',
+      crotales: 'var(--c-orange)',
+      albaran_carne: 'var(--c-danger)',
+      albaran_leche: 'var(--c-info)',
+      contrato: 'var(--c-purple)'
+    };
+    const labels = {
+      dimoe: 'DIMOE (Guía)',
+      factura: 'Factura',
+      certificado: 'Certificado',
+      dib: 'DIB (Identificación)',
+      crotales: 'Pedido Crotales',
+      albaran_carne: 'Albarán Carne',
+      albaran_leche: 'Albarán Leche',
+      contrato: 'Contrato'
+    };
+
+    // La tabla muestra TODOS los documentos del filtro activo (las tarjetas
+    // de portada cortan a los 5 más recientes) con búsqueda y paginación propias.
+    const docs = this._docsFiltradosPorTipo(this._filtroTipo || 'todos');
+
+    const tableData = docs.map(doc => {
+      const esBorrador = (doc.estado === 'borrador');
+      const fechaEmision = doc.createdAt || doc.fecha;
+      const diasPendiente = fechaEmision ? Math.floor((new Date() - new Date(fechaEmision)) / (1000 * 60 * 60 * 24)) : null;
+
+      let detalle;
+      if (doc.isPedidoCrotales) {
+        detalle = `Especie: ${doc.dataRaw.especie ?? '—'} · Cantidad: ${doc.dataRaw.cantidad ?? '—'}`;
+      } else if (doc.isMovimiento) {
+        detalle = `Movimiento ${doc.dataRaw.tipo === 'salida' ? 'salida' : 'entrada'} · ${doc.dataRaw.num_animales ?? '—'} animales`;
+      } else if (doc.isAlbaranCarne) {
+        detalle = `Venta ${doc.dataRaw.num_animales || 1} animales · ${doc.dataRaw.razonSocial || '—'}`;
+      } else if (doc.isAlbaranLeche) {
+        detalle = `${(doc.dataRaw.cantidad || 0).toLocaleString()} L · ${doc.dataRaw.comprador_nombre || '—'}`;
+      } else if (doc.isContrato) {
+        detalle = `${(this._ventaMap || {})[doc.dataRaw.compradorId]?.razonSocial || '—'} · ${(doc.dataRaw.tipo || '').toUpperCase()}`;
+      } else {
+        detalle = doc.numero || 'Sin número registrado';
+      }
+
+      return {
+        id: doc.id,
+        tipoKey: doc.tipo,
+        tipo: labels[doc.tipo] || doc.tipo,
+        _tipoColor: colors[doc.tipo] || 'var(--text-d)',
+        numero: doc.numero || 'S/N',
+        fecha: fechaEmision || '',
+        detalle: detalle,
+        acuse: doc.acuseManual ? 'Registrado' : (diasPendiente !== null ? `Pendiente (${diasPendiente}d)` : 'Pendiente'),
+        _acuseColor: doc.acuseManual ? 'var(--c-success)' : (diasPendiente >= 15 ? 'var(--c-danger)' : diasPendiente >= 7 ? 'var(--c-warning)' : 'var(--text-d)'),
+        estado: doc.isContrato ? (doc.dataRaw.activo !== false ? 'ACTIVO' : 'INACTIVO') : (esBorrador ? 'BORRADOR' : 'PRESENTADO'),
+        _estadoColor: doc.isContrato ? (doc.dataRaw.activo !== false ? 'var(--c-success)' : 'var(--c-danger)') : (esBorrador ? 'var(--c-warning)' : 'var(--c-success)')
+      };
+    });
+
+    new window.ErpDataTable({
+      containerId: 'docs-erp-table-container',
+      title: 'Documentos',
+      pageSize: 15,
+      columns: [
+        {
+          key: 'tipo',
+          label: 'Tipo',
+          sortable: true,
+          render: (val, row) => `<span class="badge badge-sm font-900 uppercase" style="background:color-mix(in srgb, ${row._tipoColor} 12%, transparent); color:${row._tipoColor}; border:1px solid color-mix(in srgb, ${row._tipoColor} 25%, transparent);">${val}</span>`
+        },
+        { key: 'numero', label: 'Número', sortable: true },
+        {
+          key: 'fecha',
+          label: 'Fecha',
+          sortable: true,
+          render: (val) => val ? this._fmtFecha(val) : '—'
+        },
+        { key: 'detalle', label: 'Detalle', sortable: false },
+        {
+          key: 'acuse',
+          label: 'Acuse',
+          sortable: true,
+          render: (val, row) => `<span style="color:${row._acuseColor}; font-weight:700;">${val}</span>`
+        },
+        {
+          key: 'estado',
+          label: 'Estado',
+          sortable: true,
+          render: (val, row) => `<span class="badge badge-sm font-900 uppercase" style="background:color-mix(in srgb, ${row._estadoColor} 10%, transparent); color:${row._estadoColor}; border:1px solid ${row._estadoColor};">${val}</span>`
+        },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id, row) => `<button class="btn-erp-secondary btn-sm" onclick="DocumentosView._verDetalle(${id}, '${row.tipoKey}')">Detalle</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   async _editarBorrador(tipo, id) {
@@ -568,7 +730,7 @@ const DocumentosView = {
             ${doc.isMovimiento ? `<p><strong>Tipo:</strong> ${doc.dataRaw.tipo ?? '—'} · <strong>Animales:</strong> ${doc.dataRaw.num_animales ?? '—'}</p>` : ''}
           </div>
           <div style="padding:20px;border:1px solid #ccc;background:#f9f9f9;font-size:0.85rem;margin-top:40px;">
-            <p style="margin:0;"><strong>Documento generado por Livestock Manager Soporte</strong></p>
+            <p style="margin:0;"><strong>Documento generado por Livestock Manager Premium</strong></p>
             <p style="margin:5px 0 0 0;color:#555;">Plataforma profesional de gestión ganadera y trazabilidad industrial.</p>
           </div>
         </div>`;
@@ -635,9 +797,9 @@ const DocumentosView = {
     const doc = (this._cachedDocs || []).find(d => d.id === docId && d.tipo === tipo);
     if (!doc) { App.toastError('Documento no encontrado'); return; }
     
-    const colors = { dimoe: '#10b981', factura: '#4FADF5', certificado: '#f59e0b', dib: '#8b5cf6', crotales: '#FFFC55', albaran_carne: '#E8555F', albaran_leche: '#4FADF5', contrato: '#8b5cf6' };
+    const colors = { dimoe: 'var(--c-success)', factura: 'var(--c-info)', certificado: 'var(--c-warning)', dib: 'var(--c-purple)', crotales: 'var(--p-gold)', albaran_carne: 'var(--c-danger)', albaran_leche: 'var(--c-info)', contrato: 'var(--c-purple)' };
     const labels = { dimoe: 'DIMOE (Guía)', factura: 'Factura', certificado: 'Certificado', dib: 'DIB (Identificación)', crotales: 'Pedido Crotales', albaran_carne: 'Albarán Carne', albaran_leche: 'Albarán Leche', contrato: 'Contrato' };
-    const color = colors[doc.tipo] || '#666';
+    const color = colors[doc.tipo] || 'var(--text-d)';
     const label = labels[doc.tipo] || doc.tipo;
     const overlay = document.createElement('div');
     overlay.className = 'wizard-full-screen';

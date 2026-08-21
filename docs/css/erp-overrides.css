@@ -1,0 +1,791 @@
+/**
+ * erp-overrides.css — Neutralización de la paleta neón legada.
+ *
+ * styles.css se sincroniza desde el maestro (SOLO LECTURA) y no se puede
+ * editar aquí. Esta hoja carga DESPUÉS de styles.css y redefine, con la
+ * misma especificidad, las reglas que aún usan hardcodes neón
+ * (#C5FA50, #E8555F, #4FADF5…) para alinearlas con los tokens ERP de
+ * design-tokens.css. Los nombres de clase los emite el JS del maestro;
+ * aquí solo se re-mapean colores. Backlog completo: PLAN-DESKTOP.md §7.
+ */
+
+/* ── Badges (sobreescribe styles.css:1615-1617) ── */
+.badge-blue {
+  background: rgba(31, 95, 168, 0.16);
+  color: var(--c-info);
+}
+
+.badge-solid-orange {
+  background: var(--c-orange);
+}
+
+/* ── Variantes standalone usadas por las tablas ERP ──
+   El maestro solo las define compuestas (.status-badge.badge-success,
+   styles.css:4261-4265); las vistas con ErpDataTable las emiten simples. */
+.badge-success {
+  background: color-mix(in srgb, var(--c-success) 12%, transparent);
+  color: var(--c-success);
+}
+
+.badge-gray {
+  background: rgba(136, 136, 136, 0.12);
+  color: var(--text-s);
+}
+
+/* ── Variantes "neon" de widgets (sobreescribe styles.css:3862-3864) ── */
+.neon-orange {
+  --neon-color: var(--c-orange);
+  --neon-glow: rgba(249, 115, 22, 0.45);
+  --neon-inner: rgba(249, 115, 22, 0.22);
+}
+
+.neon-accent {
+  --neon-color: var(--c-info);
+  --neon-glow: rgba(31, 95, 168, 0.55);
+  --neon-inner: rgba(31, 95, 168, 0.25);
+}
+
+/* ── Variante neon-success: glow verde institucional (styles.css:3861) ── */
+.neon-success {
+  --neon-glow: rgba(21, 128, 61, 0.55);
+  --neon-inner: rgba(21, 128, 61, 0.22);
+}
+
+/* ── Glow neón del header (sobreescribe layout.css:28,42,54) ── */
+#app-logo {
+  filter: none;
+}
+
+#header-context {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+#nombre-finca-header {
+  text-shadow: none;
+}
+
+/* ── Utilidades texto/borde/acento con hardcode neón (styles.css) ── */
+.text-blue          { color: var(--c-info); }
+.text-orange        { color: var(--c-orange); }
+.border-blue        { border-color: var(--c-info); }
+.border-orange      { border-color: var(--c-orange); }
+/* Acentos de tarjeta del maestro → gris acero único (coherencia ERP).
+   El color queda reservado para estados semánticos (éxito/peligro/premio). */
+.card-accent-blue,
+.card-accent-orange,
+.card-accent-purple,
+.card-accent-green,
+.card-accent-red,
+.card-accent-amber,
+.card-accent-gold {
+  border-left-color: var(--text-s) !important;
+}
+.color-blue         { --registro-color: var(--c-info); }
+.color-orange       { --registro-color: var(--c-orange); }
+
+/* ── Tintes verde LIMA del maestro → verde institucional ERP ──
+   styles.css usa rgba(197,250,80,…) (#C5FA50 neón) como "verde" de fondos,
+   badges y cajas. Se re-mapean a tintes de --c-success (#15803D) con el
+   mismo alfa, manteniendo la jerarquía visual sin el neón. */
+.q-pill.p1 {
+  background: color-mix(in srgb, var(--c-success) 12%, transparent);
+  border-color: color-mix(in srgb, var(--c-success) 30%, transparent);
+}
+
+.badge-green {
+  background: color-mix(in srgb, var(--c-success) 10%, transparent);
+}
+
+.badge-green-outline {
+  background: color-mix(in srgb, var(--c-success) 10%, transparent);
+  border-color: color-mix(in srgb, var(--c-success) 30%, transparent);
+}
+
+.card-tint-green {
+  background: color-mix(in srgb, var(--c-success) 5%, transparent);
+}
+
+.card-tint-green-lg {
+  background: color-mix(in srgb, var(--c-success) 8%, transparent);
+}
+
+.bg-green-subtle {
+  background: color-mix(in srgb, var(--c-success) 3%, transparent);
+}
+
+.wizard-alert-info {
+  background: color-mix(in srgb, var(--c-success) 8%, transparent);
+}
+
+.nota-box-green {
+  background: color-mix(in srgb, var(--c-success) 10%, transparent);
+}
+
+.hint-box-green {
+  background: color-mix(in srgb, var(--c-success) 10%, transparent);
+}
+
+.btn-inline-green {
+  background: color-mix(in srgb, var(--c-success) 15%, transparent);
+  border-color: color-mix(in srgb, var(--c-success) 30%, transparent);
+}
+
+.comprador-mode-header--hibrido {
+  background: color-mix(in srgb, var(--c-success) 10%, transparent);
+}
+
+.inf-sep-xls {
+  background: color-mix(in srgb, var(--c-success) 20%, transparent);
+}
+
+/* ── Glows lima hardcodeados (sin var) → glow institucional ── */
+.fab-container:active .fab-btn {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--brand) 40%, transparent);
+}
+
+.btn-success, .btn--success, .wizard-btn-success {
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--c-success) 30%, transparent);
+}
+
+/* ── Unified chrome: neutralizar marco neón heredado del PWA ──
+   El marco "L" azul era un vestigio PWA (mobile-first) que chocaba
+   con el estilo ERP: banners verdes, sidebar navy, KPIs y tarjetas
+   sobrias. Se conservan los acentos --header-neon-color (= var(--brand))
+   en los estados activos intencionales (botones .active, .tour-dot,
+   pills/chips de datos). */
+header {
+  /* Chrome unificado: mismo fondo neutro del sidebar (--sidebar-bg) para que
+     banner superior e izquierdo compartan fondo y sean coherentes (sin azul). */
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: none !important;
+}
+nav.bottom-nav {
+  border-top: 1px solid var(--border-subtle);
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.5) !important;
+}
+body::after {
+  display: none !important;
+}
+.theme-dot.active::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: #000;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* =========================================================================
+   MENÚS / TABSTRIP DE ESCRITORIO (≥1024px) — neutraliza patrones mobile-first
+   del maestro (styles.css, read-only). No se toca el maestro; todo va en este
+   media query para preservar el layout móvil/tablet.
+   Combinación: B (carrusel → tab-strip) + A (barra de acción → toolbar fija)
+   + C (grids de acción de ancho fijo + submenú de registros → popover).
+   ========================================================================= */
+@media (min-width: 1024px) {
+
+  /* ── B · Carrusel de pestañas ──
+     Se ocultan en escritorio los carruseles cuyas opciones ya viven en el
+     acordeón del sidebar: los de NAVEGACIÓN de submódulos (GeGan / ExPro /
+     CoMer) y el de FILTRO de Agenda (TODOS/ANIMALES/REBAÑOS/SANIDAD/CARNE/
+     LECHE), marcados --sidebar por App.renderCarruselPestanas. Cualquier otro
+     uso del carrusel (no representado en el menú) se deja visible. En <1024px
+     todo el carrusel queda visible (fallback móvil/tablet, sin sidebar ERP). */
+  .carrusel-modulo--sidebar {
+    display: none !important;
+  }
+
+  /* ── Cabecera: alinear logo a la izquierda (escritorio) ──
+     El grid de la cabecera centra el logo en su columna (layout.css:
+     .header-logo-container { justify-self: center }); en escritorio lo fijamos
+     al borde izquierdo para emparejarlo con el arranque del sidebar (mismo
+     inset de 12px: padding-left de la cabecera = margin-left del toggle).
+     Deja la esquina superior izquierda coherente. En <1024px se conserva el
+     logo centrado (sin sidebar ERP). */
+  .header-logo-container {
+    justify-self: start;
+  }
+  .carrusel-pestanas {
+    justify-content: flex-start;
+    gap: 4px;
+    width: auto;
+  }
+  .carrusel-marco {
+    flex: 0 0 auto !important;  /* deja de estirarse al 100% del ancho */
+    min-width: 0;
+    padding: 8px 16px;
+    height: 38px;
+    font-size: 0.72rem;
+    border-radius: var(--r-sm);
+    box-shadow: none;
+    background: var(--surface-light);
+  }
+  .carrusel-marco[aria-expanded="true"],
+  .carrusel-marco:hover {
+    background: var(--brand);
+    color: #fff;
+  }
+  .carrusel-flecha { display: none; }
+  .carrusel-dots { display: none; }
+  .carrusel-menu {
+    position: absolute;
+    left: 0;
+    transform: none;
+    width: 260px;
+    max-height: 320px;
+  }
+  .carrusel-menu.open { transform: none; }
+
+  /* ── A · Barra de acción de módulo → toolbar fija a la derecha ── */
+  .module-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .module-header-primary-action {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+  }
+  /* El marco de acciones no debe compartir línea con la tarjeta de cabecera:
+     un separador elástico lo empuja a la línea siguiente, donde queda pegado
+     al margen izquierdo conservando su ancho propio (no se estira). */
+  .module-header::after {
+    content: '';
+    flex-basis: 100%;
+    height: 0;
+    order: 98;
+  }
+  .module-header > .erp-action-group {
+    order: 99;
+    margin-right: auto;
+  }
+  /* El botón primario full-width (mobile) pasa a ancho de contenido, compacto */
+  .module-header-primary-action .btn,
+  .btn.btn-create.btn-lg.w-full {
+    width: auto !important;
+    min-width: 200px;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: var(--r-sm);
+    font-size: 0.85rem;
+  }
+  /* Acciones secundarias: de scroll horizontal a fila de chips a la derecha */
+  .module-header-secondary-actions {
+    overflow-x: visible;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+  .module-header-secondary-actions .widget-link-btn--neon {
+    flex-direction: row;
+    min-height: 40px;
+    min-width: 0;
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .module-header-secondary-actions .widget-link-btn--neon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ── C · Grids de acción → columnas fijas con wrap + popover registros ── */
+  /* Dashboard "Registro Rápido": define el grid de 12 cols con celdas fijas */
+  .grid.grid-cols-12 {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 200px));
+  }
+  .card-registro-quick,
+  .card-registro-quick.col-span-4,
+  .card-registro-quick.col-span-12 {
+    grid-column: auto !important;
+    width: 200px;
+    min-width: 0;
+  }
+
+  /* Patrimonio "Accesos directos": ancho fijo en vez de 1fr 1fr 1fr */
+  .grid.grid-cols-3 {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 200px));
+  }
+  .grid.grid-cols-3 .widget-link-btn--neon {
+    width: 200px;
+    min-height: 64px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  /* Submenú de registros: de hoja inferior a popover centrado arriba */
+  #submenu-registros-overlay.bottom-sheet-overlay {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    padding: 80px 24px !important;
+  }
+  #submenu-registros-overlay .bottom-sheet-content {
+    max-width: 720px !important;
+    border-radius: var(--r-md) !important;
+    border-top: none !important;
+    width: auto !important;
+  }
+  #submenu-registros-overlay .grid.grid-cols-2 {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 220px)) !important;
+  }
+  #submenu-registros-overlay .card {
+    width: 220px;
+  }
+}
+
+/* ── Visor de manuales: embebido en el marco de contenido (#app-content) ──
+   El manual se abre dentro del área de vistas de módulo (debajo de la
+   cabecera y a la derecha del sidebar), no a pantalla completa. El iframe
+   ocupa el alto visible del marco y gestiona su propio scroll. */
+.manual-viewer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  margin: 0;
+}
+.manual-viewer-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  margin-bottom: 12px;
+}
+.manual-viewer-title {
+  margin: 0;
+  font-size: 1.05rem;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.manual-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: #fff;
+}
+.manual-frame-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px;
+  text-align: center;
+  color: var(--text-s);
+  background: var(--surface);
+  border-radius: var(--r-md);
+}
+/* Al abrir un manual, recortar el padding inferior de #app-content para que
+   el visor ocupe justo el alto visible sin generar scroll de página. */
+main#app-content.manual-open {
+  padding-bottom: 12px;
+  min-height: auto;
+}
+
+/* ===========================================================================
+   Acciones de registro agrupadas (patrón "group box" de ERP de escritorio)
+   ---------------------------------------------------------------------------
+   Marco con título embebido en el borde (fieldset + legend) que agrupa los
+   botones de registro de un módulo o de un listado concreto. Sustituye a los
+   CTA sueltos: todos los botones adoptan el mismo formato de chip compacto
+   (icono + etiqueta en fila) y el bloque queda centrado bajo la tarjeta a la
+   que pertenece.
+   =========================================================================== */
+.erp-action-group {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  /* pegado al margen izquierdo del contenido, justo encima del buscador */
+  margin: 0 0 18px;
+  padding: 6px 28px 20px;
+  text-align: left;
+  border: 1px solid #3a3a42;
+  border-radius: var(--r-sm, 6px);
+  background: rgba(255, 255, 255, 0.025);
+}
+.erp-action-group > legend {
+  padding: 0 8px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-s, #aaa);
+  white-space: nowrap;
+}
+.erp-action-group-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  /* los botones se centran respecto al título del marco (el marco en sí sigue
+     pegado al margen izquierdo del contenido) */
+  justify-content: center;
+  gap: 22px;
+  /* aire entre el título del marco y los botones que envuelve */
+  padding-top: 14px;
+}
+/* Los chips del grupo: fila compacta, sin el formato columna de móvil */
+.erp-action-group .widget-link-btn {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 0;
+  padding: 10px 20px;
+  gap: 10px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.erp-action-group .widget-link-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.erp-action-group .widget-link-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Pie «Ver más» de los listados recortados (ver App.aplicarVerMas) */
+.erp-ver-mas {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0 18px;
+}
+.erp-ver-mas button {
+  min-width: 220px;
+  padding: 10px 22px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.erp-ver-mas-count {
+  font-weight: 700;
+  opacity: 0.7;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* En escritorio no hay bottom-nav: el FAB de guía deja de flotar a media altura
+   (bottom:150px, pensado para librar la barra inferior del móvil) y baja a la
+   esquina, donde no tapa los filtros ni los botones de los listados. */
+@media (min-width: 1024px) {
+  #guide-fab {
+    bottom: 20px !important;
+  }
+}
+
+/* ===========================================================================
+   Fila de filtros de listado: buscador + desplegable de tipo
+   ---------------------------------------------------------------------------
+   Formato único para todos los módulos, tomado de animales-view.js: el
+   buscador ocupa el espacio libre y el selector va a su derecha con ancho
+   fijo. Ambos comparten alto (44px) y alineación.
+   =========================================================================== */
+.erp-filtros {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.erp-filtros .form-input,
+.erp-filtros input[type="search"],
+.erp-filtros input[type="text"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-top: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+.erp-filtros .form-select {
+  width: 150px;
+  min-width: 130px;
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 12px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------------
+   Color único de los botones de registro: gris claro retroiluminado.
+   Los chips llegaban en verde (neon-success) y azul (neon-info/neon-accent)
+   heredados del btn-create y de las acciones secundarias; dentro del marco de
+   acciones todos comparten ahora el mismo gris con halo, para que ninguna
+   acción de registro destaque sobre otra. Anula también el ámbar de
+   neon-warning (Guía Mov.), que quedaría descolgado del conjunto.
+   --------------------------------------------------------------------------- */
+.widget-link-btn--neon {
+  --neon-color: #d2d6dd;
+  --neon-glow: rgba(210, 214, 221, 0.40);
+  --neon-inner: rgba(210, 214, 221, 0.16);
+}
+/* ...pero el icono SVG conserva el color semántico de su variante, que es lo
+   que permite distinguir una acción de otra de un vistazo. */
+.neon-success { --icono-color: var(--c-success); }
+.neon-info    { --icono-color: var(--c-info); }
+.neon-accent  { --icono-color: var(--c-purple, #A855F7); }
+.neon-warning { --icono-color: var(--c-warning); }
+.neon-danger  { --icono-color: var(--c-danger); }
+.neon-orange  { --icono-color: var(--c-orange); }
+.neon-purple  { --icono-color: var(--c-purple, #A855F7); }
+.widget-link-btn--neon svg {
+  color: var(--icono-color, #d2d6dd);
+  stroke: var(--icono-color, #d2d6dd);
+  filter: drop-shadow(0 0 6px var(--icono-color, rgba(210, 214, 221, 0.6)));
+}
+
+/* Tamaño estándar del chip en escritorio: fila compacta en vez del bloque
+   vertical a todo el ancho que usa el móvil. Vale para los chips sueltos
+   (Ajustes, acciones de ficha), no solo para los de dentro de un marco. */
+@media (min-width: 1024px) {
+  .widget-link-btn--neon {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    min-width: 0;
+    width: auto;
+    padding: 10px 20px;
+    gap: 10px;
+    border: none;
+    cursor: pointer;
+    /* sin salto de línea: el chip crece a lo ancho antes que a lo alto, para
+       que todos compartan los 40px de alto */
+    white-space: nowrap;
+  }
+  .widget-link-btn--neon svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .widget-link-btn--neon .widget-link-label {
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  /* Algunos chips traen su propio padding en clases utilitarias (px-10 py-6,
+     h-auto…) que los descuadraba respecto al resto: gana el estándar. */
+  .widget-link-btn--neon.px-10,
+  .widget-link-btn--neon.h-auto,
+  .widget-link-btn--neon.py-6,
+  .widget-link-btn--neon.py-8,
+  .widget-link-btn--neon.py-14 {
+    padding: 10px 20px;
+    height: 40px;
+  }
+  /* Los bloques que colocaban los chips en rejilla (grid-cols-2 dentro de un
+     max-w-320, pensado para el bloque vertical del móvil) los estrangulaban:
+     con el chip en fila y sin cortar el texto, el contenido excede la columna
+     y los botones se solapan. En escritorio esas rejillas pasan a ser una fila
+     que se ajusta al contenido. */
+  .grid:has(> .widget-link-btn--neon) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: none;
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+/* Variante centrada del marco de acciones: se usa para las acciones de
+   documento (exportar PDF / CSV / imprimir), que no pertenecen a un listado
+   concreto sino al informe o cuaderno completo. */
+.erp-action-group--centro {
+  margin-left: auto;
+  margin-right: auto;
+}
+.erp-action-group--centro .erp-action-group-body {
+  justify-content: center;
+}
+
+/* ===========================================================================
+   Cabecera de módulo sin duplicados (escritorio)
+   ---------------------------------------------------------------------------
+   El chrome ERP ya rotula el módulo arriba con su icono y su nombre, así que
+   la tarjeta de cabecera los repetía: mismo SVG y mismo título dos veces. Se
+   ocultan ambos y se retira el borde lateral iluminado, que en escritorio
+   duplica el código de color que ya da la entrada activa del sidebar. Se
+   conserva la descripción y los KPIs, que sí aportan.
+   =========================================================================== */
+@media (min-width: 1024px) {
+  .module-header > .card > .flex.items-center > span:first-child {
+    display: none;
+  }
+  .module-header > .card h2 {
+    display: none;
+  }
+  .module-header > .card {
+    border-left: 0 !important;
+  }
+}
+
+/* El conmutador Tarjetas / Tabla ERP se recoloca encima del marco de acciones
+   (ver App._recolocarToggleVista). Si acaba dentro de .module-header, ocupa su
+   propia línea y queda pegado a la izquierda, justo sobre el marco. */
+.erp-vista-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+@media (min-width: 1024px) {
+  .module-header > .erp-vista-toggle {
+    order: 99;
+    flex-basis: 100%;
+    justify-content: flex-start;
+    margin-right: auto;
+  }
+  .module-header > .erp-action-group {
+    order: 100;
+  }
+}
+
+/* Los chips que quedan fuera de un marco de acciones (empty-states, altas de
+   Ajustes) comparten el gris retroiluminado y el icono en color de los que sí
+   están enmarcados, para que no desentonen. */
+.empty-state .widget-link-btn--neon,
+.erp-chip-suelto {
+  --neon-color: #d2d6dd;
+  --neon-glow: rgba(210, 214, 221, 0.40);
+  --neon-inner: rgba(210, 214, 221, 0.16);
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 20px;
+  gap: 10px;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+  margin: 0 auto;
+}
+.empty-state .widget-link-btn--neon svg,
+.erp-chip-suelto svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--c-success);
+  stroke: var(--c-success);
+  filter: drop-shadow(0 0 6px var(--c-success));
+}
+.empty-state .widget-link-label,
+.erp-chip-suelto .widget-link-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* === Barra superior: huecos rellenos (migas, buscador, alertas) ===
+   Este archivo solo se carga en la piel ERP de escritorio, así que basta
+   con ocultar por defecto y mostrar en el media query de escritorio. Si la
+   ventana se estrecha <1024px, los controles desaparecen sin quedar sueltos. */
+.header-breadcrumbs,
+.header-search,
+.header-alerts-bell { display: none; }
+
+@media (min-width: 1024px) {
+  /* Rejilla: [migas] [logo] [pill] [buscador 1fr] [alertas] [finca] */
+  #main-header {
+    grid-template-columns: auto auto auto 1fr auto auto;
+  }
+
+  .header-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.8rem;
+    color: var(--text-m, #bbb);
+    min-width: 0;
+    overflow: hidden;
+  }
+  .header-breadcrumbs .bc-crumb { white-space: nowrap; }
+  .header-breadcrumbs .bc-link {
+    color: var(--header-neon-color, var(--c-info, #38bdf8));
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .header-breadcrumbs .bc-link:hover { text-decoration: underline; }
+  .header-breadcrumbs .bc-sep { color: var(--border, #444); margin: 0 6px; }
+
+  .header-search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border, #444);
+    border-radius: 18px;
+    padding: 4px 10px;
+    max-width: 320px;
+    width: 100%;
+  }
+  .header-search:focus-within { border-color: var(--header-neon-color, var(--c-info, #38bdf8)); }
+  .header-search-icon { display: flex; color: var(--text-m, #bbb); }
+  .header-search-icon svg { width: 16px; height: 16px; }
+  .header-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text, #fff);
+    font-size: 0.8rem;
+    width: 100%;
+    min-width: 0;
+  }
+  .header-search-input::placeholder { color: var(--text-m, #888); }
+
+  .header-alerts-bell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border, #444);
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    color: var(--text, #fff);
+    flex-shrink: 0;
+  }
+  .header-alerts-bell:hover { border-color: var(--p-gold, #ffd600); color: var(--p-gold, #ffd600); }
+  .alerts-bell-icon { display: flex; }
+  .alerts-bell-icon svg { width: 18px; height: 18px; }
+  .alerts-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--c-danger, #ef4444);
+    color: #fff;
+    border-radius: 10px;
+    padding: 0 5px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    line-height: 16px;
+    min-width: 16px;
+    text-align: center;
+    box-shadow: 0 0 6px rgba(239,68,68,0.6);
+  }
+}
+
+/* ===========================================================================
+   Navegación exclusiva de móvil
+   ---------------------------------------------------------------------------
+   Los FAB y las franjas de sub-pestañas son la ÚNICA navegación en móvil (no
+   hay sidebar), así que no se eliminan: se marcan con .erp-solo-movil y se
+   ocultan aquí, donde el sidebar ya cumple esa función.
+
+   Sin @media propio a propósito: esta hoja se enlaza con
+   media="(min-width: 1024px)", así que todo lo que contiene ya es de
+   escritorio. Sin regla base, el elemento conserva en móvil el display que
+   tuviera (flex, block…), sin tener que acertar con cuál es en cada caso.
+   =========================================================================== */
+.erp-solo-movil {
+  display: none !important;
+}

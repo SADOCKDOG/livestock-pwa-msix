@@ -119,10 +119,10 @@ const Fincas = {
      */
     async _assertPuedeCrearFinca(datos) {
         if (datos && datos.demo) return; // datos de demostración: siempre permitido
-        if (!(window.PremiumManager && window.PremiumManager.isFree())) return; // Soporte: sin límite
+        if (!(window.PremiumManager && window.PremiumManager.isFree())) return; // Premium: sin límite
         const existentes = await this.list();
         if (existentes.length > 0) {
-            throw new Error('La creación de varias fincas solo está disponible en la versión Soporte');
+            throw new Error('La creación de varias fincas solo está disponible en la versión Premium');
         }
     },
 

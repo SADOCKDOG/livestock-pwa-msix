@@ -143,7 +143,7 @@ const ManualesView = {
     },
     {
       id: 'informes-analitica',
-      titulo: 'Informes Soporte e Inteligencia Analítica',
+      titulo: 'Informes Premium e Inteligencia Analítica',
       descripcion: 'Inteligencia analítica para balances financieros (P y G, punto de equilibrio, PAC), rendimiento reproductivo, curvas de producción y exportaciones.',
       icono: 'grafico',
       archivo: 'manual/manual-informes-analitica.html',

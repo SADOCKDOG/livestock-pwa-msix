@@ -1,5 +1,5 @@
 /**
- * Wizard Gasto Analítico — Livestock Manager Soporte
+ * Wizard Gasto Analítico — Livestock Manager Premium
  * Proporciona una interfaz unificada para imputación de costes.
  * v2.0.0: Diseño modular por pasos (Basic -> Imputación/Normativo)
  */

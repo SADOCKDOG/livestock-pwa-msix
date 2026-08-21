@@ -5,6 +5,8 @@
  * Alimenticia (ICA) por Tanda de Cebo, migrado de CarneView.
  */
 const PatrimonioView = {
+  _cacheLotes: [],
+  _vistaModo: 'cards',
   async render(container) {
     if (!container) return;
     const fincaId = await Fincas.getActiveId();
@@ -48,9 +50,6 @@ const PatrimonioView = {
             <div class="text-[0.6rem] text-gray uppercase font-900">Valor Est.: <strong class="text-warning">${Math.round(valorPatrimonioTotal).toLocaleString()} €</strong></div>
           </div>
         </div>
-        <div class="module-header-primary-action">
-          <button class="btn btn-create btn-lg w-full" onclick="App._abrirAsistenteProduccion('carne', { origen_modulo: 'patrimonio' })">${Icons.peso()} Registrar Pesaje</button>
-        </div>
       </div>
 
       <div class="card p-16 mb-14" style="border: 1px solid #27272a; background: #1E1E1E;">
@@ -64,6 +63,13 @@ const PatrimonioView = {
 
         ${this._renderPanelICA(icaData)}
 
+        <fieldset class="erp-action-group">
+          <legend>Registro de Pesajes</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" data-guide="btn-registrar-pesaje" onclick="App._abrirAsistenteProduccion('carne', { origen_modulo: 'patrimonio' })">${Icons.peso()}<span class="widget-link-label">Registrar Pesaje</span></button>
+          </div>
+        </fieldset>
+
         <!-- Accesos directos táctiles -->
         <div class="grid grid-cols-3 gap-8 mb-16">
           <a href="#/animales" class="widget-link-btn widget-link-btn--neon neon-info"><span class="widget-link-label">${Icons.animales()} Animales</span></a>
@@ -71,10 +77,14 @@ const PatrimonioView = {
           <a href="#/zonas" class="widget-link-btn widget-link-btn--neon neon-info"><span class="widget-link-label">${Icons.zonas()} Zonas</span></a>
         </div>
 
-        <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-6 pb-5">
-          ${Icons.documento()} Lotes Activos (${rebanos.length})
+        <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-6 pb-5" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+          <span>${Icons.documento()} Lotes Activos (${rebanos.length})</span>
+          <span class="flex gap-4">
+            <button class="btn-erp-secondary btn-sm" id="btn-patr-vista-cards" onclick="PatrimonioView._setVistaModo('cards')">Tarjetas</button>
+            <button class="btn-erp-secondary btn-sm" id="btn-patr-vista-tabla" onclick="PatrimonioView._setVistaModo('tabla')">Tabla ERP</button>
+          </span>
         </div>
-        <div class="grid gap-10">
+        <div class="grid gap-10" id="patr-lotes-lista" data-ver-mas="10">
           ${rebanos.length > 0
             ? rebanos.map(r => `
                 <div class="card-registro" onclick="location.hash='/rebano?id=${r.id}'" style="--registro-color: var(--p-gold-dark);">
@@ -101,8 +111,78 @@ const PatrimonioView = {
             : `<div class="p-14 text-center bg-dark rounded-sm border border-222"><span class="text-555 text-xs uppercase font-900 tracking-widest">${Icons.buscar()} Sin lotes registrados.</span></div>`
           }
         </div>
+        <div id="patr-erp-table-container" class="mt-12" style="display:none;"></div>
       </div>
     `;
+
+    // Datos de los lotes para la tabla densa ERP
+    this._cacheLotes = rebanos.map(r => ({
+      id: r.id,
+      nombre: r.nombre,
+      especie: r.especie || '—',
+      tipo: r.tipo || 'N/D',
+      zona: r.zonaActual || 'Sin zona',
+      cabezas: animalesFinca.filter(a => a.rebanoId === r.id && (a.estado || '').toLowerCase() === 'activo').length
+    }));
+
+    if (this._cacheLotes.length > 0) {
+      const modoGuardado = localStorage.getItem('patrimonio_view_mode') || 'cards';
+      this._setVistaModo(modoGuardado, false);
+    }
+  },
+
+  /** Alterna el listado de lotes entre tarjetas y tabla densa ERP. */
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('patrimonio_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-patr-vista-cards');
+    const btnTabla = document.getElementById('btn-patr-vista-tabla');
+    const contenedorCards = document.getElementById('patr-lotes-lista');
+    const contenedorTabla = document.getElementById('patr-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'grid';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cacheLotes) return;
+
+    new window.ErpDataTable({
+      containerId: 'patr-erp-table-container',
+      title: 'Lotes activos',
+      pageSize: 15,
+      columns: [
+        { key: 'nombre', label: 'Lote / Rebaño', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'especie', label: 'Especie', sortable: true },
+        { key: 'tipo', label: 'Tipo', sortable: true },
+        { key: 'zona', label: 'Ubicación', sortable: true, cellClass: (v) => (v === 'Sin zona' ? 'erp-cell-aviso' : '') },
+        { key: 'cabezas', label: 'Cabezas activas', sortable: true, align: 'right', cellClass: 'erp-cell-id' },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='/rebano?id=${id}'">Ver Ficha</button>`
+        }
+      ],
+      data: this._cacheLotes
+    }).render();
   },
 
   _kpiGrid(kpis, color) {
