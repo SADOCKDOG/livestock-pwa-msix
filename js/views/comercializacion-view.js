@@ -4,6 +4,12 @@
  * Agrupa: Leche, Carne, Clientes, Contratos y Logística.
  */
 
+// Acento de cromo único ERP: gris acero neutro para todos los bordes/visores de
+// módulo y submódulo. El color quedaba antes repartido (azul leche / verde carne /
+// morado clientes…) y rompía la coherencia. El color se reserva para estados
+// semánticos de los datos (éxito verde, peligro rojo, premio oro).
+const ACCENT = 'var(--text-s)';
+
 const ComercializacionView = {
   _activeSubModule: 'leche', // 'leche', 'carne', 'compradores', 'contratos', 'transportistas'
   _cachedData: null,
@@ -192,9 +198,9 @@ const ComercializacionView = {
 
     const currentMeta = this._getSubModuleMeta(this._activeSubModule);
 
-    // Color de pantalla fijo de CoMer (amarillo), igual para todos sus submódulos
+    // Color de pantalla fijo de CoMer (cromo neutro ERP), igual para todos sus submódulos
     if (window.App && App.updateHeaderColor) {
-      App.updateHeaderColor('var(--c-warning)');
+      App.updateHeaderColor(ACCENT);
     }
 
     // Cabecera de módulo: chip de modo + KPI de la métrica dominante (leche/carne) +
@@ -202,6 +208,7 @@ const ComercializacionView = {
     const modoMetaComer = window.ModoContextoHelper.getModeMetaEffective(flagsModo);
     let headerKpisHtml = '';
     let headerPrimaryHtml = '';
+    let headerPrimaryLegend = 'Acciones de Registro';
     if (this._activeSubModule === 'leche' || this._activeSubModule === 'carne') {
       const dComer = await this._ensureData(fincaId, this._needsDataRefresh);
       if (this._activeSubModule === 'leche') {
@@ -215,7 +222,8 @@ const ComercializacionView = {
             <span class="module-header-kpi-label">Litros</span>
             <span class="module-header-kpi-value">${UI.formatNumber(litros)}</span>
           </div>`;
-        headerPrimaryHtml = `<button class="btn btn-create btn-lg w-full" onclick="App._abrirWizardAlbaranLeche()">${Icons.fabPlus()} Registrar Retirada</button>`;
+        headerPrimaryLegend = 'Registro de Retiradas';
+        headerPrimaryHtml = `<button class="widget-link-btn widget-link-btn--neon neon-success" onclick="App._abrirWizardAlbaranLeche()">${Icons.fabPlus()}<span class="widget-link-label">Registrar Retirada</span></button>`;
       } else {
         const ingreso = dComer.ventas.reduce((s, v) => s + (v.precio_total || 0), 0);
         headerKpisHtml = `
@@ -227,7 +235,8 @@ const ComercializacionView = {
             <span class="module-header-kpi-label">Ingreso</span>
             <span class="module-header-kpi-value" style="color: var(--c-success);">${UI.formatCurrency(Math.round(ingreso))}</span>
           </div>`;
-        headerPrimaryHtml = `<button class="btn btn-create btn-lg w-full" onclick="App._abrirWizardVentaMasiva()">${Icons.fabPlus()} Registrar Venta</button>`;
+        headerPrimaryLegend = 'Registro de Ventas';
+        headerPrimaryHtml = `<button class="widget-link-btn widget-link-btn--neon neon-success" onclick="App._abrirWizardVentaMasiva()">${Icons.fabPlus()}<span class="widget-link-label">Registrar Venta</span></button>`;
       }
     }
 
@@ -243,7 +252,7 @@ const ComercializacionView = {
       )}
 
       <div class="module-header px-4">
-        ${headerPrimaryHtml ? `<div class="module-header-primary-action">${headerPrimaryHtml}</div>` : ''}
+        ${headerPrimaryHtml ? `<fieldset class="erp-action-group"><legend>${headerPrimaryLegend}</legend><div class="erp-action-group-body">${headerPrimaryHtml}</div></fieldset>` : ''}
         <div class="text-left mb-6 uppercase" style="letter-spacing: 0.5px; padding-left: 4px;">
           <h1 style="font-size: 1.1rem; font-weight: 900; color: #fff; margin: 0; display: flex; items-center;">
             <span style="color:${currentMeta.color}; margin-right:4px;">|</span> ${currentMeta.title}
@@ -311,16 +320,16 @@ const ComercializacionView = {
       return;
     }
     this._activeSubModule = subModulo;
-    this.render();
+    return this.render();
   },
 
   _getSubModuleMeta(sub) {
     const map = {
-      leche: { icon: Icons.leche(), color: 'var(--c-info)', title: 'CONTRATOS Y ENTREGAS LÁCTEAS', desc: 'Control de cisternas, analíticas y albaranes de leche' },
-      carne: { icon: Icons.carne(), color: 'var(--c-success)', title: 'COMERCIALIZACIÓN CÁRNICA', desc: 'Ventas de ganado, rendimientos de canal y facturación' },
-      compradores: { icon: Icons.compradores(), color: 'var(--c-purple)', title: 'CARTERA DE CLIENTES', desc: 'Registro de mataderos, cooperativas y centrales lecheras' },
-      contratos: { icon: Icons.documento(), color: 'var(--c-purple)', title: 'CONTRATOS DE COMPRA', desc: 'Acuerdos comerciales de suministro y trazabilidad de precios' },
-      transportistas: { icon: Icons.transportistas(), color: 'var(--c-pink)', title: 'LOGÍSTICA Y TRANSPORTISTAS', desc: 'Flota de transporte ganadero calificado y cisternas' }
+      leche: { icon: Icons.leche(), color: ACCENT, title: 'CONTRATOS Y ENTREGAS LÁCTEAS', desc: 'Control de cisternas, analíticas y albaranes de leche' },
+      carne: { icon: Icons.carne(), color: ACCENT, title: 'COMERCIALIZACIÓN CÁRNICA', desc: 'Ventas de ganado, rendimientos de canal y facturación' },
+      compradores: { icon: Icons.compradores(), color: ACCENT, title: 'CARTERA DE CLIENTES', desc: 'Registro de mataderos, cooperativas y centrales lecheras' },
+      contratos: { icon: Icons.documento(), color: ACCENT, title: 'CONTRATOS DE COMPRA', desc: 'Acuerdos comerciales de suministro y trazabilidad de precios' },
+      transportistas: { icon: Icons.transportistas(), color: ACCENT, title: 'LOGÍSTICA Y TRANSPORTISTAS', desc: 'Flota de transporte ganadero calificado y cisternas' }
     };
     return map[sub] || map.leche;
   },
@@ -331,11 +340,11 @@ const ComercializacionView = {
     const fincaId = await Fincas.getActiveId();
     const d = await this._ensureData(fincaId, this._needsDataRefresh);
 
-    // Tarjeta de Resumen Comercial Lácteo
+    // Tarjeta de Resumen Comercial Lácteo (cromo ERP neutro)
     const resumenLecheHtml = `
-      <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(79,173,245,0.08) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-info);">
+      <div class="card p-16 mb-16 border-222 animate-fade-in" data-guide="resumen-comercial" style="background: rgba(255,255,255,0.02); border-left: 4px solid var(--text-s);">
         <div class="flex items-center gap-12 mb-10">
-          <span class="text-3xl" style="color:var(--c-info);">${Icons.leche()}</span>
+          <span class="text-3xl" style="color:var(--text-s);">${Icons.leche()}</span>
           <div>
             <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">BALANCE COMERCIAL LÁCTEO</h2>
             <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Registro de albaranes de entrega, liquidaciones y control de calidad.</p>
@@ -343,7 +352,7 @@ const ComercializacionView = {
         </div>
         <div class="grid grid-cols-2 gap-8 mt-12">
           ${d.kpis.leche.slice(0, 2).map(k => `
-            <div class="leche-kpi-item" style="--kpi-color:var(--c-info); --kpi-value-color:#fff">
+            <div class="leche-kpi-item" style="--kpi-color:var(--text-s); --kpi-value-color:#fff">
               <small class="leche-kpi-label">${k.label}</small>
               <div class="leche-kpi-value">${k.value}</div>
             </div>
@@ -351,8 +360,8 @@ const ComercializacionView = {
         </div>
       </div>`;
 
-    const kpisHtml = this._renderKPIsSubTab('leche', d.kpis.leche, 'var(--c-info)', Icons.leche());
-    
+    const kpisHtml = this._renderKPIsSubTab('leche', d.kpis.leche, 'var(--text-s)', Icons.leche());
+
     container.innerHTML = `
       <div class="px-4">
         ${resumenLecheHtml}
@@ -366,7 +375,7 @@ const ComercializacionView = {
     this._renderSeccion(subContent, {
       icon: Icons.leche(),
       title: 'Entregas Leche',
-      color: 'var(--c-info)',
+      color: ACCENT,
       registrarLabel: 'REGISTRAR RETIRADA',
       listName: 'LISTA DE ENTREGAS',
       registrarHandler: "App._abrirWizardAlbaranLeche()",
@@ -409,11 +418,11 @@ const ComercializacionView = {
     const fincaId = await Fincas.getActiveId();
     const d = await this._ensureData(fincaId, this._needsDataRefresh);
 
-    // Tarjeta de Resumen Comercial Cárnico
+    // Tarjeta de Resumen Comercial Cárnico (cromo ERP neutro)
     const resumenCarneHtml = `
-      <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--c-success);">
+      <div class="card p-16 mb-16 border-222 animate-fade-in" data-guide="resumen-comercial" style="background: rgba(255,255,255,0.02); border-left: 4px solid var(--text-s);">
         <div class="flex items-center gap-12 mb-10">
-          <span class="text-3xl" style="color:var(--c-success);">${Icons.carne()}</span>
+          <span class="text-3xl" style="color:var(--text-s);">${Icons.carne()}</span>
           <div>
             <h2 class="text-white font-950 text-base uppercase tracking-wider mb-2">BALANCE COMERCIAL CÁRNICO</h2>
             <p class="text-[0.65rem] text-gray font-700 uppercase leading-relaxed">Ventas de ganado, rendimientos de canal y facturación a mataderos.</p>
@@ -421,7 +430,7 @@ const ComercializacionView = {
         </div>
         <div class="grid grid-cols-2 gap-8 mt-12">
           ${d.kpis.carne.slice(0, 2).map(k => `
-            <div class="leche-kpi-item" style="--kpi-color:var(--c-success); --kpi-value-color:#fff">
+            <div class="leche-kpi-item" style="--kpi-color:var(--text-s); --kpi-value-color:#fff">
               <small class="leche-kpi-label">${k.label}</small>
               <div class="leche-kpi-value">${k.value}</div>
             </div>
@@ -429,8 +438,8 @@ const ComercializacionView = {
         </div>
       </div>`;
 
-    const kpisHtml = this._renderKPIsSubTab('carne', d.kpis.carne, 'var(--c-success)', Icons.carne());
-    
+    const kpisHtml = this._renderKPIsSubTab('carne', d.kpis.carne, 'var(--text-s)', Icons.carne());
+
     container.innerHTML = `
       <div class="px-4">
         ${resumenCarneHtml}
@@ -444,7 +453,7 @@ const ComercializacionView = {
     this._renderSeccion(subContent, {
       icon: Icons.carne(),
       title: 'Ventas Carne',
-      color: 'var(--c-success)',
+      color: ACCENT,
       registrarLabel: 'REGISTRAR VENTA',
       listName: 'LISTA DE VENTAS',
       registrarHandler: "App._abrirWizardVentaMasiva()",
@@ -493,6 +502,9 @@ const ComercializacionView = {
           title: r.title,
           metadata: r.metadata,
           badge: r.badge,
+          // sin `tipo`: el badge de estas secciones no es una categoría
+          // (en Carne es el importe y en Leche viene con marcado), asi que el
+          // desplegable se oculta solo y queda solo el buscador de texto.
           color: color,
           onClick: r.onclick
         })).join('')
@@ -503,7 +515,11 @@ const ComercializacionView = {
         <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-10 pb-6">
           <span style="color: ${color}; margin-right: 4px;">|</span> ${Icons.documento()} ${listName}
         </div>
-        <div class="grid gap-10">
+        <div class="erp-filtros" data-filtros-para="comer-registros-lista">
+          <input type="search" class="form-input search-input" placeholder="Buscar por comprador, fecha o cantidad...">
+          <select class="form-select" data-etiqueta-todos="Todos los estados"></select>
+        </div>
+        <div class="grid gap-10" id="comer-registros-lista" data-ver-mas="10">
           ${recordsHtml}
         </div>
       </div>`;

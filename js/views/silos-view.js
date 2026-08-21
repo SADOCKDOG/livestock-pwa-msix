@@ -5,6 +5,7 @@
 
 const SilosView = {
     _cachedSilos: [],
+    _vistaModo: 'cards',
 
     async render() {
         const main = document.getElementById('expro-tab-content') || document.getElementById('app-content');
@@ -114,6 +115,10 @@ const SilosView = {
                     </h1>
                     <p class="text-xs font-bold uppercase tracking-tight text-gray-400 m-0">Telemetría de alimentación y almacenamiento</p>
                 </div>
+                <div class="flex gap-6">
+                    <button class="btn-erp-secondary btn-sm" id="btn-silos-vista-cards" onclick="SilosView._setVistaModo('cards')">Tarjetas</button>
+                    <button class="btn-erp-secondary btn-sm" id="btn-silos-vista-tabla" onclick="SilosView._setVistaModo('tabla')">Tabla ERP</button>
+                </div>
             </div>
 
             <!-- KPIs superiores (OLED dark design) -->
@@ -134,20 +139,77 @@ const SilosView = {
 
             ${alertaSiloHtml}
 
-            <!-- Listado de Silos -->
-            <div class="flex flex-col gap-15 font-sans">
-                ${this._cachedSilos.length === 0
-                    ? `<div class="empty-state"><div class="empty-state-icon">${Icons.explotacion()}</div><p class="empty-state-text">Sin silos registrados.</p><div class="text-center mt-20"><button class="btn btn-create btn-lg" onclick="SilosView._abrirFormularioSilo()">${Icons.agregar()} Registrar primer silo</button></div></div>`
-                    : this._cachedSilos.map(s => this._renderSiloCard(s)).join('')}
+            <fieldset class="erp-action-group">
+              <legend>Registro de Silos</legend>
+              <div class="erp-action-group-body">
+                <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="SilosView._abrirFormularioSilo()">${Icons.agregar()}<span class="widget-link-label">Nuevo Silo</span></button>
+              </div>
+            </fieldset>
+
+            <div class="erp-filtros" data-filtros-para="silos-lista">
+              <input type="search" class="form-input search-input" placeholder="Buscar silo por nombre...">
+              <select class="form-select" data-etiqueta-todos="Todos los estados"></select>
             </div>
 
-            <!-- FAB (Botón de Acción Flotante) Soporte -->
-            <div class="fab-container" style="--fab-neon-color: var(--c-success);" onclick="SilosView._abrirFormularioSilo()">
-                <span class="fab-label">Nuevo Silo</span>
-                <button class="fab-btn">${Icons.fabPlus()}</button>
+            <!-- Listado de Silos -->
+            <div class="flex flex-col gap-15 font-sans" id="silos-lista" data-ver-mas="10">
+                ${this._cachedSilos.length === 0
+                    ? `<div class="empty-state"><div class="empty-state-icon">${Icons.explotacion()}</div><p class="empty-state-text">Sin silos registrados.</p><div class="text-center mt-20"><button class="widget-link-btn widget-link-btn--neon neon-success" onclick="SilosView._abrirFormularioSilo()" data-guide="btn-vacio-silos">${Icons.agregar()}<span class="widget-link-label">Nuevo primer silo</span></button></div></div>`
+                    : this._cachedSilos.map(s => this._renderSiloCard(s)).join('')}
             </div>
+            <div id="silos-erp-table-container" class="mt-12" style="display:none;"></div>
         </div>
         `;
+
+        if (this._cachedSilos.length > 0) {
+            const modoGuardado = localStorage.getItem('silos_view_mode') || 'cards';
+            this._setVistaModo(modoGuardado, false);
+        }
+    },
+
+    _setVistaModo(modo, guardar = true) {
+        this._vistaModo = modo;
+        if (guardar) localStorage.setItem('silos_view_mode', modo);
+        const btnCards = document.getElementById('btn-silos-vista-cards');
+        const btnTabla = document.getElementById('btn-silos-vista-tabla');
+        const lista = document.getElementById('silos-lista');
+        const tablaC = document.getElementById('silos-erp-table-container');
+        if (btnCards) btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+        if (btnTabla) btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+        if (lista) lista.style.display = modo === 'cards' ? '' : 'none';
+        if (tablaC) {
+            if (modo === 'tabla') {
+                tablaC.style.display = '';
+                this._renderErpTable();
+            } else {
+                tablaC.style.display = 'none';
+            }
+        }
+    },
+
+    _renderErpTable() {
+        const container = document.getElementById('silos-erp-table-container');
+        if (!container || !window.ErpDataTable) return;
+        const cols = [
+            { key: 'nombre', label: 'Nombre', cellClass: 'erp-cell-id', render: (val, row) => `<span class="font-bold text-white">${row.nombre}</span>` },
+            { key: 'capacidad', label: 'Capacidad', align: 'right', render: (val, row) => `${(Number(row.capacidad) || 0).toLocaleString()} kg` },
+            { key: 'actual', label: 'Actual', align: 'right', render: (val, row) => `${(Number(row.cantidadActual) || 0).toLocaleString()} kg` },
+            { key: 'ocupacion', label: 'Ocupación', align: 'right', render: (val, row) => {
+                const pct = row.capacidad > 0 ? Math.round((row.cantidadActual / row.capacidad) * 100) : 0;
+                const cls = pct < 15 ? 'erp-cell-alerta' : (pct < 35 ? 'erp-cell-aviso' : 'erp-cell-ok');
+                return `<span class="${cls}">${pct}%</span>`;
+            }},
+            { key: 'autonomia', label: 'Autonomía', align: 'right', render: (val, row) => row.diasAutonomia == null ? '<span class="erp-cell-muted">Sin datos</span>' : `${row.diasAutonomia} días` },
+            { key: 'ultimaCarga', label: 'Última Carga', render: (val, row) => row.fechaUltimaCarga || 'S/D' },
+            { key: 'id', label: '', align: 'center', sortable: false, render: (val, row) => `<button class="btn-erp-secondary btn-sm" onclick="SilosView._abrirFormularioSilo(${row.id})">Editar</button>` }
+        ];
+        new window.ErpDataTable({
+            containerId: 'silos-erp-table-container',
+            title: 'Silos',
+            pageSize: 15,
+            columns: cols,
+            data: this._cachedSilos
+        }).render();
     },
 
     _renderSiloCard(s) {
@@ -727,7 +789,7 @@ const SilosView = {
                 </div>
             </div>
 
-            <div class="flex gap-10 justify-between">
+            <div class="flex gap-10 justify-end">
                 <button type="button" class="wizard-btn-action wizard-btn-secondary" onclick="ModalManager.close('silo-form-modal')">${Icons.cerrar()} Cancelar</button>
                 <button type="button" class="wizard-btn-action wizard-btn-success" onclick="SilosView._guardarFormularioSilo(${id})">${Icons.guardar()} Guardar Silo</button>
             </div>

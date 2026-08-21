@@ -88,10 +88,8 @@
       for (const step of g.steps) {
         _assert(typeof step.title === 'string', `Step ${g.id}: title string`);
         _assert(typeof step.body === 'string', `Step ${g.id}: body string`);
-        // null es convención legítima: pasos de intro/outro sin elemento a resaltar
-        _assert(step.target === undefined || step.target === null || typeof step.target === 'string', `Step ${g.id}: target string|null|undefined`);
-        // true es shorthand de 2000ms soportado por GuideManager._waitForSelector
-        _assert(step.waitFor === undefined || step.waitFor === true || typeof step.waitFor === 'number', `Step ${g.id}: waitFor number|true|undefined`);
+        _assert(step.target === undefined || typeof step.target === 'string', `Step ${g.id}: target string|undefined`);
+        _assert(step.waitFor === undefined || typeof step.waitFor === 'number', `Step ${g.id}: waitFor number|undefined`);
         _assert(step.launch === undefined || typeof step.launch === 'function', `Step ${g.id}: launch function|undefined`);
         _assert(step.position === undefined || ['above', 'below', 'left', 'right', 'center'].includes(step.position), `Step ${g.id}: position válida`);
       }
@@ -137,13 +135,13 @@
       colorTema: 'gold', temaClaroColor: 'arena', formatoFecha: 'es-ES', moneda: '€', especies: [],
       alertSanidad: true, alertTrazabilidad: true, alertPAC: true,
       alertADSG: true, alertINCOLAC: true, alertContratos: false,
-      // Guías interactivas (contrato con GuideManager, spec §3.3)
-      guides: { enabled: true, seen: [], dismissed: [] }
+      // Guías interactivas
+      guiasActivadas: true,
+      guiasVistas: {}
     };
 
-    _assert(defaults.guides?.enabled === true, 'Config por defecto: guides.enabled=true');
-    _assert(Array.isArray(defaults.guides?.seen), 'Config por defecto: guides.seen es array');
-    _assert(Array.isArray(defaults.guides?.dismissed), 'Config por defecto: guides.dismissed es array');
+    _assert(defaults.guiasActivadas === true, 'Config por defecto: guiasActivadas=true');
+    _assert(typeof defaults.guiasVistas === 'object', 'Config por defecto: guiasVistas es objeto');
   }
 
   async function testAppHelpers() {
@@ -164,27 +162,26 @@
     // GanaderiaView
     if (window.GanaderiaView) {
       const src = GanaderiaView._cambiarSubModulo.toString();
-      _assert(src.includes('this.render'), 'GanaderiaView._cambiarSubModulo devuelve this.render()');
+      _assert(src.includes('return this.render'), 'GanaderiaView._cambiarSubModulo devuelve this.render()');
     }
 
     // ExplotacionView
     if (window.ExplotacionView) {
       const src = ExplotacionView._cambiarSubModulo.toString();
-      _assert(src.includes('this.render'), 'ExplotacionView._cambiarSubModulo devuelve this.render()');
+      _assert(src.includes('return this.render'), 'ExplotacionView._cambiarSubModulo devuelve this.render()');
     }
 
     // ComercializacionView
     if (window.ComercializacionView) {
       const src = ComercializacionView._cambiarSubModulo.toString();
-      _assert(src.includes('this.render'), 'ComercializacionView._cambiarSubModulo devuelve this.render()');
+      _assert(src.includes('return this.render'), 'ComercializacionView._cambiarSubModulo devuelve this.render()');
     }
   }
 
   async function testSettingsViewConfig() {
     const cfg = await AjustesView._loadConfig();
-    _assert(cfg.guides?.enabled === true, 'AjustesView._loadConfig incluye guides.enabled=true por defecto');
-    _assert(Array.isArray(cfg.guides?.seen), 'AjustesView._loadConfig incluye guides.seen=[] por defecto');
-    _assert(Array.isArray(cfg.guides?.dismissed), 'AjustesView._loadConfig incluye guides.dismissed=[] por defecto');
+    _assert(cfg.guiasActivadas === true, 'AjustesView._loadConfig incluye guiasActivadas=true por defecto');
+    _assert(typeof cfg.guiasVistas === 'object', 'AjustesView._loadConfig incluye guiasVistas={} por defecto');
 
     // Verificar métodos
     _assert(typeof AjustesView._toggleGuias === 'function', 'AjustesView._toggleGuias existe');
@@ -309,17 +306,6 @@
       console.warn(`[GuiaQA] Ninguna guía registrada para la ruta ${rutaActual}. ¿Estás en la vista correcta?`);
       return { informe: {}, totales: { conTarget: 0, resuelven: 0, invalidos: 0, noEncuentran: 0 } };
     }
-    // Respetar disponible(): una guía de finca vacía (p. ej. onboarding-primeros-pasos)
-    // no debe medirse cuando la finca activa ya tiene datos — sus targets de empty-state
-    // no existen con datos cargados y darían falsos negativos. disponible() es async.
-    const disponibles = await Promise.all(guias.map(g => {
-      if (typeof g.disponible !== 'function') return true;
-      return Promise.resolve(g.disponible()).catch(err => {
-        console.warn(`[GuiaQA] disponible() de ${g.id} lanzó error:`, err);
-        return true;
-      });
-    }));
-    const guiasActivas = guias.filter((g, i) => disponibles[i]);
     const informe = {};
 
     // Espera inicial: las guías panorámicas (tab: null) no cambian de pestaña, así que
@@ -327,7 +313,7 @@
     // no ha terminado y todos sus targets salen como "sin coincidencia" (falso negativo).
     await new Promise(r => setTimeout(r, 1500));
 
-    for (const g of guiasActivas) {
+    for (const g of guias) {
       if (g.tab) {
         await App._cambiarSubmoduloConGuia(viewName, g.tab);
         await new Promise(r => setTimeout(r, 1500)); // render + carga de datos

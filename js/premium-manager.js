@@ -67,7 +67,7 @@
               totalEliminados += idsAEliminar.length;
               completed++;
               if (completed === storeNames.length) {
-                console.log('[Soporte] Demo limpio: ' + totalEliminados + ' registros');
+                console.log('[Premium] Demo limpio: ' + totalEliminados + ' registros');
                 resolve(totalEliminados);
               }
             }
@@ -79,7 +79,7 @@
           };
         });
       } catch (e) {
-        console.error('[Soporte] Error limpiando demo:', e);
+        console.error('[Premium] Error limpiando demo:', e);
         resolve(0);
       }
     });

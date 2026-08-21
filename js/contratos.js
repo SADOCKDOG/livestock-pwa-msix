@@ -1,5 +1,5 @@
 /**
- * Contratos de Compra - Livestock Manager Soporte v4.0
+ * Contratos de Compra - Livestock Manager Premium v4.0
  * Gestión de contratos con compradores: precios, condiciones y vigencia.
  */
 

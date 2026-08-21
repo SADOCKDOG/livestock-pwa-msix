@@ -1,5 +1,5 @@
 /**
- * TransportistasView - Livestock Manager Soporte v4.0
+ * TransportistasView - Livestock Manager Premium v4.0
  * Vista de gestión de transportistas con listado, detalle y formulario.
  */
 
@@ -110,9 +110,12 @@ const TransportistasView = {
             <div class="text-[0.6rem] text-gray uppercase font-900">Activos: <strong class="text-success">${activoCount}</strong></div>
           </div>
         </div>
-        <div class="module-header-primary-action">
-          <button class="btn btn-create btn-lg w-full" onclick="TransportistasView._crearTransportista()">${Icons.agregar()} Nuevo Transportista</button>
-        </div>
+        <fieldset class="erp-action-group">
+          <legend>Registro de Transportistas</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="TransportistasView._abrirFormulario()">${Icons.agregar()}<span class="widget-link-label">Nuevo Transportista</span></button>
+          </div>
+        </fieldset>
       </div>
 
       <!-- Evolución Mensual -->
@@ -144,9 +147,13 @@ const TransportistasView = {
         </div>
       </div>
 
-      <!-- Filtro de búsqueda integrado (controla el listado) -->
-      <div class="text-xs text-white uppercase font-black tracking-wider mb-10 flex items-center gap-4">
-        <span style="color: ${moduleColor};">|</span> ${Icons.transportistas()} LISTA DE TRANSPORTISTAS
+      <!-- Filtro de búsqueda integrado (controla el listado) + interruptor de vista (Tarjetas / Tabla ERP) -->
+      <div class="text-xs text-white uppercase font-black tracking-wider mb-10 flex items-center gap-4" style="justify-content: space-between;">
+        <span class="flex items-center gap-4"><span style="color: ${moduleColor};">|</span> ${Icons.transportistas()} LISTA DE TRANSPORTISTAS</span>
+        <div class="flex gap-4">
+          <button class="btn-erp-secondary btn-sm" id="btn-transp-vista-cards" onclick="TransportistasView._setVistaModo('cards')">Tarjetas</button>
+          <button class="btn-erp-secondary btn-sm" id="btn-transp-vista-tabla" onclick="TransportistasView._setVistaModo('tabla')">Tabla ERP</button>
+        </div>
       </div>
       <div class="flex gap-8 items-center mb-12">
         <div class="relative flex-1 min-w-0">
@@ -162,11 +169,16 @@ const TransportistasView = {
           <option value="inactivo" ${this._filtroActivo.tipo === 'inactivo' ? 'selected' : ''}>Inactivos</option>
         </select>
       </div>
-      <div id="transportistas-content"><div class="loader">Cargando transportistas...</div></div>`;
+      <div id="transportistas-content"><div class="loader">Cargando transportistas...</div></div>
+      <div id="transportistas-erp-table-container" class="mt-12" style="display:none;"></div>`;
 
     // Actualizar datos filtrados para el contenido
     this._cachedData = { transportistas: filteredTransportistas };
     this._renderLista();
+
+    // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
+    const modoGuardado = localStorage.getItem('transportistas_view_mode') || 'tabla';
+    this._setVistaModo(modoGuardado, false);
   },
 
   _setFiltro(type, value) {
@@ -178,6 +190,7 @@ const TransportistasView = {
     if (!this._cachedDataRaw) return;
     const filtrados = this._filtrar(this._cachedDataRaw.transportistas);
     this._cachedData = { transportistas: filtrados };
+    if (this._vistaModo === 'tabla') return this._renderErpTable();
     this._renderLista();
   },
 
@@ -215,7 +228,7 @@ const TransportistasView = {
     const transportistas = this._cachedData ? this._cachedData.transportistas : [];
 
     if (transportistas.length === 0) {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${Icons.transportistas()}</div><p class="empty-state-text">${this._cachedDataRaw ? this._cachedDataRaw.transportistas.length === 0 ? 'No hay transportistas registrados.' : 'No hay transportistas con ese filtro.' : 'Cargando...'}</p></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${Icons.transportistas()}</div><p class="empty-state-text">${this._cachedDataRaw ? this._cachedDataRaw.transportistas.length === 0 ? 'No hay transportistas registrados.' : 'No hay transportistas con ese filtro.' : 'Cargando...'}</p><button class="widget-link-btn widget-link-btn--neon neon-success" onclick="TransportistasView._abrirFormulario()" data-guide="btn-vacio-transportistas">${Icons.agregar()}<span class="widget-link-label">Nuevo Transportista</span></button></div>`;
       return;
     }
 
@@ -241,15 +254,88 @@ const TransportistasView = {
       onClick: `TransportistasView._verDetalle(${t.id})`
     })).join('');
 
-    // Botón Flotante de Acción con viñeta (se agrega después de la lista)
-    const fabContainer = document.createElement('div');
-    fabContainer.className = 'fab-container';
-    fabContainer.innerHTML = `
-      <span class="fab-label">Nuevo Transportista</span>
-      <button class="fab-btn" aria-label="Añadir"><span aria-hidden="true">${Icons.fabPlus()}</span></button>
-    `;
-    fabContainer.onclick = () => TransportistasView._abrirFormulario();
-    container.appendChild(fabContainer);
+  },
+
+  // ============================================
+  // VISTA TABLA ERP (desktop)
+  // ============================================
+
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('transportistas_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-transp-vista-cards');
+    const btnTabla = document.getElementById('btn-transp-vista-tabla');
+    const contenedorCards = document.getElementById('transportistas-content');
+    const contenedorTabla = document.getElementById('transportistas-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'block';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cachedData) return;
+
+    const lista = this._cachedData.transportistas || [];
+    const tableData = lista.map(t => ({
+      id: t.id,
+      nombre: t.nombre || '—',
+      nif_cif: t.nif_cif || '—',
+      matricula: t.matricula || '—',
+      telefono: t.telefono || '—',
+      vehiculo: this._labelTipoVehiculo(t.tipo_vehiculo),
+      bienestar: this._labelVencimiento('Bienestar', t.certificado_bienestar_vencimiento, !t.certificado_bienestar),
+      _bienestarColor: this._colorVencimiento(t.certificado_bienestar_vencimiento, !t.certificado_bienestar),
+      estado: t.activo ? 'ACTIVO' : 'INACTIVO'
+    }));
+
+    new window.ErpDataTable({
+      containerId: 'transportistas-erp-table-container',
+      title: 'Transportistas',
+      pageSize: 15,
+      columns: [
+        { key: 'nombre', label: 'Nombre', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'nif_cif', label: 'NIF/CIF', sortable: true },
+        { key: 'matricula', label: 'Matrícula', sortable: true },
+        { key: 'telefono', label: 'Teléfono', sortable: false },
+        { key: 'vehiculo', label: 'Vehículo', sortable: true },
+        {
+          key: 'bienestar',
+          label: 'Cert. Bienestar',
+          sortable: true,
+          render: (val, row) => `<span style="${row._bienestarColor} font-weight:700;">${val}</span>`
+        },
+        {
+          key: 'estado',
+          label: 'Estado',
+          sortable: true,
+          render: (val) => `<span class="badge ${val === 'ACTIVO' ? 'badge-success' : 'badge-gray'}">${val}</span>`
+        },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="TransportistasView._verDetalle(${id})">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   // Mantener todos los métodos existentes

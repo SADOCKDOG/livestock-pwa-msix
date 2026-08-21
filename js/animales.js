@@ -64,7 +64,7 @@ const Animales = {
           const todos = await window.db.getAll('animales');
           const noDemo = todos.filter(a => !a.demo && !a?.anulado);
           if (noDemo.length >= window.PremiumManager.maxAnimals()) {
-            throw new Error('Has alcanzado el límite de animales en la versión gratuita (máx. ' + window.PremiumManager.maxAnimals() + '). Actualiza a Soporte para añadir más.');
+            throw new Error('Has alcanzado el límite de animales en la versión gratuita (máx. ' + window.PremiumManager.maxAnimals() + '). Actualiza a Premium para añadir más.');
           }
         }
 

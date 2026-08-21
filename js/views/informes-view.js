@@ -6,6 +6,13 @@
  * que deben cargar justo después de este archivo (extienden window.InformesView).
  */
 
+/** Resuelve un token CSS a su color computado (chart.js pinta en canvas y no acepta var()).
+ *  Fallback = hex original, por si el token no existe en alguna plataforma. */
+function _chartToken(token, fallback) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  return v || fallback;
+}
+
 const InformesView = {
   _currentTab: 'general',
   _currentCategory: 'general',
@@ -148,7 +155,7 @@ const InformesView = {
 
     // 1. Nivel 1: Categorías
     let catsHtml = `
-      <div class="scroll-shadow-container scroll-tabs-row mb-6">
+      <div class="scroll-shadow-container scroll-tabs-row mb-6 erp-solo-movil">
         <div class="informes-categories py-4" id="inf-cat-row">
     `;
     for (const [catKey, cat] of Object.entries(this._categories)) {
@@ -171,7 +178,7 @@ const InformesView = {
     // 2. Nivel 2: Sub-tabs de la categoría activa
     const activeCat = this._categories[activeCatKey];
     let subTabsHtml = `
-      <div class="scroll-shadow-container scroll-tabs-row mb-12">
+      <div class="scroll-shadow-container scroll-tabs-row mb-12 erp-solo-movil">
         <div class="informes-tabs py-2" id="inf-tab-row">
     `;
     for (const [tabKey, tabLabel] of Object.entries(activeCat.tabs)) {
@@ -430,23 +437,23 @@ const InformesView = {
 
   // ===================== RENDER POR TABS =====================
 
-  /** Genera barra de acciones PDF+Excel compacta e inline */
+  /** Genera barra de acciones PDF+Excel (chrome ERP: fieldset erp-action-group, centrado). */
   _sectionActionsHTML(seccion, label) {
     return `
-      <div class="inf-export-bar mb-14">
-        <span class="inf-export-label">${label}</span>
-        <div class="inf-export-btns">
-          <button class="inf-export-btn inf-export-btn--pdf" onclick="InformesView._exportPDFSeccion('${seccion}')" title="Exportar ${label} a PDF">
-            ${Icons.documento()} PDF
+      <fieldset class="erp-action-group erp-action-group--centro">
+        <legend>Exportar ${label}</legend>
+        <div class="erp-action-group-body">
+          <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="InformesView._exportPDFSeccion('${seccion}')" title="Exportar ${label} a PDF">
+            ${Icons.documento()}<span class="widget-link-label">PDF</span>
           </button>
-          <button class="inf-export-btn inf-export-btn--excel" onclick="InformesView._exportExcel()" title="Exportar a Excel">
-            ${Icons.exportar()} Excel
+          <button class="widget-link-btn widget-link-btn--neon neon-info" onclick="InformesView._exportExcel()" title="Exportar a Excel">
+            ${Icons.exportar()}<span class="widget-link-label">Excel</span>
           </button>
-          <button class="inf-export-btn inf-export-btn--full" onclick="InformesView._exportPDF()" title="Exportar informe completo">
-            ${Icons.documento()} Completo
+          <button class="widget-link-btn widget-link-btn--neon neon-info" onclick="InformesView._exportPDF()" title="Exportar informe completo">
+            ${Icons.documento()}<span class="widget-link-label">Completo</span>
           </button>
         </div>
-      </div>
+      </fieldset>
     `;
   },
 
@@ -653,7 +660,7 @@ const InformesView = {
                 label: 'Gastos',
                 data: porMes.map(m => m.total),
                 backgroundColor: 'rgba(251,191,36,0.6)',
-                borderColor: '#fbbf24',
+                borderColor: _chartToken('--c-warning', '#fbbf24'),
                 borderWidth: 1
               }]
             },
@@ -707,7 +714,7 @@ const InformesView = {
             labels: ['Margen Carne', 'MOFA Leche'],
             datasets: [{
               data: [Math.abs(margenCarne), Math.abs(mofaLeche)],
-              backgroundColor: ['#4FADF5', '#4ADE80'],
+              backgroundColor: [_chartToken('--c-info', '#4FADF5'), _chartToken('--c-success', '#4ADE80')],
               borderColor: '#111',
               borderWidth: 2
             }]
@@ -987,7 +994,7 @@ const InformesView = {
               datasets: [{
                 label: 'Producción',
                 data: timeline.map(t => t.cantidad),
-                borderColor: '#4FADF5',
+                borderColor: _chartToken('--c-info', '#4FADF5'),
                 backgroundColor: 'rgba(79,173,245,0.1)',
                 fill: true,
                 tension: 0.3,
@@ -1242,7 +1249,7 @@ const InformesView = {
       if (ctxR && kpisRepro.tasaFertilidadPct !== undefined) {
         this._nuevoChart(ctxR, {
           type: 'doughnut',
-          data: { labels: ['Éxito', 'Fallo'], datasets: [{ data: [kpisRepro.tasaFertilidadPct, 100 - kpisRepro.tasaFertilidadPct], backgroundColor: ['#4FADF5', '#3730a3'], borderColor: '#111', borderWidth: 4 }] },
+          data: { labels: ['Éxito', 'Fallo'], datasets: [{ data: [kpisRepro.tasaFertilidadPct, 100 - kpisRepro.tasaFertilidadPct], backgroundColor: [_chartToken('--c-info', '#4FADF5'), _chartToken('--c-purple', '#3730a3')], borderColor: '#111', borderWidth: 4 }] },
           options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
         });
       }
@@ -1319,7 +1326,7 @@ const InformesView = {
           type: 'pie',
           data: {
             labels: estadisticasSanidad.porCategoria.map(c => c.categoria),
-            datasets: [{ data: estadisticasSanidad.porCategoria.map(c => c.cantidad), backgroundColor: ['#E8555F', '#E8555F', '#FFFC55', '#C5FA50', '#4FADF5', '#4FADF5'], borderColor: '#111', borderWidth: 2 }]
+            datasets: [{ data: estadisticasSanidad.porCategoria.map(c => c.cantidad), backgroundColor: [_chartToken('--c-danger', '#E8555F'), _chartToken('--c-danger', '#E8555F'), _chartToken('--p-gold', '#FFFC55'), _chartToken('--c-success', '#C5FA50'), _chartToken('--c-info', '#4FADF5'), _chartToken('--c-info', '#4FADF5')], borderColor: '#111', borderWidth: 2 }]
           },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
@@ -1629,7 +1636,7 @@ const InformesView = {
               datasets: [{
                 label: '€/kg medio',
                 data: evolucionData.map(e => InformesView._fmt(e.precioMedio, 2)),
-                borderColor: '#4FADF5',
+                borderColor: _chartToken('--c-info', '#4FADF5'),
                 backgroundColor: 'rgba(79,173,245,0.1)',
                 fill: true,
                 tension: 0.3,
@@ -1749,7 +1756,7 @@ const InformesView = {
                 datasets: [{
                   label: 'Ingresos (€)',
                   data: data.slice(0, 8).map(c => c.total),
-                  backgroundColor: ['#4FADF5','#C5FA50','#FFFC55','#4FADF5','#E8555F','#4FADF5','#14b8a6','#E8555F'],
+                  backgroundColor: [_chartToken('--c-info', '#4FADF5'), _chartToken('--c-success', '#C5FA50'), _chartToken('--p-gold', '#FFFC55'), _chartToken('--c-info', '#4FADF5'), _chartToken('--c-danger', '#E8555F'), _chartToken('--c-info', '#4FADF5'), _chartToken('--c-accent', '#14b8a6'), _chartToken('--c-danger', '#E8555F')],
                   borderRadius: 4
                 }]
               },
@@ -1860,7 +1867,7 @@ const InformesView = {
               type: 'doughnut',
               data: {
                 labels: entries.map(e => e[0]),
-                datasets: [{ data: entries.map(e => e[1]), backgroundColor: ['#FFFC55','#E8555F','#C5FA50','#4FADF5','#4FADF5','#4FADF5'], borderColor: '#111', borderWidth: 3 }]
+                datasets: [{ data: entries.map(e => e[1]), backgroundColor: [_chartToken('--p-gold', '#FFFC55'), _chartToken('--c-danger', '#E8555F'), _chartToken('--c-success', '#C5FA50'), _chartToken('--c-info', '#4FADF5'), _chartToken('--c-info', '#4FADF5'), _chartToken('--c-info', '#4FADF5')], borderColor: '#111', borderWidth: 3 }]
               },
               options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#888', boxWidth: 12, font: { size: 9 } } } } }
             });
@@ -3296,8 +3303,8 @@ const InformesView = {
       type: "bar",
       data: {
         labels: rentZ.map(z => z.zona), datasets: [
-          { label: "Ingresos", data: rentZ.map(z => z.ingresos), backgroundColor: "#C5FA50" },
-          { label: "Gastos", data: rentZ.map(z => z.gastos), backgroundColor: "#E8555F" }
+          { label: "Ingresos", data: rentZ.map(z => z.ingresos), backgroundColor: _chartToken('--c-success', '#C5FA50') },
+          { label: "Gastos", data: rentZ.map(z => z.gastos), backgroundColor: _chartToken('--c-danger', '#E8555F') }
         ]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { color: "#888", boxWidth: 12 } } } }
@@ -3311,7 +3318,7 @@ const InformesView = {
       type: 'line',
       data: {
         labels: timeline.map(r => { const d = r.fecha.split('-'); return d[1] + '/' + d[2]; }),
-        datasets: [{ label: 'Litros', data: timeline.map(r => r.litros), borderColor: '#FFFC55', backgroundColor: 'rgba(255,214,0,0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#FFFC55' }]
+        datasets: [{ label: 'Litros', data: timeline.map(r => r.litros), borderColor: _chartToken('--p-gold', '#FFFC55'), backgroundColor: 'rgba(255,214,0,0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: _chartToken('--p-gold', '#FFFC55') }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,

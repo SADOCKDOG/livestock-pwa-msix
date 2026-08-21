@@ -33,6 +33,12 @@ const DashboardView = {
 
     main.innerHTML = await this._buildHTML(finca, rebanos, animales, rent, censo, alertasSanitarias, alertasTrazabilidad, alertasAdministrativas, alertaEpoca, kpisDiarios, indicadoresLeche, tareasAgenda, alertasAgenda);
 
+    // FAB "Guía" del Inicio (igual que en las vistas de submódulo) para relanzar el tour
+    // del Dashboard. Se pinta aquí para que la guía inicio.dashboard pueda apuntar a él.
+    if (window.App && typeof App.renderGuideFab === 'function') {
+      App.renderGuideFab('/', null);
+    }
+
     this._suscribirAlertasVivo();
   },
 
@@ -108,9 +114,9 @@ const DashboardView = {
 
     const flagsModo = window.ModoContextoHelper.getFlags() || { leche: true, carne: false };
     const isFreeDashboard = window.PremiumManager && window.PremiumManager.isFree();
+
     // La web publica se sirve con FREE_MODE=false: todo desbloqueado y sin
-    // pasar por la tienda. Es la demo, y conviene decirlo, o alguien puede
-    // tomarla por el producto completo y llevarse una sorpresa al comprarlo.
+    // pasar por la tienda. Es la demo, y conviene decirlo.
     const esDemoAbierta = window.FREE_MODE === false;
 
     return `
@@ -129,16 +135,16 @@ const DashboardView = {
         </div>
         <div class="flex-1" style="line-height:1.4;">
           <div class="text-white text-xs font-900 uppercase tracking-wider">Versi&oacute;n Gratuita</div>
-          <div class="text-gray text-[0.6rem] mt-2">Actualiza a Soporte para desbloquear todas las funciones</div>
+          <div class="text-gray text-[0.6rem] mt-2">Actualiza a Premium para desbloquear todas las funciones</div>
         </div>
-        <button onclick="window.PurchaseManager && window.PurchaseManager.purchase()" style="flex-shrink:0;background:linear-gradient(135deg,var(--c-warning),var(--c-warning));border:none;padding:8px 16px;border-radius:10px;color:#fff;font-size:var(--fs-tiny);font-weight:900;text-transform:uppercase;cursor:pointer;">${Icons.estrella()} Soporte</button>
+        <button onclick="window.PurchaseManager && window.PurchaseManager.purchase()" style="flex-shrink:0;background:linear-gradient(135deg,var(--c-warning),var(--c-warning));border:none;padding:8px 16px;border-radius:10px;color:#fff;font-size:var(--fs-tiny);font-weight:900;text-transform:uppercase;cursor:pointer;">${Icons.estrella()} Premium</button>
       </div>
       ` : ''}
-      <!-- Registro Rápido Bento Grid (Propuesta de visualización Soporte Integrada) -->
+      <!-- Registro Rápido Bento Grid (Propuesta de visualización Premium Integrada) -->
       <div class="bento-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; animation: fadeInUp 0.4s ease;">
         <div class="card" style="grid-column: span 12; margin-bottom: 0; padding: 24px;">
           
-          <div class="flex justify-between items-center mb-16 pb-8" style="border-bottom: 1px solid #222;">
+          <div class="flex justify-between items-center mb-16 pb-8" style="border-bottom: 1px solid var(--border-subtle);">
             <div>
               <h2 class="text-white font-900 text-sm uppercase tracking-wider" style="margin:0; font-family:'IBM Plex Sans Condensed', sans-serif; display:flex; align-items:center; gap:8px;">
                 <span style="color: var(--header-neon-color, var(--c-success)); font-weight:900;">|</span> REGISTRO RÁPIDO DE ACTIVIDAD
@@ -204,7 +210,7 @@ const DashboardView = {
             </div>
 
             <!-- Silos y Alimento -->
-            <div class="card-registro-quick col-span-4" onclick="App._abrirEntradaAlimentoSiloDirecto()" style="--quick-color: #4FADF5;">
+            <div class="card-registro-quick col-span-4" onclick="App._abrirEntradaAlimentoSiloDirecto()" style="--quick-color: var(--c-info);">
               <div class="quick-icon-wrapper">${Icons.fitosanitario()}</div>
               <div class="quick-text-wrapper" style="flex: 1;">
                 <span class="quick-title">Silos & Pienso</span>
@@ -214,7 +220,7 @@ const DashboardView = {
             </div>
 
             <!-- Traslado de Animales -->
-            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardTraslado()" style="--quick-color: #E8555F;">
+            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardTraslado()" style="--quick-color: var(--c-danger);">
               <div class="quick-icon-wrapper">${Icons.rotacion()}</div>
               <div class="quick-text-wrapper" style="flex: 1;">
                 <span class="quick-title">Traslado</span>
@@ -224,7 +230,7 @@ const DashboardView = {
             </div>
 
             <!-- Censo Anual -->
-            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardCenso()" style="--quick-color: #E8555F;">
+            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardCenso()" style="--quick-color: var(--c-danger);">
               <div class="quick-icon-wrapper">${Icons.historial()}</div>
               <div class="quick-text-wrapper" style="flex: 1;">
                 <span class="quick-title">Censo Anual</span>
@@ -234,7 +240,7 @@ const DashboardView = {
             </div>
 
             <!-- Pedido de Crotales -->
-            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardCrotales()" style="--quick-color: #C5FA50;">
+            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardCrotales()" style="--quick-color: var(--c-success);">
               <div class="quick-icon-wrapper">${Icons.paquete()}</div>
               <div class="quick-text-wrapper" style="flex: 1;">
                 <span class="quick-title">Pedido Crotales</span>
@@ -244,7 +250,7 @@ const DashboardView = {
             </div>
 
             <!-- Guía de Movimiento -->
-            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardGuiaMovimiento()" style="--quick-color: #C5FA50;">
+            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardGuiaMovimiento()" style="--quick-color: var(--c-success);">
               <div class="quick-icon-wrapper">${Icons.transportistas()}</div>
               <div class="quick-text-wrapper" style="flex: 1;">
                 <span class="quick-title">Guía Movimiento</span>
@@ -255,7 +261,7 @@ const DashboardView = {
 
             <!-- Albarán de Leche -->
             ${flagsModo.leche ? `
-            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardAlbaranLeche()" style="--quick-color: #4FADF5;">
+            <div class="card-registro-quick col-span-4" onclick="App._abrirWizardAlbaranLeche()" style="--quick-color: var(--c-info);">
               <div class="quick-icon-wrapper">${Icons.documento()}</div>
               <div class="quick-text-wrapper" style="flex: 1;">
                 <span class="quick-title">Albarán Leche</span>
@@ -454,7 +460,7 @@ const DashboardView = {
               const colorPrioridad = t.prioridad === 'alta' ? 'var(--c-danger)' : t.prioridad === 'media' ? 'var(--c-warning)' : 'var(--c-success)';
 
               return `
-                <div style="padding: 10px; background: #000; border-radius: 6px; border: 1px solid #222; border-left: 3px solid ${colorPrioridad};">
+                <div style="padding: 10px; background: #000; border-radius: 6px; border: 1px solid var(--border-subtle); border-left: 3px solid ${colorPrioridad};">
                   <div class="flex justify-between items-center">
                     <div style="flex: 1; min-width: 0;">
                       <div style="color: #FFF; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.titulo}</div>

@@ -1,6 +1,6 @@
 /**
- * ContratosView - Livestock Manager Soporte v4.2.0
- * Vista de contratos de compra: diseño Soporte Neón con trazabilidad de precios.
+ * ContratosView - Livestock Manager Premium v4.2.0
+ * Vista de contratos de compra: diseño Premium Neón con trazabilidad de precios.
  */
 
 const ContratosView = {
@@ -76,9 +76,12 @@ const ContratosView = {
             <div class="text-[0.6rem] text-gray uppercase font-900">Vigentes: <strong class="text-success">${contratosActivos}</strong></div>
           </div>
         </div>
-        <div class="module-header-primary-action">
-          <button class="btn btn-create btn-lg w-full" onclick="ContratosView._crearContrato()">${Icons.agregar()} Nuevo Contrato</button>
-        </div>
+        <fieldset class="erp-action-group">
+          <legend>Registro de Contratos</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="ContratosView.renderFormulario()">${Icons.agregar()}<span class="widget-link-label">Nuevo Contrato</span></button>
+          </div>
+        </fieldset>
       </div>
 
       <!-- Evolución Mensual -->
@@ -89,9 +92,13 @@ const ContratosView = {
         <div class="flex gap-6">${mesesHtml}</div>
       </div>
 
-      <!-- Filtro de búsqueda integrado (controla el listado) -->
-      <div class="text-xs text-white uppercase font-black tracking-wider mb-10 flex items-center gap-4">
-        <span style="color: ${moduleColor};">|</span> ${Icons.contratos()} LISTA DE CONTRATOS
+      <!-- Filtro de búsqueda integrado (controla el listado) + interruptor de vista (Tarjetas / Tabla ERP) -->
+      <div class="text-xs text-white uppercase font-black tracking-wider mb-10 flex items-center gap-4" style="justify-content: space-between;">
+        <span class="flex items-center gap-4"><span style="color: ${moduleColor};">|</span> ${Icons.contratos()} LISTA DE CONTRATOS</span>
+        <div class="flex gap-4">
+          <button class="btn-erp-secondary btn-sm" id="btn-cont-vista-cards" onclick="ContratosView._setVistaModo('cards')">Tarjetas</button>
+          <button class="btn-erp-secondary btn-sm" id="btn-cont-vista-tabla" onclick="ContratosView._setVistaModo('tabla')">Tabla ERP</button>
+        </div>
       </div>
       <div class="flex gap-8 items-center mb-12">
         <div class="relative flex-1 min-w-0">
@@ -107,11 +114,16 @@ const ContratosView = {
           <option value="inactivo" ${this._filtroActivo.tipo === 'inactivo' ? 'selected' : ''}>Inactivo</option>
         </select>
       </div>
-      <div id="contratos-content"><div class="loader">Cargando contratos...</div></div>`;
+      <div id="contratos-content"><div class="loader">Cargando contratos...</div></div>
+      <div id="contratos-erp-table-container" class="mt-12" style="display:none;"></div>`;
 
     // Actualizar datos filtrados para el contenido
     this._cachedData = { contratos: filteredContratos, compradores, compradorMap };
     this._renderLista();
+
+    // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
+    const modoGuardado = localStorage.getItem('contratos_view_mode') || 'tabla';
+    this._setVistaModo(modoGuardado, false);
   },
 
   _setFiltro(type, value) {
@@ -127,6 +139,7 @@ const ContratosView = {
       ...this._cachedDataRaw,
       contratos: filtrados
     };
+    if (this._vistaModo === 'tabla') return this._renderErpTable();
     this._renderLista();
   },
 
@@ -230,17 +243,120 @@ const ContratosView = {
       });
     }).join('')}</div>`;
 
-    // Botón Flotante de Acción con viñeta (se agrega después de la lista)
-    const fabContainer = document.createElement('div');
-    fabContainer.className = 'fab-container';
-    fabContainer.innerHTML = `
-      <span class="fab-label">NUEVO CONTRATO</span>
-      <button class="fab-btn">${Icons.fabPlus()}</button>
-    `;
-    fabContainer.onclick = () => {
-      location.hash = '/contrato';  // Nuevo contrato sin comprador preseleccionado
-    };
-    container.appendChild(fabContainer);
+  },
+
+  // ============================================
+  // VISTA TABLA ERP (desktop)
+  // ============================================
+
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('contratos_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-cont-vista-cards');
+    const btnTabla = document.getElementById('btn-cont-vista-tabla');
+    const contenedorCards = document.getElementById('contratos-content');
+    const contenedorTabla = document.getElementById('contratos-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'block';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cachedData) return;
+
+    const { contratos, compradorMap } = this._cachedData;
+    const hoy = new Date();
+
+    const tableData = (contratos || []).map(c => {
+      const comprador = compradorMap ? compradorMap[c.compradorId] : null;
+      // Días hasta vencimiento (misma cuenta atrás que las tarjetas); null = indefinido/inactivo
+      let dias = null;
+      if (c.activo !== false && c.fecha_fin) {
+        dias = Math.ceil((new Date(c.fecha_fin) - hoy) / (24 * 60 * 60 * 1000));
+      }
+      return {
+        id: c.id,
+        numero: c.numero_contrato || '—',
+        comprador: comprador ? comprador.nombre : 'SIN COMPRADOR',
+        tipo: c.tipo || '—',
+        inicio: c.fecha_inicio || '—',
+        fin: c.fecha_fin || '',
+        dias: dias,
+        estado: c.activo !== false ? 'ACTIVO' : 'INACTIVO'
+      };
+    });
+
+    new window.ErpDataTable({
+      containerId: 'contratos-erp-table-container',
+      title: 'Contratos',
+      pageSize: 15,
+      columns: [
+        { key: 'numero', label: 'Nº Contrato', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'comprador', label: 'Comprador', sortable: true },
+        {
+          key: 'tipo',
+          label: 'Tipo',
+          sortable: true,
+          render: (val) => {
+            const color = val === 'leche' ? 'var(--c-info)' : val === 'carne' ? 'var(--c-success)' : 'var(--c-purple)';
+            return `<span class="badge badge-sm font-900 uppercase" style="background:color-mix(in srgb, ${color} 12%, transparent); color:${color}; border:1px solid color-mix(in srgb, ${color} 25%, transparent);">${val}</span>`;
+          }
+        },
+        {
+          key: 'inicio',
+          label: 'Inicio',
+          sortable: true,
+          render: (val) => val !== '—' ? new Date(val).toLocaleDateString('es-ES') : '—'
+        },
+        {
+          key: 'fin',
+          label: 'Vencimiento',
+          sortable: true,
+          render: (val) => val ? new Date(val).toLocaleDateString('es-ES') : 'INDEFINIDO'
+        },
+        {
+          key: 'dias',
+          label: 'Vigencia',
+          sortable: true,
+          render: (val) => {
+            if (val === null || val === undefined) return '—';
+            if (val < 0) return `<span style="color:var(--c-danger); font-weight:700;">VENCIDO</span>`;
+            if (val <= 30) return `<span style="color:var(--p-gold); font-weight:700;">${val} días (crítico)</span>`;
+            return `${val} días`;
+          }
+        },
+        {
+          key: 'estado',
+          label: 'Estado',
+          sortable: true,
+          render: (val) => `<span class="badge ${val === 'ACTIVO' ? 'badge-success' : 'badge-gray'}">${val}</span>`
+        },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='#/contrato?id=${id}'">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   // ============================================

@@ -1,5 +1,5 @@
 /**
- * Proveedores - Livestock Manager Soporte v4.0
+ * Proveedores - Livestock Manager Premium v4.0
  * Modelo de datos para registro de proveedores con trazabilidad de gastos.
  */
 

@@ -67,6 +67,60 @@ window.BalanceLacteo = (() => {
     return { ...movimiento, id };
   }
 
+  /** Recupera un movimiento concreto (para abrir su ficha o editarlo). */
+  async function getById(id) {
+    return await window.db.get('balance_lacteo', Number(id));
+  }
+
+  /** Modifica un movimiento existente. El stock del tanque se deriva sumando
+   *  los movimientos (ver getStockTanque), así que no hay saldo que cuadrar a
+   *  mano: al cambiar el registro, el stock se recalcula solo. */
+  async function actualizar(id, data) {
+    const existente = await window.db.get('balance_lacteo', Number(id));
+    if (!existente) throw new Error('El movimiento no existe');
+
+    const cantidad = data.cantidad_litros != null
+      ? parseFloat(data.cantidad_litros)
+      : existente.cantidad_litros;
+    if (Number.isNaN(cantidad) || cantidad < 0) {
+      throw new Error('La cantidad debe ser un número positivo');
+    }
+
+    const actualizado = {
+      ...existente,
+      ...data,
+      id: existente.id,
+      cantidad_litros: cantidad,
+      modificadoEn: new Date().toISOString(),
+    };
+    await window.db.put('balance_lacteo', actualizado);
+
+    if (window.EventBus) {
+      window.EventBus.emit('balance:updated', {
+        id: actualizado.id,
+        tanqueId: actualizado.tanqueId,
+        tipo: actualizado.tipo_movimiento,
+      });
+    }
+    return actualizado;
+  }
+
+  /** Elimina un movimiento. Igual que en actualizar(), el stock se recalcula
+   *  solo porque se deriva del conjunto de movimientos. */
+  async function eliminar(id) {
+    const existente = await window.db.get('balance_lacteo', Number(id));
+    if (!existente) throw new Error('El movimiento no existe');
+    await window.db.delete('balance_lacteo', Number(id));
+
+    if (window.EventBus) {
+      window.EventBus.emit('balance:deleted', {
+        id: Number(id),
+        tanqueId: existente.tanqueId,
+      });
+    }
+    return true;
+  }
+
   async function getStockTanque(tanqueId) {
     const movimientos = await window.db.getAllFromIndex('balance_lacteo', 'tanqueId', tanqueId);
     if (!movimientos || movimientos.length === 0) return 0;
@@ -174,6 +228,9 @@ window.BalanceLacteo = (() => {
 
   return {
     registrar,
+    getById,
+    actualizar,
+    eliminar,
     getStockTanque,
     getHistorialTanque,
     getProduccionDiaria,
