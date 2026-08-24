@@ -1,5 +1,12 @@
 # Auditoría UI/UX — Adaptación a escritorio Windows (Microsoft Store)
 
+> **Histórico — superado por la piel ERP.** Las recomendaciones de este documento
+> (sidebar propia `#desktopSidebar`, bottom-nav oculto) se implementaron primero,
+> pero desde PR #38 (ago 2026) se sustituyeron por el sidebar y las tablas de la
+> "piel ERP" migrados desde `LIVESTOCK-MANAGER`. Ver la sección "Piel ERP" en
+> `README.md` para el estado actual. Se conserva como registro de la primera
+> iteración, no como referencia de diseño vigente.
+
 **Fecha**: 2026-07-18
 **Alcance**: `livestock-pwa-msix` (esta versión Microsoft Store). No aplica a `LIVESTOCK-MANAGER` (Android/Play), donde el diseño mobile-first es correcto y no debe tocarse.
 
