@@ -39,10 +39,61 @@ Evidencia:
 
 Si en el futuro Microsoft/PWABuilder habilitan la Digital Goods API para PWAs empaquetadas, se podría revisar esta decisión y monetizar también en este canal.
 
+## Piel ERP (sidebar + tablas de escritorio)
+
+Desde PR #38 (`d436ce3`, ago 2026), la adaptación a escritorio de `AUDITORIA-DESKTOP-UI-UX.md`
+(sidebar propia `#desktopSidebar`, bottom-nav oculto en `>=1024px`) quedó **superada** por
+la "piel ERP": un sidebar de navegación (`#erpSidebar`, 240px) y tablas de datos
+(`erp-data-table.js`) que se originan en `LIVESTOCK-MANAGER` (rama `desktop-mvp`) y se
+sincronizan aquí vía `scripts/sync-from-source.ps1`. Ficheros clave: `js/erp-shell.js`,
+`js/erp-data-table.js`, `css/erp-tokens.css`, `css/erp-sidebar.css`, `css/erp-data-table.css`.
+Se activan solo en `min-width: 1024px` (`matchMedia` en `erp-shell.js`, evaluado una vez en
+`DOMContentLoaded` — un resize de ventana sin recargar no los activa/desactiva).
+
+**`css/erp-overrides.css` es el fichero de ajuste específico de esta PWA** (no viene del
+sincronizado): neutraliza conflictos entre la piel ERP y `css/desktop.css`, que es un fichero
+**heredado, exclusivo de este repo** (no existe en `LIVESTOCK-MANAGER` ni en `livestock-desktop`)
+escrito antes de que existiera la piel ERP. Se carga después de `styles.css` en el `<head>`, así
+que gana por cascada/especificidad salvo que se le contrarreste explícitamente. Bugs ya resueltos
+por este choque (PRs #39–#42 en `main`):
+
+- `#desktopSidebar` (z-index alto) tapaba al nuevo `#erpSidebar` → oculto con `display:none !important`.
+- `_setGroupCollapsed` no existía en `erp-shell.js` (bug también presente en el maestro, corregido ahí también).
+- `.card-registro-quick.col-span-4 { grid-column: span 4 !important }` (2 clases) ganaba al override
+  de la piel (1 clase) → tarjetas de "Registro rápido" apiladas en vez de 5-6 por fila.
+- `main#app-content { padding: 20px 48px 40px }` en `desktop.css` ganaba por orden de carga →
+  margen lateral de más, robando espacio a la última tarjeta de cada fila.
+- Convención de tema invertida: `design-tokens.css` es oscuro por defecto (claro con
+  `body[data-modo="claro"]`); `desktop.css` en `>=1024px` asume lo contrario (claro por defecto,
+  oscuro con `body[data-modo="oscuro"]`). `js/app.js` nunca marcaba ese segundo atributo, así que
+  el modo oscuro OLED (activado por defecto) no se veía en escritorio pese al checkbox marcado.
+
+**Ante cualquier bug visual nuevo que solo aparezca en esta PWA** (y no en `LIVESTOCK-MANAGER` ni
+en `livestock-desktop`), sospechar primero de `css/desktop.css` antes de tocar la piel ERP o los
+tokens de color.
+
+**Importante — recordar en cada `sync-from-source.ps1`**: el módulo de Soporte (chat con IA)
+sigue parado a propósito en `feature/soporte-ia` del maestro hasta cerrar decisiones pendientes
+(add-on en tiendas, precio, pago web, URL del Worker). Si el sync trae `js/views/soporte-view.js`
+o `js/views/mis-incidencias-view.js`, son ficheros muertos que dependen de un `window.SupportAPI`
+inexistente aquí — descartarlos del commit (ver `4e1da54`).
+
 ## Resuelto
 
-- **Auditoría de rediseño para escritorio** (`AUDITORIA-DESKTOP-UI-UX.md`): los 4 puntos implementados y en `main` (commits `ba0d764`, `13cbf6a`, `bc61559`) — bug `grid-cols-12`, breakpoint base, barra lateral de navegación ≥1024px, tipografía y modales adaptados a escritorio.
-- **Icono maskable**: `icons/maskable_icon_512.png` generado y declarado en `manifest.webmanifest` con `purpose: "maskable"` (commit `85a1fd0`), además de los iconos `purpose: "any"` existentes.
+- **Auditoría de rediseño para escritorio** (`AUDITORIA-DESKTOP-UI-UX.md`, jul 2026): sus 4 puntos
+  se implementaron primero con sidebar/bottom-nav propios, pero ese enfoque fue reemplazado por la
+  piel ERP unificada (ver sección de arriba) — el documento queda como registro histórico, no como
+  estado actual.
+- **Piel ERP**: sidebar y tablas de escritorio migradas desde el maestro y con paridad visual
+  verificada frente a `livestock-desktop` (PRs #38–#42, ago 2026).
+- **Compra de Premium en Microsoft Store**: `js/purchase-manager.js` soporta la *Digital Goods API*
+  (`getDigitalGoodsService`, add-on `premium_unlock` de Partner Center) — commit `e6c05aa`. Distinto
+  del modelo de Soporte (ver sección de abajo), que sigue desbloqueado gratis vía `FREE_MODE`.
+- **Icono maskable**: `icons/maskable_icon_512.png` generado y declarado en `manifest.webmanifest` con
+  `purpose: "maskable"` (commit `85a1fd0`), además de los iconos `purpose: "any"` existentes.
+- **`AppxManifest.xml`**: se sacó del repositorio (`87b0871`) — tenía marcadores de plantilla
+  (`YourPublisher.YourProduct`) sin identidad real; ahora vive en `.gitignore` y lo genera la
+  herramienta de empaquetado con la identidad real de la Store en el momento de firmar.
 
 ## Otros pendientes conocidos
 
