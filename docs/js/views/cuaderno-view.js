@@ -472,6 +472,8 @@ const CuadernoDigitalView = {
       document.body.appendChild(pdfEl);
 
       updateProgress(80, 'Rasterizando PDF...');
+      // Abrir PDF en nueva pestaña
+      window.open(URL.createObjectURL(pdfBlob), '_blank');
       try {
         const pdfBlob = await html2pdf().set({
           margin: [12, 10, 12, 10],
