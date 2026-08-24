@@ -185,6 +185,12 @@ const App = {
           if (cfg?.value?.temaClaroColor && cfg.value.temaClaroColor !== 'arena') {
             document.body.setAttribute('data-tema-claro', cfg.value.temaClaroColor);
           }
+        } else {
+          // desktop.css (legado, solo PWA) invierte la convencion en >=1024px:
+          // asume claro por defecto y solo se apaga con body[data-modo="oscuro"].
+          // Sin esto el modo oscuro nunca se aplicaba en vista de escritorio.
+          document.body.setAttribute('data-modo', 'oscuro');
+          document.documentElement.style.colorScheme = 'dark';
         }
         if (cfg?.value?.glowMarco === false) document.body.classList.add('glow-marco-off');
         if (cfg?.value?.glowLaterales !== true) document.body.classList.add('glow-laterales-off');
