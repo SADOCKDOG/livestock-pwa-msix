@@ -805,3 +805,37 @@ main#app-content.manual-open {
 #desktopSidebar {
   display: none !important;
 }
+
+/* ===========================================================================
+   Registro rapido: recupera el ancho fijo por tarjeta frente a desktop.css
+   ---------------------------------------------------------------------------
+   Esta PWA trae su propio desktop.css (preexistente, igual que el
+   #desktopSidebar de mas arriba) con «.grid.grid-cols-12
+   .card-registro-quick.col-span-4 { grid-column: span 4 !important; }».
+   Esa regla, con dos clases de especificidad, le gana al «grid-column: auto
+   !important» de mas arriba en esta misma hoja (una sola clase), asi que las
+   12 columnas volvian a ser 1fr en vez del ancho fijo de 200px: en vez de
+   auto-fill llenando la fila, salian solo 3 tarjetas por fila (12/4) en el
+   mismo ancho donde caben 6.
+
+   Se iguala la especificidad (dos clases) para que gane el ancho fijo.
+   =========================================================================== */
+.grid.grid-cols-12 .card-registro-quick.col-span-4,
+.grid.grid-cols-12 .card-registro-quick.col-span-12 {
+  grid-column: auto !important;
+}
+
+/* ===========================================================================
+   Padding de #app-content: recupera el de styles.css (compartido con el
+   maestro) frente al de desktop.css
+   ---------------------------------------------------------------------------
+   desktop.css (preexistente en esta PWA) define, sin media query propia salvo
+   la de min-width:1440px, «main#app-content { padding: 20px 48px 40px }»
+   -- sin !important, pero cargado DESPUES de styles.css en el <head>, asi que
+   gana por cascada. Eso deja 36px mas de margen lateral que en el escritorio
+   y el grid.grid-cols-12 (tarjetas de 200px) encaja una tarjeta menos por
+   fila en el mismo ancho de ventana.
+   =========================================================================== */
+main#app-content {
+  padding: 12px 12px calc(100px + var(--safe-bottom)) !important;
+}
