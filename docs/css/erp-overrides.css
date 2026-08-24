@@ -789,3 +789,19 @@ main#app-content.manual-open {
 .erp-solo-movil {
   display: none !important;
 }
+
+/* ===========================================================================
+   Sidebar propio de esta PWA, tapado por el erp-sidebar
+   ---------------------------------------------------------------------------
+   Esta PWA ya traia su propio #desktopSidebar (80px, solo iconos), escrito
+   antes de traer la piel ERP del maestro. Con z-index:1500 se pintaba encima
+   del #erpSidebar (240px, z-index:90) y lo tapaba casi entero: en pantalla
+   solo se veia la franja estrecha del sidebar viejo.
+
+   Se oculta aqui, en la misma media query que activa la piel, en vez de
+   borrarlo del index: si algun dia se retira la piel ERP, el sidebar propio
+   de la PWA vuelve a funcionar sin tocar nada mas.
+   =========================================================================== */
+#desktopSidebar {
+  display: none !important;
+}
