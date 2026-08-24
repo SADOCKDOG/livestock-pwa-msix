@@ -560,6 +560,14 @@
       try { return localStorage.getItem('sidebar-group-' + key) !== '0'; } catch (_) { return true; }
     },
 
+    /** Pareja de _getGroupCollapsed: persiste si un grupo del acordeon esta
+     *  colapsado. Se llamaba desde _toggleSidebarGroup y _expandSidebarGroup
+     *  sin existir -> «this._setGroupCollapsed is not a function» en cuanto
+     *  el usuario tocaba el sidebar. */
+    _setGroupCollapsed(key, collapsed) {
+      try { localStorage.setItem('sidebar-group-' + key, collapsed ? '1' : '0'); } catch (_) {}
+    },
+
     _toggleSidebarGroup(btn) {
       const group = btn.closest('.sidebar-group');
       if (!group) return;
