@@ -5,6 +5,24 @@
  * Copia espejo de js/views/gastos-view.js
  */
 
+function guardarSeleccionFiltros(cb) {
+  const col = cb.getAttribute('data-col');
+  const prefs = (() => {
+    try {
+      const raw = localStorage.getItem('gastosColumnPreferences');
+      return raw ? JSON.parse(raw) : {'title':true,'subtitle':true,'value':true};
+    } catch (_) {
+      // If parsing fails, fall back to defaults
+      return {'title':true,'subtitle':true,'value':true};
+    }
+  })();
+  prefs[col] = cb.checked;
+  localStorage.setItem('gastosColumnPreferences', JSON.stringify(prefs));
+  // Re‑render with the current filtered records
+  if (typeof GastosView !== 'undefined' && GastosView._filteredRecords) {
+    GastosView.renderList(GastosView._filteredRecords);
+  }
+}
 const GastosView = {
   _currentTab: 'todos',
   _cachedData: null,
@@ -20,7 +38,10 @@ const GastosView = {
     { key: 'Amortizacion', icon: Icons.transportistas(), label: 'Amortización', color: 'var(--c-purple)', colorDark: '#7e22ce' },
   ],
 
-  async render() {
+  async render(params) {
+    // Categoría seleccionada vía submenú del sidebar (?tab=gastos&cat=KEY).
+    // Sin cat (p.ej. ruta legacy) se muestra el resumen global ("todos").
+    this._currentTab = (params && typeof params.get === 'function' && params.get('cat')) || 'todos';
     const main = document.getElementById('expro-tab-content') || document.getElementById('app-content');
     // Cargar datos primero
     const gastosRecords = await Gastos.list(await Fincas.getActiveId());
@@ -52,7 +73,6 @@ const GastosView = {
       </div>`;
     }).join('');
 
-
     // Calcular KPIs por categoría
     const kpis = {};
     this._CATEGORIAS.forEach(c => {
@@ -65,7 +85,7 @@ const GastosView = {
     });
 
     main.innerHTML = `
-      <div class="card mb-14 p-12 card-resumen" style="background:rgba(168,85,247,0.015); width:100%;">
+      <div class="card mb-14 p-12 card-resumen" data-guide="grafico-evolucion" style="background:rgba(168,85,247,0.015); width:100%;">
         <div class="flex justify-between items-center mb-6">
           <span class="text-xs text-gray font-bold uppercase"><span style="color: var(--c-purple); margin-right:4px;">|</span> EVOLUCIÓN MENSUAL (ÚLTIMOS 6 MESES)</span>
           <span class="text-xs text-gray">${UI.formatCurrency(totalGeneral)} total</span>
@@ -95,34 +115,90 @@ const GastosView = {
         </div>
       </div>
 
-      <div class="mb-14">
-        <div class="tabs-scroll-wrapper">
-          <div class="tabs-scroll gasto-tabs scroll-shadow-container"
-               onscroll="const b=this.parentNode.querySelector('.scroll-indicator-badge'); if(b) b.classList.add('hidden');">
-            ${this._CATEGORIAS.map(c => `
-              <button class="gasto-tab ${this._currentTab === c.key ? 'active' : ''}" 
-                      data-tab="${c.key}" 
-                      onclick="GastosView._cambiarTab('${c.key}')" 
-                      style="--tab-color: ${c.color};">${c.icon} ${c.label.toUpperCase()}</button>
-            `).join('')}
-          </div>
-          <div class="scroll-indicator-badge">${Icons.rotacion()} deslizar ➔</div>
-        </div>
-      </div>
       <div id="gasto-content"><div class="loader">Cargando gastos...</div></div>`;
 
     this._cachedData = { gastosRecords, kpis };
-
+    // Store master record list and set up filter controls
+    this._gastosRecords = gastosRecords;
+    this._searchTerm = '';
+    this._selectedCategory = '';
+    // Enhanced filter handling
+    const applyFilters = () => {
+      let filtered = this._gastosRecords;
+      // Búsqueda global
+      if (this._searchTerm) {
+        const term = this._searchTerm.toLowerCase();
+        filtered = filtered.filter(g => {
+          const searchable = [g.concepto, g.categoria, UI.formatCurrency(g.monto || 0)].join(' ').toLowerCase();
+          return searchable.includes(term);
+        });
+      }
+      // Filtrado por categoría
+      if (this._selectedCategory) {
+        const cat = this._selectedCategory;
+        filtered = filtered.filter(g => (cat === '' || g.categoria === cat));
+      }
+      // Render filtered records
+      this.renderList(filtered);
+    };
+    if (this._searchInput) {
+      this._searchInput.addEventListener('input', (e) => {
+        this._searchTerm = e.target.value;
+        applyFilters();
+      });
+    }
+    if (this._categorySelect) {
+      this._categorySelect.addEventListener('change', (e) => {
+        this._selectedCategory = e.target.value;
+        applyFilters();
+      });
+    }
+    // Initial render
+    this.renderList(this._gastosRecords);
+    // Renderizar la pestaña actual (resumen/categoría) sobreescribiendo el
+    // loader. La refactorización de renderList eliminó esta llamada y dejaba la
+    // vista perennemente en «Cargando gastos...» sin listado (regresión).
     this._renderTabActual();
   },
 
-  _cambiarTab(tab) {
-    this._currentTab = tab;
-    document.querySelectorAll('.gasto-tab').forEach(b => {
-      b.classList.toggle('active', b.dataset.tab === tab);
-    });
-    this._renderTabActual();
-    window.scrollTo(0, 0);
+  /* Dynamic column rendering */
+  renderList: function(records) {
+    // Build HTML for each record respecting column preferences
+    const prefs = (() => {
+      try {
+        const raw = localStorage.getItem('gastosColumnPreferences');
+        return raw ? JSON.parse(raw) : {'title':true,'subtitle':true,'value':true,'fecha':true,'concepto':true,'categoria':true,'zona':true,'monto':true,'id':true};
+      } catch (_) {
+        return {'title':true,'subtitle':true,'value':true,'fecha':true,'concepto':true,'categoria':true,'zona':true,'monto':true,'id':true};
+      }
+    })();
+    // Normalize preferences – ensure showSubtitle and showValue are always defined
+    const showSubtitle = prefs.subtitle ?? true;
+    const showValue = prefs.value ?? true;
+    const showFecha = prefs.fecha ?? true;
+    const showConcepto = prefs.concepto ?? true;
+    const showCategoria = prefs.categoria ?? true;
+    const showZona = prefs.zona ?? true;
+    const showMonto = prefs.monto ?? true;
+    const showId = prefs.id ?? true;
+    const footerRight = '<span style="display:inline-block; font-size:0.75rem; font-weight:600; border:1px solid var(--c-warning); color:var(--c-warning); background:rgba(255,215,0,0.1); padding:2px 6px; border-radius:4px; margin-top:4px;">Ficha -></span>';
+    const buildCard = (record) => {
+      const title = (record.concepto || record.categoria || 'Gasto');
+      const subtitle = `<span class="flex items-center gap-4">${Icons.calendar()} ${record.fecha ? UI.formatDate(record.fecha) : '-'}${record.snap_zona ? ' | ' + Icons.zonas() + ' ' + record.snap_zona : ''}${record.categoria ? ' | ' + Icons.paquete() + ' ' + record.categoria.toUpperCase() : ''}</span>`;
+      const rightSide = `<div class="font-950" style="font-size:1.1rem; color:${showValue ? showValue : 'var(--c-primary)'};">${UI.formatCurrency(record.monto || 0)}</div>`;
+      const showSubtitleHtml = showSubtitle ? `<div class="registro-sub">${subtitle}</div>` : '';
+      const showValueHtml = showValue ? `${rightSide}` : '';
+      let html = `<div class="card-registro">`;
+      html += `<div class="registro-titulo">${title}</div>`;
+      if (showSubtitleHtml) { html += `<div class="registro-sub">${subtitle}</div>`; }
+      if (showValueHtml) { html += `${rightSide}`; }
+      html += `${footerRight}`;
+      html += `</div>`;
+      return html;
+    };
+    const cardsHtml = records.map(buildCard).join('');
+    const container = this._cardsContainer;
+    if (container) { container.innerHTML = cardsHtml; }
   },
 
   _renderTabActual() {
@@ -158,6 +234,10 @@ const GastosView = {
       })),
       emptyMsg: `Sin gastos de ${catInfo.label.toLowerCase()}. Usa "Registrar Gasto" para añadir.`
     });
+
+    // Restaurar modo de vista tras pintar la sección (por defecto "tabla" en escritorio ≥ 1024px)
+    const modo = this._vistaModo || localStorage.getItem('gastos_view_mode') || 'tabla';
+    this._setVistaModo(modo, false);
   },
 
   _renderSeccion(content, opts) {
@@ -175,6 +255,12 @@ const GastosView = {
       : `<div class="p-14 text-center bg-dark rounded-sm border border-222"><span class="text-555 text-xs uppercase font-900 tracking-widest">${Icons.buscar()} ${emptyMsg}</span></div>`;
 
     content.innerHTML = `
+      <fieldset class="erp-action-group">
+        <legend>Registro de ${registrarLabel}</legend>
+        <div class="erp-action-group-body">
+          <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="${registrarHandler}">${Icons.agregar()}<span class="widget-link-label">Registrar ${registrarLabel}</span></button>
+        </div>
+      </fieldset>
       <div class="card">
         <div class="flex items-center gap-12 mb-12">
           <div class="text-white font-900 uppercase text-lg tracking-wider">
@@ -198,16 +284,124 @@ const GastosView = {
           </div>
         </div>
         ` : ''}
-        <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-12 pb-5" style="padding-left: 14px;">
-          ${Icons.documento()} ${listName}
+        <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-12 pb-5" style="padding-left: 14px; display:flex; align-items:center; justify-content:space-between; gap:4px;">
+          <span style="display:flex; align-items:center; gap:4px;">${Icons.documento()} ${listName}</span>
+          <div class="flex gap-4">
+            <button class="btn-erp-secondary btn-sm" id="btn-gastos-vista-cards" onclick="GastosView._setVistaModo('cards')">Tarjetas</button>
+            <button class="btn-erp-secondary btn-sm" id="btn-gastos-vista-tabla" onclick="GastosView._setVistaModo('tabla')">Tabla ERP</button>
+          </div>
         </div>
-        ${recordsHtml}
+        <div class="erp-filtros" data-filtros-para="gastos-cards-container">
+          <input type="search" id="gastos-filtro-busqueda" class="form-input search-input" placeholder="Buscar gasto por concepto, proveedor o importe...">
+          <select id="gastos-filtro-categoria" class="form-select" data-etiqueta-todos="Toda categoría"></select>
+        </div>
+        <div id="gastos-column-selector" class="erp-column-selector mt-2 flex flex-wrap gap-2" aria-label="Selección de columnas de gastos">
+          <label class="checkbox">
+            <input type="checkbox" class="column-selector-checkbox" data-col="fecha" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Fecha"><span aria-hidden="true">Fecha</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" class="column-selector-checkbox" data-col="concepto" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Concepto"><span aria-hidden="true">Concepto</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" class="column-selector-checkbox" data-col="categoria" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Categoría"><span aria-hidden="true">Categoría</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" class="column-selector-checkbox" data-col="zona" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Zona"><span aria-hidden="true">Zona</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" class="column-selector-checkbox" data-col="monto" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Importe"><span aria-hidden="true">Importe</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" class="column-selector-checkbox" data-col="id" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Ficha"><span aria-hidden="true">Ficha</span>
+          </label>
+        </div>
+        <div id="gastos-cards-container" data-ver-mas="10">${recordsHtml}</div>
+        <div id="gastos-erp-table-container" class="mt-12" style="display:none;"></div>
       </div>
-      <!-- Botón Flotante de Acción con viñeta -->
-      <div class="fab-container" onclick="${registrarHandler}">
-        <span class="fab-label">Nuevo ${registrarLabel}</span>
-        <button class="fab-btn" aria-label="Añadir"><span aria-hidden="true">${Icons.fabPlus()}</span></button>
-      </div>`;
+    `;
+  },
+
+  // ============================================
+  // VISTA TABLA ERP (desktop)
+  // ============================================
+
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('gastos_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-gastos-vista-cards');
+    const btnTabla = document.getElementById('btn-gastos-vista-tabla');
+    const contenedorCards = document.getElementById('gastos-cards-container');
+    const contenedorTabla = document.getElementById('gastos-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'block';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cachedData) return;
+    const data = this._cachedData.kpis[this._currentTab];
+    if (!data) return;
+
+    const catInfo = this._CATEGORIAS.find(c => c.key === this._currentTab) || this._CATEGORIAS[0];
+
+    // records ya viene ordenado por fecha descendente; la tabla muestra TODOS
+    // los registros del tab con paginación (las tarjetas cortan a 50).
+    const tableData = data.records.map(g => ({
+      id: g.id,
+      fecha: g.fecha || '—',
+      concepto: g.concepto || g.categoria || 'Gasto',
+      categoria: g.categoria || '—',
+      zona: g.snap_zona || '—',
+      monto: g.monto || 0
+    }));
+
+    new window.ErpDataTable({
+      containerId: 'gastos-erp-table-container',
+      title: `Gastos ${this._currentTab === 'todos' ? '' : '— ' + catInfo.label}`,
+      pageSize: 15,
+      columns: [
+        {
+          key: 'fecha',
+          label: 'Fecha',
+          sortable: true,
+          render: (val) => val !== '—' ? UI.formatDate(val) : '—'
+        },
+        { key: 'concepto', label: 'Concepto', sortable: true },
+        { key: 'categoria', label: 'Categoría', sortable: true },
+        { key: 'zona', label: 'Zona', sortable: true },
+        {
+          key: 'monto',
+          label: 'Importe',
+          sortable: true,
+          align: 'right',
+          render: (val) => `<span style="font-weight:700; color:var(--c-danger);">${UI.formatCurrency(val)}</span>`
+        },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="ProduccionView._abrirOpcionesGasto(${id})">Ver</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   _fmt(n) {
@@ -216,5 +410,3 @@ const GastosView = {
 };
 
 window.GastosView = GastosView;
-
-

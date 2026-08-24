@@ -3,18 +3,22 @@
  * Módulo Lácteo Integral (v24) — Fase 4 FAB
  */
 window.AnaliticaLecheWizard = {
-  async open() {
+  /** @param {Object} [analitica] Analítica existente: si viene, el asistente
+   *  abre en modo edición en vez de crear una nueva. */
+  async open(analitica = null) {
     const App = window.App;
     if (!App) return console.error("App no disponible");
 
     const fincaId = await window.Fincas.getActiveId();
     const tanques = window.TanquesLeche ? await window.TanquesLeche.getActivos(fincaId) : [];
 
+    const esEdicion = !!(analitica && analitica.id);
+
     const wizardSteps = [
       {
         content: (data) => `
           <div class="card card-accent card-accent-gold p-16 mt-10 mb-16">
-            <div class="section-header-theme mb-12" style="--theme-color: var(--p-gold)">NUEVA ANALÍTICA DE LECHE</div>
+            <div class="section-header-theme mb-12" style="--theme-color: var(--p-gold)">${esEdicion ? 'EDITAR' : 'NUEVA'} ANALÍTICA DE LECHE</div>
 
             <div class="grid grid-cols-2 gap-10 mb-12">
               <div class="wizard-input-group">
@@ -99,10 +103,22 @@ window.AnaliticaLecheWizard = {
       }
     ];
 
+
     window.WizardManager.create({
-      id: 'wizard-analitica-leche-nueva',
-      title: 'NUEVA ANALÍTICA',
-      initialData: {
+      id: esEdicion ? 'wizard-analitica-leche-editar' : 'wizard-analitica-leche-nueva',
+      title: esEdicion ? 'EDITAR ANALÍTICA' : 'NUEVA ANALÍTICA',
+      initialData: esEdicion ? {
+        fecha_muestreo: (analitica.fecha_muestreo || '').split('T')[0],
+        especie: analitica.especie || 'vacuno',
+        tipo_muestreo: analitica.tipo_muestreo || 'autocontrol',
+        tanqueId: analitica.tanqueId ?? null,
+        grasa: analitica.grasa ?? '',
+        proteina: analitica.proteina ?? '',
+        germenes_30C: analitica.germenes_30C ?? '',
+        celulas_somaticas: analitica.celulas_somaticas ?? '',
+        laboratorio_nombre: analitica.laboratorio_nombre || 'CICAP',
+        inhibidores: !!analitica.inhibidores,
+      } : {
         fecha_muestreo: new Date().toISOString().split('T')[0],
         especie: 'vacuno',
         tipo_muestreo: 'autocontrol',
@@ -117,11 +133,16 @@ window.AnaliticaLecheWizard = {
       steps: wizardSteps,
       onComplete: async (dataAnalitica) => {
         try {
-          await window.AnaliticasLeche.create({
-            ...dataAnalitica,
-            fincaId,
-          });
-          App.toast('Analítica registrada', 'success');
+          if (esEdicion) {
+            await window.AnaliticasLeche.update(analitica.id, dataAnalitica);
+            App.toast('Analítica actualizada', 'success');
+          } else {
+            await window.AnaliticasLeche.create({
+              ...dataAnalitica,
+              fincaId,
+            });
+            App.toast('Analítica registrada', 'success');
+          }
           App.route();
         } catch (e) {
           App.toastError(e.message);

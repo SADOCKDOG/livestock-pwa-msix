@@ -156,11 +156,14 @@ const CuadernoDigitalView = {
       <!-- Cabecera -->
       <div class="text-center mb-25">
         <div class="text-gold text-82">RD 787/2023 — Explotación Ganadera</div>
-        <div class="mt-8 flex justify-center gap-10 flex-wrap">
-          <button class="btn btn--inline btn-primary" onclick="CuadernoDigitalView._exportarPDF()">${Icons.exportar()} Exportar PDF Completo</button>
-          <button class="btn btn--inline btn-secondary" onclick="CuadernoDigitalView._exportarCSV()">${Icons.grafico()} Exportar CSV (SIGGAN)</button>
-          <button class="btn btn--inline btn-secondary" onclick="CuadernoDigitalView._imprimir()">${Icons.documento()} Imprimir</button>
-        </div>
+        <fieldset class="erp-action-group erp-action-group--centro mt-8">
+          <legend>Exportar e Imprimir</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="CuadernoDigitalView._exportarPDF()">${Icons.exportar()}<span class="widget-link-label">Exportar PDF Completo</span></button>
+            <button class="widget-link-btn widget-link-btn--neon neon-info" onclick="CuadernoDigitalView._exportarCSV()">${Icons.grafico()}<span class="widget-link-label">Exportar CSV (SIGGAN)</span></button>
+            <button class="widget-link-btn widget-link-btn--neon neon-info" onclick="CuadernoDigitalView._imprimir()">${Icons.documento()}<span class="widget-link-label">Imprimir</span></button>
+          </div>
+        </fieldset>
       </div>
 
       <!-- 1. EXPLOTACIÓN -->

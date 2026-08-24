@@ -1,0 +1,8 @@
+{
+  "productId": "support_unlock",
+  "displayName": "Soporte Técnico",
+  "description": "Soporte técnico anual o mensual para Livestock Manager",
+  "type": "SUBSCRIPTION",
+  "billingPeriod": "MONTHLY",
+  "requiresSubscription": true
+}

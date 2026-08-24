@@ -71,9 +71,12 @@ const CompradoresView = {
             <div class="text-[0.6rem] text-gray uppercase font-900">Activos: <strong class="text-success">${this._cachedCompradores?.filter(c => c.activo !== false).length || 0}</strong></div>
           </div>
         </div>
-        <div class="module-header-primary-action">
-          <button class="btn btn-create btn-lg w-full" onclick="CompradoresView._crearComprador()">${Icons.agregar()} Nuevo Comprador</button>
-        </div>
+        <fieldset class="erp-action-group">
+          <legend>Registro de Compradores</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="CompradoresView.renderFormulario()">${Icons.agregar()}<span class="widget-link-label">Nuevo Comprador</span></button>
+          </div>
+        </fieldset>
       </div>
 
       <!-- Evolución Mensual -->
@@ -122,9 +125,14 @@ const CompradoresView = {
         </div>
       </div>
 
-      <!-- Filtro de búsqueda integrado (controla el listado) -->
-      <div class="text-xs text-white uppercase font-black tracking-wider mb-10 flex items-center gap-4">
-        <span style="color: ${activeColor};">|</span> ${this._activeModule === 'compradores' ? Icons.compradores() : Icons.contratos()} LISTA DE ${this._activeModule === 'compradores' ? 'COMPRADORES' : 'CONTRATOS'}
+      <!-- Filtro de búsqueda integrado (controla el listado) + interruptor de vista (Tarjetas / Tabla ERP, solo módulo compradores) -->
+      <div class="text-xs text-white uppercase font-black tracking-wider mb-10 flex items-center gap-4" style="justify-content: space-between;">
+        <span class="flex items-center gap-4"><span style="color: ${activeColor};">|</span> ${this._activeModule === 'compradores' ? Icons.compradores() : Icons.contratos()} LISTA DE ${this._activeModule === 'compradores' ? 'COMPRADORES' : 'CONTRATOS'}</span>
+        ${this._activeModule === 'compradores' ? `
+        <div class="flex gap-4">
+          <button class="btn-erp-secondary btn-sm" id="btn-comp-vista-cards" onclick="CompradoresView._setVistaModo('cards')">Tarjetas</button>
+          <button class="btn-erp-secondary btn-sm" id="btn-comp-vista-tabla" onclick="CompradoresView._setVistaModo('tabla')">Tabla ERP</button>
+        </div>` : ''}
       </div>
       <div class="flex gap-8 items-center mb-12">
         <div class="relative flex-1 min-w-0">
@@ -148,12 +156,17 @@ const CompradoresView = {
             `}
         </select>
       </div>
-      <div id="${this._activeModule}-content"><div class="loader">Cargando ${this._activeModule === 'compradores' ? 'compradores' : 'contratos'}...</div></div>`;
+      <div id="${this._activeModule}-content"><div class="loader">Cargando ${this._activeModule === 'compradores' ? 'compradores' : 'contratos'}...</div></div>
+      ${this._activeModule === 'compradores' ? '<div id="compradores-erp-table-container" class="mt-12" style="display:none;"></div>' : ''}`;
 
     // Actualizar datos filtrados para el módulo activo
     if (this._activeModule === 'compradores') {
       this._cachedData = { compradores: this._filtrarCompradores(this._cachedCompradores || []) };
       this._renderListaCompradores(this._cachedData.compradores);
+
+      // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
+      const modoGuardado = localStorage.getItem('compradores_view_mode') || 'tabla';
+      this._setVistaModo(modoGuardado, false);
     } else {
       this._cachedData = { contratos: this._filtrarContratos(this._cachedContratos || []) };
       this._renderListaContratos(this._cachedData.contratos);
@@ -179,6 +192,7 @@ const CompradoresView = {
     if (this._activeModule === 'compradores') {
       const filtrados = this._filtrarCompradores(this._cachedCompradores || []);
       this._cachedData = { compradores: filtrados };
+      if (this._vistaModo === 'tabla') return this._renderErpTable();
       this._renderListaCompradores(filtrados);
     } else {
       const filtrados = this._filtrarContratos(this._cachedContratos || []);
@@ -331,7 +345,7 @@ const CompradoresView = {
         <div class="empty-state">
           <div class="empty-state-icon">${Icons.edificio()}</div>
           <p class="empty-state-text">${this._cachedCompradores?.length === 0 ? 'Aún no hay compradores registrados.' : 'No hay compradores con ese filtro.'}</p>
-          <button class="btn btn-create btn-sm" onclick="CompradoresView.renderFormulario()">${Icons.agregar()} Registrar primer comprador</button>
+          <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="CompradoresView.renderFormulario()" data-guide="btn-vacio-compradores">${Icons.agregar()}<span class="widget-link-label">Nuevo primer Comprador</span></button>
         </div>`;
       return;
     }
@@ -381,15 +395,101 @@ const CompradoresView = {
       });
     }).join('')}</div>`;
 
-    // Botón Flotante de Acción con viñeta (se agrega después de la lista)
-    const fabContainer = document.createElement('div');
-    fabContainer.className = 'fab-container';
-    fabContainer.innerHTML = `
-      <span class="fab-label">Nuevo Comprador</span>
-      <button class="fab-btn" aria-label="Añadir"><span aria-hidden="true">${Icons.fabPlus()}</span></button>
-    `;
-    fabContainer.onclick = () => CompradoresView.renderFormulario();
-    contenedor.appendChild(fabContainer);
+  },
+
+  // ============================================
+  // VISTA TABLA ERP (desktop, solo módulo compradores)
+  // ============================================
+
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('compradores_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-comp-vista-cards');
+    const btnTabla = document.getElementById('btn-comp-vista-tabla');
+    const contenedorCards = document.getElementById('compradores-content');
+    const contenedorTabla = document.getElementById('compradores-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'block';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable) return;
+
+    const lista = (this._cachedData && this._cachedData.compradores) || this._filtrarCompradores(this._cachedCompradores || []);
+
+    // Contratos vinculados por comprador (misma lógica que las tarjetas)
+    const contratosPorComprador = {};
+    (this._cachedContratos || []).forEach(ct => {
+      (contratosPorComprador[ct.compradorId] = contratosPorComprador[ct.compradorId] || []).push(ct);
+    });
+
+    const tableData = lista.map(c => {
+      const metricas = (this._cachedMetricasComprador || {})[c.id];
+      const tipoLabel = (c.tipo_comprador === 'láctico' ? 'lácteo' : c.tipo_comprador) || 'híbrido';
+      return {
+        id: c.id,
+        nombre: c.nombre || '—',
+        nif_cif: c.nif_cif || '—',
+        ciudad: (c.ciudad || '—').toUpperCase(),
+        tipo: tipoLabel,
+        _tipoText: this._colorTipo(c.tipo_comprador),
+        _tipoBg: this._colorTipo(c.tipo_comprador, true),
+        _tipoBorder: this._colorTipo(c.tipo_comprador, false, true),
+        contratos: (contratosPorComprador[c.id] || []).length,
+        ultimaOp: metricas && metricas.ultimaOperacion ? metricas.ultimaOperacion.toLocaleDateString('es-ES') : '—',
+        estado: c.activo === false ? 'INACTIVO' : 'ACTIVO'
+      };
+    });
+
+    new window.ErpDataTable({
+      containerId: 'compradores-erp-table-container',
+      title: 'Compradores',
+      pageSize: 15,
+      columns: [
+        { key: 'nombre', label: 'Nombre', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'nif_cif', label: 'NIF/CIF', sortable: true },
+        { key: 'ciudad', label: 'Ciudad', sortable: true },
+        {
+          key: 'tipo',
+          label: 'Tipo',
+          sortable: true,
+          render: (val, row) => `<span class="badge badge-sm font-900 uppercase" style="background:${row._tipoBg}; color:${row._tipoText}; border:1px solid ${row._tipoBorder};">${val}</span>`
+        },
+        { key: 'contratos', label: 'Contratos', sortable: true, align: 'center' },
+        { key: 'ultimaOp', label: 'Última op.', sortable: true },
+        {
+          key: 'estado',
+          label: 'Estado',
+          sortable: true,
+          render: (val) => `<span class="badge ${val === 'ACTIVO' ? 'badge-success' : 'badge-gray'}">${val}</span>`
+        },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='#/comprador?id=${id}'">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   _renderListaContratos(lista) {
@@ -401,7 +501,7 @@ const CompradoresView = {
         <div class="empty-state">
           <div class="empty-state-icon">${Icons.contratos()}</div>
           <p class="empty-state-text">Aún no hay contratos registrados.</p>
-          <button class="btn btn-create btn-sm" style="background:var(--c-success);" onclick="CompradoresView._nuevoContratoLibre()">${Icons.agregar()} Crear primer contrato</button>
+          <button class="widget-link-btn widget-link-btn--neon neon-success" style="background:var(--c-success);" onclick="CompradoresView._nuevoContratoLibre()" data-guide="btn-vacio-contratos">${Icons.agregar()}<span class="widget-link-label">Nuevo primer Contrato</span></button>
         </div>`;
       return;
     }
@@ -460,15 +560,6 @@ const CompradoresView = {
       });
     }).join('')}</div>`;
 
-    // Botón Flotante de Acción con viñeta (se agrega después de la lista)
-    const fabContainer = document.createElement('div');
-    fabContainer.className = 'fab-container';
-    fabContainer.innerHTML = `
-      <span class="fab-label">Nuevo Contrato</span>
-      <button class="fab-btn" aria-label="Añadir"><span aria-hidden="true">${Icons.fabPlus()}</span></button>
-    `;
-    fabContainer.onclick = () => CompradoresView._nuevoContratoLibre();
-    contenedor.appendChild(fabContainer);
   },
 
   _colorTipo(tipo, bg = false, border = false) {

@@ -5,6 +5,83 @@
  */
 
 const ZonasView = {
+  _cache: [],
+  _vistaModo: 'cards',
+
+  /** Alterna entre las fichas de zona (con barra de carga) y la tabla densa ERP. */
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('zonas_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-zonas-vista-cards');
+    const btnTabla = document.getElementById('btn-zonas-vista-tabla');
+    const contenedorCards = document.getElementById('zonas-lista');
+    const contenedorTabla = document.getElementById('zonas-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'grid';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cache) return;
+
+    const tableData = this._cache.map(z => ({
+      index: z.index,
+      nombre: z.nombre,
+      uso: z.uso,
+      superficie: z.superficie != null ? z.superficie.toLocaleString('es-ES') + ' ha' : '—',
+      carga: z.ugm != null ? Number(z.ugm).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' UGM' : '—',
+      ocupacion: `${z.censo} / ${z.aforo}`,
+      pct: (z.pct || 0) + '%',
+      pac: z.pac,
+      _pct: z.pct || 0
+    }));
+
+    new window.ErpDataTable({
+      containerId: 'zonas-erp-table-container',
+      title: 'Zonas',
+      pageSize: 15,
+      columns: [
+        { key: 'nombre', label: 'Zona', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'uso', label: 'Uso principal', sortable: true },
+        { key: 'superficie', label: 'Superficie', sortable: true, align: 'right' },
+        { key: 'carga', label: 'Carga', sortable: true, align: 'right' },
+        { key: 'ocupacion', label: 'Cabezas / Aforo', sortable: true, align: 'right' },
+        {
+          key: 'pct',
+          label: '% Aforo',
+          sortable: true,
+          align: 'right',
+          // mismo umbral de sobrepastoreo que la barra de la ficha
+          cellClass: (v, row) => (row._pct > 100 ? 'erp-cell-alerta' : row._pct > 85 ? 'erp-cell-aviso' : 'erp-cell-ok')
+        },
+        { key: 'pac', label: 'Código PAC', sortable: true, cellClass: (v) => (v === '—' ? 'erp-cell-aviso' : '') },
+        {
+          key: 'index',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (index) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='/zona?index=${index}'">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
+  },
   async render() {
     // Color de pantalla: lo fija GanaderiaView (color fijo de GeGan), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("ganaderia-tab-content") || document.getElementById("app-content");
@@ -53,10 +130,11 @@ const ZonasView = {
           .filter(({ zona }) => !zona?.anulada);
     let html = '';
     if (zonasConIndice.length === 0)
-      html += `<div class="empty-state"><div class="empty-state-icon">${Icons.zonas()}</div><p class="empty-state-text">Sin zonas definidas.</p><div class="text-center mt-20"><button class="btn btn-create btn-lg" onclick="ZonasView._crearZona()">${Icons.agregar()} Crear primera zona</button></div></div>`;
+      html += `<div class="empty-state"><div class="empty-state-icon">${Icons.zonas()}</div><p class="empty-state-text">Sin zonas definidas.</p><div class="text-center mt-20 space-y-10"><button class="widget-link-btn widget-link-btn--neon neon-success" onclick="ZonasView._crearZona()" data-guide="btn-vacio-zonas">${Icons.agregar()}<span class="widget-link-label">Nueva primer Zona</span></button><button class="btn btn-secondary btn-lg" onclick="ZonasView._importarDesdePDF()" data-guide="btn-importar-pdf">${Icons.documento()} Importar desde PDF del Catastro</button></div></div>`;
     else {
       let totalAforo = 0, totalOcupacion = 0;
       let fichasHtml = '';
+      this._cache = [];
       let zonasConSobrepastoreo = [];
 
       for (const item of zonasConIndice) {
@@ -141,7 +219,22 @@ const ZonasView = {
           `;
         }
 
+        this._cache.push({
+          index: item.realIndex,
+          id: z.id,
+          nombre: z.nombre,
+          uso: z.usoPrincipal || 'Sin uso principal',
+          superficie: superficie ? Number(superficie) : null,
+          censo: censoTotal,
+          aforo: aforo,
+          pct: pct,
+          ugm: ugmTotal,
+          pac: z.codigo_pac || '—',
+          estado: estadoTexto
+        });
+
         fichasHtml += App._cardRegistro({
+          tipo: z.usoPrincipal || 'Sin uso principal',
           title: z.nombre,
           subtitle: `${z.usoPrincipal || 'Sin uso Principal'}${superficie ? ` · ${Number(superficie).toLocaleString('es-ES')} ha` : ''}`,
           rightSide: `<span class="badge badge-sm uppercase font-800" style="color:${colorCenso}; border:1px solid ${colorCenso}40; background:${colorCenso}15;">${estadoTexto}</span>`,
@@ -229,9 +322,10 @@ const ZonasView = {
               <div class="text-[0.6rem] text-gray uppercase font-900">Total Zonas: <strong class="text-white">${zonasConIndice.length}</strong></div>
               <div class="text-[0.6rem] text-gray uppercase font-900">Ocupación: <strong class="text-success">${totalOcupacion} cab.</strong></div>
             </div>
-          </div>
-          <div class="module-header-primary-action">
-            <button class="btn btn-create btn-lg w-full" data-guide="btn-nueva-zona" onclick="ZonasView._crearZona()">${Icons.agregar()} Nueva Zona</button>
+            <div class="flex gap-6 mt-10 justify-end">
+              <button class="btn-erp-secondary btn-sm" id="btn-zonas-vista-cards" onclick="ZonasView._setVistaModo('cards')">Tarjetas</button>
+              <button class="btn-erp-secondary btn-sm" id="btn-zonas-vista-tabla" onclick="ZonasView._setVistaModo('tabla')">Tabla ERP</button>
+            </div>
           </div>
         </div>
 
@@ -255,12 +349,30 @@ const ZonasView = {
         ${sobrepastoreoHtml}
 
         <!-- Histórico de registros -->
+        <fieldset class="erp-action-group">
+          <legend>Registro de Zonas</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" data-guide="btn-nueva-zona" onclick="ZonasView._crearZona()">${Icons.agregar()}<span class="widget-link-label">Nueva Zona</span></button>
+            <button class="widget-link-btn widget-link-btn--neon neon-info" data-guide="btn-importar-pdf" onclick="ZonasView._importarDesdePDF()">${Icons.documento()}<span class="widget-link-label">Importar desde PDF del Catastro</span></button>
+          </div>
+        </fieldset>
+
         <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-10 pb-5" style="display: flex; align-items: center; gap: 4px;">
           ${Icons.documento()} LISTA DE ZONAS
         </div>
-        <div class="grid gap-12">${fichasHtml}</div>`;
+        <div class="erp-filtros" data-filtros-para="zonas-lista">
+          <input type="search" class="form-input search-input" placeholder="Buscar zona, uso o código PAC...">
+          <select class="form-select" data-etiqueta-todos="Todos los usos"></select>
+        </div>
+        <div class="grid gap-12" id="zonas-lista" data-ver-mas="10">${fichasHtml}</div>
+        <div id="zonas-erp-table-container" class="mt-12" style="display:none;"></div>`;
     }
     main.innerHTML = html;
+
+    if (this._cache.length > 0) {
+      const modoGuardado = localStorage.getItem('zonas_view_mode') || 'tabla';
+      this._setVistaModo(modoGuardado, false);
+    }
     // FAB Guía interactiva
     if (window.App && typeof App.renderGuideFab === 'function') {
       App.renderGuideFab('/ganaderia', 'zonas');
@@ -449,6 +561,8 @@ const ZonasView = {
       onComplete: async (finalData) => {
         try {
           const finca = await Fincas.getActive();
+          // Initialize zonas array if it doesn't exist
+          if (!Array.isArray(finca.zonas)) finca.zonas = [];
           // Generate unique ID for the new zona
           const maxId = finca.zonas.reduce((max, zona) => Math.max(max, zona.id || 0), 0);
           const newId = maxId + 1;
@@ -675,6 +789,10 @@ const ZonasView = {
       }
     }
     return { bloqueado: false };
+  },
+
+  async _importarDesdePDF() {
+    location.hash = '#/importar-zonas';
   }
 };
 

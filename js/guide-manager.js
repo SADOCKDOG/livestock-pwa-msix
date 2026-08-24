@@ -512,30 +512,7 @@
     // el body, y el wizard anterior ya no lo reconocía nadie al cerrarse.
     if (state._observer) _teardownObserver();
 
-    state._nodoPausa = null; // aún no existe el wizard (lo buscamos abajo)
-
-    // FIX: si YA hay un wizard full-screen en el DOM (paso anterior con launch sin cerrar),
-    // capturarlo AHORA antes de crear el observer. El observer solo ve addedNodes,
-    // así que un wizard preexistente nunca se detectaría y _nodoPausa quedaría null.
-    const wizardExistente = document.querySelector('.wizard-full-screen');
-    if (wizardExistente) {
-      state._nodoPausa = wizardExistente;
-      _hidePopover();
-      _showResumeChip();
-      _startChipObserver();
-      // IMPORTANTE: Cerrar el wizard anterior antes de abrir el nuevo.
-      // Si no, se acumulan wizards y la guía se rompe.
-      // Disparamos removedNodes manualmente para que _resumeAfterWizard se ejecute
-      // y limpie el estado antes de abrir el nuevo wizard.
-      wizardExistente.remove();
-      // Simular cierre para limpiar observer anterior
-      if (state._observer) {
-        state._observer.disconnect();
-        state._observer = null;
-      }
-      state._nodoPausa = null; // se reseteará cuando el nuevo wizard aparezca
-      _resumeAfterWizard(); // Restaurar popover antes de abrir el siguiente
-    }
+    state._nodoPausa = null; // aún no existe el wizard
 
     state._observer = new MutationObserver(muts => {
       for (const m of muts) {
@@ -584,9 +561,6 @@
     _hideResumeChip();
     _stopChipObserver();
 
-    // NO cerrar wizard aquí: el wizard debe cerrarse por acción de usuario
-    // (Finalizar/Cancelar/Back), lo que dispara removedNodes y _resumeAfterWizard().
-
     // Si no hay guía activa (p. ej. terminó mientras el wizard estaba abierto),
     // asegurar que no queden overlay/popover huérfanos en el DOM
     if (!_state.currentGuide) {
@@ -605,23 +579,6 @@
           _updateSpotlight(state.overlay, target);
           _positionPopover(state.popover, target);
         }
-      }
-      // Actualizar contenido del popover al reanudar (título, cuerpo, dots, botones)
-      if (state.popover) {
-        const title = state.popover.querySelector('.guide-popover-title');
-        const body = state.popover.querySelector('.guide-popover-body');
-        if (title) title.textContent = state.step.title || '';
-        if (body) body.innerHTML = _renderBody(state.step.body);
-
-        const color = state.popover._color || _getPillarColor(state.guide.pillar);
-        state.popover.querySelectorAll('.tour-dot').forEach((dot, i) => {
-          dot.classList.toggle('active', i === state.stepIndex);
-          dot.style.background = i === state.stepIndex ? color : 'var(--c-555, #555)';
-          dot.style.transform = i === state.stepIndex ? 'scale(1.2)' : 'scale(1)';
-        });
-
-        const btnNext = state.popover.querySelector('button[data-guide-action="next"]');
-        if (btnNext) btnNext.textContent = state.stepIndex === state.guide.steps.length - 1 ? 'Finalizar' : 'Siguiente';
       }
       _showPopover();
     }, 0); // next tick

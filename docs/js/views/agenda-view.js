@@ -45,11 +45,12 @@ const AgendaView = {
 
             <div class="px-4">
                 <div class="module-header">
-                    <div class="module-header-primary-action">
-                        <button class="btn btn-create btn-lg w-full" onclick="window.WizardTarea.open({ onComplete: () => AgendaView.render() })">
-                            ${Icons.fabPlus()} Nueva Tarea
-                        </button>
-                    </div>
+                    <fieldset class="erp-action-group">
+                      <legend>Registro de Tareas</legend>
+                      <div class="erp-action-group-body">
+                        <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="window.WizardTarea.open({ onComplete: () => AgendaView.render() })">${Icons.fabPlus()}<span class="widget-link-label">Nueva Tarea</span></button>
+                      </div>
+                    </fieldset>
                 </div>
 
                 <div class="card p-16 mb-16 border-222 animate-fade-in" style="background: linear-gradient(135deg, rgba(255,215,0,0.05) 0%, rgba(0,0,0,0.2) 100%); border-left: 4px solid var(--p-gold);">
@@ -65,18 +66,22 @@ const AgendaView = {
                     </div>
                 </div>
 
-                <div class="flex gap-10 mb-14">
-                    <button onclick="AgendaView._setFiltroEstado('pendiente')" class="btn btn-sm flex-1 ${this._filtroEstado === 'pendiente' ? 'btn--gold' : 'btn-secondary'}">Pendientes</button>
-                    <button onclick="AgendaView._setFiltroEstado('completada')" class="btn btn-sm flex-1 ${this._filtroEstado === 'completada' ? 'btn--success' : 'btn-secondary'}">Completadas</button>
+                <div class="erp-vista-toggle">
+                    <button class="btn-erp-secondary btn-sm" onclick="AgendaView._setFiltroEstado('pendiente')" style="background:${this._filtroEstado === 'pendiente' ? 'var(--brand, #1F5FA8)' : 'transparent'};">Pendientes</button>
+                    <button class="btn-erp-secondary btn-sm" onclick="AgendaView._setFiltroEstado('completada')" style="background:${this._filtroEstado === 'completada' ? 'var(--brand, #1F5FA8)' : 'transparent'};">Completadas</button>
                 </div>
 
-                <div class="grid gap-10">
+                <div class="erp-filtros" data-filtros-para="agenda-lista">
+                  <input type="search" class="form-input search-input" placeholder="Buscar tarea, módulo o descripción...">
+                  <select class="form-select" data-etiqueta-todos="Toda prioridad"></select>
+                </div>
+                <div class="grid gap-10" id="agenda-lista" data-ver-mas="10">
                     ${this._renderTareasList(tareas)}
                 </div>
             </div>
 
-            <div class="fab-container" onclick="window.WizardTarea.open({ onComplete: () => AgendaView.render() })">
-                <span class="fab-label">Programar</span>
+            <div class="fab-container erp-solo-movil" onclick="window.WizardTarea.open({ onComplete: () => AgendaView.render() })">
+                <span class="fab-label">Nueva Tarea</span>
                 <button class="fab-btn">${Icons.fabPlus()}</button>
             </div>
         `;
@@ -96,7 +101,7 @@ const AgendaView = {
             const colorPrioridad = t.prioridad === 'alta' ? 'var(--c-danger)' : t.prioridad === 'media' ? 'var(--c-warning)' : 'var(--c-success)';
 
             return `
-                <div class="card p-12 border-222 relative" style="border-left: 4px solid ${colorPrioridad}; background: ${t.es_alerta ? 'linear-gradient(135deg, rgba(255,0,0,0.05), transparent)' : ''}">
+                <div class="card p-12 border-222 relative" data-tipo="${t.prioridad || 'sin prioridad'}" style="border-left: 4px solid ${colorPrioridad}; background: ${t.es_alerta ? 'linear-gradient(135deg, rgba(255,0,0,0.05), transparent)' : ''}">
                     <div class="flex justify-between items-start gap-10">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-6 mb-2">
@@ -113,9 +118,7 @@ const AgendaView = {
                         </div>
                         <div class="flex flex-col gap-6 items-end">
                             ${t.estado === 'pendiente' ? `
-                                <button onclick="AgendaView._completarTarea(${t.id})" class="btn btn-sm btn-success px-10 py-6 min-h-0 h-auto">
-                                    ${Icons.check()} OK
-                                </button>
+                                <button onclick="AgendaView._completarTarea(${t.id})" class="btn-erp-secondary btn-sm">${Icons.check()} Completar</button>
                             ` : `
                                 <span class="text-green text-xs font-black uppercase">${Icons.check()} Hecho</span>
                             `}
@@ -124,8 +127,8 @@ const AgendaView = {
                     ${t.descripcion ? `<p class="text-xs text-gray-500 mt-8 border-top-222 pt-8 italic line-clamp-2">${t.descripcion}</p>` : ''}
 
                     <div class="flex justify-between mt-10">
-                        <button onclick="window.WizardTarea.open({ id: ${t.id}, onComplete: () => AgendaView.render() })" class="text-[0.6rem] font-950 text-blue-400 uppercase no-underline">Editar</button>
-                        <button onclick="AgendaView._eliminarTarea(${t.id})" class="text-[0.6rem] font-950 text-red-500 uppercase no-underline">Eliminar</button>
+                        <button onclick="window.WizardTarea.open({ id: ${t.id}, onComplete: () => AgendaView.render() })" class="btn-erp-secondary btn-sm">Editar</button>
+                        <button onclick="AgendaView._eliminarTarea(${t.id})" class="btn-erp-secondary btn-sm">Eliminar</button>
                     </div>
                 </div>
             `;
@@ -196,7 +199,7 @@ const AgendaView = {
                                         ${Icons.calendar()} ${UI.formatDate(t.fecha_planificada)} ${esVencida ? '· VENCIDA' : ''}
                                     </div>
                                 </div>
-                                <button onclick="AgendaView._completarTareaRapido(${t.id}, '${moduloId}')" class="btn btn-sm btn-secondary px-8 py-4 min-h-0 h-auto font-950 text-[0.6rem] ml-10">OK</button>
+                                <button onclick="AgendaView._completarTareaRapido(${t.id}, '${moduloId}')" class="btn-erp-secondary btn-sm ml-10">OK</button>
                             </div>
                         `;
                     }).join('')}

@@ -8,6 +8,7 @@
  */
 const BotiquinView = {
   _cache: [],
+  _vistaModo: 'cards',
 
   async render() {
     if (window.App) App.updateHeaderColor('botiquin');
@@ -47,7 +48,7 @@ const BotiquinView = {
 
     let html = '';
     if (this._cache.length === 0) {
-      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.sanidad()}</div><p class="empty-state-text">Sin productos registrados en el botiquín.</p><div class="text-center mt-20"><button class="btn btn-create btn-lg" onclick="BotiquinView._crearProducto()">${Icons.agregar()} Registrar primer producto</button></div></div>`;
+      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.sanidad()}</div><p class="empty-state-text">Sin productos registrados en el botiquín.</p><div class="text-center mt-20"><button class="widget-link-btn widget-link-btn--neon neon-success" onclick="BotiquinView._crearProducto()">${Icons.agregar()}<span class="widget-link-label">Nuevo primer Producto</span></button></div></div>`;
     } else {
       const moduleColor = (window.getModuleColor && window.getModuleColor('/botiquin')) || 'var(--c-info)';
       const hoy = new Date().toISOString().split('T')[0];
@@ -82,6 +83,7 @@ const BotiquinView = {
           title: p.nombre,
           subtitle: `<span class="badge badge-sm uppercase">${p.tipo || 'otro'}</span>`,
           metadata: metadata.join(''),
+          tipo: p.tipo || 'otro',
           color: (stockBajo || caducado) ? 'var(--c-danger)' : moduleColor,
           onClick: `location.hash='/botiquin-producto?id=${p.id}'`
         });
@@ -98,15 +100,119 @@ const BotiquinView = {
               ${this._cache.length} ${this._cache.length === 1 ? 'producto' : 'productos'}
             </div>
           </div>
+          <div class="ml-auto flex gap-6">
+            <button class="btn-erp-secondary btn-sm" id="btn-bot-vista-cards" onclick="BotiquinView._setVistaModo('cards')">Tarjetas</button>
+            <button class="btn-erp-secondary btn-sm" id="btn-bot-vista-tabla" onclick="BotiquinView._setVistaModo('tabla')">Tabla ERP</button>
+          </div>
         </div>
-        <div class="grid gap-12">${fichasHtml}</div>`;
+        <fieldset class="erp-action-group">
+          <legend>Registro de Productos</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="BotiquinView._crearProducto()">${Icons.agregar()}<span class="widget-link-label">Nuevo Producto</span></button>
+          </div>
+        </fieldset>
+        <div class="erp-filtros" data-filtros-para="botiquin-lista">
+          <input type="search" class="form-input search-input" placeholder="Buscar producto, tipo o lote...">
+          <select class="form-select" data-etiqueta-todos="Todos los tipos"></select>
+        </div>
+        <div class="grid gap-12" id="botiquin-lista" data-ver-mas="10">${fichasHtml}</div>
+        <div id="botiquin-erp-table-container" class="mt-12" style="display:none;"></div>`;
     }
 
-    main.innerHTML = html + `
-      <div class="fab-container" onclick="BotiquinView._crearProducto()">
-        <span class="fab-label">Nuevo Producto</span>
-        <button class="fab-btn">${Icons.fabPlus()}</button>
-      </div>`;
+    main.innerHTML = html;
+
+    // Restaurar modo de vista (por defecto "tabla" en escritorio >= 1024px)
+    if (this._cache.length > 0) {
+      const modoGuardado = localStorage.getItem('botiquin_view_mode') || 'tabla';
+      this._setVistaModo(modoGuardado, false);
+    }
+  },
+
+  /** Alterna entre el listado de tarjetas (móvil) y la tabla densa ERP (escritorio). */
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('botiquin_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-bot-vista-cards');
+    const btnTabla = document.getElementById('btn-bot-vista-tabla');
+    const contenedorCards = document.getElementById('botiquin-lista');
+    const contenedorTabla = document.getElementById('botiquin-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'grid';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cache) return;
+
+    const hoy = new Date().toISOString().split('T')[0];
+    const tableData = this._cache.map(p => {
+      const stockBajo = p.cantidadMinima != null && Number(p.cantidadActual) <= Number(p.cantidadMinima);
+      const diasCaducidad = p.proximaCaducidad
+        ? Math.ceil((new Date(p.proximaCaducidad) - new Date(hoy)) / (24 * 3600 * 1000))
+        : null;
+      const caducado = diasCaducidad != null && diasCaducidad < 0;
+      const caducidadProxima = diasCaducidad != null && diasCaducidad >= 0 && diasCaducidad <= 30;
+      const estado = caducado ? 'CADUCADO' : stockBajo ? 'STOCK BAJO' : caducidadProxima ? 'CADUCA PRONTO' : 'OK';
+
+      return {
+        id: p.id,
+        nombre: p.nombre || '—',
+        tipo: (p.tipo || 'otro').toUpperCase(),
+        cantidad: `${Number(p.cantidadActual || 0).toLocaleString('es-ES')} ${p.unidad || ''}`.trim(),
+        minima: p.cantidadMinima != null ? Number(p.cantidadMinima).toLocaleString('es-ES') : '—',
+        lotes: Array.isArray(p.lotes) ? p.lotes.length : 0,
+        caducidad: p.proximaCaducidad || '—',
+        estado
+      };
+    });
+
+    new window.ErpDataTable({
+      containerId: 'botiquin-erp-table-container',
+      title: 'Botiquín / Almacén',
+      pageSize: 15,
+      columns: [
+        { key: 'nombre', label: 'Producto', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'tipo', label: 'Tipo', sortable: true },
+        { key: 'cantidad', label: 'Stock', sortable: true, align: 'right',
+          cellClass: (v, row) => (row.estado === 'STOCK BAJO' ? 'erp-cell-alerta' : '') },
+        { key: 'minima', label: 'Mínimo', sortable: true, align: 'right' },
+        { key: 'lotes', label: 'Lotes', sortable: true, align: 'center' },
+        { key: 'caducidad', label: 'Próxima caducidad', sortable: true },
+        {
+          key: 'estado',
+          label: 'Estado',
+          sortable: true,
+          render: (val) => {
+            const cls = val === 'OK' ? 'badge-success' : val === 'CADUCA PRONTO' ? 'badge-warning' : 'badge-danger';
+            return `<span class="badge ${cls}">${val}</span>`;
+          }
+        },
+        {
+          key: 'id',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (id) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='/botiquin-producto?id=${id}'">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   async renderDetalle(params) {

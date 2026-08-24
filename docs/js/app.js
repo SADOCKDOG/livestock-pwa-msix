@@ -98,84 +98,8 @@ const App = {
     "/fitosanitario": "renderFitosanitarios",
     "/margen-animal": "renderMargenAnimal",
     "/importar-rfid": "renderImportadorRFID",
+    "/importar-zonas": "renderImportarZonas",
     "/agenda": "renderAgenda",
-  },
-
-
-  /**
-   * Aplica las preferencias visuales guardadas (tema claro/oscuro, colores, glow,
-   * haz de luz, FAB, opacidad de banner).
-   *
-   * Se llama ANTES de comprobar si hay finca: cuando no la hay, init() muestra el
-   * asistente y hace return, así que si esto viviera después la pantalla de
-   * Bienvenida se quedaba sin tema aplicado — en escritorio salía en claro pese a
-   * que el modo oscuro es el valor por defecto.
-   */
-  async _aplicarPreferenciasVisuales() {
-    try {
-      const storedCfg = await window.db.get('meta', 'appConfig');
-      this._config = storedCfg?.value || {};
-      const cfg = storedCfg;
-
-      // Oscuro por defecto en cualquier dispositivo, salvo preferencia explícita guardada.
-      const isDesktop = window.innerWidth >= 1024;
-      const useLightMode = cfg?.value?.temaOscuro === false;
-
-      const mostrar = cfg?.value?.mostrarContextos;
-      if (mostrar === false) {
-        document.body.classList.add('hide-context');
-        document.querySelectorAll('.card-dark-gradient, .card-total-3d').forEach(c => c.classList.add('compact'));
-      }
-      if (cfg?.value?.colorTema && cfg.value.colorTema !== 'gold') {
-        document.body.setAttribute('data-tema', cfg.value.colorTema);
-      }
-      if (useLightMode) {
-        document.body.setAttribute('data-modo', 'claro');
-        document.documentElement.style.colorScheme = 'light';
-        if (cfg?.value?.temaClaroColor && cfg.value.temaClaroColor !== 'arena') {
-          document.body.setAttribute('data-tema-claro', cfg.value.temaClaroColor);
-        }
-      } else if (isDesktop) {
-        // El claro-por-defecto de escritorio (css/desktop.css, sección 9) se activa
-        // por ancho de pantalla, no por atributo: hace falta marcar 'oscuro' explícito
-        // para que el usuario pueda desactivarlo con el toggle de Modo Oscuro.
-        document.body.setAttribute('data-modo', 'oscuro');
-        document.documentElement.style.colorScheme = 'dark';
-      }
-      if (cfg?.value?.glowMarco === false) document.body.classList.add('glow-marco-off');
-      if (cfg?.value?.glowLaterales !== true) document.body.classList.add('glow-laterales-off');
-      if (cfg?.value?.glowBotones === false) document.body.classList.add('glow-botones-off');
-      if (cfg?.value?.glowTarjetas === false) document.body.classList.add('glow-tarjetas-off');
-
-      // Cargar intensidad y color de haz
-      const hazInt = cfg?.value?.hazLuzIntensidad ?? 50;
-      document.documentElement.style.setProperty('--haz-intensity', hazInt + '%');
-      document.documentElement.style.setProperty('--haz-intensity-num', hazInt);
-
-      const hazColor = cfg?.value?.hazLuzColor || '';
-      if (hazColor) {
-        document.documentElement.style.setProperty('--haz-luz-color', hazColor);
-      } else {
-        document.documentElement.style.removeProperty('--haz-luz-color');
-      }
-
-      const fColor = cfg?.value?.fabColor || '#FFFFFF';
-      if (fColor) {
-        document.documentElement.style.setProperty('--fab-user-color', fColor);
-        document.documentElement.style.setProperty('--fab-neon-color', fColor);
-      } else {
-        document.documentElement.style.removeProperty('--fab-user-color');
-        document.documentElement.style.removeProperty('--fab-neon-color');
-      }
-
-      const fInt = cfg?.value?.fabIntensidad ?? 40;
-      document.documentElement.style.setProperty('--fab-intensity', fInt + '%');
-      document.documentElement.style.setProperty('--fab-intensity-num', fInt);
-
-      const bOpacity = cfg?.value?.bannerOpacity ?? 0.77;
-      document.documentElement.style.setProperty('--banner-opacity', bOpacity);
-
-    } catch (_) {}
   },
 
   async init() {
@@ -229,12 +153,6 @@ const App = {
         });
       }
 
-      // Las preferencias visuales se aplican ANTES de decidir si hay que mostrar el
-      // asistente: si no, la pantalla de Bienvenida (que hace `return` y corta el resto
-      // de init) se quedaba con el claro-por-defecto de escritorio, justo la primera
-      // pantalla que ve un usuario nuevo.
-      await App._aplicarPreferenciasVisuales();
-
       const fincas = await Fincas.list();
       if (fincas.length === 0 || !(await Fincas.getActiveId())) {
         await AsistenteConfiguracion.mostrarAsistente();
@@ -248,6 +166,60 @@ const App = {
       App._setupHardwareBackButton();
       await App._ejecutarMigracionesFondo();
       App._initScrollShadows();
+      // Cargar preferencias visuales
+      try {
+        const storedCfg = await window.db.get('meta', 'appConfig');
+        this._config = storedCfg?.value || {};
+        const cfg = storedCfg;
+        const mostrar = cfg?.value?.mostrarContextos;
+        if (mostrar === false) {
+          document.body.classList.add('hide-context');
+          document.querySelectorAll('.card-dark-gradient, .card-total-3d').forEach(c => c.classList.add('compact'));
+        }
+        if (cfg?.value?.colorTema && cfg.value.colorTema !== 'gold') {
+          document.body.setAttribute('data-tema', cfg.value.colorTema);
+        }
+        if (cfg?.value?.temaOscuro === false) {
+          document.body.setAttribute('data-modo', 'claro');
+          document.documentElement.style.colorScheme = 'light';
+          if (cfg?.value?.temaClaroColor && cfg.value.temaClaroColor !== 'arena') {
+            document.body.setAttribute('data-tema-claro', cfg.value.temaClaroColor);
+          }
+        }
+        if (cfg?.value?.glowMarco === false) document.body.classList.add('glow-marco-off');
+        if (cfg?.value?.glowLaterales !== true) document.body.classList.add('glow-laterales-off');
+        if (cfg?.value?.glowBotones === false) document.body.classList.add('glow-botones-off');
+        if (cfg?.value?.glowTarjetas === false) document.body.classList.add('glow-tarjetas-off');
+
+        // Cargar intensidad y color de haz
+        const hazInt = cfg?.value?.hazLuzIntensidad ?? 50;
+        document.documentElement.style.setProperty('--haz-intensity', hazInt + '%');
+        document.documentElement.style.setProperty('--haz-intensity-num', hazInt);
+
+        const hazColor = cfg?.value?.hazLuzColor || '';
+        if (hazColor) {
+          document.documentElement.style.setProperty('--haz-luz-color', hazColor);
+        } else {
+          document.documentElement.style.removeProperty('--haz-luz-color');
+        }
+
+        const fColor = cfg?.value?.fabColor || '#FFFFFF';
+        if (fColor) {
+          document.documentElement.style.setProperty('--fab-user-color', fColor);
+          document.documentElement.style.setProperty('--fab-neon-color', fColor);
+        } else {
+          document.documentElement.style.removeProperty('--fab-user-color');
+          document.documentElement.style.removeProperty('--fab-neon-color');
+        }
+
+        const fInt = cfg?.value?.fabIntensidad ?? 40;
+        document.documentElement.style.setProperty('--fab-intensity', fInt + '%');
+        document.documentElement.style.setProperty('--fab-intensity-num', fInt);
+
+        const bOpacity = cfg?.value?.bannerOpacity ?? 0.77;
+        document.documentElement.style.setProperty('--banner-opacity', bOpacity);
+
+      } catch (_) {}
 
       // Delegado global de interacción táctil con los pickers de fecha
       document.body.addEventListener('click', (e) => {
@@ -647,27 +619,6 @@ const App = {
     document.getElementById("nav-more")?.setAttribute("aria-expanded", String(isOpen));
   },
 
-  _toggleDesktopMore() {
-    const panel = document.getElementById("desktopMorePanel");
-    if (!panel) return;
-    const isOpen = panel.classList.toggle("open");
-    document.getElementById("sidebar-more")?.setAttribute("aria-expanded", String(isOpen));
-    if (isOpen && !panel.dataset.populated) {
-      const src = document.querySelector("#nav-more-sheet .more-sheet-grid");
-      const dst = document.getElementById("desktopMoreGrid");
-      if (src && dst) {
-        dst.innerHTML = src.innerHTML;
-        App._inyectarIconosEstaticos();
-        dst.querySelectorAll('.more-sheet-item').forEach(item => {
-          item.addEventListener('click', () => {
-            panel.classList.remove("open");
-          });
-        });
-        panel.dataset.populated = '1';
-      }
-    }
-  },
-
   /** Colapsa/expande la card de resumen (chevron esquina superior derecha). Reutilizable en todas las vistas. */
   toggleResumen(btn) {
     const card = btn && btn.closest('.card-resumen');
@@ -710,25 +661,26 @@ const App = {
     const next = tabs[(idx + 1) % n];
     const menuId = `carrusel-menu-${viewName}`;
     const colorModulo = App.CARRUSEL_COLOR_MODULO[viewName] || active.color;
-    const cerrarYNavegar = (key) => `App._cambiarSubmoduloConGuia('${viewName}', '${key}')`;
+    // Llamada al helper que await render() + emite view:tabChanged para re-anclar guía
+    const navegarConGuia = (key) => `App._cambiarSubmoduloConGuia('${viewName}', '${key}')`;
 
     const flechaIzq = single ? '' : `
-        <button type="button" class="carrusel-flecha carrusel-flecha-izq pestana-flecha-activa" onclick="${cerrarYNavegar(prev.key)}" aria-label="Anterior: ${prev.label}" title="${prev.label}">
+        <button type="button" class="carrusel-flecha carrusel-flecha-izq pestana-flecha-activa" onclick="${navegarConGuia(prev.key)}" aria-label="Anterior: ${prev.label}" title="${prev.label}">
           <span class="carrusel-flecha-preview" style="color:${prev.color};">${prev.icon}</span>
           <span class="carrusel-flecha-arrow">${Icons.atras()}</span>
         </button>`;
     const flechaDer = single ? '' : `
-        <button type="button" class="carrusel-flecha carrusel-flecha-der pestana-flecha-activa" onclick="${cerrarYNavegar(next.key)}" aria-label="Siguiente: ${next.label}" title="${next.label}">
+        <button type="button" class="carrusel-flecha carrusel-flecha-der pestana-flecha-activa" onclick="${navegarConGuia(next.key)}" aria-label="Siguiente: ${next.label}" title="${next.label}">
           <span class="carrusel-flecha-arrow">${Icons.siguiente()}</span>
           <span class="carrusel-flecha-preview" style="color:${next.color};">${next.icon}</span>
         </button>`;
     const dots = single ? '' : `
       <div class="carrusel-dots" role="tablist" aria-label="Todas las secciones">
-        ${tabs.map(t => `<span class="carrusel-dot ${t.key === activeKey ? 'active' : ''}" data-tab="${t.key}" onclick="${cerrarYNavegar(t.key)}" title="${t.label}"></span>`).join('')}
+        ${tabs.map(t => `<span class="carrusel-dot ${t.key === activeKey ? 'active' : ''}" data-tab="${t.key}" onclick="${navegarConGuia(t.key)}" title="${t.label}"></span>`).join('')}
       </div>`;
     const menu = single ? '' : `
       <div class="carrusel-menu" id="${menuId}" role="listbox" aria-label="Todos los submódulos">
-        ${tabs.map(t => `<button type="button" class="carrusel-menu-item ${t.key === activeKey ? 'active' : ''}" data-tab="${t.key}" role="option" aria-selected="${t.key === activeKey}" onclick="${cerrarYNavegar(t.key)}"><span class="carrusel-menu-item-icon" style="color:${t.color};">${t.icon}</span><span>${t.label}</span></button>`).join('')}
+        ${tabs.map(t => `<button type="button" class="carrusel-menu-item ${t.key === activeKey ? 'active' : ''}" data-tab="${t.key}" role="option" aria-selected="${t.key === activeKey}" onclick="${navegarConGuia(t.key)}"><span class="carrusel-menu-item-icon" style="color:${t.color};">${t.icon}</span><span>${t.label}</span></button>`).join('')}
       </div>`;
 
     return `
@@ -737,7 +689,7 @@ const App = {
         <div class="carrusel-pestanas-wrapper">
           <div class="carrusel-pestanas">
             ${flechaIzq}
-            <button type="button" class="carrusel-marco" id="${menuId}-trigger" onclick="App.toggleCarruselMenu('${menuId}')" aria-haspopup="listbox" aria-expanded="false" ${single ? 'disabled' : ''}>
+            <button type="button" class="carrusel-marco" id="${menuId}-trigger" data-tab="${activeKey}" onclick="App.toggleCarruselMenu('${menuId}')" aria-haspopup="listbox" aria-expanded="false" ${single ? 'disabled' : ''}>
               <span class="carrusel-marco-icon" style="color:${active.color};">${active.icon}</span>
               <span class="carrusel-marco-label">${active.label}</span>
               ${single ? '' : `<span class="carrusel-marco-chevron">${Icons.chevronAbajo()}</span>`}
@@ -777,142 +729,6 @@ const App = {
     if (!menu) return;
     if (menu.contains(e.target) || e.target.closest(`#${menu.id}-trigger`)) return;
     App.cerrarCarruselMenu();
-  },
-
-  _viewForMethod(methodName) {
-    const map = {
-      renderGanaderia: 'GanaderiaView',
-      renderRebanos: 'GanaderiaView',
-      renderDetalleRebano: 'GanaderiaView',
-      renderZonas: 'GanaderiaView',
-      renderDetalleZona: 'GanaderiaView',
-      renderInstalaciones: 'GanaderiaView',
-      renderDetalleInstalacion: 'GanaderiaView',
-      renderSaneamientos: 'GanaderiaView',
-      renderDetalleSaneamiento: 'GanaderiaView',
-      renderSubexplotaciones: 'GanaderiaView',
-      renderDetalleSubexplotacion: 'GanaderiaView',
-      renderBotiquin: 'GanaderiaView',
-      renderDetalleBotiquin: 'GanaderiaView',
-      renderBitacoraAnimal: 'GanaderiaView',
-      renderAnimales: 'GanaderiaView',
-      renderDetalleAnimal: 'GanaderiaView',
-      renderExplotacion: 'ExplotacionView',
-      renderGastos: 'ExplotacionView',
-      renderSilos: 'ExplotacionView',
-      renderFitosanitarios: 'ExplotacionView',
-      renderProveedores: 'ExplotacionView',
-      renderComercializacion: 'ComercializacionView',
-      renderDetalleLeche: 'ComercializacionView',
-      renderDetalleVentaCarne: 'ComercializacionView',
-      renderCompradores: 'ComercializacionView',
-      renderComprador: 'ComercializacionView',
-      renderContrato: 'ComercializacionView',
-      renderTransportistas: 'ComercializacionView',
-    };
-    return map[methodName] || null;
-  },
-
-  /**
-   * Cambia de sub-módulo y dispara guía si corresponde.
-   * Usado desde el carrusel de pestañas para reemplazar `cerrarYNavegar`.
-   * @param {string} viewName - Nombre global de la vista (ej. 'GanaderiaView')
-   * @param {string} tabKey - Clave del sub-módulo (ej. 'animales', 'rebanos')
-   */
-  async _cambiarSubmoduloConGuia(viewName, tabKey) {
-    const viewInstance = window[viewName];
-    if (!viewInstance || typeof viewInstance._cambiarSubModulo !== 'function') {
-      console.warn('[App._cambiarSubmoduloConGuia] Vista o método no encontrado:', viewName);
-      return;
-    }
-    // Cerrar menú del carrusel si está abierto
-    App.cerrarCarruselMenu && App.cerrarCarruselMenu();
-    // Ejecutar cambio de sub-módulo (devuelve Promise si render es async)
-    const renderPromise = viewInstance._cambiarSubModulo(tabKey);
-    if (renderPromise && typeof renderPromise.then === 'function') {
-      await renderPromise;
-    }
-    // Disparar evento para que GuideManager re-ancle la guía
-    if (window.EventBus) {
-      EventBus.emit('view:tabChanged', { viewName, tabKey });
-    }
-  },
-
-  /**
-   * Renderiza el FAB "Guía" flotante para la ruta/tab actual.
-   * Debe llamarse después de renderizar el contenido de la sub-vista.
-   * @param {string} route - Ruta hash normalizada (ej: '/ganaderia', '/explotacion', '/comercializacion')
-   * @param {string|null} tab - Clave del sub-módulo (ej: 'animales', 'silos') o null para panorámica
-   * @param {HTMLElement} [container=document.body] - Contenedor donde insertar el FAB
-   */
-  renderGuideFab(route, tab, container = document.body) {
-    // Se retira siempre primero: al cambiar de tab el FAB anterior apuntaría a la guía
-    // del tab que se acaba de abandonar, y si el nuevo tab no tiene guía debe desaparecer.
-    container.querySelector('#guide-fab')?.remove();
-
-    if (!window.GuideManager || !GuideManager.isEnabled || !GuideManager.isEnabled()) return;
-    if (!window.GuideRegistry) return;
-
-    // Guarda: sin finca activa no hay guías disponibles
-    const activeFincaId = localStorage.getItem('activeFincaIdLivestock');
-    if (!activeFincaId) return;
-
-    const flags = window.ModoContextoHelper ? ModoContextoHelper.getFlags() : { leche: true, carne: false };
-    // Buscar guía para este tab; si no hay, buscar panorámica
-    const guide = GuideRegistry.getByRouteTab(route, tab, flags) || GuideRegistry.getPanoramica(route, flags);
-    if (!guide) return; // No hay guía para esta vista
-
-    const fab = document.createElement('button');
-    fab.id = 'guide-fab';
-    fab.type = 'button';
-    fab.className = 'guide-fab';
-    fab.setAttribute('aria-label', 'Abrir guía interactiva');
-    const iconoAyuda = (typeof Icons.ayuda === 'function' && Icons.ayuda()) || (typeof Icons.info === 'function' && Icons.info()) || '';
-    fab.innerHTML = `${iconoAyuda} <span>Guía</span>`;
-    fab.style.cssText = `
-      position: fixed;
-      right: 20px;
-      bottom: calc(150px + var(--safe-bottom));
-      z-index: 3000;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      color: var(--text-p);
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
-      animation: guide-fab-pulse 2s ease-in-out infinite;
-      cursor: pointer;
-    `;
-
-    // Estilos animación (inyectar una vez)
-    if (!document.getElementById('guide-fab-style')) {
-      const style = document.createElement('style');
-      style.id = 'guide-fab-style';
-      style.textContent = `
-        @keyframes guide-fab-pulse {
-          0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05); }
-          50% { box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 2px var(--c-info, #00d4ff); }
-        }
-        .guide-fab:hover { transform: scale(1.05); }
-        .guide-fab:active { transform: scale(0.98); }
-      `;
-      document.head.appendChild(style);
-    }
-
-    fab.addEventListener('click', () => {
-      if (window.GuideManager && typeof GuideManager.start === 'function') {
-        GuideManager.start(guide.id);
-      }
-    });
-
-    container.appendChild(fab);
   },
 
   /**
@@ -1190,10 +1006,6 @@ const App = {
       if (navAnimales) navAnimales.style.display = 'none';
       const navRebanos = document.getElementById('nav-rebanos');
       if (navRebanos) navRebanos.style.display = 'none';
-      const sidebarAnimales = document.getElementById('sidebar-animales');
-      if (sidebarAnimales) sidebarAnimales.style.display = 'none';
-      const sidebarRebanos = document.getElementById('sidebar-rebanos');
-      if (sidebarRebanos) sidebarRebanos.style.display = 'none';
 
       const navComer = document.getElementById('nav-comercializacion');
       if (navComer) {
@@ -1306,13 +1118,6 @@ const App = {
       }
     });
 
-    document.querySelectorAll(".sidebar-item").forEach((el) => {
-      const href = el.getAttribute("href");
-      if (!href) return;
-      const isActive = path === '/' ? href === '#/' : href.startsWith(`#${path}`);
-      el.classList.toggle("active", isActive);
-    });
-
     // 2. Check "Más" items
     let moreActiveText = null;
     document.querySelectorAll(".more-sheet-item").forEach((el) => {
@@ -1339,19 +1144,6 @@ const App = {
       }
     }
 
-    // 5. Sidebar "Más" button — mirror bottom-nav "Más" state
-    const sidebarMore = document.getElementById('sidebar-more');
-    if (sidebarMore) {
-      const sidebarMoreLabel = sidebarMore.querySelector('.label');
-      if (moreActiveText) {
-        sidebarMore.classList.add('active');
-        if (sidebarMoreLabel) sidebarMoreLabel.textContent = moreActiveText;
-      } else {
-        sidebarMore.classList.remove('active');
-        if (sidebarMoreLabel) sidebarMoreLabel.textContent = 'Más';
-      }
-    }
-
     // 4. Update Header Icon
     if (activeSvg) {
       const headerRouteIcon = document.getElementById('header-route-icon');
@@ -1368,8 +1160,6 @@ const App = {
     // Cerrar menú "Más" al navegar
     const sheet = document.getElementById("nav-more-sheet");
     if (sheet) sheet.classList.remove("open");
-    const desktopPanel = document.getElementById("desktopMorePanel");
-    if (desktopPanel) desktopPanel.classList.remove("open");
 
     // Actualizar header contextual (título de vista + botón volver)
     this._updateHeaderContext(path);
@@ -1408,7 +1198,20 @@ const App = {
     const tourEnCurso = !!(window.GuideManager && typeof GuideManager.isRunning === 'function' && GuideManager.isRunning());
     if (!tourEnCurso && window.GuideManager && typeof GuideManager.skip === 'function') GuideManager.skip();
     try {
-      await App._ensureRouteScripts(path);
+      // Si el grupo de scripts de la vista no carga, hay que DECIRLO. Antes se ignoraba
+      // el resultado y se caia al `else` de mas abajo sin tocar el contenedor, dejando
+      // el "Cargando..." en pantalla de forma indefinida: sin error, sin banner y sin
+      // forma de que el usuario supiera que algo habia fallado ni de reintentarlo.
+      const gruposOk = await App._ensureRouteScripts(path);
+      if (!gruposOk) {
+        main.innerHTML = `
+          <div class="card error-card">
+            <h2>No se pudo cargar esta sección</h2>
+            <p>Fallo al descargar los componentes de la vista. Comprueba la conexión y vuelve a intentarlo.</p>
+            <button class="btn btn--inline btn-primary" onclick="App.route('${path}')">Reintentar</button>
+          </div>`;
+        return;
+      }
       const methodName = App.routes[path];
       if (methodName && typeof App[methodName] === "function") {
         await App[methodName](params);
@@ -1449,6 +1252,149 @@ const App = {
       main.classList.add('route-enter');
       main.addEventListener('animationend', () => main.classList.remove('route-enter'), { once: true });
     }
+  },
+
+  /**
+   * Mapea nombres de método de ruta a nombres globales de vista.
+   * Usado por GuideManager.maybeStart para obtener la vista activa y su _activeSubModule.
+   * @param {string} methodName - Ej: 'renderGanaderia', 'renderExplotacion', 'renderComercializacion'
+   * @returns {string|null} Nombre global de la vista (Ej: 'GanaderiaView', 'ExplotacionView')
+   */
+  _viewForMethod(methodName) {
+    const map = {
+      renderGanaderia: 'GanaderiaView',
+      renderRebanos: 'GanaderiaView',
+      renderDetalleRebano: 'GanaderiaView',
+      renderZonas: 'GanaderiaView',
+      renderDetalleZona: 'GanaderiaView',
+      renderInstalaciones: 'GanaderiaView',
+      renderDetalleInstalacion: 'GanaderiaView',
+      renderSaneamientos: 'GanaderiaView',
+      renderDetalleSaneamiento: 'GanaderiaView',
+      renderSubexplotaciones: 'GanaderiaView',
+      renderDetalleSubexplotacion: 'GanaderiaView',
+      renderBotiquin: 'GanaderiaView',
+      renderDetalleBotiquin: 'GanaderiaView',
+      renderBitacoraAnimal: 'GanaderiaView',
+      renderAnimales: 'GanaderiaView',
+      renderDetalleAnimal: 'GanaderiaView',
+      renderExplotacion: 'ExplotacionView',
+      renderGastos: 'ExplotacionView',
+      renderSilos: 'ExplotacionView',
+      renderFitosanitarios: 'ExplotacionView',
+      renderProveedores: 'ExplotacionView',
+      renderComercializacion: 'ComercializacionView',
+      renderDetalleLeche: 'ComercializacionView',
+      renderDetalleVentaCarne: 'ComercializacionView',
+      renderCompradores: 'ComercializacionView',
+      renderComprador: 'ComercializacionView',
+      renderContrato: 'ComercializacionView',
+      renderProveedores: 'ComercializacionView',
+      renderProveedor: 'ComercializacionView',
+      renderTransportistas: 'ComercializacionView',
+    };
+    return map[methodName] || null;
+  },
+
+  /**
+   * Cambia de sub-módulo y dispara guía si corresponde.
+   * Usado desde el carrusel de pestañas para reemplazar `cerrarYNavegar`.
+   * @param {string} viewName - Nombre global de la vista (ej. 'GanaderiaView')
+   * @param {string} tabKey - Clave del sub-módulo (ej. 'animales', 'rebanos')
+   */
+  async _cambiarSubmoduloConGuia(viewName, tabKey) {
+    const viewInstance = window[viewName];
+    if (!viewInstance || typeof viewInstance._cambiarSubModulo !== 'function') {
+      console.warn('[App._cambiarSubmoduloConGuia] Vista o método no encontrado:', viewName);
+      return;
+    }
+    // Cerrar menú del carrusel si está abierto
+    App.cerrarCarruselMenu && App.cerrarCarruselMenu();
+    // Ejecutar cambio de sub-módulo (devuelve Promise si render es async)
+    const renderPromise = viewInstance._cambiarSubModulo(tabKey);
+    if (renderPromise && typeof renderPromise.then === 'function') {
+      await renderPromise;
+    }
+    // Disparar evento para que GuideManager re-ancle la guía
+    if (window.EventBus) {
+      EventBus.emit('view:tabChanged', { viewName, tabKey });
+    }
+  },
+
+  /**
+   * Renderiza el FAB "Guía" flotante para la ruta/tab actual.
+   * Debe llamarse después de renderizar el contenido de la sub-vista.
+   * @param {string} route - Ruta hash normalizada (ej: '/ganaderia', '/explotacion', '/comercializacion')
+   * @param {string|null} tab - Clave del sub-módulo (ej: 'animales', 'silos') o null para panorámica
+   * @param {HTMLElement} [container=document.body] - Contenedor donde insertar el FAB
+   */
+  renderGuideFab(route, tab, container = document.body) {
+    // Se retira siempre primero: al cambiar de tab el FAB anterior apuntaría a la guía
+    // del tab que se acaba de abandonar, y si el nuevo tab no tiene guía debe desaparecer.
+    container.querySelector('#guide-fab')?.remove();
+
+    if (!window.GuideManager || !GuideManager.isEnabled || !GuideManager.isEnabled()) return;
+    if (!window.GuideRegistry) return;
+
+    // Guarda: sin finca activa no hay guías disponibles
+    const activeFincaId = localStorage.getItem('activeFincaIdLivestock');
+    if (!activeFincaId) return;
+
+    const flags = window.ModoContextoHelper ? ModoContextoHelper.getFlags() : { leche: true, carne: false };
+    // Buscar guía para este tab; si no hay, buscar panorámica
+    const guide = GuideRegistry.getByRouteTab(route, tab, flags) || GuideRegistry.getPanoramica(route, flags);
+    if (!guide) return; // No hay guía para esta vista
+
+    const fab = document.createElement('button');
+    fab.id = 'guide-fab';
+    fab.type = 'button';
+    fab.className = 'guide-fab';
+    fab.setAttribute('aria-label', 'Abrir guía interactiva');
+    fab.innerHTML = `${Icons.ayuda() || Icons.info()} <span>Guía</span>`;
+    fab.style.cssText = `
+      position: fixed;
+      right: 20px;
+      bottom: calc(150px + var(--safe-bottom));
+      z-index: 3000;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      color: var(--text-p);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+      animation: guide-fab-pulse 2s ease-in-out infinite;
+      cursor: pointer;
+    `;
+
+    // Estilos animación (inyectar una vez)
+    if (!document.getElementById('guide-fab-style')) {
+      const style = document.createElement('style');
+      style.id = 'guide-fab-style';
+      style.textContent = `
+        @keyframes guide-fab-pulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05); }
+          50% { box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 2px var(--c-info, #00d4ff); }
+        }
+        .guide-fab:hover { transform: scale(1.05); }
+        .guide-fab:active { transform: scale(0.98); }
+      `;
+      document.head.appendChild(style);
+    }
+
+    fab.addEventListener('click', () => {
+      if (window.GuideManager && typeof GuideManager.start === 'function') {
+        GuideManager.start(guide.id);
+      }
+    });
+
+    container.appendChild(fab);
   },
 
   _hexToRgba(hex, alpha) {
@@ -1945,7 +1891,7 @@ const App = {
     if (!App._xlsxLoadPromise) {
       App._xlsxLoadPromise = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+        s.src = 'js/vendor/xlsx.full.min.js';
         s.onload = resolve;
         s.onerror = reject;
         document.body.appendChild(s);
@@ -1961,7 +1907,7 @@ const App = {
     if (!App._html2pdfLoadPromise) {
       App._html2pdfLoadPromise = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        s.src = 'js/vendor/html2pdf.bundle.min.js';
         s.onload = resolve;
         s.onerror = reject;
         document.body.appendChild(s);
@@ -1977,7 +1923,7 @@ const App = {
     if (!App._chartJsLoadPromise) {
       App._chartJsLoadPromise = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        s.src = 'js/vendor/chart.umd.min.js';
         s.onload = resolve;
         s.onerror = reject;
         document.body.appendChild(s);
@@ -1985,6 +1931,29 @@ const App = {
     }
     try { await App._chartJsLoadPromise; } catch (_) {}
     return typeof Chart !== 'undefined';
+  },
+
+  /** Carga pdf.js bajo demanda (~2MB vía CDN) solo cuando se importa PDF del Catastro (SIGPAC). */
+  async _ensurePdfJs() {
+    if (typeof pdfjsLib !== 'undefined') return true;
+    if (!App._pdfJsLoadPromise) {
+      // pdf.js 4.x se distribuye solo como modulo ES: no define window.pdfjsLib
+      // por si mismo, hay que importarlo y publicarlo. Servido en local para no
+      // depender de la red (la app es offline-first) y porque la 3.11.174 que
+      // se cargaba del CDN arrastra GHSA-wgrm-67xf-hhpq.
+      App._pdfJsLoadPromise = import('/js/vendor/pdf.min.mjs')
+        .then((mod) => { window.pdfjsLib = mod; return mod; });
+    }
+    try { await App._pdfJsLoadPromise; } catch (e) {
+      // Sin resetear, una promesa rechazada deja pdf.js inservible hasta recargar.
+      App._pdfJsLoadPromise = null;
+      console.warn('[PDF] no se pudo cargar pdf.js:', e && e.message);
+    }
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/vendor/pdf.worker.min.mjs';
+      return true;
+    }
+    return false;
   },
 
   // ==========================================
@@ -1996,7 +1965,7 @@ const App = {
   // servicios) siguen cargando siempre, porque el Dashboard los usa todos
   // desde sus accesos directos.
   _viewGroups: {
-    gegan: ['js/views/sanidad-view.js', 'js/views/patrimonio-view.js', 'js/views/ganaderia-view.js', 'js/views/animales-view.js', 'js/views/rebanos-view.js', 'js/views/zonas-view.js', 'js/views/instalaciones-view.js', 'js/views/saneamientos-view.js', 'js/views/subexplotaciones-view.js', 'js/views/botiquin-view.js', 'js/views/bitacora-animal-view.js', 'js/views/margen-animal-view.js', 'js/guides/gegan-sanidad.js', 'js/guides/gegan-panoramica.js', 'js/guides/gegan-animales.js', 'js/guides/gegan-rebanos.js', 'js/guides/gegan-patrimonio.js', 'js/guides/gegan-zonas.js'],
+    gegan: ['js/views/sanidad-view.js', 'js/views/patrimonio-view.js', 'js/views/ganaderia-view.js', 'js/views/animales-view.js', 'js/views/rebanos-view.js', 'js/views/zonas-view.js', 'js/views/importar-zonas-view.js', 'js/views/instalaciones-view.js', 'js/views/saneamientos-view.js', 'js/views/subexplotaciones-view.js', 'js/views/botiquin-view.js', 'js/views/bitacora-animal-view.js', 'js/views/margen-animal-view.js', 'js/guides/gegan-sanidad.js', 'js/guides/gegan-panoramica.js', 'js/guides/gegan-animales.js', 'js/guides/gegan-rebanos.js', 'js/guides/gegan-patrimonio.js', 'js/guides/gegan-zonas.js'],
     expro: ['js/views/explotacion-view.js', 'js/views/silos-view.js', 'js/views/fitosanitarios-view.js', 'js/views/gastos-view.js', 'js/views/proveedores-view.js', 'js/views/wizards/wizard-traslado.js', 'js/views/wizards/wizard-censo.js', 'js/views/wizards/wizard-crotales.js', 'js/views/wizards/wizard-guia-movimiento.js', 'js/guides/expro-panoramica.js', 'js/guides/expro-explotacion.js', 'js/guides/expro-lacteo.js', 'js/guides/expro-silos.js', 'js/guides/expro-fitosanitarios.js', 'js/guides/expro-gastos.js', 'js/guides/expro-proveedores.js', 'js/guides/expro-tramites.js'],
     comer: ['js/views/comercializacion-view.js', 'js/views/compradores-view.js', 'js/views/contratos-view.js', 'js/views/transportistas-view.js', 'js/guides/comer-panoramica.js', 'js/guides/comer-leche.js', 'js/guides/comer-carne.js', 'js/guides/comer-compradores.js', 'js/guides/comer-contratos.js', 'js/guides/comer-transportistas.js'],
     informes: ['js/views/informes-analytics.js', 'js/views/informes-view.js', 'js/views/informes-data.js', 'js/views/informes-export.js'],
@@ -2010,7 +1979,7 @@ const App = {
 
   // Ruta (ya normalizada por redirectMap) -> grupo que debe estar cargado antes de despachar.
   _routeGroups: {
-    '/ganaderia': 'gegan', '/rebanos': 'gegan', '/animales': 'gegan', '/rebano': 'gegan', '/animal': 'gegan', '/zonas': 'gegan', '/zona': 'gegan', '/instalaciones': 'gegan', '/instalacion': 'gegan', '/saneamientos': 'gegan', '/saneamiento': 'gegan', '/subexplotaciones': 'gegan', '/subexplotacion': 'gegan', '/botiquin': 'gegan', '/botiquin-producto': 'gegan', '/animal-bitacora': 'gegan', '/margen-animal': 'gegan',
+    '/ganaderia': 'gegan', '/rebanos': 'gegan', '/animales': 'gegan', '/rebano': 'gegan', '/animal': 'gegan', '/zonas': 'gegan', '/zona': 'gegan', '/importar-zonas': 'gegan', '/instalaciones': 'gegan', '/instalacion': 'gegan', '/saneamientos': 'gegan', '/saneamiento': 'gegan', '/subexplotaciones': 'gegan', '/subexplotacion': 'gegan', '/botiquin': 'gegan', '/botiquin-producto': 'gegan', '/animal-bitacora': 'gegan', '/margen-animal': 'gegan',
     '/explotacion': 'expro', '/silos': 'expro', '/fitosanitario': 'expro', '/gastos': 'expro', '/proveedores': 'expro', '/proveedor': 'expro',
     '/comercializacion': 'comer', '/compradores': 'comer', '/contratos': 'comer', '/transportistas': 'comer', '/comprador': 'comer', '/contrato': 'comer',
     '/informes': 'informes', '/alertas': 'informes',
@@ -2034,7 +2003,7 @@ const App = {
     if (!App._viewGroupLoadPromises[groupName]) {
       App._viewGroupLoadPromises[groupName] = Promise.all(files.map(src => new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = src + '?v=6.58.0';
+        s.src = src + '?v=6.74.0';
         s.async = false;
         s.onload = resolve;
         s.onerror = reject;
@@ -2043,6 +2012,10 @@ const App = {
     }
     try { await App._viewGroupLoadPromises[groupName]; return true; } catch (e) {
       console.error('[LazyView] Error cargando grupo ' + groupName, e);
+      // La promesa fallida NO se queda en cache: si se conserva, el grupo queda
+      // envenenado para el resto de la sesion y la vista no vuelve a intentarse
+      // nunca, por mucho que el usuario navegue a ella.
+      delete App._viewGroupLoadPromises[groupName];
       return false;
     }
   },
@@ -2050,7 +2023,11 @@ const App = {
   /** Punto único de entrada desde route(): asegura el grupo de la ruta actual antes de despachar. */
   async _ensureRouteScripts(path) {
     const group = App._routeGroups[path];
-    if (group) await App._ensureViewGroup(group);
+    if (!group) return true;
+    // Se DEVUELVE el resultado: antes se ignoraba, route() seguia como si el grupo
+    // hubiera cargado, el metodo de la vista no existia y el loader "Cargando..."
+    // se quedaba en pantalla para siempre, sin error ni aviso.
+    return await App._ensureViewGroup(group);
   },
 
   async _escanearCrotal(inputId) {
@@ -2857,6 +2834,14 @@ const App = {
     if (window.ImportadorRFIDView) { await ImportadorRFIDView.render(); }
   },
 
+  async renderImportarZonas(params) {
+    if (window.ImportarZonasView) {
+      await ImportarZonasView.render();
+    } else {
+      document.getElementById("app-content").innerHTML = '<div class="loader">Cargando importador de zonas...</div>';
+    }
+  },
+
   async renderAlbaranesVentas(params) {
     if (window.AlbaranesVentasView) {
       await AlbaranesVentasView.render(params);
@@ -3018,7 +3003,13 @@ const App = {
     }
     try {
       App.toast("Generando copia de seguridad...");
-      const stores = [
+      // Todos los almacenes de la base, no una lista fija. La lista anterior se
+      // quedo congelada en 20 y dejaba fuera 18 almacenes con datos del ganadero
+      // (analiticas de leche, balance lacteo, tanques, guias de movimiento,
+      // saneamientos, vacunaciones, agenda, crotales, botiquin, silos, ADSG...).
+      // El backup se generaba sin error y sin avisar de lo que faltaba.
+      // Se ordenan los conocidos primero para no alterar el formato del fichero.
+      const ORDEN_PREFERENTE = [
         "fincas",
         "rebanos",
         "animales",
@@ -3039,6 +3030,11 @@ const App = {
         "transportistas",
         "documentos_legales",
         "meta",
+      ];
+      const todosLosStores = Array.from(window.db.objectStoreNames);
+      const stores = [
+        ...ORDEN_PREFERENTE.filter((s) => todosLosStores.includes(s)),
+        ...todosLosStores.filter((s) => !ORDEN_PREFERENTE.includes(s)),
       ];
       const backupData = {};
       let totalRegistros = 0;

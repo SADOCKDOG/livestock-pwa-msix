@@ -6,3 +6,11 @@ node_modules/
 
 # Paquetes generados por PWABuilder (binarios, regenerables, no van a git)
 store-packages/
+
+# Artefactos de Playwright y capturas de depuracion (regenerables)
+playwright-report/
+test-results/
+screenshots/
+
+# Manifiesto MSIX: se genera con la identidad real de la Store, no se versiona
+AppxManifest.xml

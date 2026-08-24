@@ -3,23 +3,27 @@
  * Módulo Lácteo Integral (v24) — Fase 4 FAB
  */
 window.MovimientoBalanceWizard = {
-  async open() {
+  /** @param {Object} [movimiento] Movimiento existente: si viene, el asistente
+   *  abre en modo edición en vez de crear uno nuevo. */
+  async open(movimiento = null) {
     const App = window.App;
     if (!App) return console.error("App no disponible");
 
     const fincaId = await window.Fincas.getActiveId();
     const tanques = window.TanquesLeche ? await window.TanquesLeche.getActivos(fincaId) : [];
 
-    if (tanques.length === 0) {
+    if (tanques.length === 0 && !(movimiento && movimiento.id)) {
       App.toastError('Registra un tanque antes de crear un movimiento de balance');
       return;
     }
+
+    const esEdicion = !!(movimiento && movimiento.id);
 
     const wizardSteps = [
       {
         content: (data) => `
           <div class="card card-accent card-accent-gold p-16 mt-10 mb-16">
-            <div class="section-header-theme mb-12" style="--theme-color: var(--p-gold)">NUEVO MOVIMIENTO DE BALANCE</div>
+            <div class="section-header-theme mb-12" style="--theme-color: var(--p-gold)">${esEdicion ? 'EDITAR' : 'NUEVO'} MOVIMIENTO DE BALANCE</div>
 
             <div class="wizard-input-group mb-12">
               <label class="wizard-label">TANQUE</label>
@@ -84,10 +88,18 @@ window.MovimientoBalanceWizard = {
       }
     ];
 
+
     window.WizardManager.create({
-      id: 'wizard-movimiento-balance-nuevo',
-      title: 'NUEVO MOVIMIENTO',
-      initialData: {
+      id: esEdicion ? 'wizard-movimiento-balance-editar' : 'wizard-movimiento-balance-nuevo',
+      title: esEdicion ? 'EDITAR MOVIMIENTO' : 'NUEVO MOVIMIENTO',
+      initialData: esEdicion ? {
+        tanqueId: movimiento.tanqueId,
+        tipo_movimiento: movimiento.tipo_movimiento,
+        cantidad_litros: movimiento.cantidad_litros,
+        fecha: (movimiento.fecha || '').split('T')[0],
+        temperatura: movimiento.temperatura ?? '',
+        observaciones: movimiento.observaciones || '',
+      } : {
         tanqueId: tanques[0].id,
         tipo_movimiento: 'entrada',
         cantidad_litros: '',
@@ -98,12 +110,17 @@ window.MovimientoBalanceWizard = {
       steps: wizardSteps,
       onComplete: async (dataMov) => {
         try {
-          await window.BalanceLacteo.registrar({
-            ...dataMov,
-            fincaId,
-            referencia_tipo: 'manual',
-          });
-          App.toast('Movimiento registrado', 'success');
+          if (esEdicion) {
+            await window.BalanceLacteo.actualizar(movimiento.id, dataMov);
+            App.toast('Movimiento actualizado', 'success');
+          } else {
+            await window.BalanceLacteo.registrar({
+              ...dataMov,
+              fincaId,
+              referencia_tipo: 'manual',
+            });
+            App.toast('Movimiento registrado', 'success');
+          }
           App.route();
         } catch (e) {
           App.toastError(e.message);

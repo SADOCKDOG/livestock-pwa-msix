@@ -57,6 +57,11 @@ const Gastos = {
             const gastoData = {
                 ...data,
                 ...snapMetadata,
+                // El wizard fija snap_zona explícitamente para Fitosanitarios/Electricidad
+                // (sin rebaño): no dejar que el snapshot lo pise con "Sin zona"
+                snap_zona: data.snap_zona || snapMetadata.snap_zona,
+                snap_especie: data.snap_especie || snapMetadata.snap_especie,
+                snap_tipo: data.snap_tipo || snapMetadata.snap_tipo,
                 fincaId: fincaActivaId,
                 comunidad_autonoma: fincaActiva?.comunidad_autonoma || null,
                 monto: Number(data.monto),

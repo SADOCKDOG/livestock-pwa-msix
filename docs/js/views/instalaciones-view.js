@@ -5,6 +5,9 @@
  * docs/PLAN-MEJORA-SIGGAN.md punto 5.
  */
 const InstalacionesView = {
+  _cache: [],
+  _vistaModo: 'cards',
+
   async render() {
     if (window.App) App.updateHeaderColor('instalaciones');
     const main = document.getElementById("ganaderia-tab-content") || document.getElementById("app-content");
@@ -16,11 +19,24 @@ const InstalacionesView = {
       .map((inst, realIndex) => ({ inst, realIndex }))
       .filter(({ inst }) => !inst?.anulada);
 
+    // Datos normalizados para la tabla densa ERP (tipo ya resuelto)
+    this._cache = instalacionesConIndice.map(({ inst, realIndex }) => {
+      const tipo = tipoPorId.get(Number(inst.tipoId));
+      return {
+        index: realIndex,
+        tipo: tipo ? tipo.nombre : 'Tipo desconocido',
+        codigo_siex: tipo?.codigo_siex || '—',
+        superficie: inst.superficie_m2 != null ? Number(inst.superficie_m2) : null,
+        plazas: inst.plazas_alojamiento != null ? Number(inst.plazas_alojamiento) : null,
+        volumen: inst.volumen_m3 != null ? Number(inst.volumen_m3) : null
+      };
+    });
+
     let html = '';
     if (!finca) {
       html = `<div class="empty-state"><p class="empty-state-text">Selecciona una finca activa primero.</p></div>`;
     } else if (instalacionesConIndice.length === 0) {
-      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.edificio()}</div><p class="empty-state-text">Sin instalaciones registradas.</p><div class="text-center mt-20"><button class="btn btn-create btn-lg" onclick="InstalacionesView._crearInstalacion()">${Icons.agregar()} Registrar primera instalación</button></div></div>`;
+      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.edificio()}</div><p class="empty-state-text">Sin instalaciones registradas.</p><div class="text-center mt-20"><button class="widget-link-btn widget-link-btn--neon neon-success" onclick="InstalacionesView._crearInstalacion()">${Icons.agregar()}<span class="widget-link-label">Nueva primer Instalación</span></button></div></div>`;
     } else {
       const moduleColor = (window.getModuleColor && window.getModuleColor('/instalaciones')) || 'var(--c-info)';
       let fichasHtml = '';
@@ -53,15 +69,96 @@ const InstalacionesView = {
               ${instalacionesConIndice.length} ${instalacionesConIndice.length === 1 ? 'registro' : 'registros'}
             </div>
           </div>
+          <div class="ml-auto flex gap-6">
+            <button class="btn-erp-secondary btn-sm" id="btn-inst-vista-cards" onclick="InstalacionesView._setVistaModo('cards')">Tarjetas</button>
+            <button class="btn-erp-secondary btn-sm" id="btn-inst-vista-tabla" onclick="InstalacionesView._setVistaModo('tabla')">Tabla ERP</button>
+          </div>
         </div>
-        <div class="grid gap-12">${fichasHtml}</div>`;
+        <fieldset class="erp-action-group">
+          <legend>Registro de Instalaciones</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="InstalacionesView._crearInstalacion()">${Icons.agregar()}<span class="widget-link-label">Nueva Instalación</span></button>
+          </div>
+        </fieldset>
+        <div class="erp-filtros" data-filtros-para="inst-lista">
+          <input type="search" class="form-input search-input" placeholder="Buscar instalación, tipo o código SIEX...">
+          <select class="form-select" data-etiqueta-todos="Todos los tipos"></select>
+        </div>
+        <div class="grid gap-12" id="inst-lista" data-ver-mas="10">${fichasHtml}</div>
+        <div id="inst-erp-table-container" class="mt-12" style="display:none;"></div>`;
     }
 
-    main.innerHTML = html + `
-      <div class="fab-container" onclick="InstalacionesView._crearInstalacion()">
-        <span class="fab-label">Nueva Instalación</span>
-        <button class="fab-btn">${Icons.fabPlus()}</button>
-      </div>`;
+    main.innerHTML = html;
+
+    // Restaurar modo de vista (por defecto "tabla" en escritorio >= 1024px)
+    if (this._cache.length > 0) {
+      const modoGuardado = localStorage.getItem('instalaciones_view_mode') || 'cards';
+      this._setVistaModo(modoGuardado, false);
+    }
+  },
+
+  /** Alterna entre el listado de tarjetas (móvil) y la tabla densa ERP (escritorio). */
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('instalaciones_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-inst-vista-cards');
+    const btnTabla = document.getElementById('btn-inst-vista-tabla');
+    const contenedorCards = document.getElementById('inst-lista');
+    const contenedorTabla = document.getElementById('inst-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'grid';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cache) return;
+
+    const num = (v, sufijo) => (v != null && !Number.isNaN(v) ? `${v.toLocaleString('es-ES')} ${sufijo}` : '—');
+    const tableData = this._cache.map(i => ({
+      index: i.index,
+      tipo: i.tipo,
+      codigo_siex: i.codigo_siex,
+      superficie: num(i.superficie, 'm²'),
+      plazas: i.plazas != null ? i.plazas.toLocaleString('es-ES') : '—',
+      volumen: num(i.volumen, 'm³')
+    }));
+
+    new window.ErpDataTable({
+      containerId: 'inst-erp-table-container',
+      title: 'Instalaciones',
+      pageSize: 15,
+      columns: [
+        { key: 'tipo', label: 'Tipo', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'codigo_siex', label: 'Código SIEX', sortable: true },
+        { key: 'superficie', label: 'Superficie', sortable: true, align: 'right' },
+        { key: 'plazas', label: 'Plazas', sortable: true, align: 'right' },
+        { key: 'volumen', label: 'Volumen', sortable: true, align: 'right' },
+        {
+          key: 'index',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (index) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='/instalacion?index=${index}'">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   async renderDetalle(params) {

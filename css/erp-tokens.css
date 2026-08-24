@@ -1,0 +1,22 @@
+/**
+ * erp-tokens.css — Tokens propios de la piel ERP de escritorio.
+ *
+ * La piel (erp-sidebar / erp-data-table / erp-overrides) usa variables que no
+ * existen en design-tokens.css. Se declaran aquí en vez de tocar esa hoja,
+ * que es compartida con el móvil: así la piel es autocontenida y el aspecto
+ * de Android no depende de ella.
+ *
+ * Se cargan solo en escritorio (el <link> lleva media="(min-width: 1024px)"),
+ * de modo que en móvil ninguna de estas variables llega a definirse.
+ */
+:root {
+  --brand: #1F5FA8;
+  --brand-soft: #E7F0FB;
+  --focus: #2B7DE9;
+  --header-neon-color: var(--brand);
+  --sidebar-bg: #1E1E1E;
+  --sidebar-text: #C3D0DE;
+  --sidebar-active-bg: #1F5FA8;
+  --text: #1F2A37;
+  --text-muted: #5C6B7A;
+}

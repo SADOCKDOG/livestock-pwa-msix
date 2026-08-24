@@ -566,9 +566,6 @@ const Icons = {
   }
 };
 
-// Exponer en window para el navegador (guías interactivas, comunidades-service)
-window.Icons = Icons;
-
 // Exportar para uso en módulos
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Icons;

@@ -585,9 +585,11 @@ const Analitica = {
                 window.db.getAllFromIndex('comercializacion_leche', 'fincaId', Number(fincaId)).catch(() => []),
                 window.db.getAllFromIndex('rebanos', 'fincaId', Number(fincaId)).catch(() => []),
             ]);
-            // Separar costes fijos y variables
-            const catsFijas = ['electricidad', 'alquiler', 'seguros', 'amortización', 'impuestos', 'personal', 'gestoría'];
-            const costesFijos = gastos.filter(g => catsFijas.includes((g.categoria || '').toLowerCase())).reduce((s, g) => s + (g.monto || 0), 0);
+            // Separar costes fijos y variables (comparación sin tildes: el wizard
+            // escribe 'Amortizacion'/'Gestoria' sin tilde — idiom de comercializacion-view.js:53)
+            const _normCat = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            const catsFijas = ['electricidad', 'alquiler', 'seguros', 'amortizacion', 'impuestos', 'personal', 'gestoria'];
+            const costesFijos = gastos.filter(g => catsFijas.includes(_normCat(g.categoria))).reduce((s, g) => s + (g.monto || 0), 0);
             const costesVariables = gastos.reduce((s, g) => s + (g.monto || 0), 0) - costesFijos;
             // Ingresos y volumen
             const totalKg = ventasCarne.reduce((s, v) => s + (v.pesoCanal || v.pesoVivo || 0), 0);

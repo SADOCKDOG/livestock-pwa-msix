@@ -1,13 +1,20 @@
-{
+﻿{
   "name": "livestock-pwa-msix",
   "version": "1.0.0",
   "description": "PWA/MSIX packaging project for Livestock Manager (Microsoft Store) — independent of the Capacitor/Android project.",
   "private": true,
   "scripts": {
     "build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1",
-    "serve": "npx --yes http-server . -p 8080 -c-1"
+    "serve": "npx --yes http-server . -p 8080 -c-1",
+    "prebuild:pago": "powershell -NoProfile -Command \"Copy-Item -Path js/mode-config-con-pago.js -Destination js/mode-config.js -Force\"",
+    "prebuild:demo": "powershell -NoProfile -Command \"Copy-Item -Path js/mode-config-sin-pago.js -Destination js/mode-config.js -Force\"",
+    "build:pago": "npm run prebuild:pago && npm run build",
+    "build:demo": "npm run prebuild:demo && npm run build",
+    "build:free": "npm run build:pago",
+    "build:premium": "npm run build:demo"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.0"
+    "@playwright/test": "^1.62.0",
+    "chrome-remote-interface": "^0.34.0"
   }
 }

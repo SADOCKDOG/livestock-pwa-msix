@@ -8,6 +8,9 @@
  * tipo_explotacion/sistema_explotacion de finca como hasta ahora.
  */
 const SubexplotacionesView = {
+  _cache: [],
+  _vistaModo: 'cards',
+
   async render() {
     if (window.App) App.updateHeaderColor('subexplotaciones');
     const main = document.getElementById("app-content");
@@ -25,9 +28,24 @@ const SubexplotacionesView = {
       .map((sub, realIndex) => ({ sub, realIndex }))
       .filter(({ sub }) => !sub?.anulada);
 
+    // Datos normalizados para la tabla densa ERP (especie y censo ya resueltos)
+    this._cache = subsConIndice.map(({ sub, realIndex }) => {
+      const especie = especiePorId.get(Number(sub.especieId));
+      return {
+        index: realIndex,
+        especie: especie ? especie.nombre_display.toUpperCase() : 'ESPECIE DESCONOCIDA',
+        tipo_explotacion: sub.tipo_explotacion || '—',
+        sistema: sub.sistema_explotacion
+          ? sub.sistema_explotacion.charAt(0).toUpperCase() + sub.sistema_explotacion.slice(1)
+          : '—',
+        censo: censoPorEspecie.get(Number(sub.especieId)) || 0,
+        capacidad: sub.capacidad_maxima != null ? Number(sub.capacidad_maxima) : null
+      };
+    });
+
     let html = '';
     if (subsConIndice.length === 0) {
-      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.rebanos()}</div><p class="empty-state-text">Sin subexplotaciones registradas.</p><p class="text-aaa text-[0.65rem] uppercase font-800 mt-4 px-20 text-center">Solo es necesario si gestionas varias especies en esta finca y necesitas declarar censo/clasificación zootécnica por separado ante SIEX/SIGGAN.</p><div class="text-center mt-20"><button class="btn btn-create btn-lg" onclick="SubexplotacionesView._crearSubexplotacion()">${Icons.agregar()} Registrar primera subexplotación</button></div></div>`;
+      html = `<div class="empty-state"><div class="empty-state-icon">${Icons.rebanos()}</div><p class="empty-state-text">Sin subexplotaciones registradas.</p><p class="text-aaa text-[0.65rem] uppercase font-800 mt-4 px-20 text-center">Solo es necesario si gestionas varias especies en esta finca y necesitas declarar censo/clasificación zootécnica por separado ante SIEX/SIGGAN.</p><div class="text-center mt-20"><button class="widget-link-btn widget-link-btn--neon neon-success" onclick="SubexplotacionesView._crearSubexplotacion()">${Icons.agregar()}<span class="widget-link-label">Nueva primer Subexplotación</span></button></div></div>`;
     } else {
       const moduleColor = (window.getModuleColor && window.getModuleColor('/subexplotaciones')) || 'var(--c-info)';
       let fichasHtml = '';
@@ -43,6 +61,7 @@ const SubexplotacionesView = {
         fichasHtml += App._cardRegistro({
           icon: Icons.rebanos(),
           title: especie ? especie.nombre_display.toUpperCase() : 'ESPECIE DESCONOCIDA',
+          tipo: especie ? especie.nombre_display : 'Desconocida',
           subtitle: 'Subexplotación SIEX',
           metadata: metadata.join(''),
           color: moduleColor,
@@ -61,15 +80,103 @@ const SubexplotacionesView = {
               ${subsConIndice.length} ${subsConIndice.length === 1 ? 'especie' : 'especies'} declaradas por separado
             </div>
           </div>
+          <div class="ml-auto flex gap-6">
+            <button class="btn-erp-secondary btn-sm" id="btn-subexp-vista-cards" onclick="SubexplotacionesView._setVistaModo('cards')">Tarjetas</button>
+            <button class="btn-erp-secondary btn-sm" id="btn-subexp-vista-tabla" onclick="SubexplotacionesView._setVistaModo('tabla')">Tabla ERP</button>
+          </div>
         </div>
-        <div class="grid gap-12">${fichasHtml}</div>`;
+        <fieldset class="erp-action-group">
+          <legend>Registro de Subexplotaciones</legend>
+          <div class="erp-action-group-body">
+            <button class="widget-link-btn widget-link-btn--neon neon-success" onclick="SubexplotacionesView._crearSubexplotacion()">${Icons.agregar()}<span class="widget-link-label">Nueva Subexplotación</span></button>
+          </div>
+        </fieldset>
+        <div class="erp-filtros" data-filtros-para="subexp-lista">
+          <input type="search" class="form-input search-input" placeholder="Buscar especie, tipo o sistema...">
+          <select class="form-select" data-etiqueta-todos="Todas las especies"></select>
+        </div>
+        <div class="grid gap-12" id="subexp-lista" data-ver-mas="10">${fichasHtml}</div>
+        <div id="subexp-erp-table-container" class="mt-12" style="display:none;"></div>`;
     }
 
-    main.innerHTML = html + `
-      <div class="fab-container" onclick="SubexplotacionesView._crearSubexplotacion()">
-        <span class="fab-label">Nueva Subexplotación</span>
-        <button class="fab-btn">${Icons.fabPlus()}</button>
-      </div>`;
+    main.innerHTML = html;
+
+    if (this._cache.length > 0) {
+      const modoGuardado = localStorage.getItem('subexplotaciones_view_mode') || 'tabla';
+      this._setVistaModo(modoGuardado, false);
+    }
+  },
+
+  /** Alterna entre el listado de tarjetas y la tabla densa ERP. */
+  _setVistaModo(modo, guardar = true) {
+    this._vistaModo = modo;
+    if (guardar) {
+      try { localStorage.setItem('subexplotaciones_view_mode', modo); } catch (_) {}
+    }
+
+    const btnCards = document.getElementById('btn-subexp-vista-cards');
+    const btnTabla = document.getElementById('btn-subexp-vista-tabla');
+    const contenedorCards = document.getElementById('subexp-lista');
+    const contenedorTabla = document.getElementById('subexp-erp-table-container');
+
+    if (btnCards && btnTabla) {
+      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
+      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
+    }
+
+    if (modo === 'tabla') {
+      if (contenedorCards) contenedorCards.style.display = 'none';
+      if (contenedorTabla) {
+        contenedorTabla.style.display = 'block';
+        this._renderErpTable();
+      }
+    } else {
+      if (contenedorTabla) contenedorTabla.style.display = 'none';
+      if (contenedorCards) contenedorCards.style.display = 'grid';
+    }
+  },
+
+  _renderErpTable() {
+    if (!window.ErpDataTable || !this._cache) return;
+
+    const tableData = this._cache.map(sx => ({
+      index: sx.index,
+      especie: sx.especie,
+      tipo_explotacion: sx.tipo_explotacion,
+      sistema: sx.sistema,
+      censo: sx.censo,
+      capacidad: sx.capacidad != null ? sx.capacidad.toLocaleString('es-ES') : '—',
+      ocupacion: sx.capacidad ? Math.round((sx.censo / sx.capacidad) * 100) + '%' : '—',
+      _excedida: !!(sx.capacidad && sx.censo > sx.capacidad)
+    }));
+
+    new window.ErpDataTable({
+      containerId: 'subexp-erp-table-container',
+      title: 'Subexplotaciones',
+      pageSize: 15,
+      columns: [
+        { key: 'especie', label: 'Especie', sortable: true, cellClass: 'erp-cell-id' },
+        { key: 'tipo_explotacion', label: 'Tipo de explotación', sortable: true },
+        { key: 'sistema', label: 'Sistema', sortable: true },
+        { key: 'censo', label: 'Censo actual', sortable: true, align: 'right' },
+        { key: 'capacidad', label: 'Capacidad máx.', sortable: true, align: 'right' },
+        {
+          key: 'ocupacion',
+          label: 'Ocupación',
+          sortable: true,
+          align: 'right',
+          cellClass: (v, row) => (row._excedida ? 'erp-cell-alerta' : 'erp-cell-ok')
+        },
+        {
+          key: 'index',
+          label: 'Ficha',
+          sortable: false,
+          align: 'center',
+          render: (index) => `<button class="btn-erp-secondary btn-sm" onclick="location.hash='/subexplotacion?index=${index}'">Ver Ficha</button>`
+        }
+      ],
+      data: tableData
+    }).render();
   },
 
   /** Censo activo por especieId dentro de la finca (a partir de rebaños propios). */

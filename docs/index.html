@@ -58,6 +58,10 @@
     <link rel="stylesheet" href="css/styles.css?v=6.58" />
     <link rel="stylesheet" href="css/layout.css?v=6.58" />
     <link rel="stylesheet" href="css/desktop.css?v=6.58" />
+    <link rel="stylesheet" href="css/erp-tokens.css?v=6.58" media="(min-width: 1024px)" />
+    <link rel="stylesheet" href="css/erp-sidebar.css?v=6.58" media="(min-width: 1024px)" />
+    <link rel="stylesheet" href="css/erp-data-table.css?v=6.58" media="(min-width: 1024px)" />
+    <link rel="stylesheet" href="css/erp-overrides.css?v=6.58" media="(min-width: 1024px)" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icons/Logo aplicación.png" />
 
@@ -72,6 +76,10 @@
     <!-- Librerías Críticas Locales para Android -->
     <script src="js/app-version.js?v=6.58"></script>
     <script src="js/module-colors.js?v=6.58"></script>
+    <!-- Capa ERP: ambos son inertes al cargar (icons-desktop solo anade iconos
+         con guardas; erp-data-table solo declara window.ErpDataTable). -->
+    <script src="js/icons-desktop.js?v=6.58"></script>
+    <script src="js/erp-data-table.js?v=6.58"></script>
     <script src="js/idb-local.js?v=6.58"></script>
 
     <!-- Librerías Externas vía CDN -->
@@ -309,7 +317,7 @@
     <script src="js/mode-config.js?v=6.58"></script>
     <script>if (typeof FREE_MODE === 'undefined') { window.FREE_MODE = false; }</script>
 
-    <!-- Scripts locales de Livestock Manager Premium (Orden de Dependencia Crítico) -->
+    <!-- Scripts locales de Livestock Manager Soporte (Orden de Dependencia Crítico) -->
     <script src="js/db.js?v=6.58"></script>
     <script src="js/error-handler.js?v=6.58"></script>
     <script src="js/icons.js?v=6.58"></script>
@@ -398,7 +406,7 @@
     <!-- Gestor de compras IAP (Google Play Billing) -->
     <script src="js/purchase-manager.js?v=6.58"></script>
 
-    <!-- Gestor de modo Free/Premium -->
+    <!-- Gestor de modo Free/Soporte -->
     <script src="js/premium-manager.js?v=6.58"></script>
 
     <!-- 5bº Módulos de Compradores, Proveedores, Contratos y Transportistas -->
@@ -451,6 +459,7 @@
 
     <!-- 6º Arrancar el Controlador de la Aplicación (Orquestador Central) -->
     <script src="js/app.js?v=6.58"></script>
+    <script src="js/erp-shell.js?v=6.58"></script>
 
     <!-- Herramientas de QA/E2E (solo en desarrollo): se cargan bajo demanda,
          no en cada arranque en producción. Activar una vez con

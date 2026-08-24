@@ -185,8 +185,8 @@ const ProduccionView = {
       </div>
 
       <!-- Botón Flotante de Acción con viñeta -->
-      <div class="fab-container" onclick="${registrarHandler}">
-        <span class="fab-label">Nuevo Registro ${registrarLabel}</span>
+      <div class="fab-container erp-solo-movil" onclick="${registrarHandler}">
+        <span class="fab-label">Registrar ${registrarLabel}</span>
         <button class="fab-btn" style="--fab-color: ${color};">${Icons.fabPlus()}</button>
       </div>`;
   },
@@ -222,7 +222,7 @@ const ProduccionView = {
     // Renderizar sub-pestañas de Láctea
     content.innerHTML = `
       <div class="mb-10">
-        <div class="tabs-scroll leche-sub-tabs scroll-shadow-container" style="padding-left: 8px;">
+        <div class="tabs-scroll leche-sub-tabs scroll-shadow-container erp-solo-movil" style="padding-left: 8px;">
           <button class="prod-tab leche-sub-tab active" data-subtab="dashboard" onclick="ProduccionView._cambiarLecheSubTab('dashboard')">${Icons.grafico()} Dashboard</button>
           <button class="prod-tab leche-sub-tab" data-subtab="tanques" onclick="ProduccionView._cambiarLecheSubTab('tanques')">${Icons.silos()} Tanques</button>
           <button class="prod-tab leche-sub-tab" data-subtab="control" onclick="ProduccionView._cambiarLecheSubTab('control')">${Icons.analitica()} Control</button>
@@ -437,7 +437,7 @@ const ProduccionView = {
       </div>
 
       <!-- Botón FAB -->
-      <div class="fab-container" onclick="window.TanqueWizard.open()">
+      <div class="fab-container erp-solo-movil" onclick="window.TanqueWizard.open()">
         <span class="fab-label">Nuevo Tanque</span>
         <button class="fab-btn" style="--fab-color: var(--c-info);">${Icons.fabPlus()}</button>
       </div>
@@ -708,7 +708,8 @@ const ProduccionView = {
         App.clearExitGuard();
         App.toast("Registro actualizado correctamente");
         overlay.remove();
-        ProduccionView.render();
+        if (window.ExplotacionView && ExplotacionView._cachedData) ExplotacionView.render();
+        else ProduccionView.render();
       };
 
       overlay.querySelector('#btn-del-reg').onclick = async () => {
@@ -718,7 +719,8 @@ const ProduccionView = {
         App.clearExitGuard();
         App.toast("Registro eliminado");
         overlay.remove();
-        ProduccionView.render();
+        if (window.ExplotacionView && ExplotacionView._cachedData) ExplotacionView.render();
+        else ProduccionView.render();
       };
     } catch (e) {
       App.toastError(e.message);
