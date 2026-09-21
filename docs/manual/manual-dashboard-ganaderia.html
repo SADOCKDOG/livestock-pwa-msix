@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01. Dashboard & Ganader&iacute;a — Manual LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>01. Dashboard & Ganader&iacute;a</h1>
+        <p class="version">Consola principal &middot; Censo multi-especie &middot; Alertas en vivo</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="module-toc" aria-label="Tabla de contenidos del modulo">
+    <ul>
+      <li><a href="#dashboard">1. Dashboard &mdash; Consola Principal</a></li>
+      <li><a href="#ganaderia">2. Hub Ganader&iacute;a (GeGan) &mdash; Carrusel 5 Submodulos</a></li>
+      <li><a href="#animales">3. Animales &mdash; Lista, Ficha y Wizard de Alta</a></li>
+      <li><a href="#rebanos">4. Reba&ntilde;os &mdash; Lotes, KPIs y Historial</a></li>
+      <li><a href="#zonas">5. Zonas &mdash; Parcelas, UGM y Rotacion</a></li>
+      <li><a href="#wizards">6. Wizards: Censo, Crotales y Finca</a></li>
+      <li><a href="#siggan">7. Integracion SIGGAN / BADIGEX</a></li>
+      <li><a href="#demo">8. Datos Demo CHAMORRO</a></li>
+    </ul>
+  </nav>
+
+  <main class="manual-main">
+
+    <!-- 1. DASHBOARD -->
+    <section id="dashboard" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Dashboard</span>
+        <h2>1. Dashboard &mdash; Consola Principal</h2>
+        <p class="section-desc">Pantalla principal al iniciar la app (<code>#/dashboard</code>). Centro de control con KPIs, accesos rapidos y alertas en tiempo real.</p>
+        <div class="route-info"><code>js/views/dashboard-view.js</code> &middot; <code>window.DashboardView</code></div>
+      </div>
+
+      <h3>1.1 KPIs Diarios Lacteos</h3>
+      <p>Indicadores calculados sobre los ultimos 12 meses de entregas de leche (solo si <strong>flag LECHE = true</strong>):</p>
+      <ul class="feature-list">
+        <li><strong>MOFA</strong> (Margen sobre Alimentacion) &mdash; Ingresos leche menos coste alimentacion</li>
+        <li><strong>Precio medio</strong> &euro;/L &mdash; Media ponderada de ultimas entregas</li>
+        <li><strong>Extracto seco %</strong> &mdash; Grasa + Proteina media</li>
+        <li><strong>Celulas somaticas</strong> &mdash; Con semaforo (verde <200k, ambar 200-400k, rojo >400k)</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="dashboard-kpis">
+  <img src="img/dashboard-kpis.png" alt="KPIs lacteos con progress bars semaforo" loading="lazy">
+  <span class="shot-label">[CAPTURA] dashboard-kpis.png</span>
+  <span class="shot-desc">KPIs lacteos con progress bars semaforo</span>
+</div>
+
+      <h3>1.2 Registro Rapido &mdash; Bento Grid 12 Accesos</h3>
+      <p>Grid de 12 tarjetas (<code>card-registro-quick</code>) con colores semanticos por operacion:</p>
+      <table class="feature-table">
+        <thead><tr><th>Operacion</th><th>Icono</th><th>Colores</th><th>Condicion</th></tr></thead>
+        <tbody>
+          <tr><td>Peso (kg)</td><td>[PESO]</td><td>Naranja</td><td>Siempre (carne)</td></tr>
+          <tr><td>Orde&ntilde;o (L)</td><td>[LECHE]</td><td>Azul</td><td>Flag LECHE</td></tr>
+          <tr><td>Entrega Tanque</td><td>[TANQUE]</td><td>Azul</td><td>Flag LECHE</td></tr>
+          <tr><td>Albaran Leche</td><td>[ALBARAN]</td><td>Azul</td><td>Flag LECHE</td></tr>
+          <tr><td>Tratamiento</td><td>[MEDIC]</td><td>Rojo</td><td>Siempre</td></tr>
+          <tr><td>Vacunacion</td><td>[VACUNA]</td><td>Rojo</td><td>Siempre</td></tr>
+          <tr><td>Celo / IA</td><td>[REPRO]</td><td>Rosa</td><td>Siempre</td></tr>
+          <tr><td>Parto</td><td>[PARTO]</td><td>Rosa</td><td>Siempre</td></tr>
+          <tr><td>Gasto</td><td>[GASTO]</td><td>Gris</td><td>Siempre</td></tr>
+          <tr><td>Censo Anual</td><td>[CENSO]</td><td>Verde</td><td>Siempre</td></tr>
+          <tr><td>Crotales</td><td>[CROTAL]</td><td>Verde</td><td>Siempre</td></tr>
+          <tr><td>Guia Movimiento</td><td>[GUIA]</td><td>Verde</td><td>Siempre</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="dashboard-bento">
+  <img src="img/dashboard-bento-grid.png" alt="Bento Grid 12 tarjetas con skeleton loaders" loading="lazy">
+  <span class="shot-label">[CAPTURA] dashboard-bento-grid.png</span>
+  <span class="shot-desc">Bento Grid 12 tarjetas con skeleton loaders</span>
+</div>
+
+      <h3>1.3 Alertas en Tiempo Real</h3>
+      <p>Sistema de badges con contadores y codigo de color:</p>
+      <ul class="feature-list">
+        <li><strong>Rojo (urgente):</strong> Supresion sanitaria activa (dias restantes &le; 0)</li>
+        <li><strong>Ambar (advertencia):</strong> Supresion proxima (1-7 dias), vencimientos PAC/contratos/ADSG</li>
+        <li><strong>Verde (OK):</strong> Sin alertas criticas</li>
+      </ul>
+      <p>Suscripcion a <code>EventBus</code> para actualizacion en vivo al registrar tratamientos, vencimientos, etc.</p>
+      <div class="screenshot-placeholder" data-shot="dashboard-alertas">
+  <img src="img/dashboard-alertas.png" alt="Alertas con badges y contadores en tiempo real" loading="lazy">
+  <span class="shot-label">[CAPTURA] dashboard-alertas.png</span>
+  <span class="shot-desc">Alertas con badges y contadores en tiempo real</span>
+</div>
+
+      <h3>1.4 FAB "Nueva Actividad"</h3>
+      <p>Boton flotante (FAB) contenedor con label "Nueva Actividad" que abre menu rapido de los mismos 12 registros del Bento Grid.</p>
+
+      <h3>1.5 Widget Tareas Pendientes (Agenda)</h3>
+      <p>Muestra proximas citas de <code>AgendaView</code> integradas en el dashboard (recordatorios sanitarios, revisiones, tramites).</p>
+
+      <div class="callout callout-warning">
+        <strong>[AVISO] Free vs Premium:</strong> En version FREE aparece banner superior con boton "Premium" (<code>PremiumManager.isFree()</code>). KPIs lacteos solo se calculan si hay entregas de leche y flag LECHE activo.
+      </div>
+    </section>
+
+    <!-- 2. HUB GANADERÍA -->
+    <section id="ganaderia" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">GeGan</span>
+        <h2>2. Hub Ganader&iacute;a (GeGan) &mdash; Carrusel 5 Submodulos</h2>
+        <p class="section-desc">Consola unificada <code>#/ganaderia</code> con carrusel horizontal sticky de 5 submodulos. Header maestro colour verde lima (--c-success).</p>
+        <div class="route-info"><code>js/views/ganaderia-view.js</code> &middot; <code>window.GanaderiaView</code></div>
+      </div>
+
+      <h3>2.1 Carrusel de Submodulos (Sticky)</h3>
+      <p>Implementado con <code>App.renderCarruselPestanas</code> (z-index 900, overflow: clip, wrapper mb-14). Persiste submodulo activo en <code>_activeSubModule</code> con auto-fallback si el actual deja de estar permitido por flags.</p>
+      <table class="feature-table">
+        <thead><tr><th>Submodulo</th><th>Color</th><th>Ruta</th><th>Vista Delegada</th><th>Condicion</th></tr></thead>
+        <tbody>
+          <tr><td>Animales</td><td>Naranja</td><td><code>#/ganaderia?sub=animales</code></td><td><code>AnimalesView</code></td><td>Siempre</td></tr>
+          <tr><td>Reba&ntilde;os</td><td>Azul</td><td><code>#/ganaderia?sub=rebanos</code></td><td><code>RebanosView</code></td><td>Siempre</td></tr>
+          <tr><td>Patrimonio</td><td>Ambar</td><td><code>#/ganaderia?sub=patrimonio</code></td><td><code>PatrimonioView</code></td><td>Solo Flag CARNE</td></tr>
+          <tr><td>Zonas</td><td>Verde</td><td><code>#/ganaderia?sub=zonas</code></td><td><code>ZonasView</code></td><td>Siempre</td></tr>
+          <tr><td>Sanidad</td><td>Purpura</td><td><code>#/ganaderia?sub=sanidad</code></td><td><code>SanidadView</code></td><td>Siempre</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="ganaderia-carrusel">
+  <img src="img/ganaderia-carrusel.png" alt="Carrusel sticky con 5 submodulos, header verde lima GeGan" loading="lazy">
+  <span class="shot-label">[CAPTURA] ganaderia-carrusel.png</span>
+  <span class="shot-desc">Carrusel sticky con 5 submodulos, header verde lima GeGan</span>
+</div>
+
+      <h3>2.2 Widget Agenda Integrado</h3>
+      <p>En <code>#ganaderia-agenda-widget</code> se renderiza <code>AgendaView.renderWidget()</code> con proximas citas contextuales al submodulo activo.</p>
+
+      <div class="callout callout-info">
+        <strong>[INFO] Flags por Finca:</strong> El submodulo <strong>Patrimonio</strong> solo es visible si <code>ModoContextoHelper.flags.carne === true</code> para la finca activa. No es limitacion Premium, es modo de explotacion.
+      </div>
+    </section>
+
+    <!-- 3. ANIMALES -->
+    <section id="animales" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Animales</span>
+        <h2>3. Animales &mdash; Lista, Ficha y Wizard de Alta</h2>
+        <p class="section-desc">Gestion completa del censo: listado con filtros, ficha detalle full-screen, wizard 10+ secciones, validacion REGA en tiempo real.</p>
+        <div class="route-info"><code>js/views/animales-view.js</code> &middot; <code>window.AnimalesView</code> &middot; Rutas: <code>#/animales</code>, <code>#/animal</code>, <code>#/animal?id={id}</code></div>
+      </div>
+
+      <h3>3.1 Listado Inteligente</h3>
+      <ul class="feature-list">
+        <li><strong>Busqueda integrada:</strong> Por crotal, nombre, raza, reba&ntilde;o</li>
+        <li><strong>Filtro especie:</strong> Select dinamico (Vacuno, Ovino, Caprino, Porcino, Equino...)</li>
+        <li><strong>Cards estandar (<code>App._cardRegistro</code>):</strong> Badge estado (Activo=verde, Vendido=ambar, Baja=rojo vineta retroiluminada), enlace "Ficha &rarr;" badge amarillo poco prominente</li>
+        <li><strong>Banner "ocultos por modo":</strong> Si hay animales filtrados por flags leche/carne</li>
+        <li><strong>Module header:</strong> Resumen censal (total, activos, vendidos)</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="animales-lista">
+  <img src="img/animales-lista.png" alt="Listado con busqueda, filtro especie, cards con badge estado y enlace Ficha" loading="lazy">
+  <span class="shot-label">[CAPTURA] animales-lista.png</span>
+  <span class="shot-desc">Listado con busqueda, filtro especie, cards con badge estado y enlace Ficha</span>
+</div>
+
+      <h3>3.2 Ficha Animal / Wizard Alta (Full-Screen)</h3>
+      <p>Wizard a pantalla completa con header fijo (NFC/SCAN), footer fijo (Guardar/Salir/Eliminar), 10+ secciones colapsables:</p>
+      <ol class="step-list">
+        <li><strong>Identificacion:</strong> Crotal (validacion ES+12 digitos tiempo real, color codigo), RFID, DIB/Pasaporte, Tipo identificacion (Completa vs Matadero)</li>
+        <li><strong>Datos basicos:</strong> Nombre, Sexo (H/M/C), Fecha nacimiento, Especie, Raza (catalogo FEGA 163 razas DB v16), Categoria productiva</li>
+        <li><strong>Reba&ntilde;o y Zona:</strong> Asignacion a reba&ntilde;o/lote y zona actual</li>
+        <li><strong>Origen / Tipo de Alta:</strong> Nacimiento, Compra, Importacion... (oficiales desde <code>ComunidadesService</code>)</li>
+        <li><strong>Compra (si aplica):</strong> Precio, Proveedor, Factura, Pago pendiente, Fecha</li>
+        <li><strong>Madre:</strong> Vinculacion madre-cria (selector hembras activas)</li>
+        <li><strong>Libro Registro SIGGAN:</strong> Pais nacimiento, REGA procedencia, Fecha alta/baja, Motivo baja oficial</li>
+        <li><strong>Notificacion REGA/SIA:</strong> Checkbox <code>notificado_rega</code> con validacion y envio real</li>
+        <li><strong>Estado actual:</strong> Activo / Vendido / Baja (muerte/sacrificio) con motivo y fecha</li>
+        <li><strong>SANDACH automatico:</strong> Al seleccionar motivo de baja</li>
+        <li><strong>Margen economico:</strong> Calculo <code>MargenAnimal.calcular(animalId)</code> (coste total, ingreso total, margen neto, desglose compra/sanidad/leche/venta)</li>
+        <li><strong>Historial reproductivo y companeros de lote</strong> (solo en edicion)</li>
+      </ol>
+      <div class="screenshot-placeholder" data-shot="animales-ficha">
+  <img src="img/animales-ficha-wizard.png" alt="Wizard full-screen con 10+ secciones, validacion crotal dorada/roja" loading="lazy">
+  <span class="shot-label">[CAPTURA] animales-ficha-wizard.png</span>
+  <span class="shot-desc">Wizard full-screen con 10+ secciones, validacion crotal dorada/roja</span>
+</div>
+
+      <h3>3.3 Validacion Crotal en Tiempo Real</h3>
+      <p>Formato <strong>ES + 12 digitos</strong> (SITRAN). Input con color dorado si valido, rojo si invalido. Validacion pais nacimiento y REGA procedencia.</p>
+
+      <h3>3.4 Catalogo Razas FEGA Oficial</h3>
+      <p>163 razas (DB v16) filtradas por especie con clasificacion 1001-1004 y grado de amenaza. Select dinamico que se actualiza al cambiar especie.</p>
+    </section>
+
+    <!-- 4. REBAÑOS -->
+    <section id="rebanos" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Reba&ntilde;os</span>
+        <h2>4. Reba&ntilde;os &mdash; Lotes, KPIs y Historial</h2>
+        <p class="section-desc">Gestion de lotes/reba&ntilde;os con KPIs productivos, historial sanitario, gastos combinados y wizard 5 pasos.</p>
+        <div class="route-info"><code>js/views/rebanos-view.js</code> &middot; <code>window.RebanosView</code> &middot; Rutas: <code>#/rebanos</code>, <code>#/rebano?id={id}</code></div>
+      </div>
+
+      <h3>4.1 Listado y KPIs</h3>
+      <ul class="feature-list">
+        <li><strong>Busqueda:</strong> Por nombre, raza, codigo lote</li>
+        <li><strong>Grafico evolucion mensual:</strong> Ultimos 6 meses (pesajes, orde&ntilde;os, eventos)</li>
+        <li><strong>Card-resumen balance:</strong> Categorias carne, leche, activos, total</li>
+        <li><strong>Cards estandar:</strong> Badge estado (Activo/Inactivo/Vendido), enlace "Ficha &rarr;"</li>
+      </ul>
+
+      <h3>4.2 Detalle de Reba&ntilde;o</h3>
+      <ul class="feature-list">
+        <li><strong>Info-boxes KPIs (3 columnas):</strong> Total, Activos, Vendidos, kg carne, Litros leche, Eventos</li>
+        <li><strong>Historial sanitario:</strong> Tratamientos, retiradas, veterinario prescriptor, tiempos espera carne/leche</li>
+        <li><strong>Gastos combinados:</strong> Gastos manuales + consumo silos (registro_eventos tipo <code>silo_consumo</code>)</li>
+        <li><strong>Animales del reba&ntilde;o:</strong> Lista con ficha rapida y boton "Mover Lote"</li>
+        <li><strong>Botones widget-link-btn neon:</strong> Tratamiento, Consumo, Gasto, Mover</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="rebanos-detalle">
+  <img src="img/rebanos-detalle.png" alt="Detalle con KPIs, historial sanitario, botones accion neon" loading="lazy">
+  <span class="shot-label">[CAPTURA] rebanos-detalle.png</span>
+  <span class="shot-desc">Detalle con KPIs, historial sanitario, botones accion neon</span>
+</div>
+
+      <h3>4.3 Wizard Nuevo Reba&ntilde;o (5 Pasos)</h3>
+      <ol class="step-list">
+        <li><strong>Datos basicos:</strong> Nombre, especie, tipo (leche/carne/mixta), capacidad, codigo lote, fecha constitucion</li>
+        <li><strong>Ubicacion:</strong> Zona, tipo explotacion REGA (RD 787/2023 &mdash; select obligatorio)</li>
+        <li><strong>Produccion:</strong> Tipos filtrados por flags modo finca</li>
+        <li><strong>Validaciones:</strong> Capacidad > 0, tipo explotacion requerido</li>
+        <li><strong>Confirmacion:</strong> Resumen y guardado</li>
+      </ol>
+      <p>Eliminacion con auditoria (solo si sin animales activos), wizard steps tematicos colores ambar/verde/azul/oro.</p>
+
+      <h3>4.4 Integracion SIGGAN</h3>
+      <ul class="feature-list">
+        <li>Tipo explotacion REGA obligatorio (clasificacion RD 787/2023)</li>
+        <li>Codigo lote para trazabilidad</li>
+        <li>Consumo pienso integrado con Silos (descuenta stock, genera gasto analitico)</li>
+        <li>Historial sanitario con tiempos espera diferenciados carne/leche</li>
+      </ul>
+    </section>
+
+    <!-- 5. ZONAS -->
+    <section id="zonas" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Zonas</span>
+        <h2>5. Zonas &mdash; Parcelas, UGM y Rotacion de Pastos</h2>
+        <p class="section-desc">Gestion de parcelas con aforo, superficie, UGM, carga ganadera, control fitosanitario y rotacion validada.</p>
+        <div class="route-info"><code>js/views/zonas-view.js</code> &middot; <code>window.ZonasView</code> &middot; Rutas: <code>#/zonas</code>, <code>#/zona?index={index}</code></div>
+      </div>
+
+      <h3>5.1 Calculo UGM Automatico</h3>
+      <table class="feature-table">
+        <thead><tr><th>Especie</th><th>UGM</th></tr></thead>
+        <tbody>
+          <tr><td>Vacas / Bovino</td><td>1.0</td></tr>
+          <tr><td>Ovejas / Cabras</td><td>0.15</td></tr>
+          <tr><td>Cerdos</td><td>0.3</td></tr>
+          <tr><td>Equino</td><td>1.1</td></tr>
+        </tbody>
+      </table>
+      <p>Formula: <code>UGM_total = &Sigma;(animales_especie &times; UGM_especie)</code> &rarr; <code>Carga UGM/ha = UGM_total / superficie_ha</code></p>
+
+      <h3>5.2 Alertas Sobrepastoreo</h3>
+      <ul class="feature-list">
+        <li><strong>Limite ecologico:</strong> 1.0 UGM/ha (pastoreo extensivo)</li>
+        <li><strong>Alerta Bento critica (rojo, animada):</strong> Si carga > 100% &rarr; lista parcelas afectadas con UGM/ha</li>
+        <li><strong>Estados ocupacion:</strong> Sobrecarga (>100%), Optimo (80-100%), Aceptable (50-80%), Infrautilizada (<50%)</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="zonas-sobrepastoreo">
+  <img src="img/zonas-sobrepastoreo.png" alt="Alerta Bento sobrepastoreo con progress bars carga/aforo" loading="lazy">
+  <span class="shot-label">[CAPTURA] zonas-sobrepastoreo.png</span>
+  <span class="shot-desc">Alerta Bento sobrepastoreo con progress bars carga/aforo</span>
+</div>
+
+      <h3>5.3 Control Fitosanitario y Rotacion</h3>
+      <ul class="feature-list">
+        <li>Bloquea rotacion si parcela en cuarentena (lee gastos categoria 'fitosanitarios' con <code>control_normativo.plazoSeguridadDias</code>)</li>
+        <li>Modal rotacion: selector reba&ntilde;o origen, parcela destino (con estado fitosanitario), observaciones</li>
+        <li>Registra evento <code>registro_eventos</code> tipo 'traslado' motivo 'rotacion_pastos' para auditoria</li>
+      </ul>
+
+      <h3>5.4 Datos SIGGAN / PAC</h3>
+      <ul class="feature-list">
+        <li><strong>Codigo PAC:</strong> Parcela agraria (obligatorio para subvenciones CCAA)</li>
+        <li><strong>Distancia a agua:</strong> Requisito PAC/bienestar</li>
+        <li>Zona guarda <code>zonaActual</code> (nombre) y <code>zonaId</code> (FK) para censo por zona</li>
+      </ul>
+
+      <h3>5.5 Demo CHAMORRO &mdash; Auto-Prueba Sobrepastoreo</h3>
+      <p>Si finca.nombre incluye 'CHAMORRO' o flag demo: auto-crea <strong>'Cercado de Cebo 1ha'</strong> (1 ha, aforo 10) y mueve reba&ntilde;o 'Terneros Cebo' &rarr; dispara sobrepastoreo (2.0 UGM/ha > 1.0). Permite probar alerta y rotacion preventiva.</p>
+      <div class="screenshot-placeholder" data-shot="zonas-demo">
+  <img src="img/zonas-demo-chamorro.png" alt="Zona demo con sobrepastoreo 2.0 UGM/ha y boton rotar" loading="lazy">
+  <span class="shot-label">[CAPTURA] zonas-demo-chamorro.png</span>
+  <span class="shot-desc">Zona demo con sobrepastoreo 2.0 UGM/ha y boton rotar</span>
+</div>
+
+      <h3>5.6 Wizard Nueva Zona (2 Pasos)</h3>
+      <ol class="step-list">
+        <li>Datos basicos: Nombre, superficie (ha), aforo maximo, UGM/ha calculado</li>
+        <li>PAC/Agua: Codigo PAC, distancia a agua (m)</li>
+      </ol>
+    </section>
+
+    <!-- 6. WIZARDS -->
+    <section id="wizards" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Wizards</span>
+        <h2>6. Wizards: Declaracion Censal, Crotales y Finca</h2>
+        <p class="section-desc">Tres wizards principales accesibles desde Dashboard (Bento Grid) y Ganader&iacute;a.</p>
+      </div>
+
+      <h3>6.1 Wizard Declaracion Censal (<code>wizard-censo.js</code>)</h3>
+      <p><strong>Titulo:</strong> DECLARACION CENSAL &mdash; 3 pasos</p>
+      <ol class="step-list">
+        <li><strong>Fecha Referencia:</strong> Date (default 1 enero año actual) &mdash; obligatorio. Nota: declaracion censal se refiere a censo a 1 de enero.</li>
+        <li><strong>Censo Consolidado:</strong> Calculo automatico por especie y categoria (solo lectura). Total cabezas activas, desglose hembras/machos/categoria. Debe haber &ge;1 animal activo.</li>
+        <li><strong>Tramitacion Administrativa:</strong> Estado (borrador/presentado/aceptado/rechazado), fecha presentacion, &ordm; registro oficial, acuse recibo. Validacion: fecha y &ordm; requeridos si no borrador.</li>
+      </ol>
+      <p><strong>Al completar:</strong> Guarda en <code>documentos_legales</code> (tipo DECLARACION_CENSAL), registra evento <code>declaracion_censal</code>, genera PDF con firma titular, REGA, desglose por especie. Compartir/Imprimir via DocumentViewer + Share API.</p>
+      <div class="screenshot-placeholder" data-shot="wizard-censo">
+  <img src="img/wizard-censo-paso1.png" alt="Paso 1: Fecha referencia + censo consolidado automatico" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-censo-paso1.png</span>
+  <span class="shot-desc">Paso 1: Fecha referencia + censo consolidado automatico</span>
+</div>
+
+      <h3>6.2 Wizard Pedido Oficial Crotales (<code>wizard-crotales.js</code>)</h3>
+      <p><strong>Titulo:</strong> PEDIDO OFICIAL CROTALES &mdash; 2 pasos</p>
+      <ol class="step-list">
+        <li><strong>Material Solicitado:</strong> Especie (autorizables por CCAA), Tipo (Bandera+Boton EID, Boton+Boton EID, Bolo Ruminal+Boton Visual, Crotal Visual Clasico), Cantidad (pares, min 1). Nota: EID obligatorio nuevas incorporaciones RD 787/2023.</li>
+        <li><strong>Destino y ADSG:</strong> Selector ADSG registrada (autocompleta), Nombre ADSG (obligatorio), Codigo ADSG, Veterinario, Colegiado, NIF. Muestra destino SIGGAN (Andalucia) o BADIGEX (Extremadura) segun CCAA finca. Valida REGA finca.</li>
+      </ol>
+      <p><strong>Al completar:</strong> Guarda en <code>pedidos_crotales</code> (estado pendiente), genera PDF solicitud oficial: datos titular, explotacion, REGA, ADSG, material. DocumentViewer con compartir/imprimir.</p>
+      <div class="screenshot-placeholder" data-shot="wizard-crotales">
+  <img src="img/wizard-crotales-paso2.png" alt="Paso 2: Destino ADSG con autocompletado y validacion REGA" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-crotales-paso2.png</span>
+  <span class="shot-desc">Paso 2: Destino ADSG con autocompletado y validacion REGA</span>
+</div>
+
+      <h3>6.3 Wizard Finca (<code>wizard-finca.js</code>)</h3>
+      <p>Dos modos: <strong>Nueva Finca (1 paso)</strong> y <strong>Editar Finca Activa (3 pasos)</strong>.</p>
+
+      <h4>Nueva Finca</h4>
+      <ul class="feature-list">
+        <li>Nombre, Propietario, Codigo REGA (input-rega-std max 14), CCAA, Superficie total, Coordenadas</li>
+        <li>Especies autorizadas (checkboxes multiple), Flag LECHE (default true), Flag CARNE (default false)</li>
+        <li>Validacion: nombre y propietario obligatorios, al menos un flag activo</li>
+      </ul>
+
+      <h4>Editar Finca Activa (3 Pasos)</h4>
+      <ol class="step-list">
+        <li><strong>Datos Generales + ADSG:</strong> Nombre, propietario, REGA, CEA, NIF/CIF, telefono, direccion, capacidad max, CCAA, tipo explotacion SIGGAN/BADIGEX, sistema explotacion, flags leche/carne, calificacion sanitaria, Guia 365, especies autorizadas, Explotacion Lidia (checkbox, etiqueta SIGGAN Bovino Filiaciones), ADSG completa (nombre, codigo, veterinario, colegiado, telefono, NIF, vencimiento, email)</li>
+        <li><strong>Contrato Lacteo INFOLAC:</strong> N&ordm; contrato, fecha fin, comprador, N&ordm; INFOLAC. Aviso si tipo explotacion leche/mixto: contrato obligatorio 1 ano minimo.</li>
+        <li><strong>Instalaciones Lacteas Letra Q:</strong> Solo si flag LECHE. Codigo Letra Q (formato T-PP-NNNNN), Clasificacion zootecnica compatible Letra Q, Plazas vacuno leche, N&ordm; cubiculos, Superficie descanso m2, Metros lineales comedero. Si >300 plazas: capacidad balsa purines m3, evaluacion ambiental.</li>
+      </ol>
+      <p><strong>Al completar:</strong> <code>Fincas.save()</code> + <code>App.updateNavigationMenu()</code> + <code>App.renderAjustes()</code></p>
+      <div class="screenshot-placeholder" data-shot="wizard-finca">
+  <img src="img/wizard-finca-paso3.png" alt="Paso 3: Instalaciones lacteas Letra Q con validaciones condicionales" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-finca-paso3.png</span>
+  <span class="shot-desc">Paso 3: Instalaciones lacteas Letra Q con validaciones condicionales</span>
+</div>
+    </section>
+
+    <!-- 7. INTEGRACIÓN SIGGAN/BADIGEX -->
+    <section id="siggan" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">SIGGAN/BADIGEX</span>
+        <h2>7. Integracion SIGGAN (Andalucia) / BADIGEX (Extremadura)</h2>
+        <p class="section-desc">Cumplimiento normativo 100% implementado (7/7 gaps + Lidia + saneamientos granular &mdash; PR #66).</p>
+      </div>
+
+      <h3>7.1 Crotal e Identificacion</h3>
+      <ul class="feature-list">
+        <li>Formato ES + 12 digitos (SITRAN) con validacion pais nacimiento</li>
+        <li>Catalogo razas FEGA oficial (163 razas, DB v16, clasificacion 1001-1004 + grado amenaza)</li>
+        <li>Tipos identificador por especie (RD 787/2023) &mdash; excluye dados de baja</li>
+        <li>Libro registro: REGA procedencia, pais nacimiento, madre, DIB/Pasaporte, fecha alta/baja</li>
+      </ul>
+
+      <h3>7.2 Tipos de Explotacion y Alta</h3>
+      <ul class="feature-list">
+        <li>Tipos explotacion REGA obligatorios en wizard reba&ntilde;o y finca</li>
+        <li>Tipos de alta oficiales (Nacimiento, Compra, Importacion...) desde <code>ComunidadesService</code></li>
+        <li>Categorias animal por especie (libro registro SIGGAN)</li>
+        <li>Motivos de baja oficiales + clasificacion SANDACH automatica</li>
+      </ul>
+
+      <h3>7.3 Notificaciones REGA/SIA/PIGGAN</h3>
+      <ul class="feature-list">
+        <li>Checkbox <code>notificado_rega</code> en ficha animal con validacion previa</li>
+        <li>Envio real via <code>NotificacionesREGA</code> service (Gap 11 implementado)</li>
+        <li>Destino: CEBO/ENGORDE derivado de <code>Movimientos.esDestinoCebo()</code></li>
+        <li>Tipo identificacion: Completa (EID+Visual) vs Matadero (Visual REGA)</li>
+      </ul>
+
+      <h3>7.4 Declaracion Censal y Crotales</h3>
+      <ul class="feature-list">
+        <li>Documento oficial SIGGAN (Junta Andalucia) con REGA, NIF/CIF titular, provincia/municipio</li>
+        <li>Formato tabla: Especie | Hembras | Machos | Total</li>
+        <li>Pedido crotales: delegacion ADSG/OCA, plataforma destino SIGGAN/BADIGEX/SIA/PIGGAN</li>
+        <li>Especies autorizadas por CCAA (<code>ComunidadesService</code>)</li>
+      </ul>
+
+      <h3>7.5 Finca: Paquete Lacteo Completo</h3>
+      <ul class="feature-list">
+        <li>REGA validado por CCAA (<code>ComunidadesService.validarFormatoREGA</code>)</li>
+        <li>Tipo explotacion SIGGAN/BADIGEX segun CCAA</li>
+        <li>Contrato lacteo obligatorio 1 ano minimo (tipo leche/mixto)</li>
+        <li>Letra Q: Codigo oficial Registro General Agentes Sector Lacteo (MAPA) formato T-PP-NNNNN</li>
+        <li>Clasificacion zootecnica solo compatibles Letra Q</li>
+        <li>Explotacion Lidia: etiqueta SIGGAN (Bovino > Filiaciones)</li>
+        <li>Guia 365 dias (saneada) &mdash; autorizacion sanitaria</li>
+      </ul>
+    </section>
+
+    <!-- 8. DEMO CHAMORRO -->
+    <section id="demo" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Demo</span>
+        <h2>8. Datos Demo CHAMORRO &mdash; Replicar Capturas</h2>
+        <p class="section-desc">Cargar la demo desde <code>Ajustes &rarr; Asistente Configuracion &rarr; Cargar Demo CHAMORRO</code></p>
+      </div>
+
+      <h3>8.1 Que Incluye la Demo</h3>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>Finca:</strong> "Ganader&iacute;a CHAMORRO (DEMO)" &mdash; Huelva/Almonte (Andalucia) + Badajoz/Caceres (Extremadura)</div>
+        <div class="demo-item"><strong>3 Reba&ntilde;os:</strong> Vacas Frisonas (leche), Terneros Cebo (carne), Ovejas Merinas (carne)</div>
+        <div class="demo-item"><strong>8 Animales:</strong> 3 vacas, 2 terneros, 3 ovejas con crotales ES 12 dig, razas oficiales</div>
+        <div class="demo-item"><strong>4 Zonas:</strong> 86 ha totales con UGM/ha, codigo PAC, distancia agua &mdash; auto-crea 'Cercado de Cebo 1ha' para probar sobrepastoreo</div>
+        <div class="demo-item"><strong>Produccion:</strong> Entregas leche con analiticas laboratorio, pesajes terneros, orde&ntilde;os</div>
+        <div class="demo-item"><strong>Sanidad:</strong> Tratamientos con supresion, vacunaciones ADSG, botiquin FEFO</div>
+        <div class="demo-item"><strong>Gastos:</strong> Categorizados (alimentacion, sanidad, fitosanitarios, electricidad, personal, amortizacion) imputados a reba&ntilde;os</div>
+        <div class="demo-item"><strong>Margen economico:</strong> Calculado por animal (compras, sanidad, leche, ventas)</div>
+      </div>
+
+      <h3>8.2 Validacion Guas PWA (2026-08-04)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Modulo</th><th>Guias Validadas</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>GeGan (Ganader&iacute;a)</td><td>36/38</td><td>38</td></tr>
+          <tr><td>CoMer (Comercializacion)</td><td>40/42</td><td>42</td></tr>
+          <tr><td>ExPro (Produccion)</td><td>52/55</td><td>55</td></tr>
+        </tbody>
+      </table>
+      <p class="demo-note">[NOTA] Spec completa en <code>Private/VALIDACION-GUIAS-DEMO-CHAMORRO.md</code>. Diferencia 1 target por datos demo vs Android nativo.</p>
+    </section>
+
+    <!-- Navegación final -->
+    <nav class="module-nav-bottom">
+      <a href="index.html" class="nav-btn">&larr; Volver al Indice General</a>
+      <a href="manual-explotacion-produccion.html" class="nav-btn nav-btn-primary">Siguiente: Explotacion & Produccion &rarr;</a>
+    </nav>
+
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 &mdash; Manual Profesional &middot; Modulo 01/06</p>
+    <p class="copyright">SIGGAN &middot; BADIGEX &middot; RD 787/2023 &middot; RD 989/2022 &middot; Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

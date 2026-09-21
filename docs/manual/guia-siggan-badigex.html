@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia: SIGGAN / BADIGEX — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Guia: SIGGAN (Andalucia) / BADIGEX (Extremadura)</h1>
+        <p class="version">Cumplimiento normativo 100% — 7/7 Gaps + Lidia + Saneamientos Granular</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">SIGGAN/BADIGEX</span>
+        <h2>1. Resumen Cumplimiento</h2>
+      </div>
+      <p>LIVESTOCK MANAGER v4.10.4 implementa cumplimiento completo para Andalucia (SIGGAN) y Extremadura (BADIGEX). Auditoría cerrada al 100% (PR #66, commit 20055ad, acde2fa, 8675c08).</p>
+      <table class="feature-table">
+        <thead><tr><th>Area</th><th>Estado</th><th>Referencia</th></tr></thead>
+        <tbody>
+          <tr><td>Identificacion Animal (Crotal ES+12, ISO 11784 15d, Equino microchip)</td><td>IMPLEMENTADO</td><td>20055ad, acde2fa</td></tr>
+          <tr><td>Catalogo Razas FEGA 163 razas DB v16</td><td>IMPLEMENTADO</td><td>8675c08</td></tr>
+          <tr><td>Tipos Explotacion REGA obligatorios</td><td>IMPLEMENTADO</td><td>Wizard Rebaño/Finca</td></tr>
+          <tr><td>Tipos Alta oficiales (ComunidadesService)</td><td>IMPLEMENTADO</td><td>Wizard Animal</td></tr>
+          <tr><td>Motivos Baja + SANDACH automatico</td><td>IMPLEMENTADO</td><td>Wizard Animal</td></tr>
+          <tr><td>Notificaciones REGA/SIA/PIGGAN reales</td><td>IMPLEMENTADO</td><td>Gap 11, NotificacionesREGA</td></tr>
+          <tr><td>Declaracion Censal oficial (PDF SIGGAN)</td><td>IMPLEMENTADO</td><td>Wizard Censo</td></tr>
+          <tr><td>Pedido Crotales ADSG/OCA</td><td>IMPLEMENTADO</td><td>Wizard Crotales</td></tr>
+          <tr><td>Lidia (Bovino Filiaciones)</td><td>IMPLEMENTADO</td><td>PR #66</td></tr>
+          <tr><td>Saneamientos Granular (7 tipos)</td><td>IMPLEMENTADO</td><td>PR #66</td></tr>
+          <tr><td>Letra Q MAPA (T-PP-NNNNN)</td><td>IMPLEMENTADO</td><td>Wizard Finca Paso 3, Albaran Leche</td></tr>
+          <tr><td>INFOLAC Declaracion Lactea</td><td>IMPLEMENTADO</td><td>Albaran Leche Wizard</td></tr>
+          <tr><td>Guia 365 dias (Indemne/Calificada = Auto)</td><td>IMPLEMENTADO</td><td>ComunidadesService</td></tr>
+          <tr><td>DIMOE automatico (Venta Masiva)</td><td>IMPLEMENTADO</td><td>Wizard Venta Masiva</td></tr>
+          <tr><td>Movimiento Oficial Obligatorio</td><td>IMPLEMENTADO</td><td>Post-Venta Masiva</td></tr>
+          <tr><td>Cuaderno Digital 8 CSV SIGGAN</td><td>IMPLEMENTADO</td><td>Informes > Libros > Export</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Identificacion</span>
+        <h2>2. Identificacion Animal — Crotal, Razas, Tipos</h2>
+      </div>
+      <h3>2.1 Formato Crotal</h3>
+      <ul class="feature-list">
+        <li><strong>SITRAN:</strong> ES + 12 digitos (ej: ES123456789012) - validacion tiempo real dorada/roja</li>
+        <li><strong>ISO 11784:</strong> 15 digitos completos (pais + especie + explotacion + animal) - equino microchip implementado</li>
+        <li><strong>DIB/Pasaporte:</strong> Para movimientos intracomunitarios / exportacion</li>
+        <li><strong>Tipo Identificacion:</strong> Completa (EID + Visual) vs Matadero (Solo Visual REGA)</li>
+      </ul>
+
+      <h3>2.2 Catalogo Razas FEGA Oficial (163 razas, DB v16)</h3>
+      <ul class="feature-list">
+        <li>Filtrado dinamico por especie (Vacuno, Ovino, Caprino, Porcino, Equino...)</li>
+        <li>Clasificacion: 1001 (Autóctona de fomento), 1002 (Autóctona), 1003 (Integrada), 1004 (Exótica)</li>
+        <li>Grado amenaza: Critico, En peligro, Vulnerable, No amenazada</li>
+        <li>Select actualiza al cambiar especie en Wizard Animal / Rebaño</li>
+      </ul>
+
+      <h3>2.3 Tipos Explotacion REGA (RD 787/2023)</h3>
+      <p>Selector obligatorio en Wizard Rebaño (Paso 2) y Wizard Finca (Paso 1). Cargados desde <code>ComunidadesService</code> segun CCAA:</p>
+      <ul class="feature-list">
+        <li>Andalucia (SIGGAN): Tipos especificos Junta Andalucia</li>
+        <li>Extremadura (BADIGEX): Tipos especificos Junta Extremadura</li>
+        <li>Otras CCAA: Via <code>ComunidadesService.getTiposExplotacion(ccaa)</code></li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Movimientos</span>
+      <h2>3. Movimientos Oficiales & DIMOE</h2>
+      </div>
+
+      <h3>3.1 Movimiento Oficial Obligatorio (Trigger: Venta Masiva Carne)</h3>
+      <p>Al completar Wizard Venta Masiva, se genera AUTOMATICAMENTE:</p>
+      <ul class="feature-list">
+        <li><strong>Tipo:</strong> Salida</li>
+        <li><strong>Motivo:</strong> Matadero</li>
+        <li><strong>REGA Origen:</strong> Finca activa (validada)</li>
+        <li><strong>REGA Destino:</strong> Comprador (validado formato ES+12, tipo operador en {matadero, operador_comercial, tratante, cebadero})</li>
+        <li><strong>Tipo Operador Destino:</strong> SIGGAN/BADIGEX</li>
+        <li><strong>Explotacion Contraparte:</strong> Nombre comprador</li>
+        <li><strong>Numero Guia:</strong> Guia oficial (entrada manual Paso 2 Venta Masiva)</li>
+        <li><strong>Especie + Num Animales + Crotales:</strong> 15 digitos ISO 11784 por animal</li>
+        <li><strong>Transportista:</strong> ID, Nombre, Matricula, ATG vigente, Desinsectacion vigente</li>
+        <li><strong>Fecha:</strong> Fecha sacrificio (Paso 2)</li>
+        <li><strong>CCAA:</strong> segun finca origen</li>
+        <li><strong>Estado Tramite:</strong> 'presentado'</li>
+        <li><strong>Notas:</strong> 'Venta comercial {ALBARAN} · DIMOE DIMOE-{ALBARAN}'</li>
+      </ul>
+
+      <h3>3.2 DIMOE — Documento Identificacion Movimiento Orden Expedicion</h3>
+      <ul class="feature-list">
+        <li>Generado AUTOMATICO al cerrar Venta Masiva</li>
+        <li>Tipo documento: <code>dimoe</code> en <code>documentos_legales</code></li>
+        <li>Numero: <code>DIMOE-{NUMERO_ALBARAN}</code></li>
+        <li>Incluye: ICA, Guia, Comprador, Transportista, Veterinario autorizador, Animales (crotales)</li>
+        <li>Imprimible via DocumentViewer / PDF</li>
+      </ul>
+
+      <h3>3.3 Validaciones Bloqueantes Movimiento Oficial</h3>
+      <ol class="step-list">
+        <li>REGA destino formato valido (ES + 12 dig)</li>
+        <li>Transportista con ATG vigente + Desinsectacion vigente (no vencida)</li>
+        <li>Comprador tipo operador en {matadero, operador_comercial, tratante, cebadero}</li>
+        <li>Contrato activo vigente (carne)</li>
+      </ol>
+      <div class="callout callout-warning">
+        <strong>[BLOQUEO]</strong> Si cualquiera falla -> Wizard Venta Masiva NO permite avanzar al Paso 5. Errores especificos por campo.
+      </div>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Lacteo</span>
+      <h2>4. Paquete Lacteo Completo (Letra Q, INFOLAC, Controles)</h2>
+      </div>
+
+      <h3>4.1 Letra Q (Registro General Agentes Sector Lacteo - MAPA)</h3>
+      <ul class="feature-list">
+        <li><code>codigo_letra_q</code>: Formato <code>T-PP-NNNNN</code> (ej: E-41-00123) - validacion MAPA</li>
+        <li>Aplicable a: Tanque, Cisterna, Muestra</li>
+        <li><code>tipo_movimiento_letra_q</code> (7 tipos RD 989/2022): explotacion_a_cisterna, explotacion_a_rechazo, explotacion_a_establecimiento, cisterna_a_cisterna, cisterna_a_rechazo, cisterna_a_establecimiento</li>
+        <li><code>estado_letra_q</code> (4 estados): pendiente, comunicado, rechazado, exento</li>
+        <li><code>fecha_limite_comunicacion_letra_q</code>: Calculo automatico <code>MotorLacteo</code> segun tipo agente destino</li>
+        <li>Recibo Letra Q: Identificacion productor, Codigo explotacion, Fecha/hora, Litros, Operador, Muestra</li>
+      </ul>
+
+      <h3>4.2 INFOLAC (Declaracion Lactea Oficial)</h3>
+      <ul class="feature-list">
+        <li>Estado tramite: borrador / presentado / validado / error</li>
+        <li>Fecha presentacion, Numero registro, Acuse recibo</li>
+        <li>Numero INFOLAC finca (configurable en Wizard Finca Paso 2)</li>
+        <li>Documento legal tipo <code>infolac_declaracion</code> generado auto en Albaran Leche Wizard</li>
+        <li>Contrato lacteo obligatorio 1 ano minimo (tipo explotacion leche/mixto)</li>
+      </ul>
+
+      <h3>4.3 Controles Lechero Oficiales DHI</h3>
+      <ul class="feature-list">
+        <li>Organismo control, Fecha, Media rebaño: Litros, Grasa%, Proteina%</li>
+        <li>Integrado en ExplotacionLacteaView sub-tab Control</li>
+        <li>Exportable cuaderno digital (seccion complementaria)</li>
+      </ul>
+
+      <h3>4.4 Calidad Leche (Umbrales por Especie/CCAA)</h3>
+      <ul class="feature-list">
+        <li><code>ComunidadesService.getUmbralesCalidadEspecie(ccaa, especie)</code> -> grasa_min, proteina_min, germenes_max, somaticas_max</li>
+        <li><code>ComunidadesService.evaluarCalidadLecheEspecie</code> -> Bloqueante/Alertas semaforo</li>
+        <li>Aflatoxina M1 (Plan PIVCA): Metodo kit_rapido / ELISA / HPLC</li>
+        <li>Inhibidores in situ: no_realizada / conforme / no_conforme</li>
+        <li>Laboratorios oficiales por CCAA (<code>getLaboratoriosLeche</code>)</li>
+      </ul>
+
+      <h3>4.5 Precios Referencia (Recalculo Vivo Albaran Leche)</h3>
+      <p><code>ComunidadesService.PRECIO_EXTRACTO_SECO_REF</code>: precio_base_referencia, precio_por_punto_extracto, tasa_INLAC_defecto</p>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">CCAA</span>
+      <h2>5. Diferencias Andalucia (SIGGAN) vs Extremadura (BADIGEX)</h2>
+      </div>
+
+      <table class="feature-table">
+        <thead><tr><th>Aspecto</th><th>Andalucia (SIGGAN)</th><th>Extremadura (BADIGEX)</th></tr></thead>
+        <tbody>
+          <tr><td>Plataforma</td><td>SIGGAN (Junta Andalucia)</td><td>BADIGEX (Junta Extremadura)</td></tr>
+          <tr><td>Guia 365 dias</td><td>Auto si Indemne/Calificada</td><td>Segun normativa Extremadura</td></tr>
+          <tr><td>Tipos Explotacion</td><td>Especificos SIGGAN</td><td>Especificos BADIGEX</td></tr>
+          <tr><td>Especies Autorizadas Crotales</td><td>Via ComunidadesService</td><td>Via ComunidadesService</td></tr>
+          <tr><td>Pedidos Crotales Destino</td><td>SIGGAN / SIA / PIGGAN</td><td>BADIGEX / SIA / PIGGAN</td></tr>
+          <tr><td>Calidad Leche Umbrales</td><td>Orden Andalucia</td><td>Orden Extremadura</td></tr>
+          <tr><td>Laboratorios Oficiales</td><td>Lista Andalucia</td><td>Lista Extremadura</td></tr>
+          <tr><td>Saneamientos</td><td>Programa ADSG Andalucia</td><td>Programa ADSG Extremadura</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 Subexplotaciones Multi-CCAA</h3>
+      <ul class="feature-list">
+        <li>Finca principal Andalucia + Subexplotacion Extremadura (Demo CHAMORRO)</li>
+        <li>Cada una con REGA propio, ADSG propia, Flags independientes</li>
+        <li>Movimientos entre subexplotaciones: DIMOE interno, tipo 'traslado_subexplotacion'</li>
+        <li>Censo consolidado = Principal + Subexplotaciones activas</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Cuaderno</span>
+      <h2>6. Cuaderno Digital RD 787/2023 — Exportacion SIGGAN/BADIGEX</h2>
+      </div>
+
+      <h3>6.1 8 Secciones CSV Obligatorias</h3>
+      <ol class="step-list">
+        <li><strong>TRATAMIENTOS</strong> — Fecha, Animal, Producto, Dosis, Via, Veterinario, Retiro carne/leche, Lote, Receta</li>
+        <li><strong>VACUNACIONES</strong> — Fecha, Animal/Rebaño, Vacuna, Lote, Veterinario, Dosis, Via, Proxima revacunacion</li>
+        <li><strong>CENSO_ANUAL</strong> — Fecha referencia, Especie, Categoria, Cabezas, REGA, Certificado</li>
+        <li><strong>CROTALES</strong> — Fecha pedido, Especie, Tipo, Cantidad, ADSG, Veterinario, Estado</li>
+        <li><strong>MOVIMIENTOS</strong> — Fecha, Tipo, Origen/Destino REGA, Animales (crotales 15d), Guia, Motivo</li>
+        <li><strong>SANEAMIENTOS</strong> — Fecha, Tipo (TB/BRU/LEUCO/IBR/PARA), Rebaño, Animales, Resultado, Veterinario, CCAA</li>
+        <li><strong>FITOSANITARIOS</strong> — Fecha, Parcela, Producto, Dosis, Plazo seguridad, Apto comercializacion, Operador</li>
+        <li><strong>AGENDA</strong> — Fecha, Tipo, Titulo, Descripcion, Prioridad, Estado, Recordatorio (seccion complementaria)</li>
+      </ol>
+
+      <h3>6.2 Validacion Pre-Flight (Bloqueante)</h3>
+      <p>Ver Modulo 06, Seccion 4.2. Exportacion BLOQUEADA si falla: REGA, ADSG, NIF, Lotes medicamentos, Crotales 15d, Guias oficiales, REGA destino.</p>
+
+      <h3>6.3 Nombrado ZIP</h3>
+      <p><code>CUADERNO_DIGITAL_{REGA}_{YYYYMMDD}.zip</code> + <code>README.md</code> con instrucciones importacion SIGGAN/BADIGEX/SIA/PIGGAN.</p>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-danger">Pendiente</span>
+      <h2>7. Unico Pendiente: NIF Cebadero (No Aplica)</h2>
+      </div>
+      <p>Marcado como <strong>NO APLICA</strong> en auditoria: El NIF de cebadero no es campo obligatorio en normativa actual SIGGAN/BADIGEX para movimientos de venta a matadero. El comprador (matadero/operador) ya tiene NIF válido. No se implementa campo adicional.</p>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Guia SIGGAN / BADIGEX</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

@@ -225,10 +225,6 @@ const SanidadView = {
           <span style="color: var(--c-purple); margin-right: 4px;">|</span> ${Icons.documento()} HISTORIAL CLÍNICO VETERINARIO
         </div>
 
-        <div class="flex justify-end gap-6 mb-8">
-          <button class="btn-erp-secondary btn-sm" id="btn-san-vista-cards" onclick="SanidadView._setVistaModo('cards')">Tarjetas</button>
-          <button class="btn-erp-secondary btn-sm" id="btn-san-vista-tabla" onclick="SanidadView._setVistaModo('tabla')">Tabla ERP</button>
-        </div>
 
         <fieldset class="erp-action-group">
           <legend>Registro de Tratamientos</legend>
@@ -251,7 +247,7 @@ const SanidadView = {
         ${this.renderHistorial(this.enriquecer(tratamientosFiltrados))}
         <div id="sanidad-erp-table-container" class="mt-12" style="display:none;"></div>
         </div>`;
-    const modoGuardado = localStorage.getItem('sanidad_view_mode') || 'tabla';
+    const modoGuardado = VistaRegistros.get();
     this._setVistaModo(modoGuardado, false);
 
     // FAB Guía interactiva
@@ -272,19 +268,10 @@ const SanidadView = {
   /** Alterna el historial clínico entre tarjetas y tabla densa ERP. */
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('sanidad_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-san-vista-cards');
-    const btnTabla = document.getElementById('btn-san-vista-tabla');
     const contenedorCards = document.getElementById('sanidad-historial-lista');
     const contenedorTabla = document.getElementById('sanidad-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';

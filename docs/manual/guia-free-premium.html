@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia: Free vs Premium — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Guia: Modelo Free / Premium</h1>
+        <p class="version">Compra unica Play Store (premium_unlock) — Build Oficial: Private/build-and-upload.ps1</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Free/Premium</span>
+        <h2>1. Tabla Comparativa Completa</h2>
+      </div>
+
+      <table class="feature-table">
+        <thead><tr><th>Caracteristica</th><th class="free-col">FREE</th><th class="premium-col">PREMIUM</th><th>Validacion</th></tr></thead>
+        <tbody>
+          <tr><td>Fincas simultaneas</td><td class="free-col">1</td><td class="premium-col">Ilimitadas</td><td><code>Fincas.count() >= 1 && isFree()</code></td></tr>
+          <tr><td>Animales por finca</td><td class="free-col">15</td><td class="premium-col">Ilimitados</td><td><code>Animales.count(fincaId) >= 15 && isFree()</code></td></tr>
+          <tr><td>Gastos por finca</td><td class="free-col">30</td><td class="premium-col">Ilimitados</td><td><code>Gastos.count(fincaId) >= 30 && isFree()</code></td></tr>
+          <tr><td>Backup automatico diario</td><td class="free-col">No</td><td class="premium-col">Si</td><td><code>isPremium()</code> habilita</td></tr>
+          <tr><td>Informes multi-finca</td><td class="free-col">No</td><td class="premium-col">Si</td><td>Selector finca en InformesView</td></tr>
+          <tr><td>Export PDF completo informes</td><td class="free-col">No</td><td class="premium-col">Si</td><td>Boton exportar informes</td></tr>
+          <tr><td>Export Excel multi-hoja</td><td class="free-col">No</td><td class="premium-col">Si</td><td>InformesView.exportExcel()</td></tr>
+          <tr><td>CSV SIGGAN/BADIGEX completo</td><td class="free-col">No</td><td class="premium-col">Si</td><td>Cuaderno digital 8 secciones</td></tr>
+          <tr><td>Compra unica Play Store</td><td class="free-col">—</td><td class="premium-col">premium_unlock</td><td>IAP consumible</td></tr>
+          <tr><td>Banner FREE en Ajustes</td><td class="free-col">Visible</td><td class="premium-col">Oculto</td><td><code>PremiumManager.isFree()</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning">
+        <strong>[IMPORTANTE] Limites en Modelo (.save()) — No solo en Vista</strong><br>
+        Todos los limites Free/Premium se aplican en el metodo <code>.save()</code> de cada modelo (<code>Fincas.save</code>, <code>Animales.save</code>, <code>Gastos.save</code>), nunca solo en la vista o wizard. Verificados por <code>PremiumQA.runAll()</code> en tests.
+      </div>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Compra</span>
+        <h2>2. Compra Premium (IAP Google Play)</h2>
+      </div>
+
+      <h3>2.1 Producto</h3>
+      <ul class="feature-list">
+        <li><strong>ID:</strong> <code>premium_unlock</code></li>
+        <li><strong>Tipo:</strong> Compra unica (non-consumable / managed product)</li>
+        <li><strong>Precio:</strong> Definido en Play Console (usuario decide)</li>
+        <li><strong>Entrega:</strong> Inmediata tras verificación recibo</li>
+      </ul>
+
+      <h3>2.2 Flujo Compra</h3>
+      <ol class="step-list">
+        <li>Usuario pulsa "Activar Premium" en Ajustes > Cuenta</li>
+        <li>App llama <code>BillingClient.queryProductDetailsAsync()</code></li>
+        <li>Lanza <code>launchBillingFlow()</code> -> Dialog Play Store</li>
+        <li>Usuario confirma compra -> <code>onPurchasesUpdated()</code></li>
+        <li>App verifica firma + <code>acknowledgePurchase()</code></li>
+        <li><code>PremiumManager.setPremium(true)</code> -> Persiste en Configuracion (IndexedDB)</li>
+        <li>UI actualiza: Banner FREE oculto, limites desbloqueados, boton cambia a "Premium ACTIVO"</li>
+      </ol>
+
+      <h3>2.3 Restaurar Compras</h3>
+      <ul class="feature-list">
+        <li>Boton "Restaurar compras" en Ajustes > Cuenta</li>
+        <li>Llama <code>BillingClient.queryPurchasesAsync()</code></li>
+        <li>Si encuentra <code>premium_unlock</code> owned -> <code>setPremium(true)</code></li>
+        <li>Funciona tras reinstalacion / cambio dispositivo (misma cuenta Google)</li>
+      </ul>
+
+      <h3>2.4 Build Oficial Premium (Android)</h3>
+      <ul class="feature-list">
+        <li>Script: <code>Private/build-and-upload.ps1</code></li>
+        <li>Genera variante <strong>FREE</strong> para Play Store (versionCode incremental)</li>
+        <li>El codigo Premium esta SIEMPRE en la app, se activa/desactiva por flag <code>PremiumManager.isPremium()</code></li>
+        <li>No hay build separado "Premium" - misma APK, flag runtime</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Codigo</span>
+        <h2>3. Implementacion Tecnica (PremiumManager)</h2>
+      </div>
+
+      <h3>3.1 API Principal</h3>
+      <ul class="feature-list">
+        <li><code>PremiumManager.isFree()</code> -> <code>!isPremium()</code></li>
+        <li><code>PremiumManager.isPremium()</code> -> Lee <code>config.premium === true</code> (IndexedDB)</li>
+        <li><code>PremiumManager.setPremium(true/false)</code> -> Persiste + EventBus 'premium:changed'</li>
+        <li><code>PremiumManager.getLimits()</code> -> {fincas, animales, gastos} segun estado</li>
+      </ul>
+
+      <h3>3.2 Validaciones en Modelos (.save())</h3>
+      <pre class="code-block"><code>// Fincas.save()
+if (PremiumManager.isFree() && await Fincas.count() >= 1) {
+  throw new Error('Limite FREE: Max 1 finca. Activa Premium para mas.');
+}
+
+// Animales.save(fincaId)
+if (PremiumManager.isFree() && await Animales.count(fincaId) >= 15) {
+  throw new Error('Limite FREE: Max 15 animales/finca. Activa Premium.');
+}
+
+// Gastos.save(fincaId)
+if (PremiumManager.isFree() && await Gastos.count(fincaId) >= 30) {
+  throw new Error('Limite FREE: Max 30 gastos/finca. Activa Premium.');
+}</code></pre>
+
+      <h3>3.3 UI Condicional</h3>
+      <ul class="feature-list">
+        <li>Banner FREE: <code>v-if="PremiumManager.isFree()"</code> en Ajustes, Dashboard</li>
+        <li>Botones "Nueva Finca": <code>v-if="PremiumManager.isPremium()"</code></li>
+        <li>Export Excel/PDF Informes: <code>v-if="PremiumManager.isPremium()"</code></li>
+        <li>Cuaderno Digital Export: <code>v-if="PremiumManager.isPremium()"</code></li>
+        <li>Backup Auto: <code>if (PremiumManager.isPremium()) scheduleBackup()</code></li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">QA</span>
+        <h2>4. PremiumQA.runAll() — Tests Automatizados</h2>
+      </div>
+
+      <p>Suite de tests que verifica TODOS los limites en modelos, no en vistas:</p>
+      <ul class="feature-list">
+        <li><code>test('FREE: bloquea 2da finca')</code> -> Espera Error 'Limite FREE: Max 1 finca'</li>
+        <li><code>test('FREE: bloquea animal 16')</code> -> Espera Error 'Limite FREE: Max 15 animales'</li>
+        <li><code>test('FREE: bloquea gasto 31')</code> -> Espera Error 'Limite FREE: Max 30 gastos'</li>
+        <li><code>test('PREMIUM: permite fincas ilimitadas')</code> -> Sin error</li>
+        <li><code>test('PREMIUM: permite animales ilimitados')</code> -> Sin error</li>
+        <li><code>test('PREMIUM: permite gastos ilimitados')</code> -> Sin error</li>
+        <li><code>test('Toggle FREE->PREMIUM desbloquea')</code> -> setPremium(true) -> save OK</li>
+        <li><code>test('Toggle PREMIUM->FREE rebloquea')</code> -> setPremium(false) -> save bloquea si exceso</li>
+      </ul>
+      <p>Ejecutar: <code>npm run test:premium</code> o desde DevTools <code>PremiumQA.runAll()</code></p>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Edge Cases</span>
+        <h2>5. Casos Limite & Preguntas Frecuentes</h2>
+      </div>
+
+      <h3>5.1 Si Usuario FREE tiene 15 animales y compra Premium</h3>
+      <p>Compra -> <code>setPremium(true)</code> -> Inmediatamente puede añadir animal 16. No hay migracion de datos.</p>
+
+      <h3>5.2 Si Usuario PREMIUM tiene 50 animales y vuelve a FREE (reembolso/cancelacion)</h3>
+      <p><strong>No se borran datos.</strong> Los 50 animales permanecen. Pero <code>Animales.save()</code> bloquea NUEVOS animales hasta bajar de 15. Usuario debe vender/dar baja para volver a crear.</p>
+
+      <h3>5.3 Multi-dispositivo / Multi-sesion</h3>
+      <p>Flag <code>premium</code> en <code>Configuracion</code> (IndexedDB) -> Sincroniza via backup/restore o export/import JSON. No usa cloud sync (futuro).</p>
+
+      <h3>5.4 Version PWA / MSIX Desktop</h3>
+      <ul class="feature-list">
+        <li>PWA (livestock-manager.pages.dev): Gratis, sin IAP. <code>PremiumManager.isPremium()</code> siempre false en build FREE.</li>
+        <li>MSIX (Microsoft Store): Gratis hoy. Si app crece (SIGGAN), posible compra unica futura (no decidido).</li>
+        <li>Android (Play Store): Unica con IAP <code>premium_unlock</code>. Build FREE para publicar.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Guia Free vs Premium</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

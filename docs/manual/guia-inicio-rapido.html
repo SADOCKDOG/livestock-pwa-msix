@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia: Inicio Rapido (5 min) — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Guia Rapida: Inicio en 5 Minutos</h1>
+        <p class="version">Primeros pasos: Finca, Animales, Produccion, Sanidad, Comercializacion</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Inicio</span>
+        <h2>Paso 1: Crear/Configurar Finca (1 min)</h2>
+      </div>
+      <ol class="step-list">
+        <li>Abrir app -> <strong>Ajustes</strong> (engranaje header)</li>
+        <li><strong>Asistente Configuracion</strong> -> <strong>Cargar Demo CHAMORRO</strong> (opcion rapida con datos reales)</li>
+        <li>O <strong>Wizard Nueva Finca</strong>: Nombre, Propietario, REGA (ES+12 dig), CCAA, Superficie</li>
+        <li>Activar <strong>Flag LECHE</strong> (si ordeño/entregas) y/o <strong>Flag CARNE</strong> (si pesajes/ventas)</li>
+        <li>Guardar -> La app recarga navegacion segun flags activos</li>
+      </ol>
+      <div class="callout callout-info">
+        <strong>[NOTA]</strong> En FREE solo 1 finca. En PREMIUM (compra unica premium_unlock) fincas ilimitadas.
+      </div>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Animales</span>
+        <h2>Paso 2: Dar de Alta Animales (1-2 min)</h2>
+      </div>
+      <ol class="step-list">
+        <li>Ir a <strong>Ganaderia</strong> -> Submodulo <strong>Animales</strong> (carrusel naranja)</li>
+        <li>FAB <strong>+ Nuevo</strong> -> Se abre <strong>Wizard Animal</strong> full-screen (10+ secciones)</li>
+        <li><strong>Identificacion:</strong> Crotal ES+12 dig (validacion dorada/roja tiempo real), RFID opcional</li>
+        <li><strong>Basicos:</strong> Nombre, Sexo (H/M/C), Fecha nacimiento, Especie, Raza (catalogo 163 FEGA)</li>
+        <li><strong>Rebaño/Zona:</strong> Asigna a rebaño existente o crea nuevo (Wizard Rebaño 5 pasos)</li>
+        <li><strong>Origen:</strong> Nacimiento / Compra / Importacion (selector oficiales ComunidadesService)</li>
+        <li>Guardar -> Animal aparece en lista con badge estado <strong>Activo (verde)</strong></li>
+      </ol>
+      <div class="screenshot-placeholder" data-shot="guia-inicio-animal">
+        <span class="shot-label">[CAPTURA] guia-inicio-wizard-animal.png</span>
+        <span class="shot-desc">Wizard Animal seccion Identificacion con validacion crotal dorada</span>
+      </div>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Produccion</span>
+        <h2>Paso 3: Registrar Produccion (1 min)</h2>
+      </div>
+      <div class="callout callout-info">
+        <strong>FAB contextual cambia segun flags:</strong> "Registrar Produccion" (ambos) / "Registrar Pesaje" (carne) / "Registrar Ordeño" (leche)
+      </div>
+      <h3>Si Flag LECHE activo:</h3>
+      <ol class="step-list">
+        <li>FAB <strong>Registrar Ordeño</strong> -> Wizard Ordeño (3 pasos)</li>
+        <li>Paso 1: Fecha, Turno AM/PM, Tanque destino (Letra Q), Temperatura</li>
+        <li>Paso 2: Tabla hembras activas rebaño lechero -> input litros por animal (total en vivo)</li>
+        <li>Paso 3: Resumen + Balance tanque proyectado -> Guardar</li>
+        <li>Auto: Genera <code>produccion_leche</code> + <code>balance_lacteo</code> entrada + actualiza temp tanque</li>
+      </ol>
+      <h3>Si Flag CARNE activo:</h3>
+      <ol class="step-list">
+        <li>FAB <strong>Registrar Pesaje</strong> -> Seleccion Individual o Lote</li>
+        <li>Individual: Animal, Fecha, Peso (kg), Rebaño, Zona</li>
+        <li>Lote: Rebaño, Fecha, Multiples animales con peso individual</li>
+        <li>Auto: Calcula GMD, actualiza historial, genera evento <code>registro_eventos</code> tipo pesaje</li>
+      </ol>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-danger">Sanidad</span>
+        <h2>Paso 4: Registrar Tratamiento / Vacunacion (1 min)</h2>
+      </div>
+      <h3>Tratamiento (Wizard 3 pasos):</h3>
+      <ol class="step-list">
+        <li>Ganaderia -> Sanidad (purpura) -> Tratamientos -> <strong>+ Nuevo Tratamiento</strong></li>
+        <li>Paso 1: Animal/Rebaño, Producto, Lote (obligatorio), Via, Dosis, Veterinario+Colegiado+NIF, Receta</li>
+        <li>Paso 2: Dias retiro CARNE, Dias retiro LECHE -> Auto-calcula supresion</li>
+        <li>Paso 3: Confirmacion con alerta supresion visible (Rojo LECHE / Verde Lima CARNE)</li>
+        <li>Auto: Actualiza animal <code>prohibidoLeche/Carne</code>, emite EventBus -> alertas Dashboard en vivo</li>
+      </ol>
+      <h3>Vacunacion (Wizard 2 pasos):</h3>
+      <ol class="step-list">
+        <li>Sanidad -> Vacunaciones -> <strong>+ Nueva Vacunacion</strong></li>
+        <li>Paso 1: Animal/Rebaño, Vacuna, Lote, Via, Veterinario+Colegiado, Programa ADSG (oficial/voluntario)</li>
+        <li>Paso 2: Proxima revacunacion (auto +365d), Recordatorios 30/15/7/1 dias</li>
+      </ol>
+      <div class="callout callout-warning">
+        <strong>[CRITICO] Alertas Supresion SIEMPRE visibles</strong> (rojo leche, verde lima carne) independientemente del flag de explotacion. Bloquean Venta Masiva y Albaran Leche.
+      </div>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Comercializacion</span>
+        <h2>Paso 5: Venta Masiva Carne / Albaran Leche (1-2 min)</h2>
+      </div>
+      <h3>Venta Masiva Carne (Wizard 5 pasos - Solo Flag CARNE):</h3>
+      <ol class="step-list">
+        <li>Comercializacion -> CARNE (verde lima) -> <strong>Venta Masiva</strong></li>
+        <li><strong>Paso 1 Aptitud:</strong> Selecciona animales activos (check supresion, edad minima, DIB, gestacion >90d)</li>
+        <li><strong>Paso 2 Trazabilidad:</strong> Fecha sacrificio, Matadero, ICA, Guia sanitaria, Declaracion fitosanitaria 180d</li>
+        <li><strong>Paso 3 Economicos:</strong> Peso vivo, Peso canal (verde), Precio /kg canal (oro), Transporte, Matanza</li>
+        <li><strong>Paso 4 Liquidacion:</strong> Comprador activo (REGA destino valido), IVA/Retencion (contrato), SEUROP</li>
+        <li><strong>Paso 5 Logistica:</strong> Transportista (ATG+desinsectacion vigente), Veterinario autorizador (nombre+colegiado)</li>
+        <li>FIN: Auto genera DIMOE, Movimiento oficial SIGGAN, Albaran PDF, Factura PDF, Estado animal = VENDIDO</li>
+      </ol>
+      <h3>Albaran Leche (Wizard 2 pasos - Solo Flag LECHE):</h3>
+      <ol class="step-list">
+        <li>Explotacion -> LACTEA (azul) -> <strong>Albaran Leche</strong></li>
+        <li>Paso 1: 25+ campos normativos (fecha, volumenes, cisterna, temp, Letra Q, inhibidores, contrato, CCAA...)</li>
+        <li>Paso 2: Analitica (grasa, proteina, somaticas, aflatoxina M1) -> Recalculo precio extracto seco en vivo</li>
+        <li>Validaciones: MotorLacteo (temp, stock, inhibidores) + Letra Q + Supresion rebaño + Calidad CCAA</li>
+        <li>FIN: <code>comercializacion_leche</code> + <code>analiticas_leche</code> + <code>balance_lacteo</code> salida + INFOLAC + PDF</li>
+      </ol>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Siguientes</span>
+        <h2>Pasos Siguientes Recomendados</h2>
+      </div>
+      <ul class="feature-list">
+        <li><strong>Informes:</strong> Ver Dashboard General (KPIs 360°), Exportar Excel multi-hoja CoMer/ExPro</li>
+        <li><strong>Cuaderno Digital:</strong> Ajustes -> Exportar Cuaderno Digital -> ZIP 8 CSV SIGGAN listo</li>
+        <li><strong>Trazabilidad:</strong> Ficha animal (edicion) -> Bitacora 360° (6 fuentes unificadas)</li>
+        <li><strong>RFID:</strong> Wizard Animal -> ESCANEAR CROTAL NFC -> Auto-rellena crotal/RFID</li>
+        <li><strong>Premium:</strong> Ajustes -> Cuenta -> Activar Premium (compra unica Play Store) -> Ilimitado</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Guia Inicio Rapido</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

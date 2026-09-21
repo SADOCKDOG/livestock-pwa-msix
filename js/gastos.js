@@ -73,7 +73,18 @@ const Gastos = {
                 || (gastoData.concepto || '').toLowerCase().includes('sanidad');
             if (esSanidad && !gastoData.sanitarioId) {
                 try {
-                    const sanitarios = await window.db.getAllFromIndex('sanitarios_ganado', 'fincaId', fincaActivaId);
+                    // sanitarios_ganado no tiene indice fincaId: solo indexa por rebanoId.
+                    // Hay que resolver via los rebanos de esta finca.
+                    let sanitarios;
+                    if (gastoData.rebanoId) {
+                        sanitarios = await window.db.getAllFromIndex('sanitarios_ganado', 'rebanoId', gastoData.rebanoId);
+                    } else {
+                        const rebanos = await window.db.getAllFromIndex('rebanos', 'fincaId', fincaActivaId);
+                        const porRebano = await Promise.all(
+                            rebanos.map(r => window.db.getAllFromIndex('sanitarios_ganado', 'rebanoId', r.id))
+                        );
+                        sanitarios = porRebano.flat();
+                    }
                     const fechaGasto = new Date(gastoData.fecha);
                     const candidatos = sanitarios
                         .filter(s => !gastoData.rebanoId || Number(s.rebanoId) === Number(gastoData.rebanoId))

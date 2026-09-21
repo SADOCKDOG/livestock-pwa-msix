@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>02. Explotación & Producción — Manual LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>02. Explotación & Producción</h1>
+        <p class="version">Balance unificado leche/carne &middot; 5 Wizards lacteos &middot; Silos telemetria SVG</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="module-toc" aria-label="Tabla de contenidos del modulo">
+    <ul>
+      <li><a href="#explotacion">1. Vista Explotación (ExPro) — Carrusel 11 Tabs</a></li>
+      <li><a href="#lacteo">2. Submódulo Lácteo — 5 Sub-pestañas</a></li>
+      <li><a href="#wizards">3. Wizards Lacteos (5) — Paso a Paso</a></li>
+      <li><a href="#tanques">4. Tanques — Letra Q MAPA</a></li>
+      <li><a href="#silos">5. Silos — Telemetria Gauge SVG</a></li>
+      <li><a href="#produccion">6. Vista Producción — Tabs Carnica/Lactea</a></li>
+      <li><a href="#siggan">7. Integracion SIGGAN / BADIGEX (Letra Q, INFOLAC, DIMOE)</a></li>
+      <li><a href="#demo">8. Datos Demo CHAMORRO</a></li>
+    </ul>
+  </nav>
+
+  <main class="manual-main">
+
+    <!-- 1. VISTA EXPLOTACIÓN -->
+    <section id="explotacion" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">ExPro</span>
+        <h2>1. Vista Explotación (ExPro) — Carrusel 11 Tabs</h2>
+        <p class="section-desc">Vista unificada <code>#/explotacion</code> con carrusel circular <code>App.renderCarruselPestanas</code> (11 tabs: 7 operativos + 4 wizards). Header color verde lima (--c-success).</p>
+        <div class="route-info"><code>js/views/explotacion-view.js</code> &middot; <code>window.ExplotacionView</code></div>
+      </div>
+
+      <h3>1.1 Carrusel de Submodulos (11 Tabs)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Key</th><th>Label</th><th>Icono</th><th>Color</th><th>Tipo</th><th>Vista Delegada</th></tr></thead>
+        <tbody>
+          <tr><td>explotacion</td><td>EXPRO</td><td>finca</td><td>var(--c-success)</td><td>Tab</td><td>ExplotacionView (pestaña principal)</td></tr>
+          <tr><td>lacteo</td><td>LACTEA</td><td>leche</td><td>var(--c-info)</td><td>Tab</td><td>ExplotacionLacteaView (5 sub-tabs)</td></tr>
+          <tr><td>silos</td><td>SILOS</td><td>silos</td><td>var(--c-success)</td><td>Tab</td><td>SilosView (telemetria SVG)</td></tr>
+          <tr><td>fitosanitarios</td><td>FITOSANITARIOS</td><td>sanidad</td><td>var(--c-purple)</td><td>Tab</td><td>FitosanitariosView</td></tr>
+          <tr><td>gastos</td><td>FINANZAS</td><td>dinero</td><td>var(--c-purple)</td><td>Tab</td><td>GastosView</td></tr>
+          <tr><td>proveedores</td><td>PROVEEDORES</td><td>proveedores</td><td>var(--c-purple)</td><td>Tab</td><td>ProveedoresView</td></tr>
+          <tr><td>tramites</td><td>TRAMITES</td><td>documento</td><td>var(--c-info)</td><td>Tab</td><td>Hub administrativo (6 sub-tabs)</td></tr>
+          <tr><td>traslado</td><td>TRASLADOS</td><td>-</td><td>-</td><td>Wizard</td><td>Wizard movimiento (via carrusel)</td></tr>
+          <tr><td>censo</td><td>CENSO</td><td>-</td><td>-</td><td>Wizard</td><td>Wizard censo (via carrusel)</td></tr>
+          <tr><td>crotales</td><td>CROTALES</td><td>-</td><td>-</td><td>Wizard</td><td>Wizard crotales (via carrusel)</td></tr>
+          <tr><td>guia</td><td>GUIAS</td><td>-</td><td>-</td><td>Wizard</td><td>Wizard guia movimiento (via carrusel)</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="explotacion-carrusel">
+  <img src="img/explotacion-carrusel-11tabs.png" alt="Carrusel 11 tabs con wizards integrados, header verde lima ExPro" loading="lazy">
+  <span class="shot-label">[CAPTURA] explotacion-carrusel-11tabs.png</span>
+  <span class="shot-desc">Carrusel 11 tabs con wizards integrados, header verde lima ExPro</span>
+</div>
+
+      <h3>1.2 Pestaña Principal "Explotación" — Balance Unificado</h3>
+      <p>Contenido renderizado en la tab activa <code>explotacion</code>:</p>
+      <ul class="feature-list">
+        <li><strong>Tarjeta resumen produccion:</strong> Litros control + Margen MOFA leche + Margen carne (KPIs unificados)</li>
+        <li><strong>Banner Guia Sanitaria 365 dias SIGGAN:</strong> Auto-autorizacion si finca indemne/calificada (Andalucia)</li>
+        <li><strong>Alerta telemetria silos:</strong> Stock < 15% (bento-style alert critica)</li>
+        <li><strong>Widget AgendaView:</strong> Proximas citas contextuales</li>
+        <li><strong>Actividad reciente unificada:</strong> Ordeños + Pesajes con busqueda por crotal/zona</li>
+        <li><strong>Acceso edicion/borrado:</strong> Via <code>App._cardRegistro</code> en cada registro</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="explotacion-balance">
+  <img src="img/explotacion-balance-unificado.png" alt="Tarjeta KPIs litros control + MOFA + margen carne, banner guia 365, alerta silos" loading="lazy">
+  <span class="shot-label">[CAPTURA] explotacion-balance-unificado.png</span>
+  <span class="shot-desc">Tarjeta KPIs litros control + MOFA + margen carne, banner guia 365, alerta silos</span>
+</div>
+
+      <div class="callout callout-info">
+        <strong>[INFO] Cambio FAB contextual:</strong> El boton FAB principal cambia segun flags de la finca: <strong>"Registrar Produccion"</strong> (ambos flags) / <strong>"Registrar Pesaje"</strong> (solo carne) / <strong>"Registrar Ordeño"</strong> (solo leche). La actividad reciente filtra ordeños (leche) y pesajes (carne) segun flags activos.
+      </div>
+
+      <h3>1.3 Submodulo Tramites — Hub Administrativo (6 Sub-tabs)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Key</th><th>Label</th><th>Icono</th><th>Color</th></tr></thead>
+        <tbody>
+          <tr><td>guias</td><td>Guías DIMOE</td><td>documento</td><td>var(--c-info)</td></tr>
+          <tr><td>censo</td><td>Censo Anual</td><td>animales</td><td>var(--c-warning)</td></tr>
+          <tr><td>crotales</td><td>Crotales</td><td>paquete</td><td>var(--c-success)</td></tr>
+          <tr><td>traslado</td><td>Traslados</td><td>trazabilidad</td><td>var(--c-purple)</td></tr>
+          <tr><td>infolac</td><td>Infolac</td><td>leche</td><td>var(--c-info)</td></tr>
+          <tr><td>archivo</td><td>Archivo</td><td>cuaderno</td><td>var(--c-orange)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 2. SUBMÓDULO LACTEO -->
+    <section id="lacteo" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Lacteo</span>
+        <h2>2. Submódulo Lácteo — 5 Sub-pestañas</h2>
+        <p class="section-desc"><code>ExplotacionLacteaView</code> renderiza 5 sub-tabs horizontales con scroll. Dashboard concentra KPIs, tanques, ultima analitica y alertas MotorLacteo.</p>
+        <div class="route-info"><code>js/views/explotacion-lactea-view.js</code> &middot; <code>window.ExplotacionLacteaView</code> &middot; Ruta: <code>#/explotacion?sub=lacteo</code></div>
+      </div>
+
+      <h3>2.1 Sub-tab Dashboard</h3>
+      <ul class="feature-list">
+        <li><strong>Tanques:</strong> Stock actual/temp/limpieza (cards con gauge circular % llenado)</li>
+        <li><strong>KPIs produccion:</strong> Dia actual + 30 dias + MOFA (Margin Over Feed Cost)</li>
+        <li><strong>Ultima analitica:</strong> Con umbrales por especie/CCAA (semáforo verde/ambar/rojo)</li>
+        <li><strong>Alertas MotorLacteo:</strong> DANGER (bloqueante) / WARNING (aviso)</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="lacteo-dashboard">
+  <img src="img/lacteo-dashboard.png" alt="Dashboard lacteo con tanques, KPIs, analitica semaforo, alertas MotorLacteo" loading="lazy">
+  <span class="shot-label">[CAPTURA] lacteo-dashboard.png</span>
+  <span class="shot-desc">Dashboard lacteo con tanques, KPIs, analitica semaforo, alertas MotorLacteo</span>
+</div>
+
+      <h3>2.2 Sub-tab Tanques</h3>
+      <p>Delegado a <code>TanquesView.render()</code>. Lista completa con estado, tipo, stock, temp, limpieza, acciones Editar/Limpieza.</p>
+
+      <h3>2.3 Sub-tab Control (Analiticas + Controles DHI)</h3>
+      <ul class="feature-list">
+        <li><strong>Analiticas:</strong> Tipo, grasa, proteina, extracto seco, germenes, somaticas, laboratorio, estado</li>
+        <li><strong>Controles oficiales DHI:</strong> Fecha, organismo, media litros/grasa/proteina por rebaño</li>
+      </ul>
+
+      <h3>2.4 Sub-tab Balance (Movimientos Balance Lacteo)</h3>
+      <p>Movimientos entrada/salida/merma/ajuste con referencia tipo/id, litros, fecha, turno. Iconos flecha arriba/abajo por tipo.</p>
+
+      <h3>2.5 Sub-tab Graficos (5 Canvas Chart.js)</h3>
+      <ol class="step-list">
+        <li>Produccion mensual (linea)</li>
+        <li>Calidad leche (linea/multi)</li>
+        <li>Composicion (grasa/proteina/extracto seco - barras)</li>
+        <li>Comparativa tanques (barras agrupadas)</li>
+        <li>Curva lactacion (selector animal individual)</li>
+      </ol>
+    </section>
+
+    <!-- 3. WIZARDS LACTEOS -->
+    <section id="wizards" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Wizards</span>
+        <h2>3. Wizards Lacteos (5) — Paso a Paso</h2>
+        <p class="section-desc">Todos usan <code>WizardManager.create()</code> full-screen con header fijo, footer fijo (Guardar/Salir), validaciones complejas MotorLacteo/ComunidadesService.</p>
+      </div>
+
+      <h3>3.1 Ordeño Wizard (3 Pasos)</h3>
+      <div class="screenshot-placeholder" data-shot="wizard-ordeño-paso1">
+  <img src="img/wizard-ordeño-paso1.png" alt="Paso 1: Fecha, Turno AM/PM, Tanque destino (Letra Q), Temperatura" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-ordeño-paso1.png</span>
+  <span class="shot-desc">Paso 1: Fecha, Turno AM/PM, Tanque destino (Letra Q), Temperatura</span>
+</div>
+      <div class="screenshot-placeholder" data-shot="wizard-ordeño-paso2">
+  <img src="img/wizard-ordeño-paso2.png" alt="Paso 2: Tabla hembras activas rebaño lechero (crotal, nombre, input litros) total en vivo" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-ordeño-paso2.png</span>
+  <span class="shot-desc">Paso 2: Tabla hembras activas rebaño lechero (crotal, nombre, input litros) total en vivo</span>
+</div>
+      <div class="screenshot-placeholder" data-shot="wizard-ordeño-paso3">
+  <img src="img/wizard-ordeño-paso3.png" alt="Paso 3: Resumen + balance tanque proyectado (stock actual + ordeño = nuevo stock % capacidad)" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-ordeño-paso3.png</span>
+  <span class="shot-desc">Paso 3: Resumen + balance tanque proyectado (stock actual + ordeño = nuevo stock % capacidad)</span>
+</div>
+      <table class="feature-table">
+        <thead><tr><th>Paso</th><th>Titulo</th><th>Campos</th><th>Validaciones</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>DATOS DEL ORDEÑO</td><td>fecha (date), turno (select AM/PM), tanqueId (select Letra Q), temperatura (number C)</td><td>fecha obligatoria, tanque obligatorio</td></tr>
+          <tr><td>2</td><td>PRODUCCION POR ANIMAL</td><td>Tabla animales hembras rebaño lechero: crotal, nombre, litros (input)</td><td>Total litros > 0</td></tr>
+          <tr><td>3</td><td>CONFIRMACION</td><td>Resumen read-only, Balance tanque proyectado</td><td>-</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Al completar:</strong> <code>Produccion.saveLeche</code> por animal + <code>BalanceLacteo.registrar</code> entrada + <code>TanquesLeche.actualizarTemperatura</code> + evento maestro <code>Pesajes.registrar</code>.</p>
+      <p><strong>Disponibilidad:</strong> Solo si <code>flag leche = true</code> para la finca activa.</p>
+
+      <h3>3.2 Tanque Wizard (1 Paso)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Campo</th><th>Validacion</th></tr></thead>
+        <tbody>
+          <tr><td>Nombre</td><td>Obligatorio</td></tr>
+          <tr><td>Codigo Letra Q*</td><td>Obligatorio (min 3 chars), Unicidad MAPA</td></tr>
+          <tr><td>Capacidad (L)</td><td>> 0</td></tr>
+          <tr><td>Tipo</td><td>tanque_frio / cantara / cisterna</td></tr>
+          <tr><td>Temp objetivo/actual</td><td>Numerico</td></tr>
+          <tr><td>Observaciones</td><td>Opcional</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Al completar:</strong> <code>TanquesLeche.create/update</code>.</p>
+
+      <h3>3.3 Albaran Leche Wizard (2 Pasos) — Completitud Normativa RD 989/2022, INFOLAC, Letra Q 2.0</h3>
+      <div class="screenshot-placeholder" data-shot="wizard-albaran-leche-paso1">
+  <img src="img/wizard-albaran-leche-paso1.png" alt="Paso 1: Datos recogida en tanque (25+ campos normativos)" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-albaran-leche-paso1.png</span>
+  <span class="shot-desc">Paso 1: Datos recogida en tanque (25+ campos normativos)</span>
+</div>
+      <div class="screenshot-placeholder" data-shot="wizard-albaran-leche-paso2">
+  <img src="img/wizard-albaran-leche-paso2.png" alt="Paso 2: Analitica y liquidacion con recalculo precio en vivo (grasa, proteina, somaticas, aflatoxina M1)" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-albaran-leche-paso2.png</span>
+  <span class="shot-desc">Paso 2: Analitica y liquidacion con recalculo precio en vivo (grasa, proteina, somaticas, aflatoxina M1)</span>
+</div>
+      <h4>Paso 1: Datos de Recogida en Tanque (25+ campos)</h4>
+      <ul class="feature-list">
+        <li>Fecha, Volumenes L, Especie (vacuno/ovino/caprino), Tanque origen</li>
+        <li>Matricula cisterna, Temp, Nº muestra Letra Q, NIF tomador</li>
+        <li>Inhibidores in situ (no_realizada/conforme/no_conforme)</li>
+        <li>Agentes recogida/destino NIF (compradores lacteos)</li>
+        <li>Tipo movimiento Letra Q (7 tipos RD 989/2022), Estado Letra Q (4 estados)</li>
+        <li>Campos cisterna→cisterna, Nº muestreo oficial, Horas ordeño/carga</li>
+        <li>Contrato, CCAA, Cadena frio, Certificado inhibidores</li>
+      </ul>
+      <h4>Paso 2: Analitica y Liquidacion (Opcional)</h4>
+      <ul class="feature-list">
+        <li>Grasa, Proteina, Germenes, Somaticas (recalculo precio en vivo)</li>
+        <li>Aflatoxina M1 (Plan PIVCA) con metodo (kit_rapido/ELISA/HPLC)</li>
+        <li>Fecha analisis, Laboratorio, Antibioticos</li>
+        <li>Costes alimentacion, Precio base, Primas/penalizaciones</li>
+        <li>Precio extracto seco → Precio final €/L e Importe total calculados en vivo</li>
+      </ul>
+      <h4>Validaciones Complejas (Bloqueantes)</h4>
+      <ol class="step-list">
+        <li><code>MotorLacteo.validarComercializacion</code> (temp, stock tanque, inhibidores)</li>
+        <li><code>MotorLacteo.validarMovimientoLetraQ</code> (reglas MAPA intermediarios, codigos cisterna)</li>
+        <li>Bloqueo sanitario automatico: <code>Sanitarios.verificarRetiroLeche</code> por rebaño + <code>MotorTrazabilidad.checkSupresion</code> por animal (leche)</li>
+        <li><code>ComunidadesService.evaluarCalidadLecheEspecie</code> (umbrales por especie/CCAA)</li>
+      </ol>
+      <p><strong>Al completar:</strong> <code>comercializacion_leche</code> + <code>analiticas_leche</code> (si hay datos lab) + <code>balance_lacteo</code> salida + <code>documento_legal infolac_declaracion</code> + evento maestro <code>Pesajes.registrar</code> rol VENTA + impresion albaran.</p>
+
+      <h3>3.4 Analitica Leche Wizard (1 Paso)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Campo</th><th>Validacion</th></tr></thead>
+        <tbody>
+          <tr><td>Fecha muestreo</td><td>Obligatoria</td></tr>
+          <tr><td>Especie</td><td>vacuno/ovino/caprino</td></tr>
+          <tr><td>Tipo muestreo</td><td>autocontrol / oficial</td></tr>
+          <tr><td>Tanque</td><td>Select</td></tr>
+          <tr><td>Grasa, Proteina, Germenes 30C, Celulas somaticas</td><td>Numericos</td></tr>
+          <tr><td>Laboratorio</td><td>Nombre (oficiales por CCAA)</td></tr>
+          <tr><td>Inhibidores</td><td>no_realizada/conforme/no_conforme</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Al completar:</strong> <code>AnaliticasLeche.create</code>.</p>
+
+      <h3>3.5 Movimiento Balance Wizard (1 Paso)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Campo</th><th>Validacion</th></tr></thead>
+        <tbody>
+          <tr><td>Tanque</td><td>Obligatorio</td></tr>
+          <tr><td>Tipo movimiento</td><td>entrada / salida / merma / ajuste</td></tr>
+          <tr><td>Cantidad L</td><td>> 0 (salvo ajuste >= 0 = stock absoluto nuevo)</td></tr>
+          <tr><td>Fecha, Temperatura, Observaciones</td><td>Opcionales</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Al completar:</strong> <code>BalanceLacteo.registrar</code> (referencia_tipo: manual).</p>
+    </section>
+
+    <!-- 4. TANQUES -->
+    <section id="tanques" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Tanques</span>
+        <h2>4. Tanques — Letra Q MAPA</h2>
+        <p class="section-desc">Gestion completa de tanques de leche (<code>tanque_frio</code>, <code>cantara</code>, <code>cisterna</code>) con historial movimientos por tanque desde <code>BalanceLacteo</code>.</p>
+        <div class="route-info"><code>js/views/tanques-view.js</code> &middot; <code>window.TanquesView</code> &middot; Sub-tab via carrusel ExPro</div>
+      </div>
+
+      <h3>4.1 Listado y Gauge Circular</h3>
+      <ul class="feature-list">
+        <li>Gauge circular stock % (animado, clickeable para recalibracion sensores)</li>
+        <li>Temp actual / objetivo, Prox/Ult limpieza</li>
+        <li>Historial ultimos 5 movimientos (entrada/salida) con fechas</li>
+      </ul>
+
+      <h3>4.2 Acciones</h3>
+      <ul class="feature-list">
+        <li><strong>Editar:</strong> Abre <code>TanqueWizard</code></li>
+        <li><strong>Registrar Limpieza:</strong> <code>TanquesLeche.registrarLimpieza</code></li>
+        <li><strong>Eliminar:</strong> Con confirmacion (solo si sin movimientos recientes)</li>
+      </ul>
+
+      <h3>4.3 Ficha Tecnica Modal</h3>
+      <p>Gauge, KPIs, historial movimientos completos, botones rapidos Cargar/Consumir/Editar.</p>
+      <div class="screenshot-placeholder" data-shot="tanques-lista">
+  <img src="img/tanques-lista-gauge.png" alt="Listado tanques con gauge circular stock%, temp, limpieza, badge tipo" loading="lazy">
+  <span class="shot-label">[CAPTURA] tanques-lista-gauge.png</span>
+  <span class="shot-desc">Listado tanques con gauge circular stock%, temp, limpieza, badge tipo</span>
+</div>
+    </section>
+
+    <!-- 5. SILOS -->
+    <section id="silos" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Silos</span>
+        <h2>5. Silos — Telemetria Gauge SVG Animado</h2>
+        <p class="section-desc">Telemetria de silos de pienso con gauge SVG circular animado, calculo de autonomia (dias) basado en consumo real 30d (<code>registro_eventos</code> tipo <code>silo_consumo</code>), alertas stock <15%, <35%.</p>
+        <div class="route-info"><code>js/views/silos-view.js</code> &middot; <code>window.SilosView</code> &middot; Sub-tab via carrusel ExPro</div>
+      </div>
+
+      <h3>5.1 KPIs Globales</h3>
+      <ul class="feature-list">
+        <li>Capacidad total, Almacenado, Ocupacion media %</li>
+        <li>Autonomia (dias) calculada sobre consumo real 30d</li>
+      </ul>
+
+      <h3>5.2 Card por Silo (card-dark-gradient con gauge SVG)</h3>
+      <ul class="feature-list">
+        <li>Gauge circular clickeable (recalibracion sensores: animacion SVG 0% -> CAL -> valor real)</li>
+        <li>Ficha tecnica (modal): gauge, KPIs, historial movimientos, botones rapidos</li>
+        <li>Acciones: Cargar / Consumir / Editar / Eliminar</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="silos-gauge">
+  <img src="img/silos-gauge-svg.png" alt="Cards silo con gauge SVG circular animado, stock%, autonomia dias, badge critico inferior a 15%" loading="lazy">
+  <span class="shot-label">[CAPTURA] silos-gauge-svg.png</span>
+  <span class="shot-desc">Cards silo con gauge SVG circular animado, stock%, autonomia dias, badge critico inferior a 15%</span>
+</div>
+
+      <h3>5.3 Cargar Silo</h3>
+      <p>Proveedor, cantidad, coste, factura &rarr; genera gasto categoria Alimentacion + evento <code>registro_eventos</code> tipo <code>silo_carga</code>.</p>
+
+      <h3>5.4 Consumir Silo</h3>
+      <p>Rebaño opcional, sacos x kg/saco, valor opcional &rarr; descuenta stock, genera gasto vinculado a rebaño + evento <code>silo_consumo</code> (base calculo ICA).</p>
+
+      <h3>5.5 Alertas Stock</h3>
+      <ul class="feature-list">
+        <li><strong>CRITICO (<15%):</strong> Badge rojo, alerta Bento en ExPro principal</li>
+        <li><strong>ADVERTENCIA (<35%):</strong> Badge ambar</li>
+        <li><strong>ESTABLE:</strong> Badge verde</li>
+      </ul>
+    </section>
+
+    <!-- 6. VISTA PRODUCCIÓN -->
+    <section id="produccion" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Produccion</span>
+        <h2>6. Vista Producción — Tabs Carnica / Lactea</h2>
+        <p class="section-desc">Vista <code>#/produccion</code> con tabs principales Cárnica y Lactea. Espejo de ExPro pero enfocada en listas de registros con KPIs y FAB. Duplica logica Láctea de <code>ExplotacionLacteaView</code>.</p>
+        <div class="route-info"><code>js/views/produccion-view.js</code> &middot; <code>window.ProduccionView</code></div>
+      </div>
+
+      <h3>6.1 Tab Carnica (Carne)</h3>
+      <ul class="feature-list">
+        <li>Lista de pesajes (individual/lote) con KPIs total kg y count</li>
+        <li>FAB "Registrar Pesaje" (solo si flag carne=true)</li>
+      </ul>
+
+      <h3>6.2 Tab Lactea (Leche) — 4 Sub-tabs</h3>
+      <table class="feature-table">
+        <thead><tr><th>Sub-tab</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td>KPIs (Produccion hoy, Total L, Extracto seco medio, Analiticas), 3 tanques, ultima analitica, botones accion Ordeño/Tanque</td></tr>
+          <tr><td>Tanques</td><td>Lista completa tanques (estado, tipo, stock, temp, limpieza) con acciones Editar/Limpieza</td></tr>
+          <tr><td>Control</td><td>Mismo contenido que ExplotacionLacteaView.renderControl (analiticas + DHI)</td></tr>
+          <tr><td>Balance</td><td>Mismo contenido que ExplotacionLacteaView.renderBalance (movimientos balance)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.3 Extras Tabs Produccion</h3>
+      <ul class="feature-list">
+        <li>Ventas (expediciones)</li>
+        <li>Gastos</li>
+      </ul>
+    </section>
+
+    <!-- 7. INTEGRACIÓN SIGGAN/BADIGEX -->
+    <section id="siggan" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">SIGGAN/BADIGEX</span>
+        <h2>7. Integracion SIGGAN (Andalucia) / BADIGEX (Extremadura)</h2>
+        <p class="section-desc">Campos normativos obligatorios en wizards y vistas. 100% implementado segun RD 989/2022, RD 787/2023, MAPA Letra Q 2.0.</p>
+      </div>
+
+      <h3>7.1 Letra Q (Registro General Agentes Sector Lacteo - MAPA)</h3>
+      <ul class="feature-list">
+        <li><code>codigo_letra_q</code> (tanque, cisterna, muestra) — formato unico, validacion MAPA</li>
+        <li><code>tipo_movimiento_letra_q</code> (7 tipos RD 989/2022): explotacion_a_cisterna, explotacion_a_rechazo, explotacion_a_establecimiento, cisterna_a_cisterna, cisterna_a_rechazo, cisterna_a_establecimiento</li>
+        <li><code>estado_letra_q</code> (4 estados): pendiente, comunicado, rechazado, exento</li>
+        <li><code>fecha_limite_comunicacion_letra_q</code> (calculo <code>MotorLacteo</code> segun tipo agente destino)</li>
+        <li><code>fecha_comunicado_letra_q</code>, <code>recibo_letra_q</code> (identificacion productor, codigo explotacion, fecha_hora, litros, operador, muestra)</li>
+      </ul>
+
+      <h3>7.2 INFOLAC (Declaracion Lactea Oficial)</h3>
+      <ul class="feature-list">
+        <li><code>estado_tramite_infolac</code>: borrador / presentado / validado / error</li>
+        <li><code>fecha_presentacion_infolac</code>, <code>numero_registro_infolac</code>, <code>acuse_infolac</code></li>
+        <li><code>numero_infolac</code> (finca), <code>documento_legal</code> tipo <code>infolac_declaracion</code></li>
+        <li>Contrato lacteo obligatorio 1 ano minimo (tipo explotacion leche/mixto)</li>
+      </ul>
+
+      <h3>7.3 DIMOE / Guías 365 dias (Andalucia)</h3>
+      <ul class="feature-list">
+        <li><code>guia_movimiento</code> en <code>documentos_legales</code></li>
+        <li><code>guia_365_habilitada</code> + <code>calificacion_sanitaria</code> (indemne/calificada) &rarr; auto-autorizacion 365 dias</li>
+        <li><code>ComunidadesService.getConfiguracionCCAA</code> (guia_automatica_si_saneada)</li>
+      </ul>
+
+      <h3>7.4 REGA / Censo / Crotales / Libro Registro</h3>
+      <ul class="feature-list">
+        <li>Declaracion censal (<code>documentos_legales</code> tipo DECLARACION_CENSAL/censo_anual)</li>
+        <li>Pedidos crotales (<code>pedidos_crotales</code>)</li>
+        <li>Libro registro / Cuaderno digital</li>
+      </ul>
+
+      <h3>7.5 Calidad Leche (Umbrales por Especie/CCAA)</h3>
+      <ul class="feature-list">
+        <li><code>ComunidadesService.getUmbralesCalidadEspecie</code> (vacuno/ovino/caprino) &rarr; grasa min, proteina min, germenes max, somaticas max</li>
+        <li><code>ComunidadesService.evaluarCalidadLecheEspecie</code> (bloqueante/alertas)</li>
+        <li>Aflatoxina M1 (Plan PIVCA) con metodo (kit_rapido/ELISA/HPLC)</li>
+        <li>Inhibidores in situ (no_realizada/conforme/no_conforme)</li>
+        <li>Laboratorios oficiales por CCAA (<code>ComunidadesService.getLaboratoriosLeche</code>)</li>
+      </ul>
+
+      <h3>7.6 Precios Referencia</h3>
+      <p><code>ComunidadesService.PRECIO_EXTRACTO_SECO_REF</code> (precio_base_referencia, precio_por_punto_extracto, tasa_INLAC_defecto) para recalculo en vivo en Albaran Leche Wizard.</p>
+    </section>
+
+    <!-- 8. DEMO CHAMORRO -->
+    <section id="demo" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Demo</span>
+        <h2>8. Datos Demo CHAMORRO — Precarga SeedData</h2>
+        <p class="section-desc">Validacion guias PWA: ExPro 52/55 (vs 53/55 Android, 1 target por datos demo).</p>
+      </div>
+
+      <h3>8.1 Precarga Relevante para ExPro/Lacteo</h3>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>Finca:</strong> 'Chamorro' CCAA=andalucia, ADSG codigo, REGA, numero_infolac, contrato_lacteo_numero</div>
+        <div class="demo-item"><strong>Tanques:</strong> Minimo 1 tanque con codigo_letra_q valido, capacidad, tipo tanque_frio, temp objetivo 4°C</div>
+        <div class="demo-item"><strong>Rebaños:</strong> Tipo 'leche'/'mixta' con hembras activas (sexo=H/hembra) con crotal/caravana</div>
+        <div class="demo-item"><strong>Animales:</strong> Vacas lecheras activas con numero_identificacion</div>
+        <div class="demo-item"><strong>Silos:</strong> Nombre, capacidad, cantidadActual, alimento, fechaUltimaCarga</div>
+        <div class="demo-item"><strong>Comercializacion Leche:</strong> Entregas con laboratorio (grasa, proteina, germenes, somaticas, antibioticos, extracto_seco), precioBase, importe_total, estado_tramite_infolac</div>
+        <div class="demo-item"><strong>Control Lechero:</strong> Registros DHI con media_rebano_litros/grasa/proteina, organismo_control</div>
+        <div class="demo-item"><strong>Analiticas Leche:</strong> Autocontroles/oficiales con parametros calidad, laboratorio, inhibidores</div>
+        <div class="demo-item"><strong>Balance Lacteo:</strong> Movimientos entrada/salida con referencia_tipo (produccion_leche/comercializacion_leche/manual), tanqueId, litros, turno</div>
+        <div class="demo-item"><strong>Gastos Ganaderia:</strong> Categoria Alimentacion con montos, fechas, proveedorId, rebanoId</div>
+        <div class="demo-item"><strong>Proveedores:</strong> Compradores tipo 'lacteo' activos con nif_cif, tipo_operador_lacteo (primer_comprador/intermediario/establecimiento)</div>
+        <div class="demo-item"><strong>Documentos Legales:</strong> Guías movimiento, censos, infolac_declaracion</div>
+        <div class="demo-item"><strong>Sanitarios:</strong> Tratamientos con prohibidoLeche, supresion leche/carne, fechas retiro</div>
+      </div>
+
+      <h3>8.2 Pruebas Clave en Demo</h3>
+      <ul class="feature-list">
+        <li>Ordeño Wizard completo con 3+ hembras activas -> genera BalanceLacteo entrada + actualiza temp tanque</li>
+        <li>Albaran Leche Wizard con analitica -> recalculo precio extracto seco + INFOLAC + Letra Q</li>
+        <li>Analitica Leche Wizard -> evaluacion calidad por CCAA (Andalucia) con alertas semaforo</li>
+        <li>Silos: Cargar/Consumir -> genera eventos silo_carga/silo_consumo -> base ICA</li>
+        <li>Tanques: Recalibracion gauge SVG (click gauge -> animacion 0% -> CAL -> valor real)</li>
+        <li>Guia 365 auto-autorizacion (finca demo calificacion indemne/calificada)</li>
+      </ul>
+    </section>
+
+    <!-- Navegación final -->
+    <nav class="module-nav-bottom">
+      <a href="manual-dashboard-ganaderia.html" class="nav-btn">&larr; Anterior: Dashboard & Ganaderia</a>
+      <a href="manual-comercializacion.html" class="nav-btn nav-btn-primary">Siguiente: Comercializacion &rarr;</a>
+    </nav>
+
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Manual Profesional · Modulo 02/06</p>
+    <p class="copyright">SIGGAN · BADIGEX · RD 989/2022 · RD 787/2023 · MAPA Letra Q · Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

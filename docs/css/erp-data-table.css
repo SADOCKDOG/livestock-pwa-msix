@@ -214,3 +214,155 @@ body[data-modo="claro"] .btn-erp-pagi {
 .erp-data-table td.erp-cell-aviso    { color: var(--c-warning, #B45309); font-weight: 800; }
 .erp-data-table td.erp-cell-info     { color: var(--c-info, #1F5FA8); font-weight: 800; }
 .erp-data-table td.erp-cell-tenue    { color: var(--text-d, #777); }
+
+/* ---------------------------------------------------------------------------
+   Conmutador Tarjetas / Tabla ERP: estado activo
+   ---------------------------------------------------------------------------
+   _setVistaModo pintaba el estado activo con `style.background` inline. El boton
+   NO activo se quedaba en `transparent`, asi que su unica presencia visible eran
+   el borde y el color de texto de .btn-erp-secondary. `.btn-sm` (css/styles.css)
+   declara `border: none`, de ahi la especificidad reforzada.
+   --------------------------------------------------------------------------- */
+.btn-erp-secondary.btn-sm {
+  border: 1px solid var(--border, #27272A);
+  color: var(--text-p, #FFF);
+}
+
+.btn-erp-secondary.is-activa,
+.btn-erp-secondary.btn-sm.is-activa {
+  background: var(--brand, #1F5FA8);
+  border-color: var(--brand, #1F5FA8);
+  color: #FFFFFF;
+}
+
+body[data-modo="claro"] .btn-erp-secondary.is-activa {
+  color: #FFFFFF;
+}
+
+/* ---------------------------------------------------------------------------
+   Movil vertical (<1024px)
+   ---------------------------------------------------------------------------
+   ErpDataTable se pinta tambien en telefono. Aqui se compacta la densidad y se
+   garantiza que el desbordamiento lateral haga scroll DENTRO de la tabla: body
+   y main#app-content usan `overflow-x: clip` (css/styles.css:21 y :316), que
+   recorta pero NO crea carril de scroll; sin esto las columnas de la derecha
+   quedaban cortadas e inalcanzables.
+   --------------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .erp-table-wrapper {
+    margin-bottom: 14px;
+    border-radius: var(--r-sm, 8px);
+  }
+
+  .erp-table-responsive {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .erp-table-toolbar { padding: 8px 10px; gap: 8px; }
+  .erp-table-search  { width: 100%; }
+
+  .erp-data-table    { font-size: 0.78rem; }
+  .erp-data-table th { padding: 6px 8px; }
+  .erp-data-table td { padding: 6px 8px; }
+
+  /* .btn-sm impone min-height:48px; dentro de una celda hincha cada fila. */
+  .erp-data-table .btn-sm,
+  .erp-table-toolbar .btn-sm,
+  .erp-vista-toggle .btn-sm {
+    min-height: 32px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .erp-table-pagination { padding: 8px 10px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Legibilidad de la rejilla
+   ---------------------------------------------------------------------------
+   La tabla nacio sin separadores verticales ni alternancia de fila: con 7
+   columnas de datos cortos costaba seguir el renglon. Se refuerza la reticula
+   y se conserva el codigo de color de las tarjetas (.erp-cell-*, mas abajo).
+   --------------------------------------------------------------------------- */
+.erp-data-table th + th,
+.erp-data-table td + td {
+  border-left: 1px solid var(--border-subtle, #222222);
+}
+
+.erp-data-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.erp-data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+body[data-modo="claro"] .erp-data-table tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.025);
+}
+
+@media (max-width: 1023px) {
+  /* Con scroll horizontal, perder de vista el identificador deja la fila sin
+     referencia. La primera columna queda anclada; lleva fondo opaco propio
+     porque por debajo pasan las demas celdas. */
+  .erp-data-table th:first-child,
+  .erp-data-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--surface, #1E1E1E);
+    border-right: 1px solid var(--border, #27272A);
+  }
+
+  .erp-data-table thead th:first-child {
+    z-index: 3;
+    background: var(--surface-light, #2A2A2A);
+  }
+
+  body[data-modo="claro"] .erp-data-table td:first-child {
+    background: #FFFFFF;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Boton de exportacion CSV
+   ---------------------------------------------------------------------------
+   Heredaba el gris neutro de .btn-erp-secondary: sobre el fondo casi negro del
+   movil su borde (#27272A) desaparecia y no se leia como accion. El resto de
+   la app exporta con el acento info (.neon-info, var(--c-info)), asi que se
+   adopta ese mismo codigo de color. No se usa .widget-link-btn--neon porque
+   mide 80px de alto y no cabe en la barra de la tabla.
+   --------------------------------------------------------------------------- */
+.btn-erp-secondary.erp-btn-csv,
+.btn-erp-secondary.btn-sm.erp-btn-csv {
+  color: var(--c-info, #4FADF5);
+  border: 1px solid var(--c-info, #4FADF5);
+  background: rgba(79, 173, 245, 0.10);
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(79, 173, 245, 0.28), inset 0 0 8px rgba(79, 173, 245, 0.12);
+}
+
+.btn-erp-secondary.erp-btn-csv svg {
+  stroke: var(--c-info, #4FADF5);
+}
+
+.btn-erp-secondary.erp-btn-csv:hover,
+.btn-erp-secondary.erp-btn-csv:active {
+  background: rgba(79, 173, 245, 0.20);
+  box-shadow: 0 0 14px rgba(79, 173, 245, 0.45), inset 0 0 10px rgba(79, 173, 245, 0.18);
+}
+
+@media (max-width: 1023px) {
+  /* En la barra estrecha del movil el CSV es la unica accion: se le da altura
+     tactil propia en lugar de los 32px que comparte con el resto de .btn-sm. */
+  .erp-table-toolbar .erp-btn-csv {
+    min-height: 38px;
+    padding: 6px 14px;
+    gap: 6px;
+  }
+}

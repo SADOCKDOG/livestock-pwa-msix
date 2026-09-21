@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia: Exportacion PDF/Excel/CSV — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Guia: Exportacion PDF / Excel / CSV</h1>
+        <p class="version">DocumentViewer comun — Excel multi-hoja — CSV SIGGAN 8 secciones — XML REGA</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Export</span>
+        <h2>1. Resumen Formatos Soportados</h2>
+      </div>
+
+      <table class="feature-table">
+        <thead><tr><th>Formato</th><th>Uso Principal</th><th>Implementacion</th><th>Disponibilidad</th></tr></thead>
+        <tbody>
+          <tr><td>PDF</td><td>Albaranes, Facturas, Informes, Documentos legales, Cuaderno digital</td><td><code>DocumentViewer</code> + <code>App.imprimirAlbaran()</code> / <code>App.imprimirFactura()</code></td><td>Todos (Free/Premium)</td></tr>
+          <tr><td>Excel (.xlsx)</td><td>Informes multi-hoja, Listados grandes, Analisis financiero</td><td>SheetJS (xlsx), multi-hoja por categoria/sub-tab</td><td>Solo Premium</td></tr>
+          <tr><td>CSV SIGGAN</td><td>Cuaderno digital 8 secciones, Movimientos, Censo, Crotales</td><td>ZIP 8 CSV + README, validacion pre-flight</td><td>Solo Premium</td></tr>
+          <tr><td>XML REGA</td><td>Declaracion censal, Pedido crotales, Notificaciones</td><td>Esquema oficial Junta Andalucia / CCAA</td><td>Todos</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">PDF</span>
+        <h2>2. Generacion PDF & DocumentViewer (Patron Comun)</h2>
+      </div>
+
+      <h3>2.1 Nunca usar window.open / window.print en Capacitor Android</h3>
+      <div class="callout callout-warning">
+        <strong>[REGLA OBLIGATORIA]</strong> En Capacitor Android WebView, <code>window.open()</code> y <code>window.print()</code> SIEMPRE fallan. Usar <strong>DocumentViewer</strong> (componente full-screen con iframe sandbox).
+      </div>
+
+      <h3>2.2 DocumentViewer — Componente Unificado</h3>
+      <ul class="feature-list">
+        <li>Ruta: <code>components/document-viewer/</code> (Web Component <code><document-viewer></code>)</li>
+        <li>Entrada: HTML string o URL blob/pdf</li>
+        <li>Botones: <strong>Compartir</strong> (Web Share API nativo), <strong>Imprimir</strong> (nativo Android/iOS/Print), <strong>Descargar</strong>, <strong>Cerrar</strong></li>
+        <li>Funciona en: PWA, Capacitor Android, Electron, Navegador desktop</li>
+        <li>Iframe sandbox: <code>allow-scripts allow-same-origin allow-forms allow-downloads</code></li>
+      </ul>
+
+      <h3>2.3 PDFs Principales Generados</h3>
+      <table class="feature-table">
+        <thead><tr><th>Documento</th><th>Generado Desde</th><th>Funcion</th></tr></thead>
+        <tbody>
+          <tr><td>Albaran Leche</td><td>Albaran Leche Wizard (Paso 2)</td><td><code>App.imprimirAlbaran(datos, 'leche')</code></td></tr>
+          <tr><td>Albaran Carne</td><td>Auto: Wizard Venta Masiva (Fin)</td><td><code>App.imprimirAlbaran(datos, 'carne')</code></td></tr>
+          <tr><td>Factura Carne</td><td>Auto: Wizard Venta Masiva (si hay precio)</td><td><code>App.imprimirFactura(datos)</code></td></tr>
+          <tr><td>Declaracion Censal</td><td>Wizard Censo (Paso 3)</td><td><code>DocumentosLegales.generarPDF('DECLARACION_CENSAL')</code></td></tr>
+          <tr><td>Pedido Crotales</td><td>Wizard Crotales (Paso 2)</td><td><code>DocumentosLegales.generarPDF('PEDIDO_CROTALES')</code></td></tr>
+          <tr><td>Guia Movimiento</td><td>Wizard Guia / Tramites</td><td><code>DocumentosLegales.generarPDF('GUIA_MOVIMIENTO')</code></td></tr>
+          <tr><td>Informe Generico</td><td>InformesView > Exportar PDF</td><td><code>InformesView.exportarPDF()</code> (Solo Premium)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Excel</span>
+        <h2>3. Exportacion Excel Multi-hoja (Solo Premium)</h2>
+      </div>
+
+      <h3>3.1 InformesView.exportExcel()</h3>
+      <ul class="feature-list">
+        <li>Disponible en <code>InformesView</code> (boton "Exportar Excel" en header, solo si Premium)</li>
+        <li>Genera <strong>una hoja por sub-tab activa</strong> de la categoria actual</li>
+        <li>Incluye hoja <strong>"Resumen"</strong> con KPIs principales de la categoria</li>
+        <li>Cabeceras con <strong>filtros Excel</strong> + formato tabla nativo</li>
+        <li>Nombrado: <code>INFORMES_{CATEGORIA}_{SUBCAT}_{YYYYMMDD}.xlsx</code></li>
+      </ul>
+
+      <h3>3.2 Estructura Hoja</h3>
+      <ul class="feature-list">
+        <li>Fila 1: Titulo informe + Fecha generacion + Finca</li>
+        <li>Fila 2: Filtros aplicados (si hay)</li>
+        <li>Fila 3: Cabeceras tabla (con <code>autoFilter: true</code>)</li>
+        <li>Datos: Filas completas con tipos nativos (number, date, string)</li>
+        <li>Ultima fila: Totales / Promedios (segun columna)</li>
+      </ul>
+
+      <h3>3.3 Ejemplo: Export CoMer (Comercializacion)</h3>
+      <p>Hoja 1: Resumen KPIs | Hoja 2: Ventas Carne | Hoja 3: Entregas Leche | Hoja 4: Compradores | Hoja 5: Transportistas | Hoja 6: Contratos | Hoja 7: Albaranes/Facturas | Hoja 8: KPIs Financieros</p>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-orange">CSV SIGGAN</span>
+        <h2>4. Cuaderno Digital — Exportacion ZIP 8 CSV (Solo Premium)</h2>
+      </div>
+
+      <h3>4.1 Acceso</h3>
+      <ul class="feature-list">
+        <li>Ajustes > Asistente Configuracion > <strong>Exportar Cuaderno Digital</strong></li>
+        <li>O Informes > Categoria Libros > Sub-tab cualquiera > Boton "Exportar Cuaderno Digital"</li>
+      </ul>
+
+      <h3>4.2 Contenido ZIP</h3>
+      <ol class="step-list">
+        <li><code>TRATAMIENTOS.csv</code></li>
+        <li><code>VACUNACIONES.csv</code></li>
+        <li><code>CENSO_ANUAL.csv</code></li>
+        <li><code>CROTALES.csv</code></li>
+        <li><code>MOVIMIENTOS.csv</code></li>
+        <li><code>SANEAMIENTOS.csv</code></li>
+        <li><code>FITOSANITARIOS.csv</code></li>
+        <li><code>AGENDA.csv</code> (complementaria)</li>
+        <li><code>README.md</code> — Instrucciones importacion SIGGAN/BADIGEX/SIA/PIGGAN, version app, fecha</li>
+      </ol>
+
+      <h3>4.3 Validacion Pre-Flight (Bloqueante)</h3>
+      <p>Ver Modulo 06, Seccion 4.2. Exportacion BLOQUEADA si falla: REGA, ADSG, NIF, Lotes medicamentos, Crotales 15d, Guias oficiales, REGA destino.</p>
+
+      <h3>4.4 Nombrado ZIP</h3>
+      <p><code>CUADERNO_DIGITAL_{REGA}_{YYYYMMDD}.zip</code></p>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">XML REGA</span>
+        <h2>5. Exportacion XML REGA / SIA / PIGGAN</h2>
+      </div>
+
+      <h3>5.1 Declaracion Censal XML</h3>
+      <ul class="feature-list">
+        <li>Wizard Censo > Paso 3 > Boton "Exportar XML"</li>
+        <li>Esquema: <code>ComunidadesService.getEsquemaCensalXML(ccaa)</code></li>
+        <li>Incluye: REGA, NIF/CIF titular, Provincia, Municipio, Tabla Especie|Hembras|Machos|Total</li>
+        <li>Firma digital: Pendiente (requiere certificado FNMT en dispositivo)</li>
+      </ul>
+
+      <h3>5.2 Pedido Crotales XML</h3>
+      <ul class="feature-list">
+        <li>Wizard Crotales > Paso 2 > Boton "Exportar XML"</li>
+        <li>Destino: SIGGAN (Andalucia) / BADIGEX (Extremadura) / SIA / PIGGAN segun CCAA finca</li>
+        <li>Incluye: Titular, Explotacion, REGA, ADSG, Material (especie, tipo, cantidad)</li>
+      </ul>
+
+      <h3>5.3 Notificaciones REGA XML</h3>
+      <ul class="feature-list">
+        <li>Generado automatico en <code>NotificacionesREGA.enviar()</code> (Gap 11)</li>
+        <li>Destino: CEBO/ENGORDE derivado de <code>Movimientos.esDestinoCebo()</code></li>
+        <li>Tipo identificacion: Completa (EID+Visual) vs Matadero (Visual REGA)</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Compartir</span>
+        <h2>6. Web Share API (Compartir Nativo)</h2>
+      </div>
+
+      <ul class="feature-list">
+        <li>Disponible en <strong>DocumentViewer</strong> (boton Compartir) y <strong>InformesView</strong> (boton Compartir)</li>
+        <li>Usa <code>navigator.share({title, text, url/files})</code> - nativo Android/iOS</li>
+        <li>Fallback si no soportado: <code>DocumentViewer</code> muestra boton "Descargar" + "Copiar enlace"</li>
+        <li>En Android: Abre share sheet (WhatsApp, Email, Drive, Bluetooth, etc.)</li>
+        <li>En iOS: Abre share sheet nativo</li>
+        <li>En Desktop PWA: Abre share del navegador / clipboard</li>
+      </ul>
+
+      <h3>6.2 Compartir Archivos (PDF/Excel/ZIP)</h3>
+      <pre class="code-block"><code>// Ejemplo DocumentViewer.compartirPDF()
+if (navigator.canShare && navigator.canShare({files: [pdfFile]})) {
+  await navigator.share({
+    title: 'Albaran Leche',
+    text: 'Albaran recogida leche - Ganaderia CHAMORRO',
+    files: [pdfFile]
+  });
+} else {
+  // Fallback: descargar + toast "Archivo descargado. Usa 'Compartir' del sistema."
+}</code></pre>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-danger">Resumen</span>
+        <h2>7. Resumen Rapido por Perfil Usuario</h2>
+      </div>
+
+      <table class="feature-table">
+        <thead><tr><th>Perfil</th><th>PDF</th><th>Excel</th><th>CSV SIGGAN (ZIP)</th><th>XML REGA</th></tr></thead>
+        <tbody>
+          <tr><td>Ganadero FREE (Android)</td><td>Si (Albaranes, Facturas, Docs legales)</td><td>No</td><td>No</td><td>Si (Censo, Crotales, Notificaciones)</td></tr>
+          <tr><td>Ganadero PREMIUM (Android)</td><td>Si (Todos + Informes)</td><td>Si (Multi-hoja Informes)</td><td>Si (Cuaderno Digital 8 CSV)</td><td>Si (Todos)</td></tr>
+          <tr><td>Tecnico / Veterinario</td><td>Si (Recibe via Share)</td><td>Si (Recibe via Share)</td><td>Si (Importa en SIGGAN/BADIGEX)</td><td>Si (Importa en CCAA)</td></tr>
+          <tr><td>PWA / MSIX Desktop</td><td>Si (Todos)</td><td>Si (Todos - build FREE incluye codigo)</td><td>Si (Todos - build FREE incluye codigo)</td><td>Si (Todos)</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Guia Exportacion PDF/Excel/CSV</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

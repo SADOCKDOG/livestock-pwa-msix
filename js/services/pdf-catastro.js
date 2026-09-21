@@ -9,8 +9,9 @@
  * Adaptado a Livestock: script clásico (no ES module), superficies convertidas a
  * hectáreas además de los m² literales, y sin los campos propios del corcho.
  *
- * DEPENDENCIA: pdf.js, que se carga bajo demanda desde CDN la primera vez que se
- * usa (mismo patrón que html2pdf/xlsx en app.js). La app es offline-first: si no
+ * DEPENDENCIA: pdf.js, que se carga bajo demanda en local (js/vendor) la primera
+ * vez que se usa (mismo patrón que html2pdf/xlsx en app.js). La app es offline-first:
+ * si no
  * hay red, `asegurarPdfJs()` devuelve false y la vista debe avisar al usuario en
  * vez de fallar en silencio.
  *
@@ -38,7 +39,7 @@
       return true;
     }
     if (!_cargaPdfJs) {
-      // pdf.js 4.x es un modulo ES: no vale <script src>, hay que importarlo
+      // pdf.js 4.x es modulo ES: no vale <script src>, hay que importarlo
       // y publicar el namespace como pdfjsLib para el resto del fichero.
       _cargaPdfJs = import('/js/vendor/pdf.min.mjs').then((mod) => { window.pdfjsLib = mod; return mod; });
     }

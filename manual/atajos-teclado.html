@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atajos y Gestos — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Atajos de Teclado & Gestos Tactiles</h2>
+        <p class="version">Desktop (PWA/Electron) & Movil (PWA/Capacitor Android)</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Desktop</span>
+        <h2>1. Atajos Teclado (Desktop / PWA / Electron)</h2>
+      </div>
+
+      <h3>1.1 Navegacion Global</h3>
+      <table class="feature-table">
+        <thead><tr><th>Atajo</th><th>Accion</th><th>Contexto</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Alt</kbd> + <kbd>1..6</kbd></td><td>Ir a Modulo 1-6 (Dashboard, Ganaderia, Explotacion, Comercializacion, Informes, Ajustes)</td><td>Global</td></tr>
+          <tr><td><kbd>Alt</kbd> + <kbd>D</kbd></td><td>Dashboard</td><td>Global</td></tr>
+          <tr><td><kbd>Alt</kbd> + <kbd>G</kbd></td><td>Ganaderia</td><td>Global</td></tr>
+          <tr><td><kbd>Alt</kbd> + <kbd>E</kbd></td><td>Explotacion</td><td>Global</td></tr>
+          <tr><td><kbd>Alt</kbd> + <kbd>C</kbd></td><td>Comercializacion</td><td>Global</td></tr>
+          <tr><td><kbd>Alt</kbd> + <kbd>I</kbd></td><td>Informes</td><td>Global</td></tr>
+          <tr><td><kbd>Alt</kbd> + <kbd>A</kbd></td><td>Ajustes</td><td>Global</td></tr>
+          <tr><td><kbd>Alt</kbd> + <kbd>H</kbd></td><td>Ayuda / Manual (abre index.html manual)</td><td>Global</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>Busca universal (Command Palette)</td><td>Global</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.2 Acciones Rapidas (Desde Cualquier Vista)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Atajo</th><th>Accion</th><th>Condicion</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>N</kbd></td><td>Nuevo registro segun vista activa (Animal, Pesaje, Ordeño, Tratamiento, Gasto, etc.)</td><td>Global</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd></td><td>Nueva Finca (solo Premium)</td><td>Global</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Guardar (en wizards/formularios)</td><td>Wizard/Form</td></tr>
+          <tr><td><kbd>Escape</kbd></td><td>Cerrar modal / wizard / overlay / salir busqueda</td><td>Global</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>F</kbd></td><td>Buscar en lista actual (animales, rebanos, tratamientos, etc.)</td><td>Listas</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td>Imprimir / Compartir documento actual (DocumentViewer)</td><td>DocumentViewer</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td>Exportar (Excel/CSV segun vista, solo Premium)</td><td>Informes, Listados</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.3 Navegacion Listas y Tablas</h3>
+      <table class="feature-table">
+        <thead><tr><th>Atajo</th><th>Accion</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Flecha Arriba/Abajo</kbd></td><td>Navegar filas tabla/lista</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Abrir ficha / editar registro seleccionado</td></tr>
+          <tr><td><kbd>Shift</kbd> + <kbd>Flecha</kbd></td><td>Seleccion multiple (Checkboxes)</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>A</kbd></td><td>Seleccionar todos (en listas con checkbox)</td></tr>
+          <tr><td><kbd>PgUp/PgDn</kbd></td><td>Paginar lista (si paginacion cliente)</td></tr>
+          <tr><td><kbd>Home/End</kbd></td><td>Primera/Ultima fila</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.4 Wizards (Multi-paso)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Atajo</th><th>Accion</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Enter</kbd></td><td>Siguiente paso (si paso valido)</td></tr>
+          <tr><td><kbd>Shift</kbd> + <kbd>Enter</kbd></td><td>Paso anterior</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Guardar y cerrar (ultimo paso)</td></tr>
+          <tr><td><kbd>Escape</kbd></td><td>Cancelar wizard (con confirmacion si hay cambios)</td></tr>
+          <tr><td><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd></td><td>Navegar campos formulario</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Movil</span>
+        <h2>2. Gestos Tactiles (Movil PWA / Capacitor Android)</h2>
+      </div>
+
+      <h3>2.1 Navegacion Principal</h3>
+      <table class="feature-table">
+        <thead><tr><th>Gesto</th><th>Accion</th><th>Zona</th></tr></thead>
+        <tbody>
+          <tr><td>Swipe Izquierda/Derecha (Edge)</td><td>Navegar modulo anterior/siguiente (Dashboard <-> Ganaderia <-> Explotacion <-> Comercializacion <-> Informes <-> Ajustes)</td><td>Area contenido (no header/footer)</td></tr>
+          <tr><td>Swipe Abajo (Pull-to-refresh)</td><td>Recargar vista actual + sincronizar datos</td><td>Top lista/vista</td></tr>
+          <tr><td>Tap Header (Nombre Finca)</td><td>Selector rapido finca (Free: 1, Premium: multiple)</td><td>Header principal</td></tr>
+          <tr><td>Tap FAB</td><td>Abrir menu "Nueva Actividad" (12 opciones contextuales segun flags)</td><td>FAB flotante</td></tr>
+          <tr><td>Long Press FAB</td><td>Accion principal directa (ultima usada)</td><td>FAB flotante</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 Carruseles (Submodulos / Sub-tabs)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Gesto</th><th>Accion</th></tr></thead>
+        <tbody>
+          <tr><td>Swipe Horizontal</td><td>Navegar tabs carrusel (Ganaderia 5, Explotacion 11, Comercializacion 5, Informes sub-tabs, Lactea 5, Produccion 4)</td></tr>
+          <tr><td>Tap Tab</td><td>Activar tab (scroll auto al centro)</td></tr>
+          <tr><td>Long Press Tab</td><td>Menu contextual: Fijar/Desfijar, Ocultar (si flags lo permiten)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Listas y Cards (card-registro / card-registro-quick)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Gesto</th><th>Accion</th></tr></thead>
+        <tbody>
+          <tr><td>Tap Card</td><td>Navegar a detalle / ficha / edicion</td></tr>
+          <tr><td>Swipe Izquierda (Card)</td><td>Acciones rapidas: Editar, Eliminar, Imprimir, Duplicar (segun tipo y estado)</td></tr>
+          <tr><td>Swipe Derecha (Card)</td><td>Accion principal: Ver ficha / Ver albaran / Ver historial</td></tr>
+          <tr><td>Long Press Card</td><td>Modo seleccion multiple (checkboxes) -> Barra acciones inferior</td></tr>
+          <tr><td>Pull Down Lista</td><td>Refresh + busqueda integrada aparece</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.4 Formularios y Wizards (Movil)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Gesto</th><th>Accion</th></tr></thead>
+        <tbody>
+          <tr><td>Swipe Arriba (Footer Wizard)</td><td>Expandir teclado / scroll a campo siguiente</td></tr>
+          <tr><td>Swipe Abajo (Header Wizard)</td><td>Cerrar wizard (con confirmacion)</td></tr>
+          <tr><td>Tap Icono NFC (Wizard Animal/Movimiento)</td><td>Escanear crotal EID (CapacitorNFC)</td></tr>
+          <tr><td>Tap Campo Fecha</td><td>Date picker nativo</td></tr>
+          <tr><td>Tap Select</td><td>Bottom sheet nativo opciones</td></tr>
+          <tr><td>Tap Input Numerico</td><td>Teclado numerico nativo (step, min, max respetados)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.5 DocumentViewer (PDF/Print/Share)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Gesto</th><th>Accion</th></tr></thead>
+        <tbody>
+          <tr><td>Pinch Zoom</td><td>Zoom PDF (iframe)</td></tr>
+          <tr><td>Swipe Vertical</td><td>Scroll documento</td></tr>
+          <tr><td>Tap Boton Compartir</td><td>Web Share API nativa (WhatsApp, Email, Drive, Bluetooth, etc.)</td></tr>
+          <tr><td>Tap Boton Imprimir</td><td>Print dialog nativo Android/iOS</td></tr>
+          <tr><td>Tap Boton Descargar</td><td>Descarga archivo local (Downloads/)</td></tr>
+          <tr><td>Swipe Abajo (Edge superior)</td><td>Cerrar DocumentViewer</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.6 Gauge SVG Interactivos (Tanques / Silos)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Gesto</th><th>Accion</th></tr></thead>
+        <tbody>
+          <tr><td>Tap Gauge Circular</td><td>Recalibracion sensores: Animacion SVG 0% -> "CAL" -> Valor real (2s)</td></tr>
+          <tr><td>Long Press Gauge</td><td>Ficha tecnica modal completa (KPIs, historial, botones rapidos)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Especiales</span>
+        <h2>3. Accesos Rapidos Especiales</h2>
+      </div>
+
+      <h3>3.1 Bento Grid Dashboard (12 Accesos)</h3>
+      <p>Tap en cada tarjeta = Accion directa (abre wizard correspondiente):</p>
+      <ul class="feature-list">
+        <li>Peso (Naranja) -> Wizard Pesaje</li>
+        <li>Ordeño (Azul) -> Wizard Ordeño (solo flag LECHE)</li>
+        <li>Entrega Tanque (Azul) -> Wizard Albaran Leche (solo flag LECHE)</li>
+        <li>Albaran Leche (Azul) -> Wizard Albaran Leche (solo flag LECHE)</li>
+        <li>Tratamiento (Rojo) -> Wizard Tratamiento</li>
+        <li>Vacunacion (Rojo) -> Wizard Vacunacion</li>
+        <li>Celo/IA (Rosa) -> Wizard Celo/IA</li>
+        <li>Parto (Rosa) -> Wizard Parto</li>
+        <li>Gasto (Gris) -> Wizard Gasto</li>
+        <li>Censo Anual (Verde) -> Wizard Censo</li>
+        <li>Crotales (Verde) -> Wizard Crotales</li>
+        <li>Guia Movimiento (Verde) -> Wizard Guia</li>
+      </ul>
+
+      <h3>3.2 Widget-Link-Btn Neon (Rebaños / Zonas / Patrimonio)</h3>
+      <p>Botones accion contextual en cards (neon style):</p>
+      <ul class="feature-list">
+        <li><strong>Tratamiento</strong> -> Wizard Tratamiento (pre-selecciona rebaño/zona)</li>
+        <li><strong>Consumo</strong> -> Wizard Consumo Silo (pre-selecciona rebaño/zona)</li>
+        <li><strong>Gasto</strong> -> Wizard Gasto (pre-selecciona rebaño/zona, categoria Alimentacion)</li>
+        <li><strong>Mover</strong> -> Wizard Movimiento / Rotacion (pre-selecciona origen)</li>
+      </ul>
+
+      <h3>3.3 Busca Universal (Command Palette)</h3>
+      <ul class="feature-list">
+        <li><strong>Desktop:</strong> <kbd>Ctrl</kbd> + <kbd>K</kbd></li>
+        <li><strong>Movil:</strong> Long press en buscar (lupa header) o swipe 3 dedos abajo</li>
+        <li>Busca: Animales (crotal/nombre), Rebanos, Zonas, Tratamientos, Gastos, Compradores, Contratos, Documentos, Ajustes</li>
+        <li>Acciones directas: "Nuevo Animal", "Nueva Finca", "Exportar Cuaderno", "Cargar Demo"</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Accesibilidad</span>
+        <h2>4. Accesibilidad & Navegacion Teclado Exclusiva</h2>
+      </div>
+
+      <ul class="feature-list">
+        <li><strong>Tab Order:</strong> Logico: Header -> Nav Principal -> Contenido -> Footer -> Modals</li>
+        <li><strong>Focus Visible:</strong> Outline neon (--c-neon-blue/--c-neon-green) en todos los elementos interactivos</li>
+        <li><strong>Skip Link:</strong> "Saltar al contenido principal" (primer Tab, visible al focus)</li>
+        <li><strong>ARIA:</strong> Roles, labels, live-regions en alertas, carruseles (aria-rosette), modals (dialog)</li>
+        <li><strong>Reducir Animaciones:</strong> Ajustes > Tema > "Reducir animaciones" -> Desactiva transiciones, gauge animaciones, pulsing badges</li>
+        <li><strong>Alto Contraste:</strong> Ajustes > Tema > "Alto contraste" -> Colores semanticos mas saturados, bordes mas gruesos</li>
+        <li><strong>Tamano Fuente:</strong> Ajustes > Tema > Slider tamano (Pequeño / Normal / Grande / Muy Grande) -> rem base scaling</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Atajos y Gestos</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

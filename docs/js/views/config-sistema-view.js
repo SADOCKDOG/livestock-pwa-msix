@@ -60,6 +60,7 @@ const ConfigSistemaView = {
 
   async _renderInterfaz(container, config) {
     const palette = this._getStandardPalette();
+    const vistaRegistros = window.VistaRegistros ? VistaRegistros.get() : 'cards';
     container.innerHTML = `
       <div class="card p-14 mb-16" style="background: rgba(255,255,255,0.02); border: 1px solid #27272a;">
         <div class="section-header-theme mb-15 font-900 uppercase tracking-wider text-[0.7rem] text-gray"><span style="color: var(--c-purple); margin-right: 4px;">|</span> ${Icons.foto()} APARIENCIA BASE</div>
@@ -90,6 +91,23 @@ const ConfigSistemaView = {
             </div>
           </label>
         </div>
+      </div>
+
+      <div class="card p-14 mb-16" style="background: rgba(255,255,255,0.02); border: 1px solid #27272a;">
+        <div class="section-header-theme mb-15 font-900 uppercase tracking-wider text-[0.7rem] text-gray"><span style="color: var(--c-success); margin-right: 4px;">|</span> ${Icons.documento()} VISTA DE REGISTROS</div>
+        <p class="text-[0.65rem] text-aaa mb-12 leading-relaxed">
+          Cómo se presentan los listados de todos los módulos.
+        </p>
+        <div class="wizard-input-group">
+          <label class="wizard-label" for="sys-vista-registros">PRESENTACIÓN DE LOS LISTADOS</label>
+          <select id="sys-vista-registros" class="wizard-input font-800 text-xs" onchange="ConfigSistemaView._cambiarVistaRegistros(this.value)">
+            <option value="cards" ${vistaRegistros === 'cards' ? 'selected' : ''}>VISTA TARJETA</option>
+            <option value="tabla" ${vistaRegistros === 'tabla' ? 'selected' : ''}>VISTA TIPO TABLA (ERP)</option>
+          </select>
+        </div>
+        <p class="text-[0.6rem] text-gray mt-8">
+          Se guarda solo para ${VistaRegistros.esEscritorio() ? 'ESCRITORIO' : 'MÓVIL'}; el otro formato conserva el suyo.
+        </p>
       </div>
 
       <div class="card p-14 mb-16" style="background: rgba(255,255,255,0.02); border: 1px solid #27272a;">
@@ -257,6 +275,18 @@ const ConfigSistemaView = {
       { id: 'lime',   hex: '#C5FA50', nombre: 'Lima'    },
       { id: 'steel',  hex: '#B1B1B1', nombre: 'Acero'   }
     ];
+  },
+
+  /**
+   * La preferencia de vista no vive en la config de la finca sino en
+   * localStorage por dispositivo, asi que no pasa por AjustesView._action.
+   */
+  _cambiarVistaRegistros(modo) {
+    if (!window.VistaRegistros) return;
+    VistaRegistros.set(modo);
+    if (window.App && typeof App.toast === 'function') {
+      App.toast(modo === 'tabla' ? 'Listados en vista de tabla' : 'Listados en vista de tarjetas', 'success');
+    }
   },
 
   async _action(fn, ...args) {

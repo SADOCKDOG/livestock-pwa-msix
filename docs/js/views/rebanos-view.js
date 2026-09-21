@@ -122,10 +122,6 @@ const RebanosView = {
 
         <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-10 pb-5" style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
           <span style="display: flex; align-items: center; gap: 4px;">${Icons.rebanos()} LISTA DE REBAÑOS</span>
-          <div class="flex gap-4">
-            <button class="btn-erp-secondary btn-sm" id="btn-reb-vista-cards" onclick="RebanosView._setVistaModo('cards')">Tarjetas</button>
-            <button class="btn-erp-secondary btn-sm" id="btn-reb-vista-tabla" onclick="RebanosView._setVistaModo('tabla')">Tabla ERP</button>
-          </div>
         </div>
         <div class="flex gap-8 items-center mb-12">
           <div class="relative flex-1 min-w-0">
@@ -143,7 +139,7 @@ const RebanosView = {
     this._renderLista();
 
     // Inicializar o restaurar modo de vista (por defecto "cards" en móvil, respeta preferencia)
-    const modoGuardado = localStorage.getItem('rebanos_view_mode') || 'cards';
+    const modoGuardado = VistaRegistros.get();
     RebanosView._setVistaModo(modoGuardado, false);
 
     // FAB Guía interactiva
@@ -262,26 +258,17 @@ const RebanosView = {
     this._renderLista();
 
     // Si el modo activo es la tabla ERP, repintarla también con el filtro aplicado
-    const modoGuardado = localStorage.getItem('rebanos_view_mode') || 'cards';
+    const modoGuardado = VistaRegistros.get();
     if (modoGuardado === 'tabla') {
       this._renderErpTable();
     }
   },
 
   _setVistaModo(modo, guardar = true) {
-    if (guardar) {
-      try { localStorage.setItem('rebanos_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-reb-vista-cards');
-    const btnTabla = document.getElementById('btn-reb-vista-tabla');
     const contenedorCards = document.getElementById('rebanos-content');
     const contenedorTabla = document.getElementById('rebanos-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';

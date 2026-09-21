@@ -80,10 +80,6 @@ const SubexplotacionesView = {
               ${subsConIndice.length} ${subsConIndice.length === 1 ? 'especie' : 'especies'} declaradas por separado
             </div>
           </div>
-          <div class="ml-auto flex gap-6">
-            <button class="btn-erp-secondary btn-sm" id="btn-subexp-vista-cards" onclick="SubexplotacionesView._setVistaModo('cards')">Tarjetas</button>
-            <button class="btn-erp-secondary btn-sm" id="btn-subexp-vista-tabla" onclick="SubexplotacionesView._setVistaModo('tabla')">Tabla ERP</button>
-          </div>
         </div>
         <fieldset class="erp-action-group">
           <legend>Registro de Subexplotaciones</legend>
@@ -102,7 +98,7 @@ const SubexplotacionesView = {
     main.innerHTML = html;
 
     if (this._cache.length > 0) {
-      const modoGuardado = localStorage.getItem('subexplotaciones_view_mode') || 'tabla';
+      const modoGuardado = VistaRegistros.get();
       this._setVistaModo(modoGuardado, false);
     }
   },
@@ -110,19 +106,10 @@ const SubexplotacionesView = {
   /** Alterna entre el listado de tarjetas y la tabla densa ERP. */
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('subexplotaciones_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-subexp-vista-cards');
-    const btnTabla = document.getElementById('btn-subexp-vista-tabla');
     const contenedorCards = document.getElementById('subexp-lista');
     const contenedorTabla = document.getElementById('subexp-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';

@@ -103,6 +103,7 @@ const GanaderiaView = {
       return;
     }
     this._activeSubModule = subModulo;
+    if (window.App && typeof App.scrollAlInicio === 'function') App.scrollAlInicio();
     return this.render();
   },
 

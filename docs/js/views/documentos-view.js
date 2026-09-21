@@ -196,7 +196,7 @@ const DocumentosView = {
       this._setupFilters();
 
       // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
-      const modoGuardado = localStorage.getItem('documentos_view_mode') || 'tabla';
+      const modoGuardado = VistaRegistros.get();
       this._setVistaModo(modoGuardado, false);
     } catch (e) {
       console.error('[Documentos] Error:', e);
@@ -265,10 +265,6 @@ const DocumentosView = {
       <div class="card p-16" style="border: 1px solid #27272a; background: #1E1E1E; width:100%;">
         <div class="text-xs text-white font-black uppercase tracking-wider mb-12 flex items-center gap-6" style="justify-content: space-between;">
           <span class="flex items-center gap-6"><span style="color: var(--c-info); margin-right: 4px;">|</span> ${Icons.documento()} REGISTRO DOCUMENTAL</span>
-          <div class="flex gap-4">
-            <button class="btn-erp-secondary btn-sm" id="btn-docs-vista-cards" onclick="DocumentosView._setVistaModo('cards')">Tarjetas</button>
-            <button class="btn-erp-secondary btn-sm" id="btn-docs-vista-tabla" onclick="DocumentosView._setVistaModo('tabla')">Tabla ERP</button>
-          </div>
         </div>
         <fieldset class="erp-action-group">
           <legend>Acciones de Registro</legend>
@@ -504,20 +500,11 @@ const DocumentosView = {
 
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('documentos_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-docs-vista-cards');
-    const btnTabla = document.getElementById('btn-docs-vista-tabla');
     const contenedorCards = document.getElementById('docs-lista');
     const contenedorTabla = document.getElementById('docs-erp-table-container');
     const notaMas = document.getElementById('docs-mas-nota');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';

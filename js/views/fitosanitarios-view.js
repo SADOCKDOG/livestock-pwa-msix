@@ -78,10 +78,6 @@ const FitosanitariosView = {
             <div class="card p-16 font-sans" style="background:var(--surface); border:1px solid var(--border-subtle);">
                 <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 mb-15 flex items-center gap-6" style="justify-content: space-between;">
                     <span class="flex items-center gap-6"><span style="color:var(--c-success);">|</span> ${Icons.historial()} TRATAMIENTOS Y COMPRAS REGISTRADAS</span>
-                    <span class="flex gap-4">
-                        <button class="btn-erp-secondary btn-sm" id="btn-fito-vista-cards" onclick="FitosanitariosView._setVistaModo('cards')">Tarjetas</button>
-                        <button class="btn-erp-secondary btn-sm" id="btn-fito-vista-tabla" onclick="FitosanitariosView._setVistaModo('tabla')">Tabla ERP</button>
-                    </span>
                 </h3>
                 <fieldset class="erp-action-group">
                   <legend>Registro de Tratamientos Fitosanitarios</legend>
@@ -112,7 +108,7 @@ const FitosanitariosView = {
         `;
 
         // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
-        const modoGuardado = localStorage.getItem('fitosanitarios_view_mode') || 'tabla';
+        const modoGuardado = VistaRegistros.get();
         this._setVistaModo(modoGuardado, false);
     },
 
@@ -159,19 +155,10 @@ const FitosanitariosView = {
 
     _setVistaModo(modo, guardar = true) {
         this._vistaModo = modo;
-        if (guardar) {
-            try { localStorage.setItem('fitosanitarios_view_mode', modo); } catch (_) {}
-        }
 
-        const btnCards = document.getElementById('btn-fito-vista-cards');
-        const btnTabla = document.getElementById('btn-fito-vista-tabla');
         const contenedorCards = document.getElementById('fito-lista');
         const contenedorTabla = document.getElementById('fito-erp-table-container');
 
-        if (btnCards && btnTabla) {
-            btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-            btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-        }
 
         if (modo === 'tabla') {
             if (contenedorCards) contenedorCards.style.display = 'none';

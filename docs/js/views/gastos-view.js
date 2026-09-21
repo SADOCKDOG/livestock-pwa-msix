@@ -236,7 +236,7 @@ const GastosView = {
     });
 
     // Restaurar modo de vista tras pintar la sección (por defecto "tabla" en escritorio ≥ 1024px)
-    const modo = this._vistaModo || localStorage.getItem('gastos_view_mode') || 'tabla';
+    const modo = this._vistaModo || VistaRegistros.get();
     this._setVistaModo(modo, false);
   },
 
@@ -286,10 +286,6 @@ const GastosView = {
         ` : ''}
         <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-12 pb-5" style="padding-left: 14px; display:flex; align-items:center; justify-content:space-between; gap:4px;">
           <span style="display:flex; align-items:center; gap:4px;">${Icons.documento()} ${listName}</span>
-          <div class="flex gap-4">
-            <button class="btn-erp-secondary btn-sm" id="btn-gastos-vista-cards" onclick="GastosView._setVistaModo('cards')">Tarjetas</button>
-            <button class="btn-erp-secondary btn-sm" id="btn-gastos-vista-tabla" onclick="GastosView._setVistaModo('tabla')">Tabla ERP</button>
-          </div>
         </div>
         <div class="erp-filtros" data-filtros-para="gastos-cards-container">
           <input type="search" id="gastos-filtro-busqueda" class="form-input search-input" placeholder="Buscar gasto por concepto, proveedor o importe...">
@@ -297,22 +293,22 @@ const GastosView = {
         </div>
         <div id="gastos-column-selector" class="erp-column-selector mt-2 flex flex-wrap gap-2" aria-label="Selección de columnas de gastos">
           <label class="checkbox">
-            <input type="checkbox" class="column-selector-checkbox" data-col="fecha" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Fecha"><span aria-hidden="true">Fecha</span>
+            <input type="checkbox" class="column-selector-checkbox" data-col="fecha" checked onchange="guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Fecha"><span aria-hidden="true">Fecha</span>
           </label>
           <label class="checkbox">
-            <input type="checkbox" class="column-selector-checkbox" data-col="concepto" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Concepto"><span aria-hidden="true">Concepto</span>
+            <input type="checkbox" class="column-selector-checkbox" data-col="concepto" checked onchange="guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Concepto"><span aria-hidden="true">Concepto</span>
           </label>
           <label class="checkbox">
-            <input type="checkbox" class="column-selector-checkbox" data-col="categoria" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Categoría"><span aria-hidden="true">Categoría</span>
+            <input type="checkbox" class="column-selector-checkbox" data-col="categoria" checked onchange="guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Categoría"><span aria-hidden="true">Categoría</span>
           </label>
           <label class="checkbox">
-            <input type="checkbox" class="column-selector-checkbox" data-col="zona" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Zona"><span aria-hidden="true">Zona</span>
+            <input type="checkbox" class="column-selector-checkbox" data-col="zona" checked onchange="guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Zona"><span aria-hidden="true">Zona</span>
           </label>
           <label class="checkbox">
-            <input type="checkbox" class="column-selector-checkbox" data-col="monto" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Importe"><span aria-hidden="true">Importe</span>
+            <input type="checkbox" class="column-selector-checkbox" data-col="monto" checked onchange="guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Importe"><span aria-hidden="true">Importe</span>
           </label>
           <label class="checkbox">
-            <input type="checkbox" class="column-selector-checkbox" data-col="id" checked onchange="GastosView._guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Ficha"><span aria-hidden="true">Ficha</span>
+            <input type="checkbox" class="column-selector-checkbox" data-col="id" checked onchange="guardarSeleccionFiltros(this)" aria-label="Mostrar columna de Ficha"><span aria-hidden="true">Ficha</span>
           </label>
         </div>
         <div id="gastos-cards-container" data-ver-mas="10">${recordsHtml}</div>
@@ -327,19 +323,10 @@ const GastosView = {
 
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('gastos_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-gastos-vista-cards');
-    const btnTabla = document.getElementById('btn-gastos-vista-tabla');
     const contenedorCards = document.getElementById('gastos-cards-container');
     const contenedorTabla = document.getElementById('gastos-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';
