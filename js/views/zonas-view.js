@@ -11,19 +11,10 @@ const ZonasView = {
   /** Alterna entre las fichas de zona (con barra de carga) y la tabla densa ERP. */
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('zonas_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-zonas-vista-cards');
-    const btnTabla = document.getElementById('btn-zonas-vista-tabla');
     const contenedorCards = document.getElementById('zonas-lista');
     const contenedorTabla = document.getElementById('zonas-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';
@@ -322,10 +313,6 @@ const ZonasView = {
               <div class="text-[0.6rem] text-gray uppercase font-900">Total Zonas: <strong class="text-white">${zonasConIndice.length}</strong></div>
               <div class="text-[0.6rem] text-gray uppercase font-900">Ocupación: <strong class="text-success">${totalOcupacion} cab.</strong></div>
             </div>
-            <div class="flex gap-6 mt-10 justify-end">
-              <button class="btn-erp-secondary btn-sm" id="btn-zonas-vista-cards" onclick="ZonasView._setVistaModo('cards')">Tarjetas</button>
-              <button class="btn-erp-secondary btn-sm" id="btn-zonas-vista-tabla" onclick="ZonasView._setVistaModo('tabla')">Tabla ERP</button>
-            </div>
           </div>
         </div>
 
@@ -370,7 +357,7 @@ const ZonasView = {
     main.innerHTML = html;
 
     if (this._cache.length > 0) {
-      const modoGuardado = localStorage.getItem('zonas_view_mode') || 'tabla';
+      const modoGuardado = VistaRegistros.get();
       this._setVistaModo(modoGuardado, false);
     }
     // FAB Guía interactiva

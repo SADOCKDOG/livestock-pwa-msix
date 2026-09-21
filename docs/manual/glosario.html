@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glosario Tecnico — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Glosario Tecnico</h1>
+        <p class="version">Terminos, siglas y conceptos normativos ganaderos</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">A-D</span>
+        <h2>A - D</h2>
+      </div>
+      <dl class="glossary">
+        <dt>ADSG</dt><dd>Agrupacion de Defensa Sanitaria Ganadera. Entidad veterinaria oficial que gestiona saneamientos, vacunaciones y pedidos de crotales. Requerida en Wizard Finca y Wizard Crotales.</dd>
+        <dt>Albaran Leche</dt><dd>Documento oficial de recogida de leche en tanque (RD 989/2022). 25+ campos normativos: volumenes, temperatura, cisterna, inhibidores, Letra Q, analitica, liquidacion. Genera INFOLAC automatico.</dd>
+        <dt>Albaran Carne</dt><dd>Documento de venta de animales a matadero/cebadero. Incluye: ICA, DIMOE, SEUROP, peso canal, precio/kg canal, comprador, transportista, veterinario autorizador.</dd>
+        <dt>Analitica Leche</dt><dd>Resultado laboratorio: Grasa%, Proteina%, Extracto Seco%, Germenes, Celulas Somaticas, Inhibidores, Aflatoxina M1. Evalua calidad segun umbrales CCAA/especie.</dd>
+        <dt>ATG</dt><dd>Autorizacion de Transporte de Ganado. Certificado obligatorio para transportistas. Vigencia controlada en Venta Masiva (Paso 5) y TransportistasView.</dd>
+        <dt>BADIGEX</dt><dd>Base de Datos de Identificacion y Gestion de Explotaciones de Extremadura. Equivalente a SIGGAN para CCAA Extremadura. Normativa especifica Junta Extremadura.</dd>
+        <dt>Balance Lacteo</dt><dd>Registro de movimientos de leche por tanque: Entrada (ordeño), Salida (albaran), Merma, Ajuste. Trazabilidad litros completa. Base MOFA.</dd>
+        <dt>Bolsa/Bolsillo</dt><dd>Termino coloquial para "Rebaño" en algunas zonas. En app: Rebaño/Lote.</dd>
+        <dt>Bovino</dt><dd>Especie: Vacuno. UGM = 1.0. Crotal 15 digitos ISO 11784. Tipos identificacion: Completa (EID+Visual) / Matadero (Visual). DIB obligatorio.</dd>
+        <dt>Caprino</dt><dd>Especie: Cabra. UGM = 0.15. Crotal 15 digitos. Saneamientos: Brucelosis, TB (según programa).</dd>
+        <dt>Carnico</dt><dd>Flag modo explotacion (CARNE = true). Habilita: Pesajes, ICA, Venta Masiva, DIMOE, SEUROP, Guías. KPIs: Peso canal, GMD, Rendimiento, Margen neto. Color verde lima (--c-success).</dd>
+        <dt>CCAA</dt><dd>Comunidad Autonoma. Determina: Tipos explotacion REGA, Especies autorizadas crotales, Umbrales calidad leche, Laboratorios oficiales, Plataforma destino (SIGGAN/BADIGEX/SIA/PIGGAN), Programas saneamiento ADSG.</dd>
+        <dt>CEA</dt><dd>Codigo de Explotacion Agraria. Identificador administrativo complementario a REGA. Campo en Wizard Finca.</dd>
+        <dt>Censo Anual</dt><dd>Declaracion oficial de animales a 1 de enero (Wizard Censo). Genera DOCUMENTOS_LEGALES tipo DECLARACION_CENSAL + CSV cuaderno digital.</dd>
+        <dt>Cisterna</dt><dd>Vehiculo cisterna para transporte leche. Campos: Matricula, Temp, Nº muestra Letra Q, NIF tomador, Horas ordeño/carga, Cadena frio, Certificado inhibidores.</dd>
+        <dt>Control Lechero / DHI</dt><dd>Control oficial de produccion lechera (Organismo control). Media rebaño: Litros, Grasa%, Proteina%. Sub-tab Control en ExplotacionLacteaView.</dd>
+        <dt>Crotal</dt><dd>Identificador oficial animal. Formato SITRAN: ES + 12 digitos. ISO 11784: 15 digitos completos. Validacion tiempo real (dorada=valido, roja=invalido). Equino: microchip 15 digitos.</dd>
+        <dt>CUADERNO_DIGITAL</dt><dd>Exportacion ZIP obligatoria RD 787/2023. 8 CSV SIGGAN: Tratamientos, Vacunaciones, Censo, Crotales, Movimientos, Saneamientos, Fitosanitarios, Agenda. Solo Premium. Pre-flight bloqueante.</dd>
+        <dt>Desinsectacion</dt><dd>Certificado obligatorio transportistas (vehiculos). Vigencia controlada en Venta Masiva Paso 5 y TransportistasView. Vital para bienestar animal.</dd>
+        <dt>DIB</dt><dd>Documento de Identificacion Bovina. Obligatorio para bovinos en movimientos. Campo en ficha animal y validacion Venta Masiva Paso 1.</dd>
+        <dt>DIMOE</dt><dd>Documento de Identificacion del Movimiento Orden de Expedicion. Generado AUTO al cerrar Venta Masiva: DIMOE-{ALBARAN}. Tipo DOCUMENTOS_LEGALES 'dimoe'. Obligatorio SIGGAN/BADIGEX.</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">E-L</span>
+        <h2>E - L</h2>
+      </div>
+      <dl class="glossary">
+        <dt>EID</dt><dd>Electronic Identification. Crotal electronico (RFID). Obligatorio nuevas incorporaciones RD 787/2023. Tipo crotal: Bandera+Boton EID o Boton+Boton EID.</dd>
+        <dt>Equino</dt><dd>Especie: Caballo/Burro. UGM = 1.1. Microchip 15 digitos ISO 11784 (implementado acde2fa). Saneamientos: Anemia infecciosa, Rinoneumonitis.</dd>
+        <dt>Especie</dt><dd>Clasificacion zoologica: Bovino, Ovino, Caprino, Porcino, Equino. Determina: UGM, catalogo razas FEGA, tipos identificacion, umbrales calidad, saneamientos.</dd>
+        <dt>Extracto Seco</dt><dd>Grasa% + Proteina% en leche. KPI clave calidad. Precio referencia por punto extracto seco (ComunidadesService.PRECIO_EXTRACTO_SECO_REF).</dd>
+        <dt>FAB</dt><dd>Floating Action Button. Boton flotante principal. Contextual: "Registrar Produccion" (ambos flags), "Registrar Pesaje" (carne), "Registrar Ordeño" (leche).</dd>
+        <dt>FEFO</dt><dd>First Expired, First Out. Metodo gestion botiquin: prioriza uso lotes proximos a caducar. Badges: Vigente >90d (verde), 30-90d (ambar), <30d (rojo pulsing), Caducado (rojo fijo).</dd>
+        <dt>Ficha Animal</dt><dd>Wizard full-screen 10+ secciones: Identificacion, Basicos, Rebaño/Zona, Origen, Compra, Madre, Libro Registro SIGGAN, Notificacion REGA, Estado, SANDACH, Margen Economico, Historial reproductivo.</dd>
+        <dt>Fitosanitario</dt><dd>Aplicacion producto fitosanitario en parcela. Control normativo RD 787/2023: Plazo seguridad dias, Apto comercializacion (SI/NO). Si NO -> bloquea rotacion/venta/comercializacion zona.</dd>
+        <dt>Flag LECHE / Flag CARNE</dt><dd>Dos flags INDEPENDIENTES por finca (NO modo hibrido global). Config: Ajustes > Finca > Editar > Modo Explotacion. Determinan visibilidad modulos, wizards, KPIs, FAB.</dd>
+        <dt>Free / Premium</dt><dd>Modelo monetizacion. FREE: 1 finca, 15 animales, 30 gastos, sin backup/export multi. PREMIUM: Ilimitado (compra unica premium_unlock Play Store). Limites en .save() modelo, verificado PremiumQA.</dd>
+        <dt>Ganaderia (GeGan)</dt><dd>Modulo principal censo y estructura. Carrusel 5 submodulos: Animales, Rebanos, Patrimonio, Zonas, Sanidad. Header verde lima.</dd>
+        <dt>GMD</dt><dd>Ganancia Media Diaria (g/dia). KPI carne: (Peso actual - Peso anterior) / Dias transcurridos. Verde >1200, Ambar 800-1200, Rojo <800.</dd>
+        <dt>Guia 365 dias</dt><dd>Autorizacion sanitaria movimientos anual (Andalucia). Auto si finca Indemne/Calificada. ComunidadesService.getConfiguracionCCAA().guia_automatica_si_saneada.</dd>
+        <dt>Guia Movimiento</dt><dd>Documento oficial transporte animales (GUIA_MOVIMIENTO). Generado en Wizard Guia / Tramites. Incluye: Origen/Destino REGA, Animales (crotales), Transportista, Guia oficial, Motivo, CCAA.</dd>
+        <dt>ICA</dt><dd>Indice de Capacidad Aprovisionamiento / Identificacion Canal Animal. En carne: Codigo documento canal animal (entrada manual Venta Masiva Paso 2). En patrimonio: Valor economico animal (Ver Modulo 06).</dd>
+        <dt>INFOLAC</dt><dd>Declaracion Lactea Oficial. Estado: borrador/presentado/validado/error. Generada AUTO en Albaran Leche Wizard. Nº INFOLAC finca configurable. Contrato 1 ano min obligatorio.</dd>
+        <dt>Inhibidores</dt><dd>Analisis presencia antibioticos en leche. Estados: no_realizada / conforme / no_conforme. Bloquea comercializacion si no_conforme. Campo en Albaran Leche y Analitica Wizard.</dd>
+        <dt>ISO 11784</dt><dd>Estandar internacional identificacion animal (microchip/crotal 15 digitos). Formato: Pais (3) + Especie (3) + Explotacion (12) + Animal (resto). Validado en app.</dd>
+        <dt>Lacteo</dt><dd>Flag modo explotacion (LECHE = true). Habilita: Ordeño, Tanques, Balance Lacteo, Albaran Leche, INFOLAC, Controles DHI. KPIs: Litros, MOFA, Grasa/Proteina, Extracto Seco, Celulas Somaticas. Color azul (--c-info).</dd>
+        <dt>Letra Q</dt><dd>Codigo oficial Registro General Agentes Sector Lacteo (MAPA). Formato T-PP-NNNNN (ej: E-41-00123). Aplicable a Tanque, Cisterna, Muestra. 7 tipos movimiento RD 989/2022. 4 estados. Wizard Finca Paso 3 (instalaciones lacteas).</dd>
+        <dt>Libro Registro</dt><dd>Registro oficial animal: REGA procedencia, Pais nacimiento, Madre, DIB/Pasaporte, Fecha alta/baja, Motivo baja oficial. Seccion en Ficha Animal.</dd>
+        <dt>Lidia</dt><dd>Explotacion de ganado bravo (Bovino > Filiaciones). Checkbox en Wizard Finca. Etiqueta SIGGAN especifica. Implementado PR #66.</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">M-R</span>
+        <h2>M - R</h2>
+      </div>
+      <dl class="glossary">
+        <dt>Margen Animal</dt><dd>Calculo economico por animal: Ingreso Leche + Ingreso Venta - (Coste Compra + Coste Sanidad + Coste Alimentacion). <code>MargenAnimal.calcular(animalId)</code>. Ficha animal edicion. Positivo=verde, Negativo=rojo.</dd>
+        <dt>MOFA</dt><dd>Margen Sobre Alimentacion (Margin Over Feed Cost). Ingresos leche - Coste alimentacion periodo. KPI principal lechero. Dashboard, Informes, KPIs semaforo.</dd>
+        <dt>MotorLacteo</dt><dd>Service validaciones complejas leche: validarComercializacion (temp, stock, inhibidores), validarMovimientoLetraQ (reglas MAPA), evaluarCalidadLecheEspecie (umbrales CCAA), recalculo precio extracto seco.</dd>
+        <dt>MotorTrazabilidad</dt><dd>Service trazabilidad 360°: checkSupresion(animalId, tipo), getTimeline(animalId), verificarRetiroLeche(rebañoId), generarEstructuraAlbaran, generarDIMOE. 6 fuentes unificadas.</dd>
+        <dt>NFC</dt><dd>Near Field Communication. Lectura crotales EID via Android Capacitor. Boton "ESCANEAR CROTAL NFC" en Wizard Animal / Wizard Movimiento. Plugin CapacitorNFC.</dd>
+        <dt>NIF</dt><dd>Numero Identificacion Fiscal. Requerido: Titular finca, Veterinarios (tratamientos/vacunaciones), Compradores, Transportistas, Tomadores leche. Formato ESP validado.</dd>
+        <dt>Ovino</dt><dd>Especie: Oveja. UGM = 0.15. Crotal 15 digitos. Saneamientos: Brucelosis, TB, Paratuberculosis.</dd>
+        <dt>PAC</dt><dd>Politica Agricola Comun. Codigo PAC parcela (obligatorio subvenciones CCAA). Distancia a agua requisito PAC/bienestar. Campo en ZonasView / Wizard Zona.</dd>
+        <dt>Patrimonio</dt><dd>Inventario valorado ganado (ICA por animal). Solo flag CARNE. Valor base + Plusvalia produccion - Depreciacion edad - Costes acumulados. Submodulo Ganaderia (ambar).</dd>
+        <dt>Porcino</dt><dd>Especie: Cerdo. UGM = 0.3. Edad minima venta: 3 meses. Identificacion: Crotal 15 digitos / Bolo ruminal.</dd>
+        <dt>PremiumManager</dt><dd>Singleton gestiona estado Free/Premium. isFree(), isPremium(), setPremium(), getLimits(). Persiste en Configuracion (IndexedDB). EventBus 'premium:changed'.</dd>
+        <dt>Proveedor</dt><dd>Entidad comercial compras (piensos, medicamentos, servicios). Categorias multi-select. Detalle: Facturas, montos, ultima operacion. Submodulo ExPro carrusel.</dd>
+        <dt>PWA</dt><dd>Progressive Web App. Version web installable: https://livestock-manager.pages.dev. Service Worker cache-first. Gratis, sin IAP. Build: Private/build-and-upload.ps1 -> Pages deploy.</dd>
+        <dt>Rebaño / Lote</dt><dd>Agrupacion animales misma especie/tipo/ubicacion. KPIs: Efectivos, Produccion, Sanidad, Gastos, Margen. Wizard 5 pasos. Tipo: leche/carne/mixta (filtrado por flags finca).</dd>
+        <dt>REGA</dt><dd>Registro de Explotaciones Ganaderas. Formato normalizado ES + 12 digitos (14 chars). Regex: <code>^[A-Z]{2}\d{12}$</code>. Validador por CCAA (ComunidadesService.validarFormatoREGA). Obligatorio finca, subexplotacion, comprador destino, movimientos.</dd>
+        <dt>RFID</dt><dd>Radio Frequency Identification. Ver NFC. Lector Bluetooth opcional (SPP). Importador masivo CSV/Excel crotales.</dd>
+        <dt>ROE / ROA</dt><dd>Return On Equity / Return On Assets. KPIs financieros CoMer: Margen neto / Patrimonio neto, Margen neto / Activos totales.</dd>
+        <dt>SANDACH</dt><dd>Subproductos Animales No Destinados A Consumo Humano. Clasificacion automatica al dar de baja animal (motivo muerte/sacrificio). Categoria 1/2/3 segun riesgo.</dd>
+        <dt>SEUROP</dt><dd>Clasificacion canales UE: S (Superior), E (Excelente), U (Muy bueno), R (Bueno), O (Medio), P (Pobre). Subclases: 1-5 (1=mas magro). Campo en Venta Masiva Paso 4.</dd>
+        <dt>SIA</dt><dd>Sistema de Informacion Agraria. Plataforma movimientos/transacciones CCAA. Destino pedidos crotales/notificaciones junto SIGGAN/BADIGEX/PIGGAN.</dd>
+        <dt>SIGGAN</dt><dd>Sistema de Informacion Ganadera de Andalucia. Normativa principal app (Junta Andalucia). 7/7 gaps + Lidia + Saneamientos granular = 100% implementado.</dd>
+        <dt>Silos</dt><dd>Almacen pienso. Telemetria gauge SVG animado. Autonomia dias (consumo real 30d registro_eventos silo_consumo). Alertas stock <15% (critico), <35% (advertencia). Cargar/Consumir -> genera gasto alimentacion + evento.</dd>
+        <dt>SITRAN</dt><dd>Sistema de Identificacion y Trazabilidad Animal (España). Formato crotal: ES + 12 digitos. Base validacion app.</dd>
+        <dt>SMA</dt><dd>Sistema de Movimientos Animal. Termino generico para DIMOE/Guias/Movimientos oficiales.</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">S-Z</span>
+        <h2>S - Z</h2>
+      </div>
+      <dl class="glossary">
+        <dt>TANQUE_LECHE</dt><dd>Tanque refrigerado leche. Tipos: tanque_frio, cantara, cisterna. Letra Q obligatoria. Gauge circular stock%. Temp objetivo/actual. Limpieza registrada. Historial movimientos (BalanceLacteo).</dd>
+        <dt>Trazabilidad 360°</dt><dd>Timeline unificado 6 fuentes: Produccion Leche, Produccion Carne, Sanidad, Reproduccion, Movimientos, Gastos Imputados. Vista #/trazabilidad + Widget ficha animal edicion. MotorTrazabilidad service.</dd>
+        <dt>Tratamiento</dt><dd>Registro sanitario obligatorio RD 787/2023. Campos: Producto, Lote (oblig), Via, Dosis, Veterinario+Colegiado+NIF, Receta, Retiro carne/leche dias. Genera supresion automatica. Libro Tratamientos SIGGAN.</dd>
+        <dt>Tipo Explotacion REGA</dt><dd>Clasificacion obligatoria RD 787/2023. Selector en Wizard Rebaño (Paso 2) y Wizard Finca (Paso 1). Cargado desde ComunidadesService segun CCAA.</dd>
+        <dt>Tipo Alta</dt><dd>Origen animal oficial: Nacimiento, Compra, Importacion, Traspaso, etc. Desde ComunidadesService. Campo en Ficha Animal seccion Origen.</dd>
+        <dt>Tipo Baja</dt><dd>Motivo baja oficial: Muerte, Sacrificio, Exportacion, Robo, etc. + SANDACH automatico. Campo en Ficha Animal seccion Estado.</dd>
+        <dt>UGM</dt><dd>Unidad Ganadera Mayor. Estandar carga ganadera: Vaca=1.0, Oveja/Cabra=0.15, Cerdo=0.3, Equino=1.1. Carga UGM/ha = Suma(animales x UGM) / Superficie ha. Limite ecologico 1.0 UGM/ha.</dd>
+        <dt>Vaca</dt><dd>Hembra bovino > 24 meses o parida. Categoria productiva: Lechera, Nodriza, Cebo. UGM=1.0. Ordeño requerido para produccion leche.</dd>
+        <dt>Venta Masiva</dt><dd>Wizard 5 pasos venta carne: 1.Aptitud (supresion, edad, DIB, gestacion), 2.Trazabilidad (ICA, Guia, Fitosanitaria 180d), 3.Economicos (Peso vivo/canal, Precio/kg canal, Transporte, Matanza), 4.Liquidacion (Comprador REGA, IVA/Retencion, SEUROP, Contrato), 5.Logistica (Transportista ATG+Desinf, Veterinario autorizador). Auto: DIMOE, Movimiento Oficial, Albaran PDF, Factura PDF, Estado=VENDIDO.</dd>
+        <dt>Veterinario ADSG</dt><dd>Veterinario oficial ADSG. Campos: Nombre, Colegiado, NIF, Telefono, Email, Vencimiento. Requerido en: Tratamientos, Vacunaciones, Saneamientos, Pedido Crotales, Wizard Finca.</dd>
+        <dt>Wizard</dt><dd>Formulario multi-paso full-screen (WizardManager.create). Header fijo, Footer fijo (Guardar/Salir), Validaciones por paso, Colores tematicos por paso. 10+ wizards en app.</dd>
+        <dt>Zona / Parcela</dt><dd>Unidad territorial finca. Superficie ha, UGM/ha, Aforo max, Codigo PAC, Distancia agua. Control fitosanitario (cuarentena), Rotacion pastos (bloquea si plazo>0). Wizard 2 pasos.</dd>
+      </dl>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Glosario Tecnico</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

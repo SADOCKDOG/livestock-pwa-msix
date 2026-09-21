@@ -1,108 +1,205 @@
 <!DOCTYPE html>
-<html lang="es"><head>
+<html lang="es">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manual de Usuario · Guía Soporte v4.8.8 · Livestock Manager</title>
-  <link rel="stylesheet" href="estilo-manuales.css">
+  <title>LIVESTOCK MANAGER — Manual Profesional v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
 </head>
-<body style="--acento: #c9851f; --acento-claro: #e0a83a;"><header class="portada">
-    <div class="logo-container">
-      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <img src="../icons/Logo aplicaci%C3%B3n.png" alt="LIVESTOCK MANAGER" class="logo" style="max-height: 60px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+      <div class="title-block">
+        <h1>Manual Profesional de Usuario</h1>
+        <p class="version">LIVESTOCK MANAGER v4.10.4 — Gesti&oacute;n Ganadera Integral</p>
+        <p class="subtitle">SIGGAN (Andaluc&iacute;a) &middot; BADIGEX (Extremadura) &middot; Normativa UE/RD 787/2023</p>
+      </div>
     </div>
-    <h1>Manual de Usuario</h1>
-    <p class="sub">Sistema profesional de gestión ganadera · Guía v4.8.8</p>
-    <div class="badge">GUÍA PREMIUM v4.8.8</div>
   </header>
 
-<div class="wrap">
+  <nav class="manual-nav" aria-label="Navegacion principal del manual">
+    <div class="nav-container">
+      <div class="nav-section">
+        <h3>M&oacute;dulos Operativos</h3>
+        <ul>
+          <li><a href="manual-dashboard-ganaderia.html" class="nav-link"><span class="nav-num">01</span> Dashboard & Ganader&iacute;a</a></li>
+          <li><a href="manual-explotacion-produccion.html" class="nav-link"><span class="nav-num">02</span> Explotaci&oacute;n & Producci&oacute;n</a></li>
+          <li><a href="manual-comercializacion.html" class="nav-link"><span class="nav-num">03</span> Comercializaci&oacute;n</a></li>
+          <li><a href="manual-informes.html" class="nav-link"><span class="nav-num">04</span> Informes & Anal&iacute;tica</a></li>
+          <li><a href="manual-sanidad-reproduccion.html" class="nav-link"><span class="nav-num">05</span> Sanidad & Reproducci&oacute;n</a></li>
+          <li><a href="manual-configuracion-documentos.html" class="nav-link"><span class="nav-num">06</span> Configuraci&oacute;n & Documentos</a></li>
+        </ul>
+      </div>
+      <div class="nav-section">
+        <h3>Gu&iacute;as R&aacute;pidas</h3>
+        <ul>
+          <li><a href="guia-inicio-rapido.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h6l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7z"></path><line x1="9" y1="7" x2="9" y2="13"></line><line x1="13" y1="11" x2="13" y2="17"></line></svg></span> Inicio R&aacute;pido (5 min)</a></li>
+          <li><a href="guia-demo-chamorro.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span> Demo CHAMORRO</a></li>
+          <li><a href="guia-siggan-badigex.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span> SIGGAN / BADIGEX</a></li>
+          <li><a href="guia-free-premium.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span> Free vs Premium</a></li>
+          <li><a href="guia-exportacion.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></span> Exportaci&oacute;n PDF/Excel/CSV</a></li>
+        </ul>
+      </div>
+      <div class="nav-section">
+        <h3>Referencia</h3>
+        <ul>
+          <li><a href="glosario.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span> Glosario T&eacute;cnico</a></li>
+          <li><a href="atajos-teclado.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path><path d="M8 12h.01"></path><path d="M12 12h.01"></path><path d="M16 12h.01"></path></svg></span> Atajos y Gestos</a></li>
+          <li><a href="faq.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> Preguntas Frecuentes</a></li>
+          <li><a href="changelog.html" class="nav-link"><span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span> Historial de Versiones</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-    <figure style="margin:24px auto; text-align:center; max-width:320px;">
-      <img src="img/sc_01_inicio.png" alt="Pantalla de inicio" style="max-width:100%; border:3px solid #1a1a1a; border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,.15);">
-      <figcaption style="font-size:.82rem; color:#777; margin-top:8px; font-style:italic;">Interfaz principal de inicio de Livestock Manager v4.8.7.</figcaption>
-    </figure>
-    <section class="seccion"><h2 class="modulo">Bienvenido a la Versión 4.8.0</h2>
- <p class="intro-mod"><strong>Livestock Manager Soporte</strong> ha evolucionado para ofrecer una experiencia más fluida, rápida y profesional. Esta versión introduce una navegación simplificada basada en <strong>Hubs Operativos</strong> y un diseño en <strong>Modo Oscuro</strong> optimizado para el campo.</p>
- <p class="intro-mod">Todos tus datos se guardan de forma segura en tu dispositivo. Recuerda realizar copias de seguridad periódicas desde el menú de Ajustes.</p>
+  <main class="manual-main">
+    <section class="hero">
+      <div class="hero-content">
+        <h2>Bienvenido al Manual Profesional v4.10.4</h2>
+        <p class="lead">La gu&iacute;a completa paso a paso con capturas reales de la aplicaci&oacute;n usando la base de datos demo <strong>CHAMORRO</strong>.</p>
+        <div class="hero-badges">
+          <span class="badge badge-success"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 100+ Capturas Reales</span>
+          <span class="badge badge-info"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Optimizado M&oacute;vil/PWA</span>
+          <span class="badge badge-warning"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> SIGGAN + BADIGEX</span>
+          <span class="badge badge-gold"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Free / Premium</span>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">7</span><span class="stat-label">Manuales Tem&aacute;ticos</span></div>
+        <div class="stat"><span class="stat-num">105</span><span class="stat-label">Capturas de Pantalla</span></div>
+        <div class="stat"><span class="stat-num">6</span><span class="stat-label">M&oacute;dulos Auditados</span></div>
+        <div class="stat"><span class="stat-num">32</span><span class="stat-label">Sub-tabs en Informes</span></div>
+      </div>
+    </section>
 
- <div class="indice"><h3>Índice de Contenidos</h3>
- <ol><li><a href="#dashboard">1. Dashboard: Visión 360°</a></li>
- <li><a href="#ganaderia">2. Hub Ganadería: Gestión del Censo</a></li>
- <li><a href="#animales">3. Ficha Animal y Alta (Wizard)</a></li>
- <li><a href="#expro">4. Hub ExPro: Operativa Diaria</a></li>
- <li><a href="#comercializacion">5. Comercialización y Ventas</a></li>
- <li><a href="#informes">6. Informes e Inteligencia Analítica</a></li>
- <li><a href="#ajustes">7. Configuración y Copias</a></li>
- <li><a href="#ejemplos">8. Ejemplos Prácticos</a></li></ol></div></section>
+    <section class="modules-grid">
+      <article class="module-card" onclick="location.href='manual-dashboard-ganaderia.html'">
+        <div class="module-icon" style="--accent: var(--c-success);"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+        <h3>01. Dashboard & Ganader&iacute;a</h3>
+        <p>Consola principal, KPIs diarios, alertas en vivo, estructura de finca (zonas, reba&ntilde;os, animales), censo multi-especie, validaci&oacute;n crotal ES/ISO 11784.</p>
+        <span class="module-meta">18 capturas &middot; 5 subm&oacute;dulos</span>
+      </article>
 
- <!-- 1. DASHBOARD -->
- <section class="seccion" id="dashboard"><span class="fase-tag">Inicio</span>
- <h2 class="modulo">1. Dashboard: Visión 360°</h2>
- <p class="intro-mod">Al abrir la aplicación, accedes a la pestaña <span class="ruta">Inicio</span>. Es tu centro de control principal.</p>
- <ol class="pasos"><li><strong>Resumen de Censo</strong>: Visualiza rápidamente el total de animales activos, vendidos y la rentabilidad estimada.</li>
- <li><strong>KPIs Diarios</strong>: Indicadores en tiempo real sobre producción láctea, ganancia de peso y eficiencia.</li>
- <li><strong>Alertas Inteligentes</strong>: El sistema te avisa de periodos de supresión activos, tareas pendientes y vencimientos legales.</li></ol>
- </section>
+      <article class="module-card" onclick="location.href='manual-explotacion-produccion.html'">
+        <div class="module-icon" style="--accent: var(--c-info);"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg></div>
+        <h3>02. Explotaci&oacute;n & Producci&oacute;n</h3>
+        <p>Balance unificado leche/carne, 5 wizards l&aacute;cteos (Orde&ntilde;o, Tanque, Albar&aacute;n Leche, Anal&iacute;tica, Balance), silos con telemetr&iacute;a SVG, tanques Letra Q MAPA, Gu&iacute;a 365 SIGGAN.</p>
+        <span class="module-meta">20 capturas &middot; 11 tabs carrusel</span>
+      </article>
 
- <!-- 2. GANADERÍA HUB -->
- <section class="seccion" id="ganaderia"><span class="fase-tag">Censo</span>
- <h2 class="modulo">2. Hub Ganadería: Gestión del Censo</h2>
- <p class="intro-mod">Pulsa el icono <span class="ruta">Ganadería</span> en la barra inferior para gestionar la base de tu explotación.</p>
- <ol class="pasos"><li><strong>Acceso Modular</strong>: Botones directos para gestionar <strong>Animales</strong>, <strong>Rebaños</strong> y <strong>Zonas</strong>.</li>
- <li><strong>Selector de Modo</strong>: Cambia entre Cárnico, Lácteo o Híbrido para filtrar la información que ves.</li>
- <li><strong>Vista de Rebaños</strong>: Listado de tus lotes con su ubicación actual y número de cabezas.</li></ol>
- </section>
+      <article class="module-card" onclick="location.href='manual-comercializacion.html'">
+        <div class="module-icon" style="--accent: var(--p-gold);"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div>
+        <h3>03. Comercializaci&oacute;n</h3>
+        <p>Wizard Venta Masiva 5 pasos (aptitud, trazabilidad, econ&oacute;micos, liquidaci&oacute;n, log&iacute;stica), compradores/proveedores/transportistas, contratos multi-precio, DIMOE autom&aacute;tico, SEUROP, ICA.</p>
+        <span class="module-meta">21 capturas &middot; 5 subm&oacute;dulos + 4 vistas</span>
+      </article>
 
- <!-- 3. ANIMALES Y FICHA -->
- <section class="seccion" id="animales"><span class="fase-tag">Identificación</span>
- <h2 class="modulo">3. Ficha Animal y Alta (Wizard)</h2>
- <p class="intro-mod">Accede al listado desde <span class="ruta">Ganadería → Animales</span>. El alta de animales ahora es un proceso guiado.</p>
- <ol class="pasos"><li><strong>Listado Inteligente</strong>: Busca por crotal, raza o rebaño. Los colores indican el estado del animal.</li>
- <li><strong>Nuevo Animal (Wizard)</strong>: Pulsa <kbd>Nuevo</kbd> para abrir la ficha a pantalla completa.</li>
- <li><strong>Herramientas Superiores</strong>: Usa el botón <kbd>SCAN</kbd> para leer crotales con la cámara o <kbd>NFC</kbd> para tags compatibles.</li>
- <li><strong>Validación REGA</strong>: El sistema valida el formato ES+12 dígitos en tiempo real (dorado si es correcto, rojo si falla).</li></ol>
- 
- </section>
+      <article class="module-card" onclick="location.href='manual-informes.html'">
+        <div class="module-icon" style="--accent: var(--c-purple);"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg></div>
+        <h3>04. Informes & Anal&iacute;tica</h3>
+        <p>5 categor&iacute;as (General, GeGan, ExPro, CoMer, Libros), 32 sub-tabs, 13 tipos gr&aacute;ficas, 23 tablas, 30+ KPIs sem&aacute;foro, exportaci&oacute;n PDF/Excel/CSV SIGGAN/XML REGA, validaci&oacute;n pre-flight.</p>
+        <span class="module-meta">25 capturas &middot; Fase B completa</span>
+      </article>
 
- <!-- 4. EXPRO HUB -->
- <section class="seccion" id="expro"><span class="fase-tag">Operativa</span>
- <h2 class="modulo">4. Hub ExPro: Operativa Diaria</h2>
- <p class="intro-mod">La consola <span class="ruta">ExPro</span> es donde registras la actividad diaria. Se adapta a tu modo de trabajo.</p>
- <ol class="pasos"><li><strong>Acciones de Registro</strong>: Botones directos para Registrar Peso (kg), Ordeño (L) o Tratamientos sanitarios.</li>
- <li><strong>Líderes GMD</strong>: Visualiza los animales con mayor ganancia de peso diaria.</li>
- <li><strong>Control de Silos</strong>: Monitoriza el nivel de tus silos de pienso y registra cargas de alimento.</li>
- <li><strong>Gestión de Gastos</strong>: Registra facturas de alimentación, energía o fitosanitarios al momento.</li></ol>
- </section>
+      <article class="module-card" onclick="location.href='manual-sanidad-reproduccion.html'">
+        <div class="module-icon" style="--accent: var(--c-danger);"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+        <h3>05. Sanidad & Reproducci&oacute;n</h3>
+        <p>Libro tratamientos SIGGAN, alertas supresi&oacute;n SIEMPRE visibles, botiqu&iacute;n FEFO, fitosanitarios RD 787/2023, saneamientos ADSG, wizards tratamiento/vacunaci&oacute;n, bit&aacute;cora animal, margen neto por animal.</p>
+        <span class="module-meta">20 capturas &middot; 8 vistas + 2 wizards</span>
+      </article>
 
- <!-- 5. COMERCIALIZACIÓN -->
- <section class="seccion" id="comercializacion"><span class="fase-tag">Ventas</span>
- <h2 class="modulo">5. Comercialización y Ventas</h2>
- <p class="intro-mod">Para vender, ve a <span class="ruta">Más → Comercialización</span> o pulsa el enlace directo desde ExPro.</p>
- <ol class="pasos"><li><strong>Pestañas Especializadas</strong>: Gestiona tus ventas de carne y entregas de leche por separado.</li>
- <li><strong>KPIs Financieros</strong>: Ingresos totales, rendimiento de canal y MOFA lácteo en la cabecera.</li>
- <li><strong>Wizards de Venta</strong>: Procesos guiados que generan automáticamente el <strong>Albarán PDF</strong> y el documento <strong>DIMOE</strong>.</li></ol>
- </section>
+      <article class="module-card" onclick="location.href='manual-configuracion-documentos.html'">
+        <div class="module-icon" style="--accent: var(--c-orange);"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
+        <h3>06. Configuraci&oacute;n & Documentos</h3>
+        <p>Multi-finca (Free 1 / Premium &infin;), ADSG, 8 tipos documentos unificados, cuaderno digital RD 787/2023 (CSV SIGGAN 8 secciones), trazabilidad 360&deg; (6 fuentes), subexplotaciones SIGGAN, agenda, patrimonio ICA, importador RFID.</p>
+        <span class="module-meta">22 capturas &middot; 12 vistas</span>
+      </article>
+    </section>
 
- <!-- 6. INFORMES -->
- <section class="seccion" id="informes"><span class="fase-tag">Analítica</span>
- <h2 class="modulo">6. Informes e Inteligencia Analítica</h2>
- <p class="intro-mod">Accede desde <span class="ruta">Más → Informes</span> para analizar la rentabilidad de tu negocio.</p>
- <ol class="pasos"><li><strong>Balances Globales</strong>: Gráficos de ingresos vs gastos.</li>
- <li><strong>Exportación Oficial</strong>: Genera el Libro Sanitario, Censo y Libro de Movimientos para la administración.</li>
- <li><strong>Formatos</strong>: Exporta todo en PDF Soporte o Excel compatible con SIGGAN.</li></ol>
- </section>
+    <section class="demo-section">
+      <h2>Base de Datos Demo: CHAMORRO</h2>
+      <p>Todas las capturas utilizan la finca demo <strong>"Ganader&iacute;a CHAMORRO (DEMO)"</strong> precargada con datos reales de Andaluc&iacute;a (Huelva/Almonte) y Extremadura (Badajoz/C&aacute;ceres):</p>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>3 Reba&ntilde;os:</strong> Vacas Frisonas (leche), Terneros Cebo (carne), Ovejas Merinas (carne)</div>
+        <div class="demo-item"><strong>8 Animales:</strong> 3 vacas, 2 terneros, 3 ovejas con crotales ES 12 d&iacute;g</div>
+        <div class="demo-item"><strong>4 Zonas:</strong> 86 ha con UGM/ha, c&oacute;digo PAC, distancia agua</div>
+        <div class="demo-item"><strong>3 Compradores:</strong> C&aacute;rnico, L&aacute;cteo, H&iacute;brido (Extremadura)</div>
+        <div class="demo-item"><strong>2 Transportistas:</strong> Cami&oacute;n + Cisterna (ATG, desinsectaci&oacute;n, bienestar)</div>
+        <div class="demo-item"><strong>2 Contratos:</strong> Carne (CT-2026-001) + Leche (CT-2026-002, INFOLAC)</div>
+        <div class="demo-item"><strong>Producci&oacute;n:</strong> Pesajes, orde&ntilde;os, entregas tanque con anal&iacute;ticas laboratorio</div>
+        <div class="demo-item"><strong>Sanidad:</strong> Tratamientos con supresi&oacute;n, vacunaciones ADSG, botiqu&iacute;n FEFO</div>
+        <div class="demo-item"><strong>Reproducci&oacute;n:</strong> Celo, IA, diagn&oacute;stico, parto con vinculaci&oacute;n madre-cría</div>
+        <div class="demo-item"><strong>Comercializaci&oacute;n:</strong> Ventas carne (DIMOE), entregas leche, albaranes, facturas</div>
+        <div class="demo-item"><strong>Informes:</strong> 52/55 gu&iacute;as ExPro, 40/42 CoMer, 36/38 GeGan validadas PWA</div>
+      </div>
+      <p class="demo-note">Carga la demo desde <code>Ajustes &rarr; Asistente Configuraci&oacute;n &rarr; Cargar Demo CHAMORRO</code> para replicar exactamente las capturas.</p>
+    </section>
 
- <!-- 7. AJUSTES -->
- <section class="seccion" id="ajustes"><span class="fase-tag">Configuración</span>
- <h2 class="modulo">7. Configuración y Seguridad</h2>
- <p class="intro-mod">Accede desde <span class="ruta">Más → Ajustes</span> para configurar tu explotación.</p>
- <ol class="pasos"><li><strong>Datos de Finca</strong>: Mantén al día tu código REGA, ADSG y datos fiscales.</li>
- <li><strong>Backup</strong>: Exporta tu copia de seguridad regularmente. La app te permite compartirla por email o guardarla en la nube.</li></ol>
- </section>
+    <section class="flags-section">
+      <h2>Modo de Explotaci&oacute;n: Dos Flags por Finca</h2>
+      <p class="lead">No existe "modo h&iacute;brido global". Cada finca tiene sus propios flags independientes:</p>
+      <div class="flags-grid">
+        <div class="flag-card flag-leche">
+          <div class="flag-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 22h8"></path><path d="M12 22v-5"></path><path d="M5 17h14"></path><ellipse cx="12" cy="14" rx="5" ry="3"></ellipse><path d="M9 14h6"></path></svg></div>
+          <h4>Flag LECHE</h4>
+          <ul>
+            <li>Habilita: Orde&ntilde;o, Tanques, Balance L&aacute;cteo, Albar&aacute;n Leche, INFOLAC, Controles DHI</li>
+            <li>KPIs: Litros, MOFA, Grasa/Prote&iacute;na, Extracto Seco, C&eacute;lulas Som&aacute;ticas</li>
+            <li>Alertas: Supresi&oacute;n LECHE (rojo), Inhibidores, Aflatoxina M1</li>
+          </ul>
+        </div>
+        <div class="flag-card flag-carne">
+          <div class="flag-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 3.4a2.1 2.1 0 0 0-1.3-.6 2.1 2.1 0 0 0-1.2.4l-3.8 3.8A12.06 12.06 0 0 1 3 13.3a12 12 0 0 1-.1 4 10 10 0 1 0 9.7-9.7 12 12 0 0 0-.5-2.8l3.7-3.7a2.1 2.1 0 0 0-.4-1.2z"></path><path d="M14 9l3 3"></path></svg></div>
+          <h4>Flag CARNE</h4>
+          <ul>
+            <li>Habilita: Pesajes, ICA Tandas, Venta Masiva, DIMOE, Gu&iacute;as, SEUROP</li>
+            <li>KPIs: Peso Canal, Rendimiento, GMD, Coste/kg Ganancia, Margen Neto</li>
+            <li>Alertas: Supresi&oacute;n CARNE (verde lima), Periodo Seguridad Fitosanitario</li>
+          </ul>
+        </div>
+      </div>
+      <p class="config-note">Configuraci&oacute;n: <code>Ajustes &rarr; Finca Activa &rarr; Editar &rarr; Modo de Explotaci&oacute;n</code> (checkboxes independientes Leche / Carne)</p>
+    </section>
 
- <!-- 8. EJEMPLOS -->
- <section class="seccion" id="ejemplos"><h2 class="modulo">Ejemplos Prácticos</h2>
- <p>Consulta nuestras guías detalladas por tipo de explotación:</p>
- <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:20px;"><a href="ejemplo-ovino-carne.html" style="flex:1; min-width:200px; padding:16px; background:var(--suave); border:1px solid var(--linea); border-radius:12px; text-decoration:none; color:inherit;"><strong>Ovino de Carne</strong><br><small>Flujo completo desde alta a matadero.</small></a>
- <a href="ejemplo-ovino-leche.html" style="flex:1; min-width:200px; padding:16px; background:var(--suave); border:1px solid var(--linea); border-radius:12px; text-decoration:none; color:inherit;"><strong>Ovino de Leche</strong><br><small>Control lechero, analíticas y MOFA.</small></a></div></section>
+    <section class="premium-section">
+      <h2>Modelo Free / Premium</h2>
+      <div class="premium-table-wrapper">
+        <table class="premium-table">
+          <thead>
+            <tr><th>Caracter&iacute;stica</th><th class="free-col">FREE</th><th class="premium-col">PREMIUM</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Fincas simult&aacute;neas</td><td class="free-col">1</td><td class="premium-col">Ilimitadas</td></tr>
+            <tr><td>Animales por finca</td><td class="free-col">15</td><td class="premium-col">Ilimitados</td></tr>
+            <tr><td>Gastos por finca</td><td class="free-col">30</td><td class="premium-col">Ilimitados</td></tr>
+            <tr><td>Backup autom&aacute;tico</td><td class="free-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td><td class="premium-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></td></tr>
+            <tr><td>Informes multi-finca</td><td class="free-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td><td class="premium-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></td></tr>
+            <tr><td>Export PDF completo</td><td class="free-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td><td class="premium-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></td></tr>
+            <tr><td>Export Excel multi-hoja</td><td class="free-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td><td class="premium-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></td></tr>
+            <tr><td>CSV SIGGAN/BADIGEX completo</td><td class="free-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td><td class="premium-col"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></td></tr>
+            <tr><td>Compra &uacute;nica Play Store</td><td class="free-col">&mdash;</td><td class="premium-col">premium_unlock</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="premium-note">L&iacute;mites aplicados en <code>.save()</code> del modelo, verificados por <code>PremiumQA.runAll()</code>. Banner FREE persistente en Ajustes.</p>
+    </section>
+  </main>
 
- <section class="seccion" style="text-align:center; color:var(--gris-claro); font-size:.85rem;"><p>© 2026 Livestock Manager Soporte · v4.8.7<br>Diseñado para la eficiencia en el sector ganadero.</p></section></div></body></html>
+  <footer class="manual-footer">
+    <div class="footer-content">
+      <p>LIVESTOCK MANAGER v4.10.4 — Manual Profesional Generado 2026-08-07</p>
+      <p class="footer-links">
+        <a href="https://github.com/SADOCKDOG/LIVESTOCK-MANAGER">GitHub</a> &middot;
+        <a href="changelog.html">Changelog</a> &middot;
+        <a href="faq.html">FAQ</a> &middot;
+        <a href="guia-inicio-rapido.html">Inicio R&aacute;pido</a>
+      </p>
+      <p class="copyright">SIGGAN (Andaluc&iacute;a) &middot; BADIGEX (Extremadura) &middot; Normativa UE &middot; RD 787/2023 &middot; RD 989/2022</p>
+    </div>
+  </footer>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

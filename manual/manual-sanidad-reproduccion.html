@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05. Sanidad & Reproducción — Manual LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>05. Sanidad & Reproducción</h1>
+        <p class="version">Libro Tratamientos SIGGAN &middot; Alertas Supresion Siempre Visibles &middot; Botiquin FEFO</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="module-toc" aria-label="Tabla de contenidos del modulo">
+    <ul>
+      <li><a href="#sanidad">1. Vista Sanidad (Ganaderia Submodulo)</a></li>
+      <li><a href="#tratamientos">2. Libro Tratamientos & Wizard Tratamiento</a></li>
+      <li><a href="#vacunaciones">3. Vacunaciones & Wizard Vacunacion</a></li>
+      <li><a href="#botiquin">4. Botiquin — FEFO & Alertas Vencimiento</a></li>
+      <li><a href="#fitosanitarios">5. Fitosanitarios — RD 787/2023 & Plazos Seguridad</a></li>
+      <li><a href="#saneamientos">6. Saneamientos ADSG — Granular & Oficiales</a></li>
+      <li><a href="#reproduccion">7. Reproducción — Celos, IAs, Diagnosticos, Partos</a></li>
+      <li><a href="#bitacora">8. Bitacora Animal & Margen Neto por Animal</a></li>
+      <li><a href="#demo">9. Datos Demo CHAMORRO</a></li>
+    </ul>
+  </nav>
+
+  <main class="manual-main">
+
+    <!-- 1. VISTA SANIDAD -->
+    <section id="sanidad" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-danger">Sanidad</span>
+        <h2>1. Vista Sanidad (Submodulo Ganaderia)</h2>
+        <p class="section-desc">Acceso via carrusel Ganaderia <code>#/ganaderia?sub=sanidad</code>. Delegado a <code>SanidadView</code>. Header purpura. Vista unificada con tabs internos.</p>
+        <div class="route-info"><code>js/views/sanidad-view.js</code> &middot; <code>window.SanidadView</code></div>
+      </div>
+
+      <h3>1.1 Tabs Internos SanidadView</h3>
+      <table class="feature-table">
+        <thead><tr><th>Tab</th><th>Contenido</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr><td>Tratamientos</td><td>Libro tratamientos filtrado (activos/historial), busqueda crotal, supresion</td><td>Nuevo Tratamiento (Wizard), Editar, Imprimir</td></tr>
+          <tr><td>Vacunaciones</td><td>Calendario vacunal, proximas revacunaciones, ADSG, lote</td><td>Nueva Vacunacion (Wizard), Editar</td></tr>
+          <tr><td>Botiquin</td><td>Inventario FEFO, alertas vencimiento <30d/precio, stock minimo</td><td>Entrada/Salida stock, Reposicion, Editar</td></tr>
+          <tr><td>Fitosanitarios</td><td>Registro aplicaciones, plazos seguridad, apto comercializacion</td><td>Nueva Aplicacion (Wizard Gasto), Editar</td></tr>
+          <tr><td>Saneamientos</td><td>Granular: TB, Brucelosis, Leucosis, Leucosis bovina, etc. Resultados, veterinario</td><td>Nuevo Saneamiento, Editar, Certificado</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="sanidad-tabs">
+  <img src="img/sanidad-tabs-internos.png" alt="Tabs internos SanidadView: Tratamientos, Vacunaciones, Botiquin, Fitosanitarios, Saneamientos" loading="lazy">
+  <span class="shot-label">[CAPTURA] sanidad-tabs-internos.png</span>
+  <span class="shot-desc">Tabs internos SanidadView: Tratamientos, Vacunaciones, Botiquin, Fitosanitarios, Saneamientos</span>
+</div>
+
+      <h3>1.2 Alertas Supresion SIEMPRE Visibles (Normativa Crítica)</h3>
+      <ul class="feature-list">
+        <li><strong>Regla:</strong> Las alertas de supresion sanitaria (carne y leche) NUNCA se ocultan, independientemente del flag de explotacion activo</li>
+        <li><strong>Leche (Rojo):</strong> <code>prohibidoLeche === true</code> + <code>diasRetiroLeche > 0</code> = badge rojo "SUPPRESSION LECHE"</li>
+        <li><strong>Carne (Verde Lima):</strong> <code>prohibidoCarne === true</code> + <code>diasRetiroCarne > 0</code> = badge verde lima "SUPPRESSION CARNE"</li>
+        <li>Visibles en: Dashboard, AnimalesView (badge estado), SanidadView, Ficha animal, Wizard Venta Masiva (paso 1 bloquea), Albaran Leche (bloquea comercializacion)</li>
+        <li>Suscripcion <code>EventBus</code> actualiza en vivo al registrar nuevo tratamiento</li>
+      </ul>
+    </section>
+
+    <!-- 2. LIBRO TRATAMIENTOS -->
+    <section id="tratamientos" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-danger">Tratamientos</span>
+        <h2>2. Libro Tratamientos & Wizard Tratamiento (3 Pasos)</h2>
+        <p class="section-desc">Cumple RD 787/2023, SIGGAN/BADIGEX. Registra en <code>sanitarios</code> + <code>registro_eventos</code>. Validaciones bloqueantes supresion.</p>
+      </div>
+
+      <h3>2.1 Wizard Tratamiento — 3 Pasos</h3>
+      <table class="feature-table">
+        <thead><tr><th>Paso</th><th>Titulo</th><th>Campos</th><th>Validaciones</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>DATOS DEL TRATAMIENTO</td><td>Fecha (date), Animal/Rebaño (select), Producto (text), Principio activo (text), Lote medicamento (text, obligatorio), Via (select: IM/IV/SC/ORAL/TOPICAL/INTRAUTERINA), Dosis (text), Unidad (select), Veterinario prescriptor (text), Colegiado (text), NIF veterinario (text), Receta (text/numero)</td><td>Animal/Rebaño obligatorio, Producto obligatorio, Lote obligatorio, Veterinario + Colegiado obligatorios</td></tr>
+          <tr><td>2</td><td>TIEMPOS DE ESPERA (SIGGAN)</td><td>Dias retiro CARNE (number >=0), Dias retiro LECHE (number >=0). Auto-calculo supresion: fecha_fin = fecha + max(carne, leche)</td><td>Ambos >= 0. Si >0: prohibidoCarne/Leche = true automatico</td></tr>
+          <tr><td>3</td><td>CONFIRMACION</td><td>Resumen read-only con alerta supresion visible (rojo leche / verde lima carne)</td><td>-</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="wizard-tratamiento-paso1">
+  <img src="img/wizard-tratamiento-paso1.png" alt="Paso 1: Datos tratamiento con lote, via, veterinario, receta obligatorios" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-tratamiento-paso1.png</span>
+  <span class="shot-desc">Paso 1: Datos tratamiento con lote, via, veterinario, receta obligatorios</span>
+</div>
+      <div class="screenshot-placeholder" data-shot="wizard-tratamiento-paso2">
+  <img src="img/wizard-tratamiento-paso2.png" alt="Paso 2: Tiempos espera carne/leche con calculo supresion automatico" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-tratamiento-paso2.png</span>
+  <span class="shot-desc">Paso 2: Tiempos espera carne/leche con calculo supresion automatico</span>
+</div>
+
+      <h3>2.2 Post-Tratamiento Automatico</h3>
+      <ol class="step-list">
+        <li>Guarda en <code>sanitarios</code> (tipo 'tratamiento') + <code>registro_eventos</code> tipo 'sanitario_tratamiento'</li>
+        <li>Actualiza animal: <code>prohibidoLeche</code>, <code>prohibidoCarne</code>, <code>fechaFinSupresionLeche</code>, <code>fechaFinSupresionCarne</code></li>
+        <li>Emite <code>EventBus</code> 'sanitario:creado' -> actualiza alertas Dashboard, AnimalesView, SanidadView en vivo</li>
+        <li>Valida comercializacion: <code>Sanitarios.verificarRetiroLeche</code> (rebaño) + <code>MotorTrazabilidad.checkSupresion</code> (animal)</li>
+      </ol>
+
+      <h3>2.3 Filtros Libro Tratamientos</h3>
+      <ul class="feature-list">
+        <li>Estado: Activos (en supresion) / Historial / Todos</li>
+        <li>Busqueda: Crotal, producto, veterinario, lote</li>
+        <li>Fecha rango: Desde/Hasta</li>
+        <li>Tipo supresion: Leche / Carne / Ambos / Ninguna</li>
+      </ul>
+    </section>
+
+    <!-- 3. VACUNACIONES -->
+    <section id="vacunaciones" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-pink">Vacunaciones</span>
+        <h2>3. Vacunaciones & Wizard Vacunacion (2 Pasos)</h2>
+        <p class="section-desc">Calendario vacunal ADSG. Registra en <code>sanitarios</code> (tipo 'vacunacion') + <code>registro_eventos</code>. Proxima revacunacion auto-calculada.</p>
+      </div>
+
+      <h3>3.1 Wizard Vacunacion — 2 Pasos</h3>
+      <table class="feature-table">
+        <thead><tr><th>Paso</th><th>Titulo</th><th>Campos</th><th>Validaciones</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>DATOS VACUNACION</td><td>Fecha, Tipo: Animal individual / Rebaño completo, Animal/Rebaño select, Vacuna (nombre comercial), Principio activo, Lote vacuna (obligatorio), Via, Dosis, Veterinario, Colegiado, NIF, Programa ADSG (select: oficial/voluntario), Observaciones</td><td>Fecha, Animal/Rebaño, Vacuna, Lote, Veterinario+Colegiado obligatorios</td></tr>
+          <tr><td>2</td><td>CALENDARIO</td><td>Proxima revacunacion (date, auto +365d o segun ficha tecnica), Recordatorio (checkbox 30d/15d/7d antes)</td><td>Proxima revacunacion >= fecha actual</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="wizard-vacunacion-paso1">
+  <img src="img/wizard-vacunacion-paso1.png" alt="Paso 1: Vacuna, lote, programa ADSG, veterinario obligatorios" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-vacunacion-paso1.png</span>
+  <span class="shot-desc">Paso 1: Vacuna, lote, programa ADSG, veterinario obligatorios</span>
+</div>
+
+      <h3>3.2 Vista Vacunaciones — Calendario & Alertas</h3>
+      <ul class="feature-list">
+        <li>Lista agrupada por rebaño/animal con proxima revacunacion</li>
+        <li>Badge estado: Al dia (verde), Proxima <30d (ambar), Vencida (rojo), Sin calendar (gris)</li>
+        <li>Filtro: Programa ADSG (oficial/voluntario), rebaño, estado</li>
+        <li>Exportacion CSV para cuaderno digital (seccion VACUNACIONES)</li>
+      </ul>
+    </section>
+
+    <!-- 4. BOTIQUIN -->
+    <section id="botiquin" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Botiquin</span>
+        <h2>4. Botiquin — FEFO & Alertas Vencimiento</h2>
+        <p class="section-desc">Inventario farmacos con metodo FEFO (First Expired, First Out). Alertas automaticas <30d. Gestión entradas/salidas stock.</p>
+      </div>
+
+      <h3>4.1 Card Producto Botiquin (card-dark-gradient)</h3>
+      <ul class="feature-list">
+        <li>Nombre comercial, Principio activo, Lote, Fecha caducidad</li>
+        <li>Stock actual / Stock minimo (alerta si stock < minimo)</li>
+        <li>Precio unidad, Valor total stock</li>
+        <li>Badge vencimiento: Vigente > 90d (verde), 30-90d (ambar), <30d (rojo pulsing), Caducado (rojo fijo)</li>
+        <li>Acciones: Entrada stock (+), Salida stock (-), Editar, Eliminar (solo si stock=0)</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="botiquin-lista">
+  <img src="img/botiquin-lista-fefo.png" alt="Lista botiquin FEFO: lote, caducidad, stock, badges vencimiento rojo/ambar/verde" loading="lazy">
+  <span class="shot-label">[CAPTURA] botiquin-lista-fefo.png</span>
+  <span class="shot-desc">Lista botiquin FEFO: lote, caducidad, stock, badges vencimiento rojo/ambar/verde</span>
+</div>
+
+      <h3>4.2 Movimientos Stock Botiquin</h3>
+      <ul class="feature-list">
+        <li><strong>Entrada:</strong> Proveedor, factura, cantidad, precio, fecha caducidad, lote -> genera gasto categoria Sanidad</li>
+        <li><strong>Salida:</strong> Motivo (tratamiento/vacunacion/desperdicio), cantidad, animal/rebaño destino -> decrementa stock, vincula a sanitario</li>
+        <li><strong>Reporte FEFO:</strong> Ordenado por fecha caducidad ascendente. Prioriza uso lotes proximos a vencer</li>
+      </ul>
+
+      <h3>4.3 Alertas Botiquin en Dashboard</h3>
+      <ul class="feature-list">
+        <li>Bento critico (rojo animado) si hay productos < 30d caducidad</li>
+        <li>Contador en header SanidadView: "X productos por vencer"</li>
+        <li>Notificacion push (si permisos) 30/15/7 dias antes</li>
+      </ul>
+    </section>
+
+    <!-- 5. FITOSANITARIOS -->
+    <section id="fitosanitarios" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Fitosanitarios</span>
+        <h2>5. Fitosanitarios — RD 787/2023 & Plazos Seguridad</h2>
+        <p class="section-desc">Registro aplicaciones fitosanitarias con control normativo obligatorio. Bloquea comercializacion si <code>aptoComercializacion = NO</code>. Integrado en Wizard Gasto categoria Fitosanitarios.</p>
+        <div class="route-info"><code>js/views/fitosanitarios-view.js</code> &middot; <code>window.FitosanitariosView</code> &middot; Sub-tab ExPro carrusel</div>
+      </div>
+
+      <h3>5.1 Registro Aplicacion Fitosanitaria (via Wizard Gasto)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Campo</th><th>Validacion</th></tr></thead>
+        <tbody>
+          <tr><td>Parcela / Zona (select, obligatorio)</td><td>Requerido categoria Fitosanitarios</td></tr>
+          <tr><td>Producto comercial (text, obligatorio)</td><td>Registro oficial MAPA</td></tr>
+          <tr><td>Dosis aplicada (text, obligatorio)</td><td>Formato: cantidad + unidad (ej: 2 L/ha)</td></tr>
+          <tr><td>Plazo seguridad dias (number >=0, obligatorio)</td><td>Dias hasta apto comercializacion</td></tr>
+          <tr><td>Apto comercializacion (select: SI/NO, obligatorio)</td><td><strong>SI = NO bloquea comercializacion zona/rebaño</strong></td></tr>
+          <tr><td>Fecha aplicacion (date)</td><td>Default hoy</td></tr>
+          <tr><td>Operador aplicador (text)</td><td>Carnet aplicador</td></tr>
+          <tr><td>Observaciones</td><td>Opcional</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 Control Normativo & Bloqueo Comercializacion</h3>
+      <ul class="feature-list">
+        <li>Si <code>aptoComercializacion = NO</code> -> zona/parcela en cuarentena</li>
+        <li>Bloquea rotacion pastos (ZonasView) mientras plazo seguridad > 0</li>
+        <li>Bloquea venta animales (Wizard Venta Masiva paso 1 verifica <code>MotorTrazabilidad.checkSupresion</code> + fitosanitario zona)</li>
+        <li>Bloquea entrega leche (Albaran Leche Wizard verifica <code>Sanitarios.verificarRetiroLeche</code> rebaño)</li>
+        <li>Calculo automatico fecha fin plazo: <code>fechaAplicacion + plazoSeguridadDias</code></li>
+      </ul>
+
+      <h3>5.3 Vista Fitosanitarios — Lista & Alertas</h3>
+      <ul class="feature-list">
+        <li>Tabla: Fecha, Parcela, Producto, Dosis, Plazo seguridad, Dias restantes, Apto (badge SI/NO), Operador</li>
+        <li>Filtros: Zona, Estado (Cuarentena/Libre), Fecha rango</li>
+        <li>Alerta Bento en ExPro principal si hay parcelas en cuarentena activa</li>
+        <li>Export CSV cuaderno digital (seccion FITOSANITARIOS)</li>
+      </ul>
+    </section>
+
+    <!-- 6. SANEAMIENTOS -->
+    <section id="saneamientos" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Saneamientos</span>
+        <h2>6. Saneamientos ADSG — Granular & Oficiales</h2>
+        <p class="section-desc">Implementacion granular completa (PR #66): TB, Brucelosis, Leucosis bovina, Leucosis, Rinotraqueitis, etc. Cada tipo con protocolo especifico y certificado oficial.</p>
+      </div>
+
+      <h3>6.1 Tipos Saneamiento Implementados</h3>
+      <table class="feature-table">
+        <thead><tr><th>Tipo</th><th>Codigo</th><th>Frecuencia</th><th>Animales</th><th>Certificado</th></tr></thead>
+        <tbody>
+          <tr><td>Tuberculosis (TB)</td><td>TB</td><td>Anual / Cada 6 meses (alto riesgo)</td><td>Bovino > 6 meses</td><td>Certificado TB oficial ADSG</td></tr>
+          <tr><td>Brucelosis</td><td>BRU</td><td>Anual</td><td>Bovino/Ovino/Caprino > 6m/18m</td><td>Certificado Brucelosis oficial</td></tr>
+          <tr><td>Leucosis Bovina</td><td>LEUCO_BOV</td><td>Anual</td><td>Bovino > 24 meses</td><td>Certificado Leucosis oficial</td></tr>
+          <tr><td>Leucosis (general)</td><td>LEUCO</td><td>Segun programa</td><td>Segun especie</td><td>Certificado oficial</td></tr>
+          <tr><td>Rinotraqueitis (IBR)</td><td>IBR</td><td>Segun programa CCAA</td><td>Bovino</td><td>Certificado IBR</td></tr>
+          <tr><td>Paratuberculosis</td><td>PARA_TB</td><td>Segun programa</td><td>Bovino/Ovino/Caprino</td><td>Certificado Paratuberculosis</td></tr>
+          <tr><td>Otros (programa ADSG)</td><td>OTRO</td><td>Personalizado</td><td>Configurable</td><td>Certificado ADSG</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.2 Wizard Saneamiento (2 Pasos)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Paso</th><th>Titulo</th><th>Campos</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>DATOS SANEAMIENTO</td><td>Fecha, Tipo (select 7 tipos), Rebaño (select obligatorio), Veterinario ADSG (autocompleta), Colegiado, NIF, Animales muestreados (numero / lista crotales), Metodo diagnostico</td></tr>
+          <tr><td>2</td><td>RESULTADO & CERTIFICADO</td><td>Resultado: NEGATIVO / POSITIVO / INCONCLUSO. Numero certificado oficial, Fecha emision, Validez (dias), Observaciones. Si POSITIVO -> alerta Dashboard + restriccion movimientos</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.3 Integracion SIGGAN/BADIGEX</h3>
+      <ul class="feature-list">
+        <li>Certificado oficial valido para Guia 365 dias (Andalucia: indemne/calificada = auto-autorizacion)</li>
+        <li>Calificacion sanitaria finca: Indemne / Calificada / No cualificada / Oficialmente libre</li>
+        <li>Export CSV cuaderno digital (seccion SANEAMIENTOS)</li>
+        <li>Timeline en finca: Historial saneamientos con resultados y vencimientos</li>
+      </ul>
+    </section>
+
+    <!-- 7. REPRODUCCIÓN -->
+    <section id="reproduccion" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-pink">Reproducción</span>
+        <h2>7. Reproducción — Celos, IAs, Diagnosticos, Partos</h2>
+        <p class="section-desc">Gestion completa ciclo reproductivo. Vinculacion madre-cria automatica al parto. KPIs: Tasa IA, Tasa preñez, Intervalo celo-parto, Partos/mes.</p>
+      </div>
+
+      <h3>7.1 Tipos Evento Reproductivo</h3>
+      <table class="feature-table">
+        <thead><tr><th>Evento</th><th>Campos Clave</th><th>Auto-Acciones</th></tr></thead>
+        <tbody>
+          <tr><td>Celo</td><td>Fecha, Animal, Intensidad (leve/moderado/intenso), Observador</td><td>Sugiere IA en ventana optima (12-18h post-celo)</td></tr>
+          <tr><td>Inseminacion (IA)</td><td>Fecha, Animal, Toro (crotal/nombre/dosis), Tipo semen (convencional/sexado), Tecnico, Dosis</td><td>Calcula diagnostico optimo (28-35d), parto estimado (283d bovino)</td></tr>
+          <tr><td>Monta Natural</td><td>Fecha, Animal, Toro (crotal), Observador</td><td>Igual que IA para diagnostico/parto</td></tr>
+          <tr><td>Diagnostico</td><td>Fecha, Animal, Metodo (ecografia/palpacion/analisis leche), Resultado (PREÑADA/VACIA/REABSORCION), Dias gestacion, Tecnico</td><td>Si PREÑADA: calcula fecha parto estimada, alerta secado (60d antes)</td></tr>
+          <tr><td>Parto</td><td>Fecha, Madre, Cria (crotal nuevo), Sexo, Vitalidad (vivo/muerto/debil), Peso nacimiento, Tipo parto (normal/asistido/cesarea), Complicaciones</td><td><strong>Crea animal hijo automatico</strong>, vinculacion madre-cria, actualiza estado madre, genera evento nacimiento</td></tr>
+          <tr><td>Aborto</td><td>Fecha, Madre, Dias gestacion, Causa (si conocida), Veterinario</td><td>Actualiza estado reproductivo madre, alerta sanitaria</td></tr>
+          <tr><td>Secado</td><td>Fecha, Animal, Fecha parto estimada, Tratamiento secado (producto/lote)</td><td>Alerta inhibidores leche (supresion leche automatica)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.2 Wizard Parto — Vinculacion Madre-Cria</h3>
+      <ul class="feature-list">
+        <li>Paso 1: Madre (selector hembras preñadas), Fecha, Tipo parto, Complicaciones</li>
+        <li>Paso 2: Cria(s) — permite partos multiples. Por cada cria: Sexo, Vitalidad, Peso, Crotal (generado/manual)</li>
+        <li><strong>Auto:</strong> Crea animal en <code>animales</code> con madre_id, rebaño madre, zona madre, fecha nacimiento, origen 'Nacimiento'</li>
+        <li><strong>Auto:</strong> Registra evento <code>registro_eventos</code> tipo 'nacimiento' + <code>sanitarios</code> si hay tratamiento cria</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="wizard-parto-paso2">
+  <img src="img/wizard-parto-paso2.png" alt="Paso 2: Cria(s) con crotal auto-generado, sexo, vitalidad, peso" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-parto-paso2.png</span>
+  <span class="shot-desc">Paso 2: Cria(s) con crotal auto-generado, sexo, vitalidad, peso</span>
+</div>
+
+      <h3>7.3 KPIs Reproductivos (Card-registro toggle)</h3>
+      <ul class="feature-list">
+        <li><strong>Tasa IA %</strong> = IAs / Celos detectados (verde >60%, ambar 40-60%, rojo <40%)</li>
+        <li><strong>Tasa Preñez %</strong> = Preñadas / (IAs + Montas) (verde >55%, ambar 35-55%, rojo <35%)</li>
+        <li><strong>Intervalo Celo-Parto dias</strong> (verde <90, ambar 90-120, rojo >120)</li>
+        <li><strong>Partos / Mes</strong> (tendencia 6 meses)</li>
+        <li><strong>Mortalidad perinatal %</strong> = Muertos al parto / Total nacidos (verde <5%, ambar 5-10%, rojo >10%)</li>
+      </ul>
+    </section>
+
+    <!-- 8. BITACORA ANIMAL & MARGEN NETO -->
+    <section id="bitacora" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Bitacora</span>
+        <h2>8. Bitacora Animal & Margen Neto por Animal</h2>
+        <p class="section-desc">Timeline 360° en ficha animal (edicion). Margen economico calculado: <code>MargenAnimal.calcular(animalId)</code>.</p>
+      </div>
+
+      <h3>8.1 Bitacora Animal (Solo Edicion Ficha)</h3>
+      <ul class="feature-list">
+        <li>Timeline cronologico unificado: Pesajes, Ordeños, Tratamientos, Vacunaciones, Diagnosticos, Partos, Movimientos, Gastos imputados</li>
+        <li>Filtros por tipo, fecha rango, rebaño</li>
+        <li>Enlaces directos a registro origen (editar tratamientos, ver albaran, etc.)</li>
+        <li>Companeros de lote: Animales que comparten rebaño/fecha con eventos comunes</li>
+      </ul>
+
+      <h3>8.2 Margen Neto por Animal</h3>
+      <table class="feature-table">
+        <thead><tr><th>Componente</th><th>Calculo</th><th>Fuente</th></tr></thead>
+        <tbody>
+          <tr><td>Coste Compra</td><td>Precio compra + gastos compra (transporte, comision)</td><td>Ficha animal: precio_compra, gasto_compra</td></tr>
+          <tr><td>Coste Sanidad</td><td>Suma tratamientos + vacunaciones imputados al animal</td><td>sanitarios.tipo='tratamiento/vacunacion' + animal_id</td></tr>
+          <tr><td>Coste Alimentacion</td><td>Consumo silos imputado a rebaño/periodo + gastos alimentacion directos</td><td>registro_eventos silo_consumo + gastos categoria Alimentacion</td></tr>
+          <tr><td>Ingreso Leche</td><td>Suma entregas leche imputadas al animal (Control Lechero / ordeños)</td><td>produccion_leche + balance_lacteo entrada</td></tr>
+          <tr><td>Ingreso Venta</td><td>Precio venta (comercializacion_carne) si animal vendido</td><td>comercializacion_carne + liquidacion</td></tr>
+          <tr><td>MARGEN NETO</td><td>Ingreso Leche + Ingreso Venta - (Compra + Sanidad + Alimentacion)</td><td><code>MargenAnimal.calcular()</code></td></tr>
+        </tbody>
+      </table>
+      <p><strong>Colores:</strong> Positivo = verde (success), Negativo = rojo (danger), Neutro = slate.</p>
+    </section>
+
+    <!-- 9. DEMO CHAMORRO -->
+    <section id="demo" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Demo</span>
+        <h2>9. Datos Demo CHAMORRO — Sanidad & Reproduccion</h2>
+        <p class="section-desc">Validacion guias PWA: GeGan 36/38 (Sanidad 7/8, Reproduccion 5/6 sub-tabs cubiertos).</p>
+      </div>
+
+      <h3>9.1 Precarga Relevante</h3>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>Tratamientos:</strong> 3+ con supresion (leche roja, carne verde lima), lote, veterinario, receta, via, tiempos espera</div>
+        <div class="demo-item"><strong>Vacunaciones:</strong> 2+ programas ADSG (TB, Brucelosis), lotes, proxima revacunacion, recordatorios</div>
+        <div class="demo-item"><strong>Botiquin:</strong> 5+ productos FEFO: 2 caducados, 1 <30d, 2 >90d, stock minimo configurado</div>
+        <div class="demo-item"><strong>Fitosanitarios:</strong> 1 aplicacion con plazo seguridad 21d, apto=NO (cuarentena activa), 1 apto=SI</div>
+        <div class="demo-item"><strong>Saneamientos:</strong> TB (NEGATIVO, certificado), Brucelosis (NEGATIVO, certificado), ambos vigentes</div>
+        <div class="demo-item"><strong>Reproduccion:</strong> 3 celos, 2 IAs (1 sexado), 1 diagnostico PREÑADA, 1 parto con cria vinculada</div>
+        <div class="demo-item"><strong>Margen Animal:</strong> 2 animales con margen calculado (1 positivo leche, 1 negativo carne)</div>
+      </div>
+
+      <h3>9.2 Pruebas Clave en Demo</h3>
+      <ul class="feature-list">
+        <li>Wizard Tratamiento -> verifica alertas supresion en Dashboard/Animales/Sanidad en vivo (EventBus)</li>
+        <li>Wizard Venta Masiva paso 1 -> bloquea animales en supresion carne (verde lima) y leche (rojo)</li>
+        <li>Albaran Leche Wizard -> bloquea rebaño con supresion leche activa</li>
+        <li>Wizard Gasto Fitosanitario apto=NO -> bloquea rotacion zona + venta animales zona</li>
+        <li>Wizard Parto -> crea animal hijo auto, vinculacion madre_id, evento nacimiento</li>
+        <li>Botiquin FEFO -> alertas vencimiento <30d en Dashboard Bento + header Sanidad</li>
+        <li>Saneamientos -> certificados vigentes -> Guia 365 auto-autorizada (finca indemne)</li>
+      </ul>
+    </section>
+
+    <!-- Navegación final -->
+    <nav class="module-nav-bottom">
+      <a href="manual-informes.html" class="nav-btn">&larr; Anterior: Informes & Analitica</a>
+      <a href="manual-configuracion-documentos.html" class="nav-btn nav-btn-primary">Siguiente: Configuracion & Documentos &rarr;</a>
+    </nav>
+
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Manual Profesional &middot; Modulo 05/06</p>
+    <p class="copyright">SIGGAN &middot; BADIGEX &middot; RD 787/2023 &middot; RD 989/2022 &middot; Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

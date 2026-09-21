@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preguntas Frecuentes (FAQ) — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Preguntas Frecuentes (FAQ)</h1>
+        <p class="version">Respuestas rapidas a dudas comunes de uso, normativa y tecnicas</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">General</span>
+        <h2>General & Primeros Pasos</h2>
+      </div>
+
+      <dl class="faq">
+        <dt>¿Como empiezo a usar la app?</dt>
+        <dd><strong>Opcion A (Rapida):</strong> Ajustes > Asistente Configuracion > Cargar Demo CHAMORRO. Tendras finca completa con datos reales Andalucia/Extremadura para explorar todo.<br><br><strong>Opcion B (Real):</strong> Ajustes > Asistente > Wizard Nueva Finca. Rellena: Nombre, Propietario, REGA (ES+12 dig), CCAA, Superficie. Activa Flag LECHE (si ordeñas) y/o Flag CARNE (si engordas/cebas). Guardar.</dd>
+
+        <dt>¿Que es el REGA y como lo consigo?</dt>
+        <dd>REGA = Registro de Explotaciones Ganaderas. Codigo oficial 14 caracteres: ES + 12 digitos (ej: ES123456789012). Lo expide tu CCAA (Consejeria Agricultura). Es OBLIGATORIO para cualquier movimiento, documento, cuaderno digital. La app valida formato en tiempo real.</dd>
+
+        <dt>¿Puedo tener varias fincas?</dt>
+        <dd>FREE: Solo 1 finca. PREMIUM (compra unica premium_unlock en Play Store): Fincas ilimitadas. Cambio finca: Header Dashboard (tap nombre) o Ajustes > Finca Activa > Seleccionar.</dd>
+
+        <dt>¿Que diferencia hay entre Flag LECHE y Flag CARNE?</dt>
+        <dd>Son DOS FLAGS INDEPENDIENTES por finca (NO un "modo hibrido global").<br><strong>LECHE:</strong> Habilita ordeño, tanques, balance lacteo, albaran leche, INFOLAC, controles DHI. KPIs: Litros, MOFA, Grasa/Proteina, Celulas.<br><strong>CARNE:</strong> Habilita pesajes, ICA, venta masiva, DIMOE, guias, SEUROP. KPIs: Peso canal, GMD, Rendimiento, Margen neto.<br>Config: Ajustes > Finca > Editar > Modo Explotacion (checkboxes independientes).</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Animales</span>
+        <h2>Animales & Censo</h2>
+      </div>
+
+      <dl class="faq">
+        <dt>¿Como doy de alta un animal?</dt>
+        <dd>Ganaderia > Animales (carrusel naranja) > FAB + > Wizard Animal (10+ secciones). Obligatorio: Crotal ES+12 dig (validacion dorada/roja), Nombre, Sexo, Fecha nacimiento, Especie, Raza (catalogo 163 FEGA), Rebaño, Origen. Opcional: RFID, DIB, Madre, Compra, Libro Registro SIGGAN.</dd>
+
+        <dt>¿Que formato debe tener el crotal?</dt>
+        <dd><strong>SITRAN:</strong> ES + 12 digitos (ej: ES123456789012). Validacion tiempo real: Input dorado = valido, rojo = invalido.<br><strong>ISO 11784 completo:</strong> 15 digitos (pais+especie+explotacion+animal). Equino: microchip 15 digitos.</dd>
+
+        <dt>¿Como vinculo madre-cria?</dt>
+        <dd>En Wizard Animal > Seccion Madre: Selector hembras activas. O en Wizard Parto (Paso 2): Crea cria automatica con madre_id vinculado. La cria hereda rebaño/zona de la madre.</dd>
+
+        <dt>¿Por que no me deja dar de alta mas animales?</dt>
+        <dd>Version FREE: Limite 15 animales por finca. Solucion: Vender/dar baja animales O activar Premium (Ajustes > Cuenta > Activar Premium). Los limites se aplican en <code>Animales.save()</code>, no solo en la vista.</dd>
+
+        <dt>¿Como hago el Censo Anual?</dt>
+        <dd>Ajustes > Asistente > Wizard Censo (3 pasos): 1.Fecha referencia (default 1 enero), 2.Censo consolidado auto (solo lectura, desglose especie/categoria), 3.Tramitacion administrativa (estado, fecha, nº registro, acuse). Genera PDF oficial + DOCUMENTOS_LEGALES tipo DECLARACION_CENSAL.</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Produccion</span>
+        <h2>Produccion: Leche & Carne</h2>
+      </div>
+
+      <dl class="faq">
+        <dt>¿Como registro un ordeño?</dt>
+        <dd>FAB > Registrar Ordeño (solo flag LECHE) > Wizard 3 pasos: 1.Fecha, Turno AM/PM, Tanque destino (Letra Q), Temperatura. 2.Tabla hembras activas rebaño lechero -> input litros por animal (total en vivo). 3.Resumen + Balance tanque proyectado. Auto: produccion_leche + balance_lacteo entrada + actualiza temp tanque.</dd>
+
+        <dt>¿Que es la Letra Q y donde la pongo?</dt>
+        <dd>Codigo oficial MAPA (Registro General Agentes Sector Lacteo). Formato T-PP-NNNNN (ej: E-41-00123). Obligatoria en: Tanque (Wizard Tanque / Wizard Finca Paso 3), Cisterna, Muestra (Albaran Leche). 7 tipos movimiento RD 989/2022. 4 estados.</dd>
+
+        <dt>¿Como registro un pesaje?</dt>
+        <dd>FAB > Registrar Pesaje (solo flag CARNE) > Individual: Animal, Fecha, Peso kg, Rebaño, Zona. Lote: Rebaño, Fecha, multiples animales. Auto: Calcula GMD, historial, evento registro_eventos tipo pesaje.</dd>
+
+        <dt>¿Que es el ICA en carne?</dt><dd>Dos significados segun contexto:<br><strong>1. Identificacion Canal Animal:</strong> Codigo documento canal (entrada manual Venta Masiva Paso 2). Obligatorio bovinos.<br><strong>2. Indice Capacidad Aprovisionamiento (Patrimonio):</strong> Valor economico animal = Valor base + Plusvalia - Depreciacion - Costes. Solo flag CARNE. Ver Modulo 06.</dd>
+
+        <dt>¿Como funcionan los Silos?</dt>
+        <dd>Explotacion > SILOS (carrusel verde). Gauge SVG animado stock%. Autonomia dias = Stock / (Consumo real 30d via registro_eventos silo_consumo).<br><strong>Cargar:</strong> Proveedor, cantidad, coste, factura -> Gasto Alimentacion + evento silo_carga.<br><strong>Consumir:</strong> Rebaño, sacos x kg -> Descuenta stock, Gasto vinculado rebaño + evento silo_consumo (base ICA).<br>Alertas: <15% Critico (rojo, Bento ExPro), <35% Advertencia (ambar).</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-danger">Sanidad</span>
+        <h2>Sanidad & Reproduccion</h2>
+      </div>
+
+      <dl class="faq">
+        <dt>¿Por que me salen alertas rojas/verdes lima en Dashboard y Animales?</dt>
+        <dd>Son <strong>Alertas de Supresion SIEMPRE VISIBLES</strong> (normativa critica, NO se ocultan por flags).<br><strong>Rojo:</strong> Supresion LECHE (prohibidoLeche + diasRetiroLeche > 0).<br><strong>Verde Lima:</strong> Supresion CARNE (prohibidoCarne + diasRetiroCarne > 0).<br>Se activan al registrar Tratamiento (Wizard Paso 2: dias retiro). Bloquean Venta Masiva y Albaran Leche.</dd>
+
+        <dt>¿Como registro un tratamiento?</dt>
+        <dd>Ganaderia > Sanidad (purpura) > Tratamientos > + Nuevo > Wizard 3 pasos: 1.Animal/Rebaño, Producto, Lote (oblig), Via, Dosis, Veterinario+Colegiado+NIF, Receta. 2.Dias retiro CARNE, Dias retiro LECHE (auto-calcula supresion). 3.Confirmacion con alerta visible. Auto: Actualiza animal, EventBus -> alertas en vivo.</dd>
+
+        <dt>¿Que es el Botiquin FEFO?</dt>
+        <dd>First Expired, First Out. Inventario farmacos ordenado por caducidad. Badges: Vigente >90d (verde), 30-90d (ambar), <30d (rojo pulsing), Caducado (rojo fijo). Stock minimo configurable. Entrada/Salida stock genera gasto Sanidad. Alertas Dashboard 30/15/7/1 dias.</dd>
+
+        <dt>¿Como funciona la reproduccion?</dt>
+        <dd>Eventos: Celo -> IA/Monta -> Diagnostico (28-35d) -> Parto (283d bovino). Wizard Parto: Paso 1 Madre, Paso 2 Cria(s) -> Auto-crea animal hijo con madre_id, rebaño/zona madre, origen Nacimiento. KPIs: Tasa IA, Tasa Preñez, Intervalo Celo-Parto, Partos/Mes, Mortalidad perinatal.</dd>
+
+        <dt>¿Que son los Saneamientos Granulares?</dt>
+        <dd>7 tipos implementados (PR #66): TB (Tuberculosis), BRU (Brucelosis), LEUCO_BOV (Leucosis Bovina), LEUCO (Leucosis), IBR (Rinotraqueitis), PARA_TB (Paratuberculosis), OTRO (Programa ADSG). Cada uno con protocolo, certificado oficial, frecuencia. Certificados vigentes -> Guia 365 auto (Andalucia).</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Comercializacion</span>
+        <h2>Comercializacion: Ventas, Contratos, Documentos</h2>
+      </div>
+
+      <dl class="faq">
+        <dt>¿Como hago una Venta Masiva de carne?</dt>
+        <dd>Comercializacion > CARNE (verde lima) > Venta Masiva > Wizard 5 pasos:<br>1.<strong>Aptitud:</strong> Selecciona animales (check supresion, edad minima 12m bovino/6m ovino/3m porcino, DIB obligatorio bovino, gestacion >90d bloquea).<br>2.<strong>Trazabilidad:</strong> Fecha sacrificio, Matadero, ICA, Guia sanitaria, Declaracion fitosanitaria 180d.<br>3.<strong>Economicos:</strong> Peso vivo, Peso canal (verde), Precio/kg canal (oro), Transporte, Matanza.<br>4.<strong>Liquidacion:</strong> Comprador activo (REGA destino valido), IVA/Retencion (contrato), SEUROP.<br>5.<strong>Logistica:</strong> Transportista (ATG+Desinsectacion vigente), Veterinario autorizador (nombre+colegiado).<br><strong>FIN AUTO:</strong> DIMOE, Movimiento Oficial SIGGAN, Albaran PDF, Factura PDF, Estado=VENDIDO.</dd>
+
+        <dt>¿Que es el DIMOE y cuando se genera?</dt>
+        <dd>Documento Identificacion Movimiento Orden Expedicion. <strong>Generado AUTO al cerrar Venta Masiva.</strong> Tipo DOCUMENTOS_LEGALES 'dimoe'. Numero: DIMOE-{ALBARAN}. Incluye: ICA, Guia, Comprador, Transportista, Veterinario, Animales (crotales 15d). Imprimible via DocumentViewer.</dd>
+
+        <dt>¿Como funciona el Albaran Leche?</dt>
+        <dd>Explotacion > LACTEA (azul) > Albaran Leche > Wizard 2 pasos:<br>1.<strong>Datos Recogida (25+ campos):</strong> Fecha, Volumenes, Especie, Tanque, Matricula cisterna, Temp, Nº muestra Letra Q, NIF tomador, Inhibidores, Agentes, Tipo movimiento Letra Q (7 tipos), Estado Letra Q (4 estados), Cisterna-cisterna, Contrato, CCAA, Cadena frio.<br>2.<strong>Analitica + Liquidacion:</strong> Grasa, Proteina, Germenes, Somaticas, Aflatoxina M1 (metodo kit_rapido/ELISA/HPLC) -> <strong>Recalculo precio extracto seco EN VIVO</strong>.<br>Validaciones: MotorLacteo (temp, stock, inhibidores) + Letra Q + Supresion rebaño + Calidad CCAA.<br>Genera: comercializacion_leche + analiticas_leche + balance_lacteo salida + INFOLAC + PDF.</dd>
+
+        <dt>¿Como gestiono Compradores/Transportistas/Contratos?</dt>
+        <dd>Comercializacion > Carrusel: COMPRADORES (purpura), TRANSPORTISTAS (rosa), CONTRATOS (purpura). O vistas directas: #/compradores, #/transportistas, #/contratos.<br><strong>Compradores:</strong> Tipo Carnico (rojo), Lacteo (azul), Hibrido (verde lima). REGA destino, Tipo operador SIGGAN.<br><strong>Transportistas:</strong> ATG, Desinsectacion, Bienestar con vencimientos. Badges: Vigente/Proximo 30d/Caducado/Sin cert.<br><strong>Contratos:</strong> Multi-precio tabla (Producto, Precio, Unidad). IVA%, Retencion%, Fechas vigencia. Alertas vencimiento <30d (banner amarillo pulsing).</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Informes & Export</span>
+        <h2>Informes, Exportacion & Cuaderno Digital</h2>
+      </div>
+
+      <dl class="faq">
+        <dt>¿Que informes tengo disponibles?</dt>
+        <dd>#/informes > 5 Categorias (Sidebar):<br><strong>General (Purpura):</strong> Dashboard, Resumen Finca, Censo, Produccion, Finanzas, Sanidad, Reproduccion, Trazabilidad.<br><strong>GeGan (Verde):</strong> Animales, Rebanos, Patrimonio, Zonas, Sanidad, Movimientos, Alertas, KPIs Globales.<br><strong>ExPro (Azul):</strong> Ordeños, Pesajes, Entregas Tanque, Albaranes Leche, Analiticas, Balance Lacteo, Control Lechero, Silos, Graficos (5 Chart.js).<br><strong>CoMer (Oro):</strong> Ventas Carne, Entregas Leche, Compradores, Transportistas, Contratos, Albaranes/Facturas, KPIs Financieros.<br><strong>Libros (Naranja):</strong> 8 Sub-tabs = 8 CSV SIGGAN: Tratamientos, Vacunaciones, Censo, Crotales, Movimientos, Saneamientos, Fitosanitarios, Agenda.</dd>
+
+        <dt>¿Como exporto a Excel?</dt>
+        <dd>Solo PREMIUM. InformesView > Boton "Exportar Excel" (header). Genera multi-hoja: 1 hoja por sub-tab activa + hoja "Resumen" KPIs. Nombrado: INFORMES_{CAT}_{SUBCAT}_{YYYYMMDD}.xlsx.</dd>
+
+        <dt>¿Como genero el Cuaderno Digital (CSV SIGGAN)?</dt>
+        <dd>Solo PREMIUM. Ajustes > Asistente > Exportar Cuaderno Digital O Informes > Libros > Exportar.<br><strong>Pre-flight BLOQUEANTE:</strong> REGA valido, ADSG completa, NIF titular/veterinarios, Lotes medicamentos, Crotales 15d, Guias oficiales, REGA destino.<br>Genera ZIP: CUADERNO_DIGITAL_{REGA}_{YYYYMMDD}.zip con 8 CSV + README.md. Listo para importar SIGGAN/BADIGEX/SIA/PIGGAN.</dd>
+
+        <dt>¿Por que no me deja imprimir en Android?</dt>
+        <dd><strong>NUNCA uses window.open() o window.print() en Capacitor Android WebView (SIEMPRE FALLA).</strong> Usa <strong>DocumentViewer</strong> (componente unificado): Abre PDF en full-screen con botones Compartir (Web Share API), Imprimir (nativo), Descargar, Cerrar. Funciona en PWA, Android, Electron, Desktop.</dd>
+
+        <dt>¿Que es la Trazabilidad 360°?</dt>
+        <dd>Timeline unificado 6 fuentes: Produccion Leche, Produccion Carne, Sanidad, Reproduccion, Movimientos, Gastos Imputados. Acceso: #/trazabilidad O Widget en Ficha Animal (edicion). Iconos/colores por fuente. Expandible -> detalle. Enlaces "Ver registro origen". Service: MotorTrazabilidad.</dd>
+      </dl>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Tecnico & Premium</span>
+        <h2>Tecnico, Premium, Sincronizacion</h2>
+      </div>
+
+      <dl class="faq">
+        <dt>¿Funciona sin internet (Offline-First)?</dt>
+        <dd>Si. IndexedDB local + Service Worker cache-first. Todas las operaciones CRUD funcionan offline. Sincronizacion/Backup solo online (Premium: backup auto diario; Free: export/import manual JSON).</dd>
+
+        <dt>¿Como activo Premium?</dt>
+        <dd>Ajustes > Cuenta > "Activar Premium" > Compra unica <code>premium_unlock</code> en Play Store. Inmediato tras verificacion. Restaura compras si cambias dispositivo (misma cuenta Google).</dd>
+
+        <dt>¿Puedo pasar datos de Free a Premium?</dt>
+        <dd>Si. Los datos NO se borran al activar Premium. Los limites se desbloquean instantaneamente (EventBus 'premium:changed'). Si vuelves a Free (reembolso), datos permanecen pero .save() bloquea nuevos si excedes limites.</dd>
+
+        <dt>¿Hay version iOS / Desktop?</dt>
+        <dd><strong>PWA:</strong> https://livestock-manager.pages.dev (instalable, gratis, sin IAP, build FREE).<br><strong>MSIX (Microsoft Store):</strong> Gratis hoy. Si app crece (SIGGAN), posible compra unica futura.<br><strong>Android (Play Store):</strong> Unica con IAP premium_unlock. Build FREE para publicar (Private/build-and-upload.ps1).</dd>
+
+        <dt>¿Como hago backup de mis datos?</dt>
+        <dd><strong>Premium:</strong> Backup automatico diario (Ajustes > Backup > Configurar auto).<br><strong>Free/Premium:</strong> Ajustes > Backup > Exportar Backup (JSON completo) / Importar Backup. Incluye: Fincas, Animales, Produccion, Sanidad, Comercializacion, Documentos, Configuracion.</dd>
+
+        <dt>¿Donde reporto errores o pido features?</dt>
+        <dd>GitHub: https://github.com/SADOCKDOG/LIVESTOCK-MANAGER > Issues. O Ajustes > Informacion App > "Reportar error" (abre GitHub Issues con plantilla).</dd>
+      </dl>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Preguntas Frecuentes</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

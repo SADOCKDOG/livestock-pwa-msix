@@ -115,19 +115,7 @@ const DashboardView = {
     const flagsModo = window.ModoContextoHelper.getFlags() || { leche: true, carne: false };
     const isFreeDashboard = window.PremiumManager && window.PremiumManager.isFree();
 
-    // La web publica se sirve con FREE_MODE=false: todo desbloqueado y sin
-    // pasar por la tienda. Es la demo, y conviene decirlo.
-    const esDemoAbierta = window.FREE_MODE === false;
-
     return `
-      ${esDemoAbierta ? `
-      <div class="mb-14 p-14" style="background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.22);border-radius:14px;display:flex;align-items:center;gap:12px;">
-        <div class="flex-1" style="line-height:1.4;">
-          <div class="text-white text-xs font-900 uppercase tracking-wider">Versi&oacute;n de demostraci&oacute;n</div>
-          <div class="text-gray text-[0.6rem] mt-2">Todas las funciones est&aacute;n abiertas para que puedas probarlas. Los datos se guardan solo en este navegador.</div>
-        </div>
-      </div>
-      ` : ''}
       ${isFreeDashboard ? `
       <div class="mb-14 p-14" style="background:linear-gradient(135deg,rgba(217,119,6,0.08),rgba(180,83,9,0.04));border:1px solid rgba(217,119,6,0.2);border-radius:14px;display:flex;align-items:center;gap:12px;">
         <div style="flex-shrink:0;width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--c-warning),var(--c-warning));display:flex;align-items:center;justify-content:center;">

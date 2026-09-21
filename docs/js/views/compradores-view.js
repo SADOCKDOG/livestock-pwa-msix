@@ -125,14 +125,10 @@ const CompradoresView = {
         </div>
       </div>
 
-      <!-- Filtro de búsqueda integrado (controla el listado) + interruptor de vista (Tarjetas / Tabla ERP, solo módulo compradores) -->
+      <!-- Filtro de búsqueda integrado (controla el listado). El modo de vista
+           (tarjetas o tabla) es ahora un ajuste global: Ajustes > Sistema > Interfaz. -->
       <div class="text-xs text-white uppercase font-black tracking-wider mb-10 flex items-center gap-4" style="justify-content: space-between;">
         <span class="flex items-center gap-4"><span style="color: ${activeColor};">|</span> ${this._activeModule === 'compradores' ? Icons.compradores() : Icons.contratos()} LISTA DE ${this._activeModule === 'compradores' ? 'COMPRADORES' : 'CONTRATOS'}</span>
-        ${this._activeModule === 'compradores' ? `
-        <div class="flex gap-4">
-          <button class="btn-erp-secondary btn-sm" id="btn-comp-vista-cards" onclick="CompradoresView._setVistaModo('cards')">Tarjetas</button>
-          <button class="btn-erp-secondary btn-sm" id="btn-comp-vista-tabla" onclick="CompradoresView._setVistaModo('tabla')">Tabla ERP</button>
-        </div>` : ''}
       </div>
       <div class="flex gap-8 items-center mb-12">
         <div class="relative flex-1 min-w-0">
@@ -165,7 +161,7 @@ const CompradoresView = {
       this._renderListaCompradores(this._cachedData.compradores);
 
       // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
-      const modoGuardado = localStorage.getItem('compradores_view_mode') || 'tabla';
+      const modoGuardado = VistaRegistros.get();
       this._setVistaModo(modoGuardado, false);
     } else {
       this._cachedData = { contratos: this._filtrarContratos(this._cachedContratos || []) };
@@ -180,6 +176,7 @@ const CompradoresView = {
     const s2 = document.getElementById('search-contratos'); if (s2) s2.value = '';
     const f1 = document.getElementById('compradores-filtro-tipo'); if (f1) f1.value = '';
     const f2 = document.getElementById('contratos-filtro-tipo'); if (f2) f2.value = '';
+    if (window.App && typeof App.scrollAlInicio === 'function') App.scrollAlInicio();
     this.render();
   },
 
@@ -403,19 +400,10 @@ const CompradoresView = {
 
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('compradores_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-comp-vista-cards');
-    const btnTabla = document.getElementById('btn-comp-vista-tabla');
     const contenedorCards = document.getElementById('compradores-content');
     const contenedorTabla = document.getElementById('compradores-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';

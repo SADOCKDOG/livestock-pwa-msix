@@ -1,116 +1,461 @@
 <!DOCTYPE html>
-<html lang="es"><head>
+<html lang="es">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comercialización · Guía Soporte v4.8.7 · Livestock Manager</title>
-  <link rel="stylesheet" href="estilo-manuales.css">
+  <title>03. Comercializaci&oacute;n — Manual LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
 </head>
-<body style="--acento: #c9851f; --acento-claro: #e0a83a;"><header class="portada">
-    <div class="logo-container">
-      <img src="../icons/Logo%20aplicaci%C3%B3n.png" alt="Logo" style="max-height: 80px; width: auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));">
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>03. Comercializaci&oacute;n</h1>
+        <p class="version">Carrusel 5 Submodulos &middot; Wizard Venta Masiva 5 Pasos &middot; Albaran Leche 6 Pasos</p>
+      </div>
     </div>
-    <h1>Comercialización</h1>
-    <p class="sub">Ventas de Carne y Entregas de Leche · Guía v4.8.7</p>
-    <div class="badge">FLUJOS DE VENTA PREMIUM</div>
   </header>
 
-<div class="wrap">
+  <nav class="module-toc" aria-label="Tabla de contenidos del modulo">
+    <ul>
+      <li><a href="#vista">1. Vista Comercializacion &mdash; Carrusel 5 Submodulos</a></li>
+      <li><a href="#carne">2. Tab Carne &mdash; KPIs + Wizard Venta Masiva (5 Pasos)</a></li>
+      <li><a href="#leche">3. Tab Leche &mdash; KPIs + Wizard Albaran Leche (6 Pasos)</a></li>
+      <li><a href="#compradores">4. Compradores &mdash; Cartera de Clientes</a></li>
+      <li><a href="#proveedores">5. Proveedores &mdash; Suministros y Gastos</a></li>
+      <li><a href="#transportistas">6. Transportistas &mdash; Logistica Certificada</a></li>
+      <li><a href="#contratos">7. Contratos &mdash; Acuerdos Multi-Precio</a></li>
+      <li><a href="#albaranes">8. Albaranes y Facturas &mdash; Historial Integrado</a></li>
+      <li><a href="#siggan">9. Integracion SIGGAN / BADIGEX</a></li>
+      <li><a href="#demo">10. Datos Demo CHAMORRO &amp; Validacion</a></li>
+    </ul>
+  </nav>
 
-    <figure style="margin:24px auto; text-align:center; max-width:320px;">
-      <img src="img/sc_09_wizard_venta_masiva.png" alt="Asistente de Venta Masiva" style="max-width:100%; border:3px solid #1a1a1a; border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,.15);">
-      <figcaption style="font-size:.82rem; color:#777; margin-top:8px; font-style:italic;">Paso de validación en el asistente de Venta Masiva de carne.</figcaption>
-    </figure>
-    <section class="seccion"><h2 class="modulo">1. Acceso a Comercialización</h2>
- <p class="intro-mod">Existen dos formas rápidas de acceder a la gestión de ventas en la v4.8.7:</p>
- <ol class="pasos"><li><strong>Desde el Menú Más</strong>: Pulsa <span class="ruta">Más</span> en la barra inferior y selecciona <strong>Comercial</strong>.</li>
- <li><strong>Desde el Hub ExPro</strong>: En la consola <span class="ruta">ExPro</span>, usa el botón directo <strong>"Ir a Comercialización"</strong> situado al final del panel.</li></ol>
- 
-    <div class="workflow-stepper">
-      <div class="workflow-step">
-        <div class="workflow-step-num">1</div>
-        <div class="workflow-step-title">Selección</div>
-        <div class="workflow-step-desc">Escoger animales aptos</div>
+  <main class="manual-main">
+
+    <!-- 1. VISTA COMERCIALIZACIÓN -->
+    <section id="vista" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">CoMer</span>
+        <h2>1. Vista Comercializacion &mdash; Carrusel 5 Submodulos</h2>
+        <p class="section-desc">Consola unificada <code>#/comercializacion</code> multipestana con soporte premium. Agrupa Leche, Carne, Compradores, Contratos y Logistica. Color de pantalla fijo amarillo/oro (<code>var(--c-warning)</code>).</p>
+        <div class="route-info"><code>js/views/comercializacion-view.js</code> &middot; <code>window.ComercializacionView</code></div>
       </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">2</div>
-        <div class="workflow-step-title">Trazabilidad</div>
-        <div class="workflow-step-desc">Fecha, guía DIMOE y ICA</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">3</div>
-        <div class="workflow-step-title">Pesos</div>
-        <div class="workflow-step-desc">Registrar Peso Vivo/Canal</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">4</div>
-        <div class="workflow-step-title">Clasificación</div>
-        <div class="workflow-step-desc">Modelo SEUROP</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">5</div>
-        <div class="workflow-step-title">Transportista</div>
-        <div class="workflow-step-desc">Asociar portes y firma</div>
-      </div>
-    </div>
+
+      <h3>1.1 Carrusel Circular de Submodulos</h3>
+      <p>Bajo el header se muestra un carrusel circular anclado (<code>App.renderCarruselPestanas</code>) con los submodulos permitidos segun los <strong>flags de explotacion por finca</strong> (Leche/Carne):</p>
+      <table class="feature-table">
+        <thead><tr><th>Submodulo</th><th>Icono</th><th>Color</th><th>Titulo / Descripcion</th></tr></thead>
+        <tbody>
+          <tr><td>LECHE</td><td>Tanque</td><td>var(--c-info)</td><td>Contratos y Entregas Lacteas &mdash; cisternas, analiticas y albaranes</td></tr>
+          <tr><td>CARNE</td><td>Vaca</td><td>var(--c-success)</td><td>Comercializacion Carnica &mdash; ventas, rendimientos de canal y facturacion</td></tr>
+          <tr><td>COMPRADORES</td><td>Clientes</td><td>var(--c-purple)</td><td>Cartera de Clientes &mdash; mataderos, cooperativas y centrales lecheras</td></tr>
+          <tr><td>CONTRATOS</td><td>Documento</td><td>var(--c-purple)</td><td>Contratos de Compra &mdash; acuerdos de suministro y trazabilidad de precios</td></tr>
+          <tr><td>TRANSPORTISTAS</td><td>Camion</td><td>var(--c-pink)</td><td>Logistica y Transportistas &mdash; flota calificada y cisternas</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="comercializacion-carrusel">
+  <img src="img/comercializacion-carrusel.png" alt="Carrusel 5 submodulos bajo el header + cabecera de modulo con KPI y accion principal" loading="lazy">
+  <span class="shot-label">[CAPTURA] comercializacion-carrusel.png</span>
+  <span class="shot-desc">Carrusel 5 submodulos bajo el header + cabecera de modulo con KPI y accion principal</span>
+</div>
+
+      <h3>1.2 Acceso Rapido (Dos Vias)</h3>
+      <ul class="feature-list">
+        <li><strong>Menu Mas</strong>: barra inferior &rarr; <span class="route-info" style="display:inline">Comercial</span></li>
+        <li><strong>Hub ExPro</strong>: consola de produccion &rarr; boton directo "Ir a Comercializacion"</li>
+        <li><strong>Alerta contratos</strong>: si un contrato expira en &le;30 dias, aparece una tarjeta dorada "CONTRATO EXPIRA PRONTO" con acceso directo a la pestana Contratos</li>
+      </ul>
+
+      <h3>1.3 Modo de Explotacion por Finca</h3>
+      <ul class="feature-list">
+        <li>Submodulos <strong>leche</strong> y <strong>carne</strong> se muestran solo si el flag correspondiente esta activo en la finca</li>
+        <li><strong>compradores</strong>, <strong>contratos</strong> y <strong>transportistas</strong> siempre disponibles</li>
+        <li>Sin flags activos, la primera pestana permitida se selecciona automaticamente</li>
+      </ul>
     </section>
 
- <section class="seccion"><h2 class="modulo">2. Venta Masiva de Carne</h2>
- <p class="intro-mod">El wizard de venta te guía por 5 pasos obligatorios para asegurar la trazabilidad.</p>
- <ol class="pasos"><li><strong>Selección de Animales</strong>: Marca los animales aptos para la venta.</li>
- <li><strong>Trazabilidad</strong>: Indica fecha, matadero de destino, código ICA y Nº de Guía.</li>
- <li><strong>Pesos</strong>: Registra el peso vivo y el peso canal de cada animal. La app calcula el rendimiento automáticamente.</li>
- <li><strong>Clasificación SEUROP</strong>: Define la calidad de las canales (S, E, U, R, O, P).</li>
- <li><strong>Transportista</strong>: Asocia el transporte y genera los documentos oficiales.</li></ol>
- <div style="background:#fdecea; border-left:4px solid var(--rojo); padding:10px; border-radius:6px; font-size:0.9rem;"><strong>Bloqueo Sanitario</strong>: Si un animal está en periodo de supresión, el sistema impedirá su venta.</div></section>
+    <!-- 2. TAB CARNE -->
+    <section id="carne" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Carne</span>
+        <h2>2. Tab Carne &mdash; KPIs + Wizard Venta Masiva (5 Pasos)</h2>
+        <p class="section-desc">Gestion integral de ventas de ganado: KPIs de rendimiento, margen neto real y el asistente <code>App._abrirWizardVentaMasiva()</code> de 5 pasos. Header verde lima.</p>
+        <div class="route-info"><code>js/views/wizards/wizard-venta-masiva.js</code></div>
+      </div>
 
- <section class="seccion"><h2 class="modulo">3. Albarán de Leche</h2>
- <p class="intro-mod">En la pestaña <span class="ruta">Leche</span> puedes registrar las recogidas de cisterna.</p>
- 
-    <div class="workflow-stepper">
-      <div class="workflow-step">
-        <div class="workflow-step-num">1</div>
-        <div class="workflow-step-title">Cisterna</div>
-        <div class="workflow-step-desc">Datos de carga y Letra Q</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">2</div>
-        <div class="workflow-step-title">Laboratorio</div>
-        <div class="workflow-step-desc">Grasa, proteína, células</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">3</div>
-        <div class="workflow-step-title">Volumen</div>
-        <div class="workflow-step-desc">Litros cargados y muestras</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">4</div>
-        <div class="workflow-step-title">Precio</div>
-        <div class="workflow-step-desc">Cálculo de precio final</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">5</div>
-        <div class="workflow-step-title">MOFA</div>
-        <div class="workflow-step-desc">Cálculo de Margen Lácteo</div>
-      </div>
-      <div class="workflow-arrow">➔</div>
-      <div class="workflow-step">
-        <div class="workflow-step-num">6</div>
-        <div class="workflow-step-title">Albarán</div>
-        <div class="workflow-step-desc">Generar documento oficial</div>
-      </div>
-    </div>
-    
- <ol class="pasos"><li>Pulsa <kbd>Nuevo</kbd> para abrir el Wizard de Albarán Lácteo (6 pasos).</li>
- <li>Registra los datos de la cisterna, temperatura de carga y Letra Q.</li>
- <li>Introduce los resultados del laboratorio (Grasa, Proteína, Somáticas).</li>
- <li>La app calcula el <strong>Precio Final</strong> y el <strong>MOFA</strong> mensual.</li></ol></section>
+      <h3>2.1 KPIs de Carne</h3>
+      <table class="feature-table">
+        <thead><tr><th>KPI</th><th>Calculo</th><th>Color</th></tr></thead>
+        <tbody>
+          <tr><td>Peso Canal (kg)</td><td>Suma peso canal (o peso vivo) de ventas</td><td>Neutro</td></tr>
+          <tr><td>Animales Vendidos</td><td>N&uacute;mero de ventas registradas</td><td>Neutro</td></tr>
+          <tr><td>Rend. Promedio</td><td>Media rendimiento de canal %</td><td>Neutro</td></tr>
+          <tr><td>Ingreso Bruto</td><td>Suma precio total de ventas</td><td>Gris</td></tr>
+          <tr><td>Margen Neto Real</td><td>Ingreso &minus; gastos transporte &minus; gastos matanza</td><td>var(--c-success)</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="comercializacion-carne-kpis">
+  <img src="img/comercializacion-carne-kpis.png" alt="Tab Carne: KPIs (peso canal, vendidos, rend., ingreso, margen neto) + boton Registrar Venta" loading="lazy">
+  <span class="shot-label">[CAPTURA] comercializacion-carne-kpis.png</span>
+  <span class="shot-desc">Tab Carne: KPIs (peso canal, vendidos, rend., ingreso, margen neto) + boton Registrar Venta</span>
+</div>
 
- <div class="pie-manual">Livestock Manager Soporte · v4.8.7 · Guía del Usuario Oficial</div></div></body></html>
+      <h3>2.2 Wizard Venta Masiva &mdash; 5 Pasos</h3>
+      <table class="feature-table">
+        <thead><tr><th>Paso</th><th>Pantalla</th><th>Campos Clave</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Analisis Aptitud</td><td>Checkbox por animal, select-all lote. Valida supresion, edad (JOVEN), DIB (bovinos), gestacion (GEST.). Aptos/Bloqueados</td></tr>
+          <tr><td>2</td><td>Trazabilidad Logistica</td><td>Fecha sacrificio, matadero destino, codigo ICA, N&ordm; Guia, declaracion fitosanitaria colectiva (ausencia residuos 180 dias)</td></tr>
+          <tr><td>3</td><td>Datos Economicos</td><td>Peso vivo / peso canal por animal, precio unitario, gastos transporte y matanza. Rendimiento calculado automaticamente</td></tr>
+          <tr><td>4</td><td>Liquidacion y Cliente</td><td>Comprador, IVA %, clasificacion SEUROP (S/E/U/R/O/P), contrato asociado</td></tr>
+          <tr><td>5</td><td>Logistica y Autorizacion</td><td>Transportista ATG, firma veterinario, generacion de documentos oficiales</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Detalle de Pasos</h3>
+      <p><strong>Paso 1 &mdash; Analisis de Aptitud:</strong> tabla con ID oficial, raza y estado (APTO / BLOQUEADO). Los bloqueados muestran los motivos concatenados (ej. <code>14D | JOVEN | SIN DIB | GEST.</code>).</p>
+      <div class="screenshot-placeholder" data-shot="wizard-venta-masiva-paso1">
+  <img src="img/wizard-venta-masiva-paso1.png" alt="Paso 1: contadores Aptos/Bloqueados + tabla seleccion con validacion automatica" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-venta-masiva-paso1.png</span>
+  <span class="shot-desc">Paso 1: contadores Aptos/Bloqueados + tabla seleccion con validacion automatica</span>
+</div>
+      <p><strong>Paso 2 &mdash; Trazabilidad Logistica:</strong> fecha, matadero, ICA y guia. La declaracion fitosanitaria colectiva confirma ausencia de residuos en los 180 dias previos.</p>
+      <div class="screenshot-placeholder" data-shot="wizard-venta-masiva-paso2">
+  <img src="img/wizard-venta-masiva-paso2.png" alt="Paso 2: formulario trazabilidad con ICA, guia sanitaria y checkbox fitosanitario" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-venta-masiva-paso2.png</span>
+  <span class="shot-desc">Paso 2: formulario trazabilidad con ICA, guia sanitaria y checkbox fitosanitario</span>
+</div>
+      <p><strong>Paso 3 &mdash; Datos Economicos:</strong> pesos vivo/canal, precio unitario y gastos; la app calcula el rendimiento y la liquidacion en vivo.</p>
+      <div class="screenshot-placeholder" data-shot="wizard-venta-masiva-paso3">
+  <img src="img/wizard-venta-masiva-paso3.png" alt="Paso 3: pesos, precio unitario y gastos con calculo automatico de rendimiento" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-venta-masiva-paso3.png</span>
+  <span class="shot-desc">Paso 3: pesos, precio unitario y gastos con calculo automatico de rendimiento</span>
+</div>
+      <p><strong>Paso 4 &mdash; Liquidacion y Cliente:</strong> seleccion de comprador, tipo de IVA, clasificacion de canal SEUROP y contrato de venta.</p>
+      <div class="screenshot-placeholder" data-shot="wizard-venta-masiva-paso4">
+  <img src="img/wizard-venta-masiva-paso4.png" alt="Paso 4: comprador, IVA, clasificacion SEUROP y contrato" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-venta-masiva-paso4.png</span>
+  <span class="shot-desc">Paso 4: comprador, IVA, clasificacion SEUROP y contrato</span>
+</div>
+      <p><strong>Paso 5 &mdash; Logistica y Autorizacion:</strong> transportista con ATG, autorizacion veterinaria y generacion de documentos.</p>
+      <div class="screenshot-placeholder" data-shot="wizard-venta-masiva-paso5">
+  <img src="img/wizard-venta-masiva-paso5.png" alt="Paso 5: transportista ATG, firma veterinario y documentos oficiales" loading="lazy">
+  <span class="shot-label">[CAPTURA] wizard-venta-masiva-paso5.png</span>
+  <span class="shot-desc">Paso 5: transportista ATG, firma veterinario y documentos oficiales</span>
+</div>
+
+      <h3>2.4 Bloqueo Sanitario</h3>
+      <div class="callout callout-danger">
+        <strong>Bloqueo Sanitario:</strong> si un animal esta en periodo de supresion (leche o carne), el sistema impide su seleccion en la venta. Los dias restantes de retiro se muestran en rojo junto al motivo.
+      </div>
+    </section>
+
+    <!-- 3. TAB LECHE -->
+    <section id="leche" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Leche</span>
+        <h2>3. Tab Leche &mdash; KPIs + Wizard Albaran Leche (6 Pasos)</h2>
+        <p class="section-desc">Registro de recogidas de cisterna con control de calidad, precio y margen. Asistente <code>App._abrirWizardAlbaranLeche()</code> de 6 pasos. Header azul.</p>
+        <div class="route-info"><code>js/views/wizards/wizard-albaran-leche.js</code></div>
+      </div>
+
+      <h3>3.1 KPIs de Leche</h3>
+      <table class="feature-table">
+        <thead><tr><th>KPI</th><th>Calculo</th><th>Color</th></tr></thead>
+        <tbody>
+          <tr><td>Total Litros</td><td>Suma de cantidades de entregas</td><td>Neutro</td></tr>
+          <tr><td>Cisternas Cargadas</td><td>Numero de recogidas</td><td>Neutro</td></tr>
+          <tr><td>Alimentacion Periodo</td><td>Gastos de alimentacion entre primera y ultima recogida</td><td>var(--c-danger)</td></tr>
+          <tr><td>MOFA Real (Neto)</td><td>Ingresos leche &minus; coste alimentacion del periodo</td><td>var(--c-success)</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="comercializacion-leche-kpis">
+  <img src="img/comercializacion-leche-kpis.png" alt="Tab Leche: KPIs (litros, cisternas, alimentacion, MOFA real) + boton Registrar Retirada" loading="lazy">
+  <span class="shot-label">[CAPTURA] comercializacion-leche-kpis.png</span>
+  <span class="shot-desc">Tab Leche: KPIs (litros, cisternas, alimentacion, MOFA real) + boton Registrar Retirada</span>
+</div>
+
+      <h3>3.2 Wizard Albaran Leche &mdash; 6 Pasos</h3>
+      <table class="feature-table">
+        <thead><tr><th>Paso</th><th>Pantalla</th><th>Campos Clave</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Cisterna</td><td>Datos de carga, temperatura y Letra Q</td></tr>
+          <tr><td>2</td><td>Laboratorio</td><td>Grasa, proteina, celulas somaticas</td></tr>
+          <tr><td>3</td><td>Volumen</td><td>Litros cargados y muestras</td></tr>
+          <tr><td>4</td><td>Precio</td><td>Calculo de precio final segun extracto seco</td></tr>
+          <tr><td>5</td><td>MOFA</td><td>Calculo de margen lacteo (ingresos &minus; alimentacion)</td></tr>
+          <tr><td>6</td><td>Albaran</td><td>Generacion del documento oficial con liquidacion</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.3 Flujo de Recogida</h3>
+      <ul class="feature-list">
+        <li>Pulsa <code>Registrar Retirada</code> para abrir el wizard de 6 pasos</li>
+        <li>Registra datos de cisterna, temperatura de carga y Letra Q</li>
+        <li>Introduce los resultados del laboratorio (grasa, proteina, somaticas)</li>
+        <li>La app calcula el <strong>precio final</strong> (RD 989/2022) y el <strong>MOFA</strong> mensual</li>
+        <li>El albaran se genera con el contrato lacteo, INFOLAC y estado de presentacion</li>
+      </ul>
+    </section>
+
+    <!-- 4. COMPRADORES -->
+    <section id="compradores" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Clientes</span>
+        <h2>4. Compradores &mdash; Cartera de Clientes</h2>
+        <p class="section-desc">Registro de mataderos, cooperativas y centrales lecheras con historial de ventas y contratos. Ruta <code>#/compradores</code>. Header purpura.</p>
+        <div class="route-info"><code>js/views/compradores-view.js</code></div>
+      </div>
+
+      <h3>4.1 Listado con Badges de Tipo</h3>
+      <p>Cada comprador muestra un badge de tipo comercial: <strong>carnico</strong>, <strong>lacteo</strong> o <strong>hibrido</strong>.</p>
+      <div class="screenshot-placeholder" data-shot="compradores-listado">
+  <img src="img/compradores-listado.png" alt="Listado de compradores con badges de tipo y acciones de gestion" loading="lazy">
+  <span class="shot-label">[CAPTURA] compradores-listado.png</span>
+  <span class="shot-desc">Listado de compradores con badges de tipo y acciones de gestion</span>
+</div>
+
+      <h3>4.2 Detalle de Comprador</h3>
+      <ul class="feature-list">
+        <li>Historial de ventas asociadas (fechas, pesos, importes)</li>
+        <li>Contratos vinculados con vigencia y precios</li>
+        <li>Datos fiscales (NIF/CIF) y REGA de destino</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="compradores-detalle">
+  <img src="img/compradores-detalle.png" alt="Detalle: historial de ventas + contratos del comprador" loading="lazy">
+  <span class="shot-label">[CAPTURA] compradores-detalle.png</span>
+  <span class="shot-desc">Detalle: historial de ventas + contratos del comprador</span>
+</div>
+
+      <h3>4.3 Nuevo Comprador (Wizard 2 Pasos)</h3>
+      <ol class="step-list">
+        <li><strong>Paso 1 &mdash; Datos:</strong> nombre (EJ: GANADER&Iacute;AS DEL SUR S.L.), NIF/CIF, tipo, contacto</li>
+        <li><strong>Paso 2 &mdash; REGA/CCAA:</strong> REGA destino, comunidad autonoma, condiciones de pago</li>
+      </ol>
+      <div class="screenshot-placeholder" data-shot="compradores-nuevo">
+  <img src="img/compradores-nuevo.png" alt="Wizard nuevo comprador: paso 1 datos, paso 2 REGA/CCAA" loading="lazy">
+  <span class="shot-label">[CAPTURA] compradores-nuevo.png</span>
+  <span class="shot-desc">Wizard nuevo comprador: paso 1 datos, paso 2 REGA/CCAA</span>
+</div>
+    </section>
+
+    <!-- 5. PROVEEDORES -->
+    <section id="proveedores" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-orange">Suministros</span>
+        <h2>5. Proveedores &mdash; Suministros y Gastos</h2>
+        <p class="section-desc">Gestion de proveedores por categorias con historial de gastos. Ruta <code>#/proveedores</code>.</p>
+        <div class="route-info"><code>js/views/proveedores-view.js</code></div>
+      </div>
+
+      <h3>5.1 Listado por Categorias</h3>
+      <div class="screenshot-placeholder" data-shot="proveedores-listado">
+  <img src="img/proveedores-listado.png" alt="Proveedores agrupados por categoria (piensos, sanidad, ferreteria...)" loading="lazy">
+  <span class="shot-label">[CAPTURA] proveedores-listado.png</span>
+  <span class="shot-desc">Proveedores agrupados por categoria (piensos, sanidad, ferreteria...)</span>
+</div>
+
+      <h3>5.2 Detalle &mdash; Historial de Gastos</h3>
+      <div class="screenshot-placeholder" data-shot="proveedores-detalle">
+  <img src="img/proveedores-detalle.png" alt="Detalle proveedor: historial de gastos e importe acumulado" loading="lazy">
+  <span class="shot-label">[CAPTURA] proveedores-detalle.png</span>
+  <span class="shot-desc">Detalle proveedor: historial de gastos e importe acumulado</span>
+</div>
+
+      <h3>5.3 Nuevo Proveedor (2 Pasos)</h3>
+      <ol class="step-list">
+        <li><strong>Paso 1:</strong> nombre (EJ: SUMINISTROS AGR&Iacute;COLAS S.L.), NIF/CIF, categoria</li>
+        <li><strong>Paso 2:</strong> contacto, direccion y condiciones de pago</li>
+      </ol>
+      <div class="screenshot-placeholder" data-shot="proveedores-nuevo">
+  <img src="img/proveedores-nuevo.png" alt="Wizard nuevo proveedor en dos pasos" loading="lazy">
+  <span class="shot-label">[CAPTURA] proveedores-nuevo.png</span>
+  <span class="shot-desc">Wizard nuevo proveedor en dos pasos</span>
+</div>
+    </section>
+
+    <!-- 6. TRANSPORTISTAS -->
+    <section id="transportistas" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Logistica</span>
+        <h2>6. Transportistas &mdash; Logistica Certificada</h2>
+        <p class="section-desc">Flota de transporte ganadero calificado con semaforo de certificados. Ruta <code>#/transportistas</code>. Header rosa.</p>
+        <div class="route-info"><code>js/views/transportistas-view.js</code></div>
+      </div>
+
+      <h3>6.1 Listado con Semaforo de Certificados</h3>
+      <ul class="feature-list">
+        <li>Semaforo por transportista: ATG, desinsectacion, bienestar animal</li>
+        <li>Verde: certificado en vigor / Rojo: caducado o ausente</li>
+        <li>Matriculas y flota asociada</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="transportistas-listado">
+  <img src="img/transportistas-listado.png" alt="Listado transportistas con semaforo de certificados (ATG, desinsectacion, bienestar)" loading="lazy">
+  <span class="shot-label">[CAPTURA] transportistas-listado.png</span>
+  <span class="shot-desc">Listado transportistas con semaforo de certificados (ATG, desinsectacion, bienestar)</span>
+</div>
+
+      <h3>6.2 Nuevo Transportista</h3>
+      <ul class="feature-list">
+        <li>Datos de flota y matricula</li>
+        <li>Certificado ATG (autorizacion transporte ganado)</li>
+        <li>Desinsectacion y fecha de la ultima desinfeccion</li>
+        <li>Bienestar animal (normativa transporte RD 751/2006)</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="transportistas-nuevo">
+  <img src="img/transportistas-nuevo.png" alt="Formulario nuevo transportista: ATG, desinsectacion y bienestar" loading="lazy">
+  <span class="shot-label">[CAPTURA] transportistas-nuevo.png</span>
+  <span class="shot-desc">Formulario nuevo transportista: ATG, desinsectacion y bienestar</span>
+</div>
+    </section>
+
+    <!-- 7. CONTRATOS -->
+    <section id="contratos" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Contratos</span>
+        <h2>7. Contratos &mdash; Acuerdos Multi-Precio</h2>
+        <p class="section-desc">Acuerdos comerciales de suministro con tabla de precios multi-producto y alertas de vencimiento. Ruta <code>#/contratos</code>.</p>
+        <div class="route-info"><code>js/contratos.js</code> &middot; store <code>contratos_compra</code></div>
+      </div>
+
+      <h3>7.1 Listado con Alertas de Vencimiento</h3>
+      <ul class="feature-list">
+        <li>Alertas doradas para contratos que expiran en &le;30 dias</li>
+        <li>Contador de dias restantes y numero de contrato</li>
+        <li>En finca demo, el contrato <code>CT-2026-001</code> se auto-ajusta para probar la alerta</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="contratos-listado">
+  <img src="img/contratos-listado.png" alt="Listado contratos con alerta de vencimiento en 15 dias" loading="lazy">
+  <span class="shot-label">[CAPTURA] contratos-listado.png</span>
+  <span class="shot-desc">Listado contratos con alerta de vencimiento en 15 dias</span>
+</div>
+
+      <h3>7.2 Detalle &mdash; Tabla de Precios Multi-producto</h3>
+      <p>Precios por unidad de producto: <strong>kg</strong>, <strong>L</strong>, <strong>UD</strong> o <strong>CAB</strong> (cabeza), segun el tipo comercial del contrato.</p>
+      <div class="screenshot-placeholder" data-shot="contratos-detalle">
+  <img src="img/contratos-detalle.png" alt="Detalle contrato: tabla de precios multi-producto con unidades kg/L/UD/CAB" loading="lazy">
+  <span class="shot-label">[CAPTURA] contratos-detalle.png</span>
+  <span class="shot-desc">Detalle contrato: tabla de precios multi-producto con unidades kg/L/UD/CAB</span>
+</div>
+
+      <h3>7.3 Nuevo / Editar Contrato</h3>
+      <ul class="feature-list">
+        <li>Numero de contrato, comprador asociado y vigencia (inicio/fin)</li>
+        <li>IVA % y retencion %</li>
+        <li>Precios por producto con tipo de unidad</li>
+        <li>Estado: activo / anulado</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="contratos-nuevo">
+  <img src="img/contratos-nuevo.png" alt="Formulario nuevo/editar contrato con precios y vigencia" loading="lazy">
+  <span class="shot-label">[CAPTURA] contratos-nuevo.png</span>
+  <span class="shot-desc">Formulario nuevo/editar contrato con precios y vigencia</span>
+</div>
+    </section>
+
+    <!-- 8. ALBARANES -->
+    <section id="albaranes" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Albaranes</span>
+        <h2>8. Albaranes y Facturas &mdash; Historial Integrado</h2>
+        <p class="section-desc">Historial unificado de albaranes de leche y carne con generacion de PDF y facturas. Ruta <code>#/albaranes-ventas</code>.</p>
+        <div class="route-info"><code>js/views/albaranes-view.js</code> &middot; <code>App.imprimirAlbaran()</code> &middot; <code>App.imprimirFactura()</code></div>
+      </div>
+
+      <h3>8.1 Historial Integrado (Tabs Todo/Leche/Carne)</h3>
+      <div class="screenshot-placeholder" data-shot="albaranes-historial">
+  <img src="img/albaranes-historial.png" alt="Historial de albaranes con pestanas Todo / Leche / Carne" loading="lazy">
+  <span class="shot-label">[CAPTURA] albaranes-historial.png</span>
+  <span class="shot-desc">Historial de albaranes con pestanas Todo / Leche / Carne</span>
+</div>
+
+      <h3>8.2 Detalle de Albaran</h3>
+      <ul class="feature-list">
+        <li>Datos DIMOE para ventas de carne</li>
+        <li>PDF del albaran con liquidacion (DocumentViewer)</li>
+        <li>Generacion de factura asociada</li>
+        <li>Estados: borrador, presentado, validado, rechazado, anulado</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="albaranes-detalle">
+  <img src="img/albaranes-detalle.png" alt="Detalle albaran: DIMOE, boton PDF y generacion de factura" loading="lazy">
+  <span class="shot-label">[CAPTURA] albaranes-detalle.png</span>
+  <span class="shot-desc">Detalle albaran: DIMOE, boton PDF y generacion de factura</span>
+</div>
+    </section>
+
+    <!-- 9. SIGGAN -->
+    <section id="siggan" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">SIGGAN</span>
+        <h2>9. Integracion SIGGAN / BADIGEX</h2>
+        <p class="section-desc">Trazabilidad normativa en todo el flujo comercial: Andalucia (SIGGAN) y Extremadura (BADIGEX).</p>
+      </div>
+
+      <h3>9.1 Documentos y Codigos Oficiales</h3>
+      <table class="feature-table">
+        <thead><tr><th>Elemento</th><th>Uso</th><th>Normativa</th></tr></thead>
+        <tbody>
+          <tr><td>DIMOE</td><td>Documento de identificacion del movimiento ganadero (ventas de carne)</td><td>Reglamento UE 2016/429</td></tr>
+          <tr><td>ICA</td><td>Codigo ICA del destino (matadero) en cada venta</td><td>Reglamento UE 2016/429</td></tr>
+          <tr><td>N&ordm; Guia</td><td>Guia sanitaria de transporte de animales vivos</td><td>RD 728/2007</td></tr>
+          <tr><td>SEUROP</td><td>Clasificacion de canales (S/E/U/R/O/P) para liquidacion</td><td>Reglamento UE 1308/2013</td></tr>
+          <tr><td>INFOLAC</td><td>Notificacion de entregas lacteas</td><td>RD 989/2022</td></tr>
+          <tr><td>Letra Q</td><td>Declaracion de calidad de la leche cruda</td><td>RD 989/2022</td></tr>
+        </tbody>
+      </table>
+
+      <h3>9.2 Bloqueos Normativos</h3>
+      <div class="callout callout-danger">
+        <strong>Supresion:</strong> ningun animal en periodo de retiro puede venderse. El wizard de venta lo bloquea con el motivo y los dias restantes.
+      </div>
+      <div class="callout">
+        <strong>Fitosanitarios:</strong> la venta exige la declaracion fitosanitaria colectiva (ausencia de residuos en 180 dias) como paso obligatorio de trazabilidad.
+      </div>
+    </section>
+
+    <!-- 10. DEMO -->
+    <section id="demo" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Demo</span>
+        <h2>10. Datos Demo CHAMORRO &amp; Validacion</h2>
+        <p class="section-desc">Validacion guias PWA 2026-08-04: CoMer 40/42 targets (vs 53/55 Android, 1 target por datos demo).</p>
+      </div>
+
+      <h3>10.1 Cobertura Demo para Comercializacion</h3>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>Ventas Carne:</strong> ventas con DIMOE, rendimientos de canal y margen neto real</div>
+        <div class="demo-item"><strong>Entregas Leche:</strong> albaranes INFOLAC con analitica, precio y MOFA real</div>
+        <div class="demo-item"><strong>3 Compradores:</strong> carnico, lacteo e hibrido con historial</div>
+        <div class="demo-item"><strong>2 Transportistas:</strong> con certificados ATG, desinsectacion y bienestar</div>
+        <div class="demo-item"><strong>2 Contratos:</strong> CT-2026-001 (Carne) y CT-2026-002 (Leche, INFOLAC)</div>
+        <div class="demo-item"><strong>Albaranes/Facturas:</strong> historial integrado Todo/Leche/Carne con PDF</div>
+      </div>
+
+      <h3>10.2 Pruebas Clave</h3>
+      <ul class="feature-list">
+        <li>Wizard Venta Masiva: bloquear un animal en supresion y verificar que no se puede vender</li>
+        <li>Wizard Albaran Leche: precio final segun extracto seco (RD 989/2022) y MOFA</li>
+        <li>Alerta de contrato: abrir con <code>CT-2026-001</code> expirando en 15 dias</li>
+        <li>PDF albaran/factura con DocumentViewer (Compartir/Imprimir/Descargar)</li>
+      </ul>
+
+      <h3>10.3 Carga de la Demo</h3>
+      <p>Carga la finca demo desde <code>Ajustes &rarr; Asistente Configuracion &rarr; Cargar Demo CHAMORRO</code> para replicar exactamente las capturas de este manual.</p>
+    </section>
+
+    <!-- Navegación final -->
+    <nav class="module-nav-bottom">
+      <a href="manual-explotacion-produccion.html" class="nav-btn">&larr; Anterior: Explotacion &amp; Produccion</a>
+      <a href="manual-informes.html" class="nav-btn nav-btn-primary">Siguiente: Informes &amp; Analitica &rarr;</a>
+    </nav>
+
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Manual Profesional &middot; Modulo 03/06</p>
+    <p class="copyright">SIGGAN &middot; BADIGEX &middot; RD 989/2022 &middot; RD 787/2023 &middot; Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

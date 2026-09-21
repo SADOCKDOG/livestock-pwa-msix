@@ -41,10 +41,6 @@ const ProveedoresView = {
               <input type="search" id="search-proveedores" placeholder="Buscar por nombre, NIF o ciudad..."
                 oninput="ProveedoresView._filtrar(this.value)"
                 class="form-input search-input flex-1" style="margin-top:0;">
-              <div class="flex gap-4" style="flex-shrink:0;">
-                <button class="btn-erp-secondary btn-sm" id="btn-prov-vista-cards" onclick="ProveedoresView._setVistaModo('cards')">Tarjetas</button>
-                <button class="btn-erp-secondary btn-sm" id="btn-prov-vista-tabla" onclick="ProveedoresView._setVistaModo('tabla')">Tabla ERP</button>
-              </div>
             </div>
           </div>
           <div id="prov-lista"><div class="loader">Cargando proveedores...</div></div>
@@ -53,7 +49,7 @@ const ProveedoresView = {
           `;
 
         // Restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px); la tabla se pinta al llegar los datos en _cargarDatos
-        const modoGuardado = localStorage.getItem('proveedores_view_mode') || 'tabla';
+        const modoGuardado = VistaRegistros.get();
         this._setVistaModo(modoGuardado, false);
 
         await this._cargarDatos();
@@ -162,19 +158,10 @@ const ProveedoresView = {
 
     _setVistaModo(modo, guardar = true) {
         this._vistaModo = modo;
-        if (guardar) {
-            try { localStorage.setItem('proveedores_view_mode', modo); } catch (_) {}
-        }
 
-        const btnCards = document.getElementById('btn-prov-vista-cards');
-        const btnTabla = document.getElementById('btn-prov-vista-tabla');
         const contenedorCards = document.getElementById('prov-lista');
         const contenedorTabla = document.getElementById('prov-erp-table-container');
 
-        if (btnCards && btnTabla) {
-            btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-            btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-        }
 
         if (modo === 'tabla') {
             if (contenedorCards) contenedorCards.style.display = 'none';

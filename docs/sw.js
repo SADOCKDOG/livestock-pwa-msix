@@ -1,4 +1,4 @@
-const CACHE_NAME = 'corcho-v6.58.0';
+const CACHE_NAME = 'corcho-v6.81';
 const ASSETS = [
   './',
   './index.html',
@@ -74,29 +74,6 @@ const ASSETS = [
   './js/views/wizards/wizard-venta-masiva.js',
   './js/views/wizards/wizard-guia-movimiento.js',
   './js/views/helpers/ayuda.js',
-  './js/guide-registry.js',
-  './js/guide-manager.js',
-  './js/guides/onboarding-primeros-pasos.js',
-  './js/guides/gegan-sanidad.js',
-  './js/guides/gegan-panoramica.js',
-  './js/guides/gegan-animales.js',
-  './js/guides/gegan-rebanos.js',
-  './js/guides/gegan-patrimonio.js',
-  './js/guides/gegan-zonas.js',
-  './js/guides/expro-panoramica.js',
-  './js/guides/expro-explotacion.js',
-  './js/guides/expro-lacteo.js',
-  './js/guides/expro-silos.js',
-  './js/guides/expro-fitosanitarios.js',
-  './js/guides/expro-gastos.js',
-  './js/guides/expro-proveedores.js',
-  './js/guides/expro-tramites.js',
-  './js/guides/comer-panoramica.js',
-  './js/guides/comer-leche.js',
-  './js/guides/comer-carne.js',
-  './js/guides/comer-compradores.js',
-  './js/guides/comer-contratos.js',
-  './js/guides/comer-transportistas.js',
   './js/qa-siggan.js',
   './js/qa-premium.js',
   './js/idb-local.js',
@@ -129,12 +106,11 @@ const ASSETS = [
   './icons/app-icon.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap',
   'https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@700;900&family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;600;700;800;900&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-  'https://cdn.jsdelivr.net/npm/idb@8/build/umd.js',
-  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js',
-  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js'
+  'js/vendor/html2pdf.bundle.min.js',
+  'js/vendor/xlsx.full.min.js',
+  'js/vendor/chart.umd.min.js',
+  'js/vendor/pdf.min.mjs',
+  'js/vendor/pdf.worker.min.mjs'
 ];
 
 self.addEventListener('install', event => {

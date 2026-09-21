@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia: Demo CHAMORRO — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Guia: Demo CHAMORRO</h1>
+        <p class="version">Replicar capturas exactas del manual — Validacion PWA 2026-08-04</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Demo</span>
+        <h2>1. Cargar la Demo</h2>
+      </div>
+      <ol class="step-list">
+        <li>Abrir app -> <strong>Ajustes</strong> (engranaje header)</li>
+        <li>Seccion <strong>Asistente Configuracion</strong></li>
+        <li>Boton <strong>Cargar Demo CHAMORRO</strong></li>
+        <li>Confirmar: "Se sobrescribira la finca actual. ¿Continuar?" -> ACEPTAR</li>
+        <li>App recarga automaticamente con finca "Ganaderia CHAMORRO (DEMO)"</li>
+      </ol>
+      <div class="callout callout-info">
+        <strong>[INFO]</strong> La demo incluye finca principal Andalucia (Huelva/Almonte) + Subexplotacion Extremadura (Badajoz/Caceres). Ambas con REGA, ADSG, flags independientes.
+      </div>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">Datos</span>
+        <h2>2. Que Incluye la Demo (Resumen)</h2>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>Finca:</strong> "Ganaderia CHAMORRO (DEMO)" - Huelva/Almonte (Andalucia) + Subexplotacion Badajoz/Caceres (Extremadura)</div>
+        <div class="demo-item"><strong>3 Rebaños:</strong> Vacas Frisonas (leche, 3 hembras), Terneros Cebo (carne, 2 machos), Ovejas Merinas (carne, 3 hembras)</div>
+        <div class="demo-item"><strong>8 Animales:</strong> Crotales ES 12 digitos, razas FEGA oficiales, estados Activo/Vendido/Baja</div>
+        <div class="demo-item"><strong>4 Zonas:</strong> 86 ha totales, UGM/ha, codigo PAC, distancia agua. Auto-crea 'Cercado de Cebo 1ha' (sobrepastoreo 2.0 UGM/ha)</div>
+        <div class="demo-item"><strong>3 Compradores:</strong> Carnico (rojo), Lacteo (azul), Hibrido (verde lima, Extremadura)</div>
+        <div class="demo-item"><strong>2 Transportistas:</strong> Camion + Cisterna (ATG, desinsectacion, bienestar vigentes)</div>
+        <div class="demo-item"><strong>2 Contratos:</strong> Carne CT-2026-001 (ajustado a expirar 15d para test banner), Leche CT-2026-002 (INFOLAC)</div>
+        <div class="demo-item"><strong>Produccion:</strong> Ordeños, entregas tanque con analiticas lab, pesajes terneros, control DHI</div>
+        <div class="demo-item"><strong>Sanidad:</strong> Tratamientos con supresion (rojo/verde lima), vacunaciones ADSG, botiquin FEFO (vencidos/proximos/vigentes)</div>
+        <div class="demo-item"><strong>Fitosanitarios:</strong> 1 aplicacion apto=NO (cuarentena 21d), 1 apto=SI</div>
+        <div class="demo-item"><strong>Saneamientos:</strong> TB NEGATIVO, Brucelosis NEGATIVO (certificados vigentes -> Guia 365 auto)</div>
+        <div class="demo-item"><strong>Reproduccion:</strong> Celos, IAs (1 sexado), Diagnostico PREÑADA, Parto con cria vinculada</div>
+        <div class="demo-item"><strong>Comercializacion:</strong> Ventas carne (DIMOE, ICA, SEUROP), Entregas leche (INFOLAC, Letra Q), Albaranes/Facturas</div>
+        <div class="demo-item"><strong>Documentos:</strong> 8 tipos documentos_legales, Cuaderno digital 8 CSV pre-flight OK</div>
+      </div>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">Validacion</span>
+        <h2>3. Validacion Guas PWA (2026-08-04)</h2>
+      </div>
+      <table class="feature-table">
+        <thead><tr><th>Modulo</th><th>Guas Validadas</th><th>Total</th><th>Cobertura</th></tr></thead>
+        <tbody>
+          <tr><td>GeGan (Ganaderia)</td><td>36</td><td>38</td><td>94.7%</td></tr>
+          <tr><td>CoMer (Comercializacion)</td><td>40</td><td>42</td><td>95.2%</td></tr>
+          <tr><td>ExPro (Produccion)</td><td>52</td><td>55</td><td>94.5%</td></tr>
+        </tbody>
+      </table>
+      <p class="demo-note">Diferencia vs Android nativo: 1 target (ExPro 53/55) por limitaciones datos demo. Spec completa en <code>Private/VALIDACION-GUIAS-DEMO-CHAMORRO.md</code>.</p>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Pruebas</span>
+        <h2>4. Pruebas Clave para Replicar Capturas Manual</h2>
+      </div>
+      <h3>4.1 Dashboard & Ganaderia</h3>
+      <ul class="feature-list">
+        <li>Dashboard: KPIs lacteos (MOFA, precio, extracto seco, somaticas semaforo), Bento Grid 12, Alertas supresion rojas/verdes lima</li>
+        <li>Ganaderia Carrusel: 5 tabs (Animales naranja, Rebanos azul, Patrimonio ambar, Zonas verde, Sanidad purpura) - Patrimonio solo si flag CARNE</li>
+        <li>Animales: Lista con badges estado (Activo verde, Vendido ambar, Baja rojo), enlace "Ficha ->" badge amarillo</li>
+        <li>Rebaños: Detalle con KPIs 3 columnas, historial sanitario, botones neon Tratamiento/Consumo/Gasto/Mover</li>
+        <li>Zonas: Alerta sobrepastoreo Bento rojo animada (Cercado Cebo 2.0 UGM/ha), boton Rotar</li>
+      </ul>
+
+      <h3>4.2 Explotacion & Produccion</h3>
+      <ul class="feature-list">
+        <li>ExPro carrusel 11 tabs: EXPRO, LACTEA, SILOS, FITOSANITARIOS, FINANZAS, PROVEEDORES, TRAMITES + 4 wizards</li>
+        <li>Lactea 5 sub-tabs: Dashboard (tanques gauge, KPIs, analitica semaforo, alertas MotorLacteo), Tanques, Control, Balance, Graficos (5 Chart.js)</li>
+        <li>Wizard Ordeño 3 pasos: Fecha/Turno/Tanque/Temp -> Tabla hembras litros -> Resumen balance tanque</li>
+        <li>Wizard Albaran Leche 2 pasos: 25+ campos normativos -> Analitica + recalculo precio extracto seco vivo</li>
+        <li>Tanques: Gauge circular stock% clickeable (recalibracion animacion SVG 0%->CAL->real)</li>
+        <li>Silos: Gauge SVG animado, autonomia dias (consumo real 30d), alertas <15%/<35%</li>
+      </ul>
+
+      <h3>4.3 Comercializacion</h3>
+      <ul class="feature-list">
+        <li>Carrusel 5 submodulos: LECHE (azul), CARNE (verde lima), COMPRADORES (purpura), CONTRATOS (purpura), TRANSPORTISTAS (rosa)</li>
+        <li>Wizard Venta Masiva 5 pasos completo: Aptitud -> Trazabilidad (ICA, Guia, Fitosanitaria) -> Economicos -> Liquidacion (comprador REGA, SEUROP) -> Logistica (transportista ATG, vet autorizador)</li>
+        <li>Post-venta: DIMOE auto, Movimiento oficial SIGGAN, Albaran PDF, Factura PDF, Estado VENDIDO</li>
+        <li>Compradores: Badges tipo Carnico (rojo), Lacteo (azul), Hibrido (verde lima)</li>
+        <li>Contratos: Multi-precio tabla, alertas vencimiento banner amarillo pulsing (CT-2026-001 15d)</li>
+        <li>Transportistas: Badges certificados Vigente/Proximo 30d/Caducado/Sin certificado</li>
+      </ul>
+
+      <h3>4.4 Informes & Sanidad</h3>
+      <ul class="feature-list">
+        <li>Informes: 5 categorias sidebar, 32 sub-tabs, 13 tipos graficas, KPIs semaforo 30+, Export PDF/Excel/CSV</li>
+        <li>Libros: Export Cuaderno Digital -> ZIP 8 CSV SIGGAN + README, pre-flight verde</li>
+        <li>Sanidad: Alertas supresion SIEMPRE visibles (rojo leche, verde lima carne), Botiquin FEFO badges</li>
+        <li>Fitosanitarios: Cuarentena apto=NO bloquea rotacion/venta, Wizard Gasto categoria fitosanitario control normativo</li>
+        <li>Saneamientos: TB/Brucelosis certificados -> Guia 365 auto-autorizada (finca indemne)</li>
+        <li>Reproduccion: Wizard Parto crea cria auto, vinculacion madre_id, evento nacimiento</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Ajustes</span>
+        <h2>5. Ajustes Especificos Demo</h2>
+      </div>
+      <ul class="feature-list">
+        <li><strong>Contrato Carne CT-2026-001:</strong> Auto-ajustado a expirar en 15 dias al renderizar ComercializacionView (setTimeout 100ms) para probar banner alerta vencimiento</li>
+        <li><strong>Cercado de Cebo 1ha:</strong> Auto-creada si finca.nombre incluye 'CHAMORRO' -> dispara sobrepastoreo 2.0 UGM/ha</li>
+        <li><strong>Subexplotacion Extremadura:</strong> Flags independientes, REGA propia, ADSG propia para probar multi-finca/CCAA</li>
+        <li><strong>Botiquin FEFO:</strong> 5 productos: 2 caducados, 1 <30d (rojo pulsing), 2 >90d (verde) - prueba alertas Dashboard</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Guia Demo CHAMORRO</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

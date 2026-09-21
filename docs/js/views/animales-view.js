@@ -97,10 +97,6 @@ const AnimalesView = {
 
       <div class="text-xs text-gray uppercase font-extrabold tracking-wider border-bottom-222 mb-10 pb-5" style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
         <span style="display: flex; align-items: center; gap: 4px;">${Icons.documento()} Lista de Animales</span>
-        <div class="flex gap-4">
-          <button class="btn-erp-secondary btn-sm" id="btn-vista-cards" onclick="AnimalesView._setVistaModo('cards')">Tarjetas</button>
-          <button class="btn-erp-secondary btn-sm" id="btn-vista-tabla" onclick="AnimalesView._setVistaModo('tabla')">Tabla ERP</button>
-        </div>
       </div>
       <div class="erp-filtros" data-filtros-de="animales-lista">
         <input type="search" id="search-animales" placeholder="Buscar por crotal, raza o rebaño..."
@@ -134,7 +130,7 @@ const AnimalesView = {
     AnimalesView._cache = { animales, rebanoMap, sanitariosAll };
 
     // Inicializar o restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
-    const modoGuardado = localStorage.getItem('animales_view_mode') || 'tabla';
+    const modoGuardado = VistaRegistros.get();
     AnimalesView._setVistaModo(modoGuardado, false);
 
     // FAB Guía interactiva
@@ -215,19 +211,10 @@ const AnimalesView = {
   },
 
   _setVistaModo(modo, guardar = true) {
-    if (guardar) {
-      try { localStorage.setItem('animales_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-vista-cards');
-    const btnTabla = document.getElementById('btn-vista-tabla');
     const contenedorCards = document.getElementById('animales-lista');
     const contenedorTabla = document.getElementById('animales-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';

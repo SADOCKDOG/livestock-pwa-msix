@@ -98,7 +98,8 @@ const ProduccionView = {
       b.classList.toggle('active', b.dataset.tab === tab);
     });
     this._renderTabActual();
-    window.scrollTo(0, 0);
+    if (window.App && typeof App.scrollAlInicio === 'function') App.scrollAlInicio();
+    else window.scrollTo(0, 0);
   },
 
   _cambiarLecheSubTab(subTab) {

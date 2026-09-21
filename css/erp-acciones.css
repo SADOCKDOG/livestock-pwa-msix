@@ -1,0 +1,140 @@
+/* ===========================================================================
+   Livestock Manager - Acciones de registro en movil
+   ---------------------------------------------------------------------------
+   El marco de acciones (fieldset.erp-action-group) nacio con la piel ERP de
+   escritorio y todo su estilo vivia en erp-overrides.css, que se enlaza con
+   media="(min-width: 1024px)". Pero el marcado lo pintan 26 vistas en
+   cualquier ancho: en Android el fieldset se quedaba con el estilo nativo del
+   navegador y los chips conservaban el formato de columna de .widget-link-btn
+   --neon (80px de alto, borde lateral de 3px), asi que aparecian apilados
+   contra el margen izquierdo, sin tabular ni centrar.
+
+   Esta hoja carga SIEMPRE y solo contiene reglas dentro de
+   @media (max-width: 1023px), de modo que no puede pisar a erp-overrides:
+   los dos ambitos son disjuntos por construccion.
+   =========================================================================== */
+
+@media (max-width: 1023px) {
+  /* -------------------------------------------------------------------------
+     El marco
+     -------------------------------------------------------------------------
+     A diferencia del escritorio (width: fit-content, pegado al margen), en
+     movil ocupa el ancho disponible: no hay sitio para que el marco flote y
+     un borde que no llega al borde de la pantalla se lee como un error de
+     maquetacion.
+     ------------------------------------------------------------------------- */
+  .erp-action-group {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 0 14px;
+    padding: 4px 12px 14px;
+    border: 1px solid #3a3a42;
+    border-radius: var(--r-sm, 6px);
+    background: rgba(255, 255, 255, 0.025);
+    min-inline-size: 0; /* el fieldset trae min-width:min-content del UA */
+  }
+
+  .erp-action-group > legend {
+    padding: 0 6px;
+    font-size: 0.58rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-s, #aaa);
+    white-space: nowrap;
+  }
+
+  /* -------------------------------------------------------------------------
+     La rejilla de chips
+     -------------------------------------------------------------------------
+     flex: 1 1 132px reparte el ancho a partes iguales entre los chips que
+     caben en la fila. Con dos acciones salen dos columnas iguales; con tres,
+     dos arriba y la tercera estirada abajo, siempre alineadas entre si. El
+     centrado hace que una fila incompleta quede simetrica.
+     ------------------------------------------------------------------------- */
+  .erp-action-group-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 10px;
+  }
+
+  /* Chip compacto: icono y etiqueta en fila, como en escritorio. Sin esto
+     hereda la columna de 80px de .widget-link-btn--neon. */
+  .erp-action-group .widget-link-btn {
+    flex: 1 1 132px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 46px;
+    padding: 8px 12px;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .erp-action-group .widget-link-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .erp-action-group .widget-link-label {
+    /* La etiqueta base es display:block con width:100%, pensada para el chip en
+       columna. En fila eso la hacia ocupar todo el ancho sobrante y empujaba el
+       icono contra el borde izquierdo, en vez de dejar la pareja centrada. */
+    display: inline;
+    width: auto;
+    margin-top: 0;
+    font-size: 0.66rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1.15;
+  }
+
+  /* Con tres o mas acciones, la ultima fila queda incompleta y el chip
+     huerfano se estiraba al ancho entero, al doble que sus companeros. El tope
+     del 50% lo deja del mismo tamano, centrado bajo los otros dos. No se
+     aplica cuando hay uno o dos chips: ahi ocupar la fila entera es lo
+     correcto y una accion de nombre largo necesita todo el ancho. */
+  .erp-action-group-body:has(> :nth-child(3)) .widget-link-btn {
+    max-width: calc(50% - 5px);
+  }
+
+  /* La variante centrada (exportar PDF/CSV de informes y cuaderno) ya esta
+     centrada aqui por defecto; solo hace falta que no se desborde. */
+  .erp-action-group--centro {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* -------------------------------------------------------------------------
+     Barra de filtros
+     -------------------------------------------------------------------------
+     Mismo origen: .erp-filtros solo tenia estilo en escritorio, asi que en
+     movil el buscador y el selector caian como bloques sueltos con el
+     margin-top suelto de .form-input. Se apilan a proposito (a lo ancho de un
+     telefono no caben los dos comodos) pero con separacion regular.
+     ------------------------------------------------------------------------- */
+  .erp-filtros {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .erp-filtros .form-input,
+  .erp-filtros .form-select,
+  .erp-filtros input[type="search"],
+  .erp-filtros input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0;
+    min-height: 44px;
+  }
+}

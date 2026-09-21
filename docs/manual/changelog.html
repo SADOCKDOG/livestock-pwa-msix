@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog — LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>Changelog — Historial de Versiones</h1>
+        <p class="version">LIVESTOCK MANAGER v4.10.4 — Cronologico inverso (mas reciente primero)</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="manual-main">
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">v4.10</span>
+        <h2>v4.10.x — Agosto 2026 (Actual)</h2>
+      </div>
+
+      <h3>v4.10.4 — 2026-08-29</h3>
+      <ul class="feature-list">
+        <li><strong>Compra del soporte inaccesible:</strong> En el build Premium (FREE_MODE=false) comprarSoporte() era un stub que solo mostraba "se compra desde la version de la tienda", asi que el soporte no se podia contratar justo en el unico build que se publica.</li>
+        <li><strong>Motor de compras activo en build Premium:</strong> Se conserva la app desbloqueada y se registra el producto de soporte contra Google Play.</li>
+        <li><strong>Compra de soporte regalaba Premium:</strong> El callback verified() no distinguia producto; ahora filtra por id y sincroniza la licencia de soporte.</li>
+        <li><strong>La licencia comprada era invisible:</strong> Transaction.products es {id, offerId}[], no un array de ids; buscarla con indexOf() devolvia siempre -1, asi que ningun recibo se reconocia y una suscripcion activa seguia dando "No se encontro ninguna licencia".</li>
+        <li><strong>La compra no llegaba a abrirse:</strong> comprarSoporte() pasaba el Product a store.order(), que espera una Offer; el plugin mandaba productId=null y Google respondia "Product not registered: null". Ahora se pide la oferta con getOffer(), igual que en la compra Premium.</li>
+        <li><strong>Cache-busting desincronizado:</strong> los 123 scripts de index.html seguian en ?v=6.74 con el service worker en 6.77.</li>
+        <li><strong>Fallo de compra anunciado como exito:</strong> store.error() trataba el codigo 6777003 (ErrorCode.PURCHASE, "la compra fallo") como "ya comprado": cualquier fallo desbloqueaba Premium y mostraba "Compra Premium restaurada". Ahora solo se detecta por el texto del error, se distingue el producto y un fallo real se muestra como fallo.</li>
+      </ul>
+
+      <h3>v4.10.2 — 2026-08-29</h3>
+      <ul class="feature-list">
+        <li><strong>Soporte tecnico:</strong> Acceso directo desde Ajustes, con licencia mensual (la app sigue siendo gratuita).</li>
+        <li><strong>Mis incidencias:</strong> Nueva pantalla de seguimiento con detalle desplegable por aviso (referencia, estado, severidad y fechas).</li>
+        <li><strong>Boton de soporte gris:</strong> Faltaba la variante .neon-purple en styles.css, asi que no recibia --neon-color.</li>
+        <li><strong>Version desincronizada:</strong> app-version.js seguia en 4.10.1 / versionCode 517, y era la fuente unica de las pantallas de version.</li>
+        <li><strong>Limpieza:</strong> Eliminado un node_modules con Capacitor 8.5.0 dentro de android/, que Gradle nunca usaba.</li>
+      </ul>
+
+      <h3>v4.10.1 — 2026-08-07</h3>
+      <ul class="feature-list">
+        <li><strong>Manual usuario:</strong> Reescritura completa profesional paso a paso (12 archivos HTML), capturas Chamorro, solo SVG icons.</li>
+        <li><strong>Validacion guías demo:</strong> Cerrada GeGan 36/38, CoMer 40/42, ExPro 52/55 (vs 53/55 Android).</li>
+        <li><strong>Bug await disponible():</strong> Cerrado en PR #116 (guias PWA).</li>
+      </ul>
+
+      <h3>v4.10.0 — 2026-08-04</h3>
+      <ul class="feature-list">
+        <li><strong>Carrusel submódulos sticky:</strong> Anclado bajo header (PR #123/#23). Overflow hidden→clip, wrapper mb-14, z-index 900.</li>
+        <li><strong>Route() mataba tour:</strong> Fix skip()+maybeStart() reiniciaban guía (PR #124/#24). isRunning() check.</li>
+        <li><strong>Variantes botón:</strong> .btn--inline .btn--icon solo en contenedor flex (PR #125/#25). 21/113 botones migrados.</li>
+        <li><strong>Onboarding 3 pilares:</strong> Validado 5/5 dispositivo, mergeado Android PR #122, PWA PR #21/#22.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">v4.9</span>
+        <h2>v4.9.x — Julio 2026</h2>
+      </div>
+
+      <h3>v4.9.5 — 2026-07-25</h3>
+      <ul class="feature-list">
+        <li><strong>Branch protection master:</strong> Habilitada (requiere PR, reviews, CI verde).</li>
+        <li><strong>Keystore & Capacitor 7:</strong> Migracion completa, build configurado.</li>
+        <li><strong>Brace-expansion DoS:</strong> Dependencia actualizada/parcheada.</li>
+      </ul>
+
+      <h3>v4.9.0 — 2026-07-17</h3>
+      <ul class="feature-list">
+        <li><strong>Auditoria SIGGAN completa 100%:</strong> 7/7 gaps + Lidia (PR #66) + saneamientos granulares. Solo NIF cebadero no aplica.</li>
+        <li><strong>Informes Fase B:</strong> Cerrada PR #110/#111: 5 categorías + 4 renders nuevos + ICA cebo/Botiquín/DIMOE/evolución ventas.</li>
+        <li><strong>Equino implementado:</strong> Microchip 15d ISO 11784 (commit acde2fa).</li>
+        <li><strong>Catálogo razas:</strong> 163 razas FEGA + DB v16 (commit 8675c08).</li>
+        <li><strong>Limpieza repo:</strong> Archivos movidos a Private/archivo-limpieza-2026-07-17.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">v4.8</span>
+        <h2>v4.8.x — Junio 2026</h2>
+      </div>
+
+      <h3>v4.8.0 — 2026-06-15</h3>
+      <ul class="feature-list">
+        <li><strong>UI/UX Estandarización Fases 0-6:</strong> Design system + neón semántico + Marco Galáctico completado (docs/AUDITORIA-UI-UX.md).</li>
+        <li><strong>DocumentViewer patron:</strong> Visor comun PDF, nunca window.open/print en Capacitor Android.</li>
+        <li><strong>AnimalesView fixes:</strong> Badge estándar "Ficha ->" (amarillo), status badge (Activo/Vendido/Baja), enlace ficha menos prominente.</li>
+        <li><strong>GanaderiaView card-registro:</strong> Envoltura balance rendimiento en componente card-registro.</li>
+        <li><strong>Card-registro positioning:</strong> Estado sup dcha, acciones inf dcha (estándar).</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">v4.7</span>
+        <h2>v4.7.x — Mayo 2026</h2>
+      </div>
+
+      <h3>v4.7.0 — 2026-05-20</h3>
+      <ul class="feature-list">
+        <li><strong>Informes ↔ Lácteo/Margen Animal:</strong> Cerrado PR #103/#104: 3 cards nuevas pestaña Leche, 87/87 tests.</li>
+        <li><strong>Tandas cebo SIGGAN:</strong> Modelo: 1 tanda = animales movimiento entrada SIGGAN (no rebaño). Rebaño reutilizable. Base ICA cierre.</li>
+        <li><strong>Modo explotación flags:</strong> Dos flags {leche, carne} POR FINCA (no globales) en ModoContextoHelper. Carne = verde lima. Alertas supresión Sanidad siempre visibles.</li>
+        <li><strong>Free/Premium modelo:</strong> Compra única premium_unlock Play Store. Release oficial = Private/build-and-upload.ps1 (variante FREE).</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">v4.6</span>
+        <h2>v4.6.x — Abril 2026</h2>
+      </div>
+
+      <h3>v4.6.0 — 2026-04-10</h3>
+      <ul class="feature-list">
+        <li><strong>Comercialización completa:</strong> Venta Masiva 5 pasos (Aptitud, Trazabilidad, Economicos, Liquidacion, Logistica). DIMOE auto. SEUROP.</li>
+        <li><strong>Albarán Leche 25+ campos:</strong> MotorLacteo validaciones (temp, stock, inhibidores). Letra Q 7 tipos/4 estados. Recalculo precio extracto seco EN VIVO.</li>
+        <li><strong>Compradores/Transportistas/Contratos:</strong> Vistas dedicadas, multi-precio tabla, IVA/Retencion, vencimientos badges.</li>
+        <li><strong>PWA/MSIX Desktop:</strong> Auditoría completada 4/4: sidebar, grid, tipografíá, modales.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-danger">v4.5</span>
+        <h2>v4.5.x — Marzo 2026</h2>
+      </div>
+
+      <h3>v4.5.0 — 2026-03-15</h3>
+      <ul class="feature-list">
+        <li><strong>Sanidad Reproducción completa:</strong> Tratamientos 3 pasos (dias retiro carne/leche -> alertas supresión rojo/verde lima). Botiquín FEFO (vigente/30-90/<30/caducado). Vacunaciones. Celo IA Monta Diagnostico Parto (auto crea cria). Saneamientos granulares 7 tipos (PR #66). Guia 365 auto (Andalucia).</li>
+        <li><strong>Explotación Silos/Tanques:</strong> Gauge SVG animado stock%. Autonomia dias = Stock/Consumo 30d. Cargar/Consumir -> Gasto vinculado + eventos. Alertas <15% critico, <35% aviso.</li>
+        <li><strong>Patrimonio ICA carne:</strong> Valor base + Plusvalia - Depreciacion - Costes. Solo flag CARNE.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">v4.4</span>
+        <h2>v4.4.x — Febrero 2026</h2>
+      </div>
+
+      <h3>v4.4.0 — 2026-02-10</h3>
+      <ul class="feature-list">
+        <li><strong>Ganadería Animales Wizard:</strong> 10+ secciones. Crotal ES+12 validación dorada/roja. RFID/DIB opcional. Madre vínculo. Raza catalogo 163.</li>
+        <li><strong>Rebaños/Zonas:</strong> Widget-btn neon (Tratamiento, Consumo, Gasto, Mover).</li>
+        <li><strong>Censo Anual Wizard 3 pasos:</strong> Fecha ref, consolidado auto (especie/categoria), tramitación admin. PDF DECLARACION_CENSAL.</li>
+        <li><strong>Crotales Wizard:</strong> Pedido + XML REGA.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">v4.3</span>
+        <h2>v4.3.x — Enero 2026</h2>
+      </div>
+
+      <h3>v4.3.0 — 2026-01-15</h3>
+      <ul class="feature-list">
+        <li><strong>Dashboard Bento Grid 12 tarjetas:</strong> Accesos directos wizards (Peso, Ordeño, Entrega, Albaran, Tratamiento, Vacuna, Celo/IA, Parto, Gasto, Censo, Crotales, Guia). KPIs dinamicos segun flags.</li>
+        <li><strong>Producción Leche:</strong> Ordeño 3 pasos (Fecha/Turno/Tanque Q/Temp, Tabla hembras litros, Resumen+Balance). Balance lacteo entrada salida. Tanques Letra Q.</li>
+        <li><strong>Producción Carne:</strong> Pesaje Individual/Lote. GMD auto. Historia.</li>
+        <li><strong>Offline-First:</strong> IndexedDB + SW cache-first. CRUD offline. Sync/backup solo online (Premium auto).</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">v4.2</span>
+        <h2>v4.2.x — Diciembre 2025</h2>
+      </div>
+
+      <h3>v4.2.0 — 2025-12-01</h3>
+      <ul class="feature-list">
+        <li><strong>Informes 5 Categorias + 8 Libros:</strong> General (8), GeGan (8), ExPro (10 + 5 Chart.js), CoMer (8), Libros (8 CSV SIGGAN).</li>
+        <li><strong>Exportacion:</strong> PDF (DocumentViewer), Excel multi-hoja (Premium), CSV SIGGAN ZIP 8 secciones (Premium), XML REGA.</li>
+        <li><strong>Trazabilidad 360°:</strong> Timeline 6 fuentes (Leche, Carne, Sanidad, Repro, Movimientos, Gastos). MotorTrazabilidad.</li>
+        <li><strong>Web Share API:</strong> Compartir nativo PDF/Excel/ZIP.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-warning">v4.1</span>
+        <h2>v4.1.x — Noviembre 2025</h2>
+      </div>
+
+      <h3>v4.1.0 — 2025-11-01</h3>
+      <ul class="feature-list">
+        <li><strong>Arquitectura Web Components:</strong> Lit/Stencil-free custom elements. Views, Components, Services modulares.</li>
+        <li><strong>Coral Design System:</strong> Neón semántico, Marco Galáctico, cards sin borde superior, design-tokens.css.</li>
+        <li><strong>Capacitor 7 + Android Edge-to-Edge:</strong> viewport-fit=cover, setDecorFitsSystemWindows(false). Gris inferior solucionado.</li>
+        <li><strong>Service Worker cache-first:</strong> CACHE_NAME versionado, ?v= bumpeo tras CSS/JS edits.</li>
+        <li><strong>PWA installable + MSIX:</strong> Manifest, SW, icons, splash screens.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">v4.0</span>
+        <h2>v4.0.x — Octubre 2025 (Base)</h2>
+      </div>
+
+      <h3>v4.0.0 — 2025-10-01</h3>
+      <ul class="feature-list">
+        <li><strong>Reescritura total desde v3 (Cordova) a Capacitor 7 + PWA.</strong></li>
+        <li><strong>Multi-finca con REGA/CEA independiente.</strong></li>
+        <li><strong>SIGGAN (Andalucia) / BADIGEX (Extremadura) compliance.</strong></li>
+        <li><strong>Demo CHAMORRO:</strong> Dataset real Andalucia/Extremadura para testing.</li>
+        <li><strong>IndexedDB schema v16:</strong> Fincas, Animales, ProduccionLeche, ProduccionCarne, Sanidad, Reproduccion, Comercializacion, DocumentosLegales, Configuracion.</li>
+      </ul>
+    </section>
+
+    <section class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Notas</span>
+        <h2>Notas de Migracion & Compatibilidad</h2>
+      </div>
+
+      <h3>Migracion v3 → v4 (Oct 2025)</h3>
+      <ul class="feature-list">
+        <li>No migracion automatica datos v3 (Cordoba/localStorage diferente).</li>
+        <li>Exportar JSON v3 -> Importar v4 (Ajustes > Backup).</li>
+        <li>REGA/CEA por finca (antes global).</li>
+        <li>Flags leche/carne por finca (antes "modo hibrido" global).</li>
+      </ul>
+
+      <h3>Version Code Android (Play Store)</h3>
+      <ul class="feature-list">
+        <li>v4.10.4 -> versionCode <strong>525</strong>.</li>
+        <li>v4.10.2 -> versionCode <strong>524</strong>.</li>
+        <li>v4.10.1 -> versionCode <strong>523</strong> (publicada en Prueba cerrada - Alpha).</li>
+        <li>Incremental por build: Private/build-and-upload.ps1 auto-incrementa.</li>
+        <li>Solo variante FREE en Play (codigo premium incluido, flag runtime).</li>
+      </ul>
+
+      <h3>PWA / MSIX Versioning</h3>
+      <ul class="feature-list">
+        <li>PWA: livestock-manager.pages.dev -> deploy via scripts/build.ps1 (main:/docs).</li>
+        <li>MSIX: Microsoft Store -> mismo versionCode Android o independiente.</li>
+        <li>Build FREE incluye todo codigo Premium (desactivado por flag).</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Changelog</p>
+    <p class="copyright">Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

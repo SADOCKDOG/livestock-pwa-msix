@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>04. Informes & Analítica — Manual LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>04. Informes & Analítica</h1>
+        <p class="version">5 Categorias &middot; 32 Sub-tabs &middot; 13 Tipos Graficas &middot; Export PDF/Excel/CSV</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="module-toc" aria-label="Tabla de contenidos del modulo">
+    <ul>
+      <li><a href="#informes">1. Vista Informes — 5 Categorias + 32 Sub-tabs</a></li>
+      <li><a href="#general">2. Categoria General — Resumen 360°</a></li>
+      <li><a href="#gegan">3. Categoria GeGan — Ganaderia (8 Sub-tabs)</a></li>
+      <li><a href="#expro">4. Categoria ExPro — Produccion (9 Sub-tabs)</a></li>
+      <li><a href="#comer">4. Categoria CoMer — Comercializacion (7 Sub-tabs)</a></li>
+      <li><a href="#libros">6. Categoria Libros — Cuaderno Digital (8 Sub-tabs)</a></li>
+      <li><a href="#kpis">7. KPIs Semáforo & Graficos (30+ KPIs)</a></li>
+      <li><a href="#export">8. Exportacion PDF/Excel/CSV & Validacion Pre-Flight</a></li>
+      <li><a href="#demo">9. Datos Demo CHAMORRO & Validacion</a></li>
+    </ul>
+  </nav>
+
+  <main class="manual-main">
+
+    <!-- 1. VISTA INFORMES -->
+    <section id="informes" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Informes</span>
+        <h2>1. Vista Informes — 5 Categorias + 32 Sub-tabs</h2>
+        <p class="section-desc">Consola unificada <code>#/informes</code> con sidebar categorias (General, GeGan, ExPro, CoMer, Libros) y area de contenido con sub-tabs horizontales scrollables. Header color purpura.</p>
+        <div class="route-info"><code>js/views/informes-view.js</code> &middot; <code>window.InformesView</code></div>
+      </div>
+
+      <h3>1.1 Estructura de Categorias y Sub-tabs</h3>
+      <table class="feature-table">
+        <thead><tr><th>Categoria</th><th>Sub-tabs (Total 32)</th><th>Color</th></tr></thead>
+        <tbody>
+          <tr><td>General</td><td>Dashboard, Resumen Finca, Censo, Produccion, Finanzas, Sanidad, Reproduccion, Trazabilidad</td><td>var(--c-purple)</td></tr>
+          <tr><td>GeGan (Ganaderia)</td><td>Animales, Rebanos, Patrimonio, Zonas, Sanidad, Movimientos, Alertas, KPIs Globales</td><td>var(--c-success)</td></tr>
+          <tr><td>ExPro (Produccion)</td><td>Ordeños, Pesajes, Entregas Tanque, Albaranes Leche, Analiticas, Balance Lacteo, Control Lechero, Silos, Graficos</td><td>var(--c-info)</td></tr>
+          <tr><td>CoMer (Comercializacion)</td><td>Ventas Carne, Entregas Leche, Compradores, Transportistas, Contratos, Albaranes/Facturas, KPIs Financieros</td><td>var(--p-gold)</td></tr>
+          <tr><td>Libros (Cuaderno Digital)</td><td>Tratamientos, Vacunaciones, Censo Anual, Crotales, Movimientos, Saneamientos, Fitosanitarios, Agenda</td><td>var(--c-orange)</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="informes-sidebar">
+  <img src="img/informes-sidebar-categoria.png" alt="Sidebar categorias + sub-tabs, header purpura, area contenido con graficas/tablas" loading="lazy">
+  <span class="shot-label">[CAPTURA] informes-sidebar-categoria.png</span>
+  <span class="shot-desc">Sidebar categorias + sub-tabs, header purpura, area contenido con graficas/tablas</span>
+</div>
+
+      <h3>1.2 Motor de Renderizado</h3>
+      <ul class="feature-list">
+        <li><code>InformesView.render()</code> genera sidebar + contenedor principal</li>
+        <li>Cada sub-tab delega a <code>InformesView.render{SubTab}()</code> metodo especifico</li>
+        <li>13 tipos de graficas Chart.js: linea, barras, barras agrupadas, barras apiladas, area, dona, radar, polar, scatter, bubble, gauge, mixed, sankey</li>
+        <li>23 tablas HTML5 con ordenacion, filtro, paginacion client-side</li>
+        <li>KPIs semaforo (verde/ambar/rojo) con badges semanticos y tooltips</li>
+      </ul>
+    </section>
+
+    <!-- 2. CATEGORIA GENERAL -->
+    <section id="general" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">General</span>
+        <h2>2. Categoria General — Resumen 360°</h2>
+        <p class="section-desc">Vista transversal de toda la finca. 8 sub-tabs con KPIs principales y alertas criticas.</p>
+      </div>
+
+      <h3>2.1 Sub-tabs General</h3>
+      <table class="feature-table">
+        <thead><tr><th>Sub-tab</th><th>Contenido Principal</th><th>KPIs Clave</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td>Resumen ejecutivo: 6 KPIs principales + alertas criticas + grafica actividad 30 dias</td><td>Animales totales, Litros 30d, Peso canal 30d, Margen MOFA, Gastos mes, Alertas activas</td></tr>
+          <tr><td>Resumen Finca</td><td>Datos finca, REGA, flags, capacidad, superficie, ADSG, contrato lacteo</td><td>Carga UGM/ha, % ocupacion, Dias Guia 365</td></tr>
+          <tr><td>Censo</td><td>Desglose por especie, categoria, sexo, estado. Grafica piramide poblacional</td><td>Total cabezas, % hembras, % activos, Renovacion %</td></tr>
+          <tr><td>Produccion</td><td>KPIs leche + carne unificados. Graficas tendencias 6 meses</td><td>Litros/dia, Peso canal medio, GMD, Rendimiento %</td></tr>
+          <tr><td>Finanzas</td><td>Gastos por categoria, ingresos por linea, flujo caja, MOFA real</td><td>Gastos totales, Ingresos totales, Margen neto, ROA</td></tr>
+          <tr><td>Sanidad</td><td>Tratamientos activos, supresiones, botiquin FEFO, vacunaciones proximas</td><td>Animales en supresion, Dosis FEFO <30d, Vacunas vencidas</td></tr>
+          <tr><td>Reproduccion</td><td>Celos, IAs, Diagnosticos, Partos ultimos 90d. Tasa exito</td><td>Tasa IA, Tasa preñez, Intervalos, Partos mes</td></tr>
+          <tr><td>Trazabilidad</td><td>Timeline 360° animal: movimientos, tratamientos, pesajes, reproduccion</td><td>Completitud % (meta 100%), Alertas integridad</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 3. CATEGORIA GEGAN -->
+    <section id="gegan" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">GeGan</span>
+        <h2>3. Categoria GeGan — Ganaderia (8 Sub-tabs)</h2>
+        <p class="section-desc">Reportes especializados modulo Ganaderia. Header verde lima.</p>
+      </div>
+
+      <h3>3.1 Sub-tabs GeGan</h3>
+      <table class="feature-table">
+        <thead><tr><th>Sub-tab</th><th>Contenido</th><th>Graficas/Tablas</th></tr></thead>
+        <tbody>
+          <tr><td>Animales</td><td>Listado filtros avanzados: crotal, raza, rebaño, zona, estado, flags. Export</td><td>Tabla 15 cols + grafica distribucion por especie/edad</td></tr>
+          <tr><td>Rebaños</td><td>KPIs por rebaño: efectivos, produccion, sanidad, gastos, margen. Ranking</td><td>Tabla ranking + barras apiladas carne/leche</td></tr>
+          <tr><td>Patrimonio</td><td>Inventario ICA por animal: valor actual, depreciacion, plusvalia. Solo flag CARNE</td><td>Tabla ICA + grafica evolucion valor rebaño</td></tr>
+          <tr><td>Zonas</td><td>Carga UGM/ha por parcela, aforo, rotacion, fitosanitario. Alertas sobrepastoreo</td><td>Gauge circular por zona + heatmap carga</td></tr>
+          <tr><td>Sanidad</td><td>Libro tratamientos filtrado, supresiones activas/proximas, curva retiro</td><td>Timeline tratamientos + tabla supresiones</td></tr>
+          <tr><td>Movimientos</td><td>Altas/bajas/traslados periodo. Motivos oficiales. DIMOE/ICA generados</td><td>Sankey entradas/salidas + tabla movimientos</td></tr>
+          <tr><td>Alertas</td><td>Consolidado: Supresion, Vencimientos (PAC/Contratos/ADSG), Stock silos, Calidad leche</td><td>Bento alertas 12 tipos + contador dias</td></tr>
+          <tr><td>KPIs Globales</td><td>Dashboard consolidado modulo: 15 KPIs con semaforo y tendencia</td><td>Gauge KPIs + sparklines 6 meses</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 4. CATEGORIA EXPRO -->
+    <section id="expro" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">ExPro</span>
+        <h2>4. Categoria ExPro — Produccion (9 Sub-tabs)</h2>
+        <p class="section-desc">Reportes detallados produccion lechera y cárnica. Header azul.</p>
+      </div>
+
+      <h3>4.1 Sub-tabs ExPro</h3>
+      <table class="feature-table">
+        <thead><tr><th>Sub-tab</th><th>Contenido</th><th>Graficas/Tablas</th></tr></thead>
+        <tbody>
+          <tr><td>Ordeños</td><td>Registro diario por animal/tanque. Totales turno, temperatura, stock proyectado</td><td>Linea produccion diaria + tabla ordeños</td></tr>
+          <tr><td>Pesajes</td><td>Pesajes individual/lote. GMD, edad, rebaño, zona. Historico por animal</td><td>Barras GMD por lote + scatter edad/peso</td></tr>
+          <tr><td>Entregas Tanque</td><td>Recogidas cisterna: litros, temp, analiticas, contrato. Estado INFOLAC</td><td>Tabla entregas + linea volumen/temperatura</td></tr>
+          <tr><td>Albaranes Leche</td><td>Albaranes completos con liquidacion, Letra Q, inhibidores, analitica</td><td>Tabla albaranes + grafica precio €/L</td></tr>
+          <tr><td>Analiticas</td><td>Laboratorio: grasa, proteina, germenes, somaticas, aflatoxina M1. Semaforo CCAA</td><td>Radar calidad + tabla umbrales especie</td></tr>
+          <tr><td>Balance Lacteo</td><td>Movimientos entrada/salida/merma/ajuste por tanque. Trazabilidad litros</td><td>Area apilada balance + tabla movimientos</td></tr>
+          <tr><td>Control Lechero</td><td>DHI oficial: media rebaño litros/grasa/proteina, organismo, fecha</td><td>Linea tendencia control + tabla controles</td></tr>
+          <tr><td>Silos</td><td>Stock, autonomia, cargas/consumos, alertas. Gauge circular por silo</td><td>Gauge stock% + linea autonomia dias</td></tr>
+          <tr><td>Graficos</td><td>5 canvas Chart.js: Produccion mensual, Calidad, Composicion, Comparativa tanques, Curva lactacion</td><td>5 graficas interactivas full-width</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="informes-expro-graficos">
+  <img src="img/informes-expro-graficos.png" alt="Graficas ExPro: produccion mensual, calidad, composicion, tanques, curva lactacion" loading="lazy">
+  <span class="shot-label">[CAPTURA] informes-expro-graficos.png</span>
+  <span class="shot-desc">Graficas ExPro: produccion mensual, calidad, composicion, tanques, curva lactacion</span>
+</div>
+    </section>
+
+    <!-- 5. CATEGORIA COMER -->
+    <section id="comer" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">CoMer</span>
+        <h2>5. Categoria CoMer — Comercializacion (7 Sub-tabs)</h2>
+        <p class="section-desc">Reportes financieros y comerciales. Header amarillo/oro.</p>
+      </div>
+
+      <h3>5.1 Sub-tabs CoMer</h3>
+      <table class="feature-table">
+        <thead><tr><th>Sub-tab</th><th>Contenido</th><th>KPIs/Tablas</th></tr></thead>
+        <tbody>
+          <tr><td>Ventas Carne</td><td>Wizard Venta Masiva: animales, ICA, DIMOE, precio canal, SEUROP, comprador, transportista</td><td>Peso canal total, Rendimiento %, Margen neto, Ingreso bruto</td></tr>
+          <tr><td>Entregas Leche</td><td>Albaranes leche con analitica, precio extracto seco, INFOLAC, Letra Q</td><td>Total L, Precio medio €/L, Importe total, MOFA</td></tr>
+          <tr><td>Compradores</td><td>Ficha comprador: historial ventas, contratos, condiciones, REGA destino</td><td>Ranking volumen + tabla contratos</td></tr>
+          <tr><td>Transportistas</td><td>Certificados (ATG, desinsectacion, bienestar), vencimientos, matriculas</td><td>Tabla certificados + alertas vencimiento 30d</td></tr>
+          <tr><td>Contratos</td><td>Multi-precio por producto, IVA%, retencion%, vigencia. Alertas vencimiento</td><td>Tabla precios + timeline vigencia</td></tr>
+          <tr><td>Albaranes/Facturas</td><td>Historial integrado (borrador/presentado/validado/rechazado/anulado). PDF/Excel</td><td>Tabla estados + grafica facturacion mensual</td></tr>
+          <tr><td>KPIs Financieros</td><td>Margen neto real, coste/kg ganancia, ROE, EBITDA ganadero, flujo caja</td><td>Gauge KPIs + dashboard ejecutivo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 6. CATEGORIA LIBROS -->
+    <section id="libros" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-orange">Libros</span>
+        <h2>6. Categoria Libros — Cuaderno Digital RD 787/2023 (8 Sub-tabs)</h2>
+        <p class="section-desc">Exportacion CSV SIGGAN 8 secciones obligatorias. Validacion pre-flight antes de exportar. Header naranja.</p>
+      </div>
+
+      <h3>6.1 Sub-tabs Libros (Mapeo Directo CSV SIGGAN)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Sub-tab</th><th>Seccion CSV SIGGAN</th><th>Campos Clave</th></tr></thead>
+        <tbody>
+          <tr><td>Tratamientos</td><td>TRATAMIENTOS</td><td>Fecha, Animal, Producto, Dosis, Via, Veterinario, Retiro carne/leche, Lote, Receta</td></tr>
+          <tr><td>Vacunaciones</td><td>VACUNACIONES</td><td>Fecha, Animal/Rebaño, Vacuna, Lote, Veterinario, Dosis, Via, Proxima revacunacion</td></tr>
+          <tr><td>Censo Anual</td><td>CENSO_ANUAL</td><td>Fecha referencia, Especie, Categoria, Cabezas, REGA, Certificado</td></tr>
+          <tr><td>Crotales</td><td>CROTALES</td><td>Fecha pedido, Especie, Tipo, Cantidad, ADSG, Veterinario, Estado</td></tr>
+          <tr><td>Movimientos</td><td>MOVIMIENTOS</td><td>Fecha, Tipo (entrada/salida), Origen/Destino (REGA), Animales (crotales), Guia, Motivo</td></tr>
+          <tr><td>Saneamientos</td><td>SANEAMIENTOS</td><td>Fecha, Tipo (TB/Brucelosis/LEUCO), Rebaño, Animales, Resultado, Veterinario, CCAA</td></tr>
+          <tr><td>Fitosanitarios</td><td>FITOSANITARIOS</td><td>Fecha, Parcela, Producto, Dosis, Plazo seguridad, Apto comercializacion, Operador</td></tr>
+          <tr><td>Agenda</td><td>AGENDA (complementaria)</td><td>Fecha, Tipo, Titulo, Descripcion, Prioridad, Estado, Recordatorio</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.2 Exportacion Cuaderno Digital (CSV SIGGAN 8 Secciones)</h3>
+      <ul class="feature-list">
+        <li>Boton "Exportar Cuaderno Digital" genera ZIP con 8 CSV + README.md</li>
+        <li>Validacion pre-flight obligatoria: REGA finca, ADSG, NIF veterinarios, Lotes medicamentos, Crotales 15 dig</li>
+        <li>Nombrado: <code>CUADERNO_DIGITAL_{REGA}_{YYYYMMDD}.zip</code></li>
+        <li>Compatibilidad: SIGGAN (Andalucia), BADIGEX (Extremadura), SIA, PIGGAN</li>
+      </ul>
+      <div class="screenshot-placeholder" data-shot="informes-libros-export">
+  <img src="img/informes-libros-export-csv.png" alt="Boton exportar cuaderno digital, validacion pre-flight, ZIP 8 CSV listo SIGGAN" loading="lazy">
+  <span class="shot-label">[CAPTURA] informes-libros-export-csv.png</span>
+  <span class="shot-desc">Boton exportar cuaderno digital, validacion pre-flight, ZIP 8 CSV listo SIGGAN</span>
+</div>
+
+      <h3>6.3 Validacion Pre-Flight (Bloqueantes)</h3>
+      <ol class="step-list">
+        <li>REGA finca formato valido (ES + 12 dig)</li>
+        <li>ADSG registrada con veterinario y colegiado</li>
+        <li>NIF/CIF titular y veterinarios validos</li>
+        <li>Todos los tratamientos con lote medicamento y via</li>
+        <li>Animales con crotal 15 digitos ISO 11784 completo</li>
+        <li>Movimientos con guia oficial y REGA destino valido</li>
+      </ol>
+    </section>
+
+    <!-- 7. KPIs SEMÁFORO -->
+    <section id="kpis" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">KPIs</span>
+        <h2>7. KPIs Semáforo & Graficas (30+ KPIs)</h2>
+        <p class="section-desc">Todos los KPIs usan componentes <code>card-registro</code> con toggle expandible (<code>App.toggleResumen</code>). Colores semanticos: success=positivo, danger=negativo, warning=atencion, info=neutro.</p>
+      </div>
+
+      <h3>7.1 KPIs por Categoria (Ejemplos)</h3>
+      <table class="feature-table">
+        <thead><tr><th>Categoria</th><th>KPI</th><th>Verde</th><th>Ambar</th><th>Rojo</th></tr></thead>
+        <tbody>
+          <tr><td>Leche</td><td>Celulas somaticas</td><td><200k</td><td>200-400k</td><td>>400k</td></tr>
+          <tr><td>Leche</td><td>MOFA €/L</td><td>>0.15</td><td>0.05-0.15</td><td><0.05</td></tr>
+          <tr><td>Leche</td><td>Extracto seco %</td><td>>12.5</td><td>11.5-12.5</td><td><11.5</td></tr>
+          <tr><td>Carne</td><td>GMD g/dia</td><td>>1200</td><td>800-1200</td><td><800</td></tr>
+          <tr><td>Carne</td><td>Rendimiento canal %</td><td>>55</td><td>50-55</td><td><50</td></tr>
+          <tr><td>Carne</td><td>Coste/kg ganancia</td><td><2.00</td><td>2.00-2.50</td><td>>2.50</td></tr>
+          <tr><td>Sanidad</td><td>Dias supresion carne</td><td>>30</td><td>7-30</td><td><=7</td></tr>
+          <tr><td>Sanidad</td><td>Botiquin FEFO <30d</td><td>0</td><td>1-3</td><td>>=3</td></tr>
+          <tr><td>Repro</td><td>Tasa preñez %</td><td>>60</td><td>40-60</td><td><40</td></tr>
+          <tr><td>Repro</td><td>Intervalo celo-parto dias</td><td><90</td><td>90-120</td><td>>120</td></tr>
+          <tr><td>Zonas</td><td>Carga UGM/ha</td><td><0.8</td><td>0.8-1.0</td><td>>1.0</td></tr>
+          <tr><td>Silos</td><td>Stock % capacidad</td><td>>50%</td><td>15-50%</td><td><15%</td></tr>
+          <tr><td>Finanzas</td><td>Margen neto real</td><td>>0</td><td>-10% a 0</td><td><-10%</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.2 Graficos de Rendimiento (Barras CSS Puras)</h3>
+      <ul class="feature-list">
+        <li>Ultimos 6 meses, altura proporcionada al maximo</li>
+        <li>Colores success/warning/danger segun valor vs umbrales</li>
+        <li>Tooltips con valor exacto y fecha</li>
+        <li>Responsive: apilado en movil, horizontal en desktop</li>
+      </ul>
+    </section>
+
+    <!-- 8. EXPORTACION -->
+    <section id="export" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Export</span>
+        <h2>8. Exportacion PDF/Excel/CSV & Validacion Pre-Flight</h2>
+        <p class="section-desc">DocumentViewer comun para todos los PDFs (nunca window.open/print en Capacitor Android). Excel multi-hoja, CSV SIGGAN/XML REGA.</p>
+      </div>
+
+      <h3>8.1 Tipos de Exportacion</h3>
+      <table class="feature-table">
+        <thead><tr><th>Formato</th><th>Uso</th><th>Detalle</th></tr></thead>
+        <tbody>
+          <tr><td>PDF</td><td>Albaranes, Facturas, Informes, Documentos legales, Cuaderno digital</td><td><code>App.imprimirAlbaran()</code>, <code>App.imprimirFactura()</code>, <code>DocumentViewer</code></td></tr>
+          <tr><td>Excel (.xlsx)</td><td>Informes multi-hoja, Listados grandes, Analisis financiero</td><td>SheetJS, multi-hoja por categoria/sub-tab</td></tr>
+          <tr><td>CSV SIGGAN</td><td>Cuaderno digital 8 secciones, Movimientos, Censo, Crotales</td><td>ZIP 8 CSV + README, validacion pre-flight</td></tr>
+          <tr><td>XML REGA</td><td>Declaracion censal, Pedido crotales, Notificaciones</td><td>Esquema oficial Junta Andalucia / CCAA</td></tr>
+        </tbody>
+      </table>
+
+      <h3>8.2 DocumentViewer (Patron Comun)</h3>
+      <ul class="feature-list">
+        <li>Componente full-screen <code>document-viewer</code> con iframe sandbox</li>
+        <li>Botones: Compartir (Web Share API), Imprimir (nativo), Descargar, Cerrar</li>
+        <li>Funciona en PWA, Capacitor Android, Electron, Navegador</li>
+        <li>Nunca usar <code>window.open()</code> o <code>window.print()</code> directo en Android WebView</li>
+      </ul>
+
+      <h3>8.3 Exportacion Excel Multi-hoja (Informes)</h3>
+      <ul class="feature-list">
+        <li>Una hoja por sub-tab activa</li>
+        <li>Cabeceras con filtros, formato tabla Excel</li>
+        <li>Hoja "Resumen" con KPIs principales</li>
+        <li>Nombrado: <code>INFORMES_{CATEGORIA}_{SUBCAT}_{YYYYMMDD}.xlsx</code></li>
+      </ul>
+    </section>
+
+    <!-- 9. DEMO CHAMORRO -->
+    <section id="demo" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Demo</span>
+        <h2>9. Datos Demo CHAMORRO & Validacion</h2>
+        <p class="section-desc">Validacion guias PWA 2026-08-04: GeGan 36/38, CoMer 40/42, ExPro 52/55 (vs 53/55 Android, 1 target por datos demo).</p>
+      </div>
+
+      <h3>9.1 Cobertura Demo para Informes</h3>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>General:</strong> Todos los KPIs con datos reales -> graficas pobladas</strong></div>
+        <div class="demo-item"><strong>GeGan:</strong> 8 sub-tabs con animales, rebanos, zonas, patrimonio, sanidad, movimientos, alertas, KPIs</div>
+        <div class="demo-item"><strong>ExPro:</strong> 9 sub-tabs: ordeños con tanque, pesajes terneros, entregas cisterna, albaranes leche, analiticas laboratorio, balance lacteo, control DHI, silos, 5 graficas</div>
+        <div class="demo-item"><strong>CoMer:</strong> 7 sub-tabs: ventas carne DIMOE, entregas leche INFOLAC, 3 compradores, 2 transportistas, 2 contratos, albaranes/facturas, KPIs financieros</div>
+        <div class="demo-item"><strong>Libros:</strong> 8 CSV SIGGAN listos: tratamientos supresion, vacunaciones ADSG, censo, crotales, movimientos DIMOE, saneamientos, fitosanitarios plazo seguridad, agenda</div>
+      </div>
+
+      <h3>9.2 Pruebas Clave Exportacion</h3>
+      <ul class="feature-list">
+        <li>PDF Albaran Leche Wizard -> DocumentViewer -> Compartir/Imprimir/Descargar</li>
+        <li>PDF Factura Venta Masiva -> DocumentViewer</li>
+        <li>Excel Informes CoMer -> Multi-hoja 7 sub-tabs + Resumen</li>
+        <li>ZIP Cuaderno Digital -> 8 CSV validos SIGGAN + README + pre-flight OK</li>
+        <li>XML Declaracion Censal -> Esquema CCAA valido</li>
+      </ul>
+    </section>
+
+    <!-- Navegación final -->
+    <nav class="module-nav-bottom">
+      <a href="manual-comercializacion.html" class="nav-btn">&larr; Anterior: Comercializacion</a>
+      <a href="manual-sanidad-reproduccion.html" class="nav-btn nav-btn-primary">Siguiente: Sanidad & Reproduccion &rarr;</a>
+    </nav>
+
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Manual Profesional &middot; Modulo 04/06</p>
+    <p class="copyright">SIGGAN &middot; BADIGEX &middot; RD 787/2023 &middot; RD 989/2022 &middot; Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>

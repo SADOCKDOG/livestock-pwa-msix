@@ -70,11 +70,9 @@ header {
     /* Transparencia unificada del marco: misma en header y bottom-nav */
     background: rgba(18, 18, 18, var(--banner-opacity, 0.4)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     height: calc(62px + var(--safe-top));
-    padding: calc(4px + var(--safe-top)) 12px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr; /* Logo | Título | Viñeta de finca */
-    align-items: center;
-    gap: 8px;
+    padding: calc(4px + var(--safe-top)) 12px 0;
+    display: flex;
+    align-items: flex-end;
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 2000;
@@ -87,9 +85,11 @@ header {
 }
 
 .header-logo-container {
-    display: flex;
-    align-items: center;
-    justify-self: start;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* Logo | Título | Badge */
+    align-items: flex-end;
+    padding-bottom: 8px;
     position: relative;
     box-sizing: border-box;
 }
@@ -156,34 +156,25 @@ header {
 
 /* Header contextual — título de vista + botón volver */
 #header-context {
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border, #444);
-    padding: 6px 12px;
-    border-radius: 20px;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    gap: 6px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 8px -2px var(--header-neon-color, transparent);
-    transition: box-shadow 0.3s ease;
-}
-#header-route-icon {
-    color: var(--header-neon-color, var(--text-s));
-    display: flex;
-    align-items: center;
+    gap: 4px;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
 }
 #header-view-title {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
+    padding-bottom: 8px; /* Separado de la linea */
 }
 .header-banner-frame {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     padding: 0;
     transition: all 0.3s ease;
 }
@@ -200,9 +191,7 @@ header {
 .header-banner-text {
     font-size: 0.55rem;
     font-weight: 900;
-    /* Fijo (no var(--text-p)): el header mantiene fondo oscuro en
-       cualquier tema, así que su texto siempre debe ser claro. */
-    color: #FFFFFF;
+    color: var(--text-p);
     letter-spacing: 1px;
     text-transform: uppercase;
     text-shadow: 0 0 5px rgba(0,0,0,1);
@@ -316,7 +305,7 @@ header {
 
 /* CONTENIDO CON MARGEN COMPACTO */
 main#app-content {
-    margin-top: calc(62px + var(--safe-top) + 12px);
+    margin-top: 12px;
     padding: 12px 12px calc(100px + var(--safe-bottom));
     max-width: 100%;
     box-sizing: border-box;
@@ -388,9 +377,7 @@ nav.bottom-nav {
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    /* Fijo (no var(--text-p)): el bottom-nav mantiene fondo oscuro en
-       cualquier tema, así que su texto/icono siempre debe ser claro. */
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-p);
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
     font-size: var(--fs-tiny);
     font-weight: 700;
@@ -501,34 +488,41 @@ nav.bottom-nav {
 }
 
 /* ── VARIANTES DE BOTÓN ──
-   `.btn` nace a ancho completo, correcto para la acción principal de una pantalla.
-   Pero esa base la heredan también los botones agrupados (parejas CANCELAR/CONFIRMAR
-   de los modales, tríadas de acción de las fichas): dentro de un contenedor flex se
-   pelean por el 100% del ancho y quedan desproporcionados.
-   Aditivo a propósito: no se toca `.btn`, así que ningún botón cambia hasta que se le
-   añada la clase. */
+   `.btn` nace a ancho completo, que es lo correcto para la acción principal de una
+   pantalla. Pero esa base la heredan también los botones que van agrupados (las
+   parejas CANCELAR/CONFIRMAR de los modales, las tríadas de acción de las listas):
+   dentro de un contenedor flex los tres pelean por el 100% del ancho y quedan
+   desproporcionados. `--inline` es la variante para esos casos: se dimensiona por su
+   contenido y deja que el contenedor los reparta.
+   Aditivo a propósito: no se toca `.btn`, así que ningún botón existente cambia hasta
+   que se le añada la clase. */
 .btn--inline {
     /* `inline-flex` y no `flex`: `.btn` es un flex de nivel bloque, así que `width:auto`
-       por sí solo seguiría ocupando toda la línea en un contenedor normal. */
+       por sí solo seguiría ocupando toda la línea en un contenedor normal. Dentro de un
+       contenedor flex da igual (el item se dimensiona por su contenido), pero para los
+       botones sueltos en un div block es la diferencia entre ceñirse al texto y seguir
+       siendo una barra. De paso, hereda el text-align del padre: en un `.text-center`
+       queda centrado sin más. */
     display: inline-flex;
     width: auto;
     height: 48px;
-    /* 16px y no 20: con tres controles en fila el último se salía 7px del contenedor
-       en un móvil de 392px. */
+    /* 16px y no 20: con tres controles en fila (icono + Cancelar + Guardar) los 20px
+       hacían que el último se saliera 7px del contenedor en un móvil de 392px. */
     padding: 0 16px;
     border-radius: var(--r-lg, 14px);
     font-size: 0.9rem;
 }
 
-/* Explícito para la acción principal, para distinguir "ancho completo porque lo quiero"
-   de "ancho completo por herencia". */
+/* Explícito para la acción principal. Es lo que `.btn` ya hace, pero nombrarlo permite
+   distinguir "ancho completo porque lo quiero" de "ancho completo por herencia". */
 .btn--block {
     width: 100%;
 }
 
-/* Solo icono. Para la acción destructiva cuando comparte fila con otras dos: tres
-   botones con texto suman ~429px sobre ~353 útiles y el más corto acababa recortado a
-   media palabra. Lleva siempre aria-label, único nombre accesible sin texto visible. */
+/* Solo icono, sin etiqueta. Para la acción destructiva cuando comparte fila con otras
+   dos: tres botones con texto no caben en un móvil de 392px (suman ~429px sobre ~353
+   útiles) y el más corto acababa recortado a media palabra. Lleva siempre aria-label,
+   que sin texto visible es el único nombre accesible del control. */
 .btn--icon {
     width: 48px;
     height: 48px;
@@ -1619,6 +1613,13 @@ label {
 .badge-green { background: rgba(197, 250, 80,0.1); color: var(--c-success); }
 .badge-red   { background: rgba(232, 85, 95,0.1); color: var(--c-danger); }
 .badge-blue  { background: rgba(79, 173, 245,0.1); color: #4FADF5; }
+/* Variantes sueltas para los badges de estado. Abajo solo estan las compuestas
+   (.status-badge.badge-info y hermanas, :4260-4265) y las vistas del soporte
+   emiten `class="badge badge-info"` sin el status-badge, asi que revision y
+   curso se pintaban sin color. */
+.badge-info    { background: color-mix(in srgb, var(--c-info) 12%, transparent);    color: var(--c-info); }
+.badge-warning { background: color-mix(in srgb, var(--c-warning) 12%, transparent); color: var(--c-warning); }
+.badge-purple  { background: color-mix(in srgb, var(--c-purple) 12%, transparent);  color: var(--c-purple); }
 .badge-solid-danger  { background: var(--c-danger); color: var(--text-p); }
 .badge-solid-orange  { background: #E8555F; color: var(--text-p); }
 .badge-solid-purple  { background: var(--c-purple); color: var(--text-p); }
@@ -3182,7 +3183,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .btn-ghost           { background:transparent; border:none; cursor:pointer; }
 .wizard-overlay      { position:fixed; inset:0; z-index:7000; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; }
 .wizard-card         { background:var(--surface-input); border-radius: var(--r-lg); border:1px solid var(--border); width:100%; max-width:500px; max-height:90vh; display:flex; flex-direction:column; margin:15px; }
-/* ===== INFORMES TAB NAVIGATION (Soporte) ===== */
+/* ===== INFORMES TAB NAVIGATION (Premium) ===== */
 .informes-categories, .informes-tabs { display: flex; gap: 8px; scrollbar-width: none; }
 .informes-categories::-webkit-scrollbar, .informes-tabs::-webkit-scrollbar { display: none; }
 
@@ -3519,20 +3520,17 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .carrusel-modulo {
   width: 100%;
   box-sizing: border-box;
-  /* Anclado bajo el header fijo (62px + safe-top): el submódulo activo es la
-     referencia de "dónde estoy" y debe seguir visible al recorrer la vista,
-     igual que las tabs de sección bajo la app bar. z-index por debajo del
-     header (2000) y por encima del contenido. Los márgenes negativos
-     compensan el padding lateral de main#app-content para que el fondo
-     llegue a los bordes y el contenido no asome por los lados al pasar. */
+  /* Anclado bajo el header: el submódulo activo es la referencia de "dónde
+     estoy" y debe seguir visible al recorrer la vista, igual que las tabs de
+     sección bajo la app bar. Se ancla algo más arriba de la altura real del
+     header a propósito, para que no quede una franja intermedia por la que se
+     vería pasar el contenido; el header tapa el sobrante, que es solo padding.
+     z-index POR DEBAJO del header (#main-header va en 1000 aquí), o el
+     carrusel lo pintaría encima al solaparse. Los márgenes negativos compensan
+     el padding lateral de main#app-content para que el fondo llegue a los
+     bordes. Medido en dispositivo: --safe-top 35px, header hasta 97, carrusel
+     anclado en 89. */
   position: sticky;
-  /* El header ocupa 62px + safe-top, pero el anclaje real queda ~8px por
-     debajo del `top` declarado por el flujo del contenedor. Se ancla algo más
-     arriba a propósito: el header tapa el sobrante (que es solo padding), así
-     que quedan pegados sin franja intermedia. Tirar por lo bajo es lo seguro —
-     un `top` mayor dejaría un hueco por el que se vería pasar el contenido.
-     z-index por debajo del header (2000 aquí, 1000 en Android): mismo valor en
-     ambos repos para que el header siempre gane al solaparse. */
   top: calc(54px + var(--safe-top));
   z-index: 900;
   background: rgba(12, 12, 12, 0.92);
@@ -3871,6 +3869,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .neon-orange { --neon-color: #E8555F; --neon-glow: rgba(232, 85, 95,0.69); --neon-inner: rgba(232, 85, 95,0.25); }
 .neon-warning { --neon-color: var(--c-warning); --neon-glow: rgba(255,214,0,0.69);  --neon-inner: rgba(255,214,0,0.25); }
 .neon-accent  { --neon-color: #4FADF5; --neon-glow: rgba(79, 173, 245,0.69); --neon-inner: rgba(79, 173, 245,0.25); }
+.neon-purple  { --neon-color: var(--c-purple, #A855F7); --neon-glow: rgba(168, 85, 247,0.69); --neon-inner: rgba(168, 85, 247,0.25); }
 .neon-theme   { --neon-color: var(--theme-color); }
 
 /* etiqueta de texto dentro de widget-link-btn--neon — tamaño, fuente y color únicos */
@@ -4148,7 +4147,6 @@ body[data-tema="blue"]   { --p-gold: #4FADF5; --p-gold-dark: #1d4ed8; --p-cork: 
 body[data-tema="green"]  { --p-gold: var(--c-success); --p-gold-dark: var(--c-success); --p-cork: var(--c-success); --p-cork-dark: var(--c-success); }
 body[data-tema="purple"] { --p-gold: var(--c-purple); --p-gold-dark: #6d28d9; --p-cork: var(--c-purple); --p-cork-dark: #7c3aed; }
 body[data-tema="red"]    { --p-gold: var(--c-danger); --p-gold-dark: #b91c1c; --p-cork: #f87171; --p-cork-dark: #dc2626; }
-body[data-tema="graphite"] { --p-gold: #9A9A9A; --p-gold-dark: #6B6B6B; --p-cork: #9A9A9A; --p-cork-dark: #6B6B6B; }
 .theme-dot { outline: none; }
 .theme-dot:active { transform: scale(0.9); }
 .theme-dot.active { border-color: var(--p-gold); box-shadow: 0 0 12px var(--p-gold); }
@@ -4264,7 +4262,7 @@ body.glow-tarjetas-off .status-badge {
     box-shadow: none !important; /* !important: user preference */
 }
 
-/* -- STATUS BADGES (Neon Soporte) -- */
+/* -- STATUS BADGES (Neon Premium) -- */
 .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: var(--r-sm); font-size: 0.65rem; font-weight: 950; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 .status-badge.badge-info { background: color-mix(in srgb, var(--c-info) 10%, transparent); color: var(--c-info); border: 1px solid var(--c-info); box-shadow: 0 0 10px color-mix(in srgb, var(--c-info) 50%, transparent), inset 0 0 8px color-mix(in srgb, var(--c-info) 30%, transparent); }
 .status-badge.badge-danger { background: color-mix(in srgb, var(--c-danger) 10%, transparent); color: var(--c-danger); border: 1px solid var(--c-danger); box-shadow: 0 0 10px color-mix(in srgb, var(--c-danger) 50%, transparent), inset 0 0 8px color-mix(in srgb, var(--c-danger) 30%, transparent); }
@@ -4394,3 +4392,123 @@ body.glow-tarjetas-off .status-badge {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================
+   GUÍAS INTERACTIVAS (GuideManager)
+   ============================================ */
+
+/* Overlay principal (z-3500, por encima de header 2000, debajo de wizard 4000) */
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3500;
+  pointer-events: none;
+}
+
+/* Popover narrativo (z-3501, sobre overlay) */
+.guide-popover {
+  position: fixed;
+  z-index: 3501;
+  pointer-events: auto;
+  max-width: 320px;
+  min-width: 260px;
+  background: var(--surface, #1a1a1a);
+  border-radius: var(--r-xl, 16px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  font-family: inherit;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text, #fff);
+  padding: 16px;
+  /* Sin borde superior iluminado — regla estricta de cards */
+}
+
+.guide-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.tour-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-555, #555);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.tour-dot.active {
+  background: var(--c-success);
+  transform: scale(1.2);
+}
+
+/* Botones del popover */
+.guide-popover button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.05s, opacity 0.1s;
+}
+
+.guide-popover button:active {
+  transform: scale(0.95);
+}
+
+.guide-popover button[style*="primary"] {
+  background: var(--c-success);
+  color: #000;
+}
+
+.guide-popover button[style*="secondary"] {
+  background: var(--c-333, #333);
+  color: var(--c-fff, #fff);
+  border: 1px solid var(--c-555, #555);
+}
+
+.guide-popover button[style*="ghost"] {
+  background: transparent;
+  color: var(--c-aaa, #aaa);
+}
+
+/* Chip "Reanudar guía" (z-4500, entre wizard 4000 y toast 6000, debajo btn-pesaje-close 5001) */
+.guide-resume-chip {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 4500;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--c-success, #00cc00);
+  color: #000;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0,204,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  animation: guide-chip-pulse 1.5s ease-in-out infinite;
+  touch-action: manipulation;
+}
+
+.guide-resume-chip:active {
+  transform: scale(0.95) !important;
+}
+
+@keyframes guide-chip-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,204,0,0.4); transform: scale(1); }
+  50% { box-shadow: 0 4px 30px rgba(0,204,0,0.7); transform: scale(1.05); }
+}
+
+/* Asegurar que el chip quede debajo de toasts (6000) y btn-pesaje-close (5001) */
+#toast-container { z-index: 6000; }
+.btn-pesaje-close { z-index: 5001; }

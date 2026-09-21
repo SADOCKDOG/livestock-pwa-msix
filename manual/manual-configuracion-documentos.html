@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>06. Configuración & Documentos — Manual LIVESTOCK MANAGER v4.10.4</title>
+  <link rel="stylesheet" href="css/estilo-manual.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+</head>
+<body>
+  <header class="manual-header">
+    <div class="header-content">
+      <a href="index.html" class="back-link" aria-label="Volver al indice">&larr;</a>
+      <div class="title-block">
+        <h1>06. Configuración & Documentos</h1>
+        <p class="version">Multi-finca Free/Premium &middot; 8 Documentos Unificados &middot; Trazabilidad 360° &middot; RFID</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="module-toc" aria-label="Tabla de contenidos del modulo">
+    <ul>
+      <li><a href="#ajustes">1. Ajustes Generales & Multi-finca</a></li>
+      <li><a href="#fincas">2. Gestion Fincas (Free 1 / Premium Ilimitadas)</a></li>
+      <li><a href="#documentos">3. 8 Tipos Documentos Unificados</a></li>
+      <li><a href="#cuaderno">4. Cuaderno Digital RD 787/2023 (CSV SIGGAN 8 Secciones)</a></li>
+      <li><a href="#trazabilidad">5. Trazabilidad 360° (6 Fuentes)</a></li>
+      <li><a href="#subexplotaciones">6. Subexplotaciones SIGGAN / BADIGEX</a></li>
+      <li><a href="#agenda">7. Agenda & Recordatorios</a></li>
+      <li><a href="#patrimonio">8. Patrimonio & ICA por Animal</a></li>
+      <li><a href="#rfid">9. Importador RFID / Lectura NFC</a></li>
+      <li><a href="#demo">10. Datos Demo CHAMORRO</a></li>
+    </ul>
+  </nav>
+
+  <main class="manual-main">
+
+    <!-- 1. AJUSTES GENERALES -->
+    <section id="ajustes" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-orange">Ajustes</span>
+        <h2>1. Ajustes Generales & Multi-finca</h2>
+        <p class="section-desc">Pantalla <code>#/ajustes</code> centralizada. Banner FREE persistente si <code>PremiumManager.isFree()</code>. Accesos rapidos a todas las configuraciones.</p>
+        <div class="route-info"><code>js/views/ajustes-view.js</code> &middot; <code>window.AjustesView</code></div>
+      </div>
+
+      <h3>1.1 Secciones Ajustes</h3>
+      <table class="feature-table">
+        <thead><tr><th>Seccion</th><th>Contenido</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr><td>Finca Activa</td><td>Selector finca (Free: 1, Premium: multiple), datos RESUMEN, boton Editar (Wizard Finca)</td><td>Cambiar finca, Editar finca, Nueva finca (Premium)</td></tr>
+          <tr><td>Modo Explotacion</td><td>Flags independientes por finca: Leche (checkbox), Carne (checkbox). Color verde lima carne</td><td>Toggle flags, Guardar -> recarga navegacion</td></tr>
+          <tr><td>ADSG</td><td>Nombre, codigo, veterinario, colegiado, telefono, NIF, email, vencimiento</td><td>Guardar, Validar formato</td></tr>
+          <tr><td>Cuenta / Premium</td><td>Estado Free/Premium, boton "Activar Premium" (IAP premium_unlock), restaurar compras</td><td>Compra unica Play Store, Verificar recibo</td></tr>
+          <tr><td>Backup & Sincronizacion</td><td>Solo Premium: Backup automatico diario, Export/Import JSON, Sincronizacion cloud (futuro)</td><td>Exportar backup, Importar backup, Configurar auto</td></tr>
+          <tr><td>Asistente Configuracion</td><td>Cargar Demo CHAMORRO, Resetear finca, Wizard Nueva Finca guiado</td><td>Cargar demo, Reset, Nuevo wizard</td></tr>
+          <tr><td>Notificaciones</td><td>Permisos push, tipos: supresion, vencimientos, stock silos, calidad leche, agenda</td><td>Activar/desactivar por tipo</td></tr>
+          <tr><td>Tema & Accesibilidad</td><td>Tema sistema/claro/oscuro, Tamano fuente, Alto contraste, Reducir animaciones</td><td>Guardar preferencias localStorage</td></tr>
+          <tr><td>Informacion App</td><td>Version 4.10.4, Build info, Licencias, GitHub, Changelog, Privacidad</td><td>Ver logs, Reportar error</td></tr>
+        </tbody>
+      </table>
+      <div class="screenshot-placeholder" data-shot="ajustes-general">
+  <img src="img/ajustes-general.png" alt="Pantalla ajustes con banner FREE, secciones colapsables, selector finca activo" loading="lazy">
+  <span class="shot-label">[CAPTURA] ajustes-general.png</span>
+  <span class="shot-desc">Pantalla ajustes con banner FREE, secciones colapsables, selector finca activo</span>
+</div>
+    </section>
+
+    <!-- 2. GESTION FINCAS -->
+    <section id="fincas" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Fincas</span>
+        <h2>2. Gestion Fincas (Free 1 / Premium Ilimitadas)</h2>
+        <p class="section-desc">Modelo <code>Fincas</code> + <code>PremiumManager</code>. Limites en <code>.save()</code> verificados por <code>PremiumQA.runAll()</code>.</p>
+      </div>
+
+      <h3>2.1 Limites Free vs Premium</h3>
+      <table class="feature-table">
+        <thead><tr><th>Recurso</th><th>FREE</th><th>PREMIUM</th><th>Validacion</th></tr></thead>
+        <tbody>
+          <tr><td>Fincas simultaneas</td><td>1</td><td>Ilimitadas</td><td><code>Fincas.count() >= 1 && isFree()</code> bloquea nueva</td></tr>
+          <tr><td>Animales por finca</td><td>15</td><td>Ilimitados</td><td><code>Animales.count(fincaId) >= 15 && isFree()</code> bloquea alta</td></tr>
+          <tr><td>Gastos por finca</td><td>30</td><td>Ilimitados</td><td><code>Gastos.count(fincaId) >= 30 && isFree()</code> bloquea gasto</td></tr>
+          <tr><td>Backup automatico</td><td>No</td><td>Si (diario)</td><td><code>PremiumManager.isPremium()</code> habilita</td></tr>
+          <tr><td>Informes multi-finca</td><td>No</td><td>Si</td><td>Selector finca en InformesView</td></tr>
+          <tr><td>Export PDF completo</td><td>No</td><td>Si</td><td>Boton exportar informes</td></tr>
+          <tr><td>Export Excel multi-hoja</td><td>No</td><td>Si</td><td>InformesView.exportExcel()</td></tr>
+          <tr><td>CSV SIGGAN completo</td><td>No</td><td>Si</td><td>Cuaderno digital 8 secciones</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 Wizard Finca (Nueva / Editar)</h3>
+      <p>Ver Modulo 01, seccion 6.3. Dos modos: <strong>Nueva Finca (1 paso)</strong> y <strong>Editar Finca Activa (3 pasos)</strong>.</p>
+      <ul class="feature-list">
+        <li><strong>Paso 1 Datos Generales + ADSG:</strong> Nombre, propietario, REGA (input-rega-std max 14), CEA, NIF/CIF, telefono, direccion, capacidad max, CCAA, tipo explotacion SIGGAN/BADIGEX, sistema explotacion, flags leche/carne, calificacion sanitaria, Guia 365, especies autorizadas, Explotacion Lidia, ADSG completa</li>
+        <li><strong>Paso 2 Contrato Lacteo INFOLAC:</strong> N&ordm; contrato, fecha fin, comprador, N&ordm; INFOLAC. Aviso si tipo explotacion leche/mixto: contrato obligatorio 1 ano minimo</li>
+        <li><strong>Paso 3 Instalaciones Lacteas Letra Q:</strong> Solo si flag LECHE. Codigo Letra Q (T-PP-NNNNN), Clasificacion zootecnica compatible, Plazas vacuno leche, Cubiculos, Superficie descanso, Comedero lineal. Si >300 plazas: balsa purines, evaluacion ambiental</li>
+      </ul>
+
+      <h3>2.3 Cambio Finca Activa</h3>
+      <ul class="feature-list">
+        <li>Selector en Ajustes + Header Dashboard (click nombre finca)</li>
+        <li><code>App.setFincaActiva(fincaId)</code> -> recarga navegacion menu + vistas + flags modo</li>
+        <li>Persiste <code>fincaActivaId</code> en <code>Configuracion</code> (IndexedDB)</li>
+        <li>Recarga carruseles Ganaderia/Explotacion/Comercializacion con auto-fallback tabs</li>
+      </ul>
+    </section>
+
+    <!-- 3. DOCUMENTOS UNIFICADOS -->
+    <section id="documentos" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">Documentos</span>
+        <h2>3. 8 Tipos Documentos Unificados (<code>documentos_legales</code>)</h2>
+        <p class="section-desc">Modelo unico para todos los documentos legales/administrativos. Tipo discrimina estructura y validaciones. <code>DocumentViewer</code> comun para PDFs.</p>
+        <div class="route-info"><code>js/models/documentos-legales.js</code> &middot; <code>App.DocumentosLegales</code></div>
+      </div>
+
+      <h3>3.1 Tabla Tipos Documento</h3>
+      <table class="feature-table">
+        <thead><tr><th>Tipo</th><th>Descripcion</th><th>Generado Desde</th><th>Campos Especificos</th></tr></thead>
+        <tbody>
+          <tr><td>DECLARACION_CENSAL</td><td>Censo anual oficial (1 enero)</td><td>Wizard Censo (3 pasos)</td><td>Fecha referencia, desglose especie/categoria, estado tramitacion, &ordm; registro, acuse</td></tr>
+          <tr><td>CENSO_ANUAL</td><td>Censo periodico complementario</td><td>Tramites -> Censo</td><td>Mismo esquema DECLARACION_CENSAL</td></tr>
+          <tr><td>PEDIDO_CROTALES</td><td>Solicitud oficial crotales ADSG</td><td>Wizard Crotales (2 pasos)</td><td>Especie, tipo, cantidad, ADSG, veterinario, CCAA destino SIGGAN/BADIGEX</td></tr>
+          <tr><td>GUIA_MOVIMIENTO</td><td>Guia sanitaria movimiento animales</td><td>Wizard Guia / Venta Masiva</td><td>Origen/Destino REGA, animales (crotales), transportista, guia oficial, motivo, CCAA</td></tr>
+          <tr><td>DIMOE</td><td>Doc. Identificacion Movimiento Orden Expedicion</td><td>Auto: Wizard Venta Masiva</td><td>Numero DIMOE-{ALBARAN}, ICA, guia, comprador, transportista, veterinario auth</td></tr>
+          <tr><td>INFOLAC_DECLARACION</td><td>Declaracion lactea oficial</td><td>Auto: Albaran Leche Wizard</td><td>Estado tramitacion, fecha presentacion, &ordm; registro, acuse, Nº INFOLAC finca</td></tr>
+          <tr><td>ALBARAN_LECHE</td><td>Albaran recogida leche (PDF imprimible)</td><td>Albaran Leche Wizard (2 pasos)</td><td>25+ campos normativos, analitica, liquidacion, Letra Q, inhibidores</td></tr>
+          <tr><td>ALBARAN_CARNE</td><td>Albaran venta carne (PDF imprimible)</td><td>Auto: Wizard Venta Masiva</td><td>Animales, ICA, DIMOE, SEUROP, peso canal, precio, comprador, transportista</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.2 Tramitacion Administrativa (Estados Comunes)</h3>
+      <ul class="feature-list">
+        <li><strong>borrador:</strong> Editables, sin &ordm; registro</li>
+        <li><strong>presentado:</strong> Enviado a administracion, pendiente acuse</li>
+        <li><strong>validado / aceptado:</strong> Confirmado por administracion, <code>acuse_recibo</code> almacenado</li>
+        <li><strong>rechazado / error:</strong> Requiere correccion, motivo almacenado</li>
+        <li><strong>anulado:</strong> Cancelado por usuario, auditoria conservada</li>
+      </ul>
+      <p>Acciones contextuales: Editar (borrador), Reenviar (rechazado), Imprimir (presentado+), Anular (cualquiera menos anulado).</p>
+    </section>
+
+    <!-- 4. CUADERNO DIGITAL -->
+    <section id="cuaderno" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-orange">Cuaderno</span>
+        <h2>4. Cuaderno Digital RD 787/2023 (CSV SIGGAN 8 Secciones)</h2>
+        <p class="section-desc">Exportacion obligatoria para cumplimiento normativo. Genera ZIP con 8 CSV + README.md. Validacion pre-flight bloqueante. Ver Modulo 04, seccion 6.</p>
+      </div>
+
+      <h3>4.1 Estructura Export ZIP</h3>
+      <ul class="feature-list">
+        <li><code>TRATAMIENTOS.csv</code> — Fecha, Animal, Producto, Dosis, Via, Veterinario, Retiro carne/leche, Lote, Receta</li>
+        <li><code>VACUNACIONES.csv</code> — Fecha, Animal/Rebaño, Vacuna, Lote, Veterinario, Dosis, Via, Proxima revacunacion</li>
+        <li><code>CENSO_ANUAL.csv</code> — Fecha referencia, Especie, Categoria, Cabezas, REGA, Certificado</li>
+        <li><code>CROTALES.csv</code> — Fecha pedido, Especie, Tipo, Cantidad, ADSG, Veterinario, Estado</li>
+        <li><code>MOVIMIENTOS.csv</code> — Fecha, Tipo, Origen/Destino REGA, Animales (crotales), Guia, Motivo</li>
+        <li><code>SANEAMIENTOS.csv</code> — Fecha, Tipo (TB/BRU/LEUCO/IBR/PARA), Rebaño, Animales, Resultado, Veterinario, CCAA</li>
+        <li><code>FITOSANITARIOS.csv</code> — Fecha, Parcela, Producto, Dosis, Plazo seguridad, Apto comercializacion, Operador</li>
+        <li><code>AGENDA.csv</code> — Fecha, Tipo, Titulo, Descripcion, Prioridad, Estado, Recordatorio (seccion complementaria)</li>
+        <li><code>README.md</code> — Instrucciones importacion SIGGAN/BADIGEX/SIA/PIGGAN, version app, fecha generacion</li>
+      </ul>
+
+      <h3>4.2 Validacion Pre-Flight (Bloqueantes)</h3>
+      <div class="callout callout-warning">
+        <strong>[AVISO] Exportacion BLOQUEADA si falla cualquiera:</strong>
+      </div>
+      <ol class="step-list">
+        <li>REGA finca formato ES + 12 digitos valido (<code>ComunidadesService.validarFormatoREGA</code>)</li>
+        <li>ADSG registrada completa: nombre, codigo, veterinario, colegiado, NIF, vencimiento > hoy</li>
+        <li>NIF/CIF titular valido (formato ESP)</li>
+        <li>Todos los tratamientos: lote medicamento + via + veterinario + colegiado</li>
+        <li>Animales implicados: crotal 15 digitos ISO 11784 completo</li>
+        <li>Movimientos: guia oficial + REGA destino valido + tipo operador destino permitido</li>
+        <li>Vacunaciones: lote vacuna + veterinario + programa ADSG</li>
+      </ol>
+      <p>Resultado: Toast verde "Cuaderno digital exportado: CUADERNO_DIGITAL_{REGA}_{YYYYMMDD}.zip" o Modal error detallado por seccion.</p>
+    </section>
+
+    <!-- 5. TRAZABILIDAD 360° -->
+    <section id="trazabilidad" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Trazabilidad</span>
+        <h2>5. Trazabilidad 360° (6 Fuentes Unificadas)</h2>
+        <p class="section-desc">Vista <code>#/trazabilidad</code> o widget en ficha animal. Consolida 6 fuentes en timeline cronologico unico. <code>MotorTrazabilidad</code> + <code>Trazabilidad</code> services.</p>
+        <div class="route-info"><code>js/services/trazabilidad.js</code> &middot; <code>js/services/motortrazabilidad.js</code></div>
+      </div>
+
+      <h3>5.1 Las 6 Fuentes de Trazabilidad</h3>
+      <table class="feature-table">
+        <thead><tr><th>Fuente</th><th>Coleccion/Tabla</th><th>Eventos Tipo</th><th>Identificador Animal</th></tr></thead>
+        <tbody>
+          <tr><td>Produccion Leche</td><td>produccion_leche</td><td>ordeño, entrega_tanque, balance_lacteo</td><td>animal_id (hembras lecheras)</td></tr>
+          <tr><td>Produccion Carne</td><td>pesajes / comercializacion_carne</td><td>pesaje_individual, pesaje_lote, venta</td><td>animal_id / crotal</td></tr>
+          <tr><td>Sanidad</td><td>sanitarios</td><td>tratamiento, vacunacion, saneamiento</td><td>animal_id / rebaño_id</td></tr>
+          <tr><td>Reproduccion</td><td>reproduccion / animales</td><td>celo, ia, diagnostico, parto, aborto, secado</td><td>animal_id (madre/cria)</td></tr>
+          <tr><td>Movimientos</td><td>movimientos / documentos_legales</td><td>entrada, salida, traslado, DIMOE, ICA</td><td>crotal (lista 15 dig)</td></tr>
+          <tr><td>Gastos Imputados</td><td>gastos + registro_eventos</td><td>alimentacion, sanidad, fitosanitario, silo_consumo</td><td>rebaño_id / zona_id / animal_id</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 Vista Trazabilidad Animal (Widget Ficha)</h3>
+      <ul class="feature-list">
+        <li>Timeline cronologico inverso (mas reciente arriba)</li>
+        <li>Icono + color por fuente: Leche (azul), Carne (naranja), Sanidad (rojo), Repro (rosa), Movimientos (verde), Gastos (gris)</li>
+        <li>Expandible: Click -> detalle completo (dosis, veterinario, precio, analitica, etc.)</li>
+        <li>Filtros: Fuente, Fecha rango, Tipo evento</li>
+        <li>Enlace "Ver registro origen" -> navega a vista/edicion correspondiente</li>
+      </ul>
+
+      <h3>5.3 Funciones Clave MotorTrazabilidad</h3>
+      <ul class="feature-list">
+        <li><code>checkSupresion(animalId, tipo: 'carne'|'leche')</code> -> {activa: boolean, diasRestantes: number, motivo: string}</li>
+        <li><code>getTimeline(animalId)</code> -> array unificado 6 fuentes ordenado</li>
+        <li><code>verificarRetiroLeche(rebañoId)</code> -> boolean (bloquea Albaran Leche)</li>
+        <li><code>generarEstructuraAlbaran(tipo, datos)</code> -> estructura PDF Albaran Leche/Carne</li>
+        <li><code>generarDIMOE(ventaData)</code> -> documento DIMOE auto numerado</li>
+      </ul>
+    </section>
+
+    <!-- 6. SUBEXPLOTACIONES -->
+    <section id="subexplotaciones" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-purple">SubEx</span>
+        <h2>6. Subexplotaciones SIGGAN / BADIGEX</h2>
+        <p class="section-desc">Gestion de subexplotaciones (explotaciones vinculadas a la principal). REGA propio, ADSG propia, tipo explotacion independiente. Cumple RD 787/2023 y normativa CCAA.</p>
+      </div>
+
+      <h3>6.1 Datos Subexplotacion</h3>
+      <ul class="feature-list">
+        <li>Nombre, REGA propio (ES + 12 dig, validador CCAA), CEA</li>
+        <li>Tipo explotacion SIGGAN/BADIGEX (selector obligatorio)</li>
+        <li>ADSG propia (nombre, codigo, veterinario, colegiado, vencimiento)</li>
+        <li>Especies autorizadas, Capacidad maxima</li>
+        <li>Flags leche/carne independientes de finca principal</li>
+        <li>Estado: Activa / Inactiva / Baja</li>
+      </ul>
+
+      <h3>6.2 Integracion</h3>
+      <ul class="feature-list">
+        <li>Selector subexplotacion en: Wizard Movimiento, Wizard Guia, Venta Masiva (destino), Alta animal (origen)</li>
+        <li>Movimientos entre subexplotaciones: tipo 'traslado', motivo 'traslado_subexplotacion', genera DIMOE interno</li>
+        <li>Censo consolidado: Suma finca principal + subexplotaciones activas</li>
+        <li>Export CSV cuaderno digital incluye subexplotaciones en seccion MOVIMIENTOS</li>
+      </ul>
+    </section>
+
+    <!-- 7. AGENDA -->
+    <section id="agenda" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-pink">Agenda</span>
+        <h2>7. Agenda & Recordatorios</h2>
+        <p class="section-desc">Calendario eventos ganaderos con recordatorios push. Integrado en Dashboard (widget), Ganaderia (widget), SanidadView. <code>AgendaView</code> + <code>NotificacionesService</code>.</p>
+      </div>
+
+      <h3>7.1 Tipos Evento Agenda</h3>
+      <table class="feature-table">
+        <thead><tr><th>Tipo</th><th>Color</th><th>Ejemplos</th><th>Recordatorio Auto</th></tr></thead>
+        <tbody>
+          <tr><td>Sanitario</td><td>Rojo</td><td>Retiro supresion, Vacunacion proxima, Saneamiento vencido</td><td>30/15/7/1 dias antes</td></tr>
+          <tr><td>Reproductivo</td><td>Rosa</td><td>Diagnostico optimo, Secado, Parto estimado</td><td>7/1 dias antes</td></tr>
+          <tr><td>Administrativo</td><td>Ambar</td><td>Vencimiento PAC, Contrato, ADSG, Guia 365, Censo</td><td>30/15/7 dias antes</td></tr>
+          <tr><td>Produccion</td><td>Azul</td><td>Limpieza tanque, Analitica programa, Control DHI</td><td>1 dia antes</td></tr>
+          <tr><td>Financiero</td><td>Verde</td><td>Pago proveedores, Facturacion, Revision costes</td><td>7/1 dias antes</td></tr>
+          <tr><td>Personalizado</td><td>Gris</td><td>Libre (usuario)</td><td>Configurable</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7.2 Recordatorios Push (Capacitor/PWA)</h3>
+      <ul class="feature-list">
+        <li>Permisos solicitados en Ajustes > Notificaciones</li>
+        <li>Programacion local (<code>capacitor-local-notifications</code>) - funciona offline</li>
+        <li>Canales: Urgente (supresion 0 dias), Alta (vencimientos <7d), Normal (resto)</li>
+        <li>Accion tap notificacion -> abre app en vista correspondiente (deep link hash)</li>
+      </ul>
+    </section>
+
+    <!-- 8. PATRIMONIO & ICA -->
+    <section id="patrimonio" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-gold">Patrimonio</span>
+        <h2>8. Patrimonio & ICA por Animal (Solo Flag CARNE)</h2>
+        <p class="section-desc">Inventario valorado del ganado (ICA - Indice de Capacidad Aprovisionamiento). Solo visible si <code>flag CARNE = true</code>. Ver Modulo 01, seccion 4 Patrimoio.</p>
+      </div>
+
+      <h3>8.1 Calculo ICA por Animal</h3>
+      <ul class="feature-list">
+        <li><strong>Valor base:</strong> Segun especie, categoria, raza, edad (tabla referencias MAPA/SIGGAN)</li>
+        <li><strong>Plusvalia produccion:</strong> Leche (litros x precio), Carne (pesajes x GMD x precio canal)</li>
+        <li><strong>Depreciacion:</strong> Edad > optima (vacas > 6 anos, terneros > 18m) -5%/ano</li>
+        <li><strong>Costes acumulados:</strong> Compra + Sanidad + Alimentacion (imputados)</li>
+        <li><strong>ICA FINAL = Valor base + Plusvalia - Depreciacion - Costes</strong></li>
+      </ul>
+
+      <h3>8.2 Vista Patrimonio (Ganaderia Submodulo)</h3>
+      <ul class="feature-list">
+        <li>Tabla: Animal, Crotal, Especie, Categoria, Edad, ICA actual, Valor compra, Costes totales, Plusvalia, Depreciacion</li>
+        <li>Totales: ICA total finca, Inversion total, Plusvalia neta, ROI %</li>
+        <li>Grafica evolucion ICA 6 meses (linea por rebaño)</li>
+        <li>Filtros: Rebaño, Especie, Categoria, Rango ICA</li>
+        <li>Export Excel/CSV para analisis contable</li>
+      </ul>
+    </section>
+
+    <!-- 9. RFID / NFC -->
+    <section id="rfid" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-success">RFID/NFC</span>
+        <h2>9. Importador RFID / Lectura NFC</h2>
+        <p class="section-desc">Lectura crotales EID via NFC (Android) o lector Bluetooth RFID. Importacion masiva CSV/Excel de listas crotales. Validacion formato ISO 11784 15 digitos.</p>
+      </div>
+
+      <h3>9.1 Lectura NFC (Android Capacitor)</h3>
+      <ul class="feature-list">
+        <li>Boton "ESCANEAR CROTAL NFC" en Wizard Animal (Identificacion) y Wizard Movimiento</li>
+        <li>Usa <code>CapacitorNFC</code> plugin: <code>NFC.enabled()</code> -> <code>NFC.addListener('tag')</code></li>
+        <li>Lee UID tag -> busca en <code>animales</code> por <code>rfid_uid</code> o <code>numero_identificacion</code></li>
+        <li>Si encontrado: auto-rellena ficha / selecciona animal en movimiento</li>
+        <li>Si no encontrado: ofrece "Crear animal nuevo con este RFID"</li>
+      </ul>
+
+      <h3>9.2 Lector RFID Bluetooth (Opcional)</h3>
+      <ul class="feature-list">
+        <li>Soporte generico Bluetooth SPP (Serial Port Profile)</li>
+        <li>Configuracion en Ajustes > Dispositivos RFID: MAC address, Prefijo/Sufijo trama</li>
+        <li>Modo "Pistola": Lectura continua -> añade a lista seleccion multiple (Wizard Movimiento, Censo)</li>
+      </ul>
+
+      <h3>9.3 Importador Masivo Crotales (CSV/Excel)</h3>
+      <ul class="feature-list">
+        <li>Acceso: Ajustes > Asistente Configuracion > Importar Crotales</li>
+        <li>Columnas esperadas: <code>crotal</code> (obligatorio, 15 dig), <code>rfid_uid</code>, <code>especie</code>, <code>raza</code>, <code>fecha_nacimiento</code>, <code>sexo</code>, <code>rebaño</code>, <code>zona</code></li>
+        <li>Validacion: Formato ISO 11784, duplicados, raza valida FEGA, rebaño/zona existen</li>
+        <li>Resultado: Reporte importados / errores / duplicados. Crea animales estado 'activo'</li>
+      </ul>
+    </section>
+
+    <!-- 10. DEMO CHAMORRO -->
+    <section id="demo" class="module-section">
+      <div class="section-header">
+        <span class="section-badge badge-info">Demo</span>
+        <h2>10. Datos Demo CHAMORRO — Configuracion & Documentos</h2>
+        <p class="section-desc">Finca demo con todos los datos para probar configuracion multi-finca, documentos, cuaderno digital, trazabilidad, RFID.</p>
+      </div>
+
+      <h3>10.1 Precarga Configuracion</h3>
+      <div class="demo-grid">
+        <div class="demo-item"><strong>Finca Principal:</strong> "Ganaderia CHAMORRO (DEMO)" Andalucia + Subexplotacion Extremadura</div>
+        <div class="demo-item"><strong>ADSG Principal:</strong> Codigo, veterinario, colegiado, vigente > 1 ano</div>
+        <div class="demo-item"><strong>Subexplotacion:</strong> "CHAMORRO EXTREMADURA" REGA propio, ADSG propia, flags independientes</div>
+        <div class="demo-item"><strong>Documentos Legales:</strong> 2 Declaraciones censal (borrador/presentado), 1 Pedido crotales, 3 Guias movimiento, 2 DIMOE, 3 INFOLAC, 5 Albaranes leche, 4 Albaranes carne</div>
+        <div class="demo-item"><strong>Cuaderno Digital:</strong> 8 secciones CSV listas, pre-flight OK -> ZIP exportable</div>
+        <div class="demo-item"><strong>Trazabilidad:</strong> 6 fuentes pobladas para 8 animales -> timeline completo</div>
+        <div class="demo-item"><strong>Agenda:</strong> 10+ eventos: supresiones, vacunaciones, saneamientos, contratos, PAC</div>
+        <div class="demo-item"><strong>Patrimonio:</strong> 8 animales con ICA calculado, grafica evolucion 6 meses</div>
+        <div class="demo-item"><strong>RFID:</strong> 5 animales con rfid_uid simulado, 3 sin RFID (para probar creacion)</div>
+      </div>
+
+      <h3>10.2 Pruebas Clave en Demo</h3>
+      <ul class="feature-list">
+        <li>Cambio finca Principal <-> Subexplotacion -> recarga flags, navegacion, carruseles</li>
+        <li>Export Cuaderno Digital -> ZIP 8 CSV + README, pre-flight verde</li>
+        <li>Trazabilidad animal (ficha edicion) -> 6 fuentes timeline, enlaces origen</li>
+        <li>NFC Scan (simulado) -> busca animal por rfid_uid, rellena ficha</li>
+        <li>Importar Crotales CSV -> valida 15 dig, crea animales, reporte errores</li>
+        <li>Wizard Finca Editar Paso 3 Letra Q -> validaciones condicionales >300 plazas</li>
+        <li>Agenda -> recordatorios push locales (simulados), tap -> deep link vista</li>
+      </ul>
+    </section>
+
+    <!-- Navegación final -->
+    <nav class="module-nav-bottom">
+      <a href="manual-sanidad-reproduccion.html" class="nav-btn">&larr; Anterior: Sanidad & Reproduccion</a>
+      <a href="index.html" class="nav-btn nav-btn-primary">Volver al Indice General &rarr;</a>
+    </nav>
+
+  </main>
+
+  <footer class="manual-footer">
+    <p>LIVESTOCK MANAGER v4.10.4 — Manual Profesional &middot; Modulo 06/06</p>
+    <p class="copyright">SIGGAN &middot; BADIGEX &middot; RD 787/2023 &middot; RD 989/2022 &middot; Generado 2026-08-07</p>
+  </footer>
+</body>
+</html>
