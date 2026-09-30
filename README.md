@@ -98,3 +98,20 @@ inexistente aquí — descartarlos del commit (ver `4e1da54`).
 ## Otros pendientes conocidos
 
 - **Screenshots**: el manifest no incluye `screenshots` (recomendado por PWABuilder para un listing más rico en Store). Añadir cuando haya capturas de la app en modo escritorio/ancho.
+
+
+---
+
+## 💚 Support the project
+
+If this project helps you save time, reduce errors, or improve operations, consider sponsoring it.
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-GitHub-ff69b4?style=for-the-badge&logo=github)](https://github.com/sponsors/SADOCKDOG)
+
+Your support helps me:
+- keep the project running
+- improve features and stability
+- expand documentation and support
+- develop new tools and integrations
+
+Thank you for supporting the project.
