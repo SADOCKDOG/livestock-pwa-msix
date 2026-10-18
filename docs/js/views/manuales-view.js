@@ -102,6 +102,14 @@ const ManualesView = {
       color: '#c9851f',
     },
     {
+      id: 'zonas-sigpac',
+      titulo: 'Importación de Zonas del SIGPAC',
+      descripcion: 'Exporta el PDF oficial desde el Catastro (SIGPAC) e importa parcelas a la app: referencia catastral automática, superficie y localización.',
+      icono: 'zonas',
+      archivo: 'manual/manual-zonas.html',
+      color: '#c9851f',
+    },
+    {
       id: 'contratos',
       titulo: 'Contratos — Acuerdos Comerciales',
       descripcion: 'Registro de contratos con compradores: tipos (carne/leche/mixto), vigencia, IVA, tabla de precios pactados y su integración en liquidaciones.',
@@ -177,10 +185,15 @@ const ManualesView = {
       </div>`;
   },
 
+  /** Escapa un valor para interpolarlo entre comillas simples dentro de un atributo onclick. */
+  _escAttr(valor) {
+    return String(valor).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  },
+
   _renderLista() {
     return this._MANUALES.map(m => `
       <div class="card-registro manual-card" style="--registro-color: ${m.color}; padding:16px; cursor:pointer;"
-           onclick="ManualesView._abrirManual('${m.archivo}', '${m.titulo.replace(/'/g, "\\'")}')">
+           onclick="ManualesView._abrirManual('${m.archivo}', '${this._escAttr(m.titulo)}')">
         <div class="flex items-center gap-14">
           <span class="flex-shrink-0" style="width:32px; height:32px; color:${m.color}; display:flex; align-items:center; justify-content:center;">
             ${Icons[m.icono] ? Icons[m.icono]({ style: 'width:32px; height:32px;' }) : ''}
@@ -190,7 +203,7 @@ const ManualesView = {
             <div style="font-size:0.78rem; color:#999; line-height:1.3;">${m.descripcion}</div>
           </div>
           <button class="btn btn-sm" style="flex-shrink:0; background:${m.color}; color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:0.7rem; font-weight:700;"
-                  onclick="event.stopPropagation(); ManualesView._exportarPDF('${m.archivo}', '${m.titulo}')">
+                  onclick="event.stopPropagation(); ManualesView._exportarPDF('${m.archivo}', '${this._escAttr(m.titulo)}')">
             ${Icons.exportar()} PDF
           </button>
         </div>

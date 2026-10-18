@@ -51,6 +51,14 @@
     --c-blue-accent: #4FADF5; /* Azul UI (badges, bordes) */
     --c-red-accent:  #E8555F; /* Rojo UI (badges, alertas) */
 
+    /* ── ACENTOS COMO TEXTO (AA sobre fondo oscuro/tinte) ──
+       Los tonos base (--c-danger/info/purple) no llegan a 4.5:1 cuando van como
+       TEXTO sobre su propio tinte al 10%; estas variantes aclaradas sí, misma
+       tonalidad. Usar SOLO para texto; bordes/fondos siguen con el tono base. */
+    --c-danger-txt: #FF8A8A;
+    --c-info-txt:   #7DB2F7;
+    --c-purple-txt: #C084FC;
+
     /* ── COLORES DE MÓDULO (Tricolor corporativo simplificado) ── */
     --c-orange: #F97316;      /* Naranja Neón - Animales / Cuaderno Digital */
     --c-purple: #A855F7;      /* Violeta Neón - Proveedores / Manuales / Documentos-Trámites */

@@ -69,10 +69,6 @@ const InstalacionesView = {
               ${instalacionesConIndice.length} ${instalacionesConIndice.length === 1 ? 'registro' : 'registros'}
             </div>
           </div>
-          <div class="ml-auto flex gap-6">
-            <button class="btn-erp-secondary btn-sm" id="btn-inst-vista-cards" onclick="InstalacionesView._setVistaModo('cards')">Tarjetas</button>
-            <button class="btn-erp-secondary btn-sm" id="btn-inst-vista-tabla" onclick="InstalacionesView._setVistaModo('tabla')">Tabla ERP</button>
-          </div>
         </div>
         <fieldset class="erp-action-group">
           <legend>Registro de Instalaciones</legend>
@@ -92,7 +88,7 @@ const InstalacionesView = {
 
     // Restaurar modo de vista (por defecto "tabla" en escritorio >= 1024px)
     if (this._cache.length > 0) {
-      const modoGuardado = localStorage.getItem('instalaciones_view_mode') || 'cards';
+      const modoGuardado = VistaRegistros.get();
       this._setVistaModo(modoGuardado, false);
     }
   },
@@ -100,19 +96,10 @@ const InstalacionesView = {
   /** Alterna entre el listado de tarjetas (móvil) y la tabla densa ERP (escritorio). */
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('instalaciones_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-inst-vista-cards');
-    const btnTabla = document.getElementById('btn-inst-vista-tabla');
     const contenedorCards = document.getElementById('inst-lista');
     const contenedorTabla = document.getElementById('inst-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';

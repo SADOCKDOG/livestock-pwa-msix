@@ -115,10 +115,6 @@ const SilosView = {
                     </h1>
                     <p class="text-xs font-bold uppercase tracking-tight text-gray-400 m-0">Telemetría de alimentación y almacenamiento</p>
                 </div>
-                <div class="flex gap-6">
-                    <button class="btn-erp-secondary btn-sm" id="btn-silos-vista-cards" onclick="SilosView._setVistaModo('cards')">Tarjetas</button>
-                    <button class="btn-erp-secondary btn-sm" id="btn-silos-vista-tabla" onclick="SilosView._setVistaModo('tabla')">Tabla ERP</button>
-                </div>
             </div>
 
             <!-- KPIs superiores (OLED dark design) -->
@@ -162,20 +158,15 @@ const SilosView = {
         `;
 
         if (this._cachedSilos.length > 0) {
-            const modoGuardado = localStorage.getItem('silos_view_mode') || 'cards';
+            const modoGuardado = VistaRegistros.get();
             this._setVistaModo(modoGuardado, false);
         }
     },
 
     _setVistaModo(modo, guardar = true) {
         this._vistaModo = modo;
-        if (guardar) localStorage.setItem('silos_view_mode', modo);
-        const btnCards = document.getElementById('btn-silos-vista-cards');
-        const btnTabla = document.getElementById('btn-silos-vista-tabla');
         const lista = document.getElementById('silos-lista');
         const tablaC = document.getElementById('silos-erp-table-container');
-        if (btnCards) btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-        if (btnTabla) btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
         if (lista) lista.style.display = modo === 'cards' ? '' : 'none';
         if (tablaC) {
             if (modo === 'tabla') {

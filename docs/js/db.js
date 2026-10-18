@@ -306,7 +306,7 @@ class InMemoryMockDB {
                 'pedidos_crotales', 'movimientos_ganado', 'saneamientos', 'adsgs',
                 'config_costes_referencia', 'config_silos', 'especies', 'tipos_identificador',
                 'especie_tipo_identificador', 'razas', 'vacunaciones', 'instalaciones_tipo',
-                'config_botiquin', 'agenda_tareas'
+                'config_botiquin', 'agenda_tareas', 'croquis_parcelas'
             ],
             contains(name) { return this.names.includes(name); }
         };

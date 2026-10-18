@@ -8,22 +8,419 @@ const ZonasView = {
   _cache: [],
   _vistaModo: 'cards',
 
+  _normalizarClaveZona(valor) {
+    return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  },
+
+  _asegurarIdsZonas(finca, idsReservados = []) {
+    if (!finca || !Array.isArray(finca.zonas)) return [];
+    const idsExistentes = new Set();
+    for (const zona of finca.zonas) {
+      if (!zona || zona.id == null || zona.id === '') continue;
+      const id = Number(zona.id);
+      if (!Number.isInteger(id) || id < 1) {
+        throw new Error(`El ID de la zona «${zona.nombre || 'sin nombre'}» no es válido; no se cambiará automáticamente.`);
+      }
+      if (idsExistentes.has(id)) {
+        throw new Error(`Hay más de una zona con el ID ${id}; no se modificará ninguna relación automáticamente.`);
+      }
+      zona.id = id;
+      idsExistentes.add(id);
+    }
+    const idsOcupados = new Set([...idsExistentes, ...idsReservados.map(Number).filter((id) => Number.isInteger(id) && id > 0)]);
+    let siguienteId = Math.max(0, ...idsOcupados) + 1;
+    for (const zona of finca.zonas) {
+      if (!zona || (zona.id != null && zona.id !== '')) continue;
+      while (idsOcupados.has(siguienteId)) siguienteId++;
+      zona.id = siguienteId;
+      idsExistentes.add(siguienteId);
+      idsOcupados.add(siguienteId++);
+    }
+    return finca.zonas;
+  },
+
+  async _asegurarIdsZonasYRelaciones(finca, opciones = {}) {
+    if (!finca || !Array.isArray(finca.zonas)) return { cambiosIds: false, rebanosActualizados: [] };
+    // Evitar que el fallback en memoria aplique mutaciones previas a persistir.
+    finca.zonas = finca.zonas.map((zona) => zona ? { ...zona } : zona);
+    const db = await window.dbPromise;
+    const rebanos = finca.id != null
+      ? await db.getAllFromIndex('rebanos', 'fincaId', finca.id).catch(() => [])
+      : [];
+    const idsAntes = finca.zonas.map((zona) => zona?.id);
+    const idsExistentes = new Set();
+    for (const zona of finca.zonas) {
+      if (!zona || zona.id == null || zona.id === '') continue;
+      const id = Number(zona.id);
+      if (!Number.isInteger(id) || id < 1) throw new Error(`El ID de la zona «${zona.nombre || 'sin nombre'}» no es válido.`);
+      if (idsExistentes.has(id)) throw new Error(`Hay más de una zona con el ID ${id}; revisa las relaciones manualmente.`);
+      idsExistentes.add(id);
+      zona.id = id;
+    }
+    const normalizarNombre = (nombre) => this._normalizarClaveZona(nombre);
+    const zonasPorNombre = new Map();
+    for (const zona of finca.zonas) {
+      const clave = normalizarNombre(zona?.nombre);
+      if (!clave) continue;
+      if (!zonasPorNombre.has(clave)) zonasPorNombre.set(clave, []);
+      zonasPorNombre.get(clave).push(zona);
+    }
+
+    // Reutilizar un zonaId legado huérfano solo si nombre e ID apuntan a una
+    // única zona. Los croquis no se usan para inferir propietario por índice.
+    const idsPorNombre = new Map();
+    const nombresPorId = new Map();
+    for (const rebano of rebanos) {
+      if (rebano?.zonaId == null || rebano.zonaId === '') continue;
+      const id = Number(rebano.zonaId);
+      const nombre = normalizarNombre(rebano.zonaActual);
+      if (!Number.isInteger(id) || id < 1 || !nombre || idsExistentes.has(id)) continue;
+      if (!idsPorNombre.has(nombre)) idsPorNombre.set(nombre, new Set());
+      idsPorNombre.get(nombre).add(id);
+      if (!nombresPorId.has(id)) nombresPorId.set(id, new Set());
+      nombresPorId.get(id).add(nombre);
+    }
+    for (const [nombre, zonas] of zonasPorNombre) {
+      const zona = zonas.find((item) => item.id == null || item.id === '');
+      if (!zona) continue;
+      const candidatos = [...(idsPorNombre.get(nombre) || [])];
+      if (!candidatos.length) continue;
+      if (zonas.length !== 1 || candidatos.length !== 1 || nombresPorId.get(candidatos[0])?.size !== 1) {
+        throw new Error(`No se pueden resolver automáticamente las relaciones heredadas de «${zona.nombre}»; revisa la zona y los rebaños.`);
+      }
+      zona.id = candidatos[0];
+      idsExistentes.add(candidatos[0]);
+    }
+
+    const zonaIdsReferenciados = rebanos.map((rebano) => Number(rebano?.zonaId)).filter((id) => Number.isInteger(id) && id > 0);
+    this._asegurarIdsZonas(finca, zonaIdsReferenciados);
+    const cambiosIds = finca.zonas.some((zona, i) => zona?.id !== idsAntes[i]);
+    const rebanosActualizados = rebanos.filter((rebano) =>
+      rebano && (rebano.zonaId == null || rebano.zonaId === '') && normalizarNombre(rebano.zonaActual)
+    ).map((rebano) => {
+      const matches = zonasPorNombre.get(normalizarNombre(rebano.zonaActual)) || [];
+      return matches.length === 1 && !matches[0].anulada && matches[0].id != null
+        ? { ...rebano, zonaId: Number(matches[0].id) }
+        : null;
+    }).filter(Boolean);
+
+    if (opciones.persist !== false && (cambiosIds || rebanosActualizados.length)) {
+      const fincaOriginal = cambiosIds ? await db.get('fincas', finca.id) : null;
+      const rebanosOriginales = db.constructor?.name === 'InMemoryMockDB' ? rebanos.map((rebano) => ({ ...rebano })) : [];
+      if (typeof db.transaction === 'function') {
+        const tx = db.transaction(['fincas', 'rebanos'], 'readwrite');
+        try {
+          const escrituras = [];
+          if (cambiosIds) escrituras.push(Fincas.save(finca, { transaction: tx }));
+          escrituras.push(...rebanosActualizados.map((rebano) => tx.objectStore('rebanos').put(rebano)));
+          await Promise.all(escrituras);
+          await tx.done;
+        } catch (error) {
+          try { tx.abort(); } catch (_) { /* el mock puede no implementar abort */ }
+          try { await tx.done; } catch (_) { /* esperar al rollback IndexedDB */ }
+          if (db.constructor?.name === 'InMemoryMockDB') {
+            if (fincaOriginal) await db.put('fincas', fincaOriginal);
+            for (const rebano of rebanosOriginales) await db.put('rebanos', rebano);
+          }
+          throw error;
+        }
+      } else {
+        if (cambiosIds) await Fincas.save(finca);
+        for (const rebano of rebanosActualizados) await db.put('rebanos', rebano);
+      }
+    }
+    return { cambiosIds, rebanosActualizados };
+  },
+
+  _resolverRelacionesLegacyZonas(finca, rebanos) {
+    const zonas = Array.isArray(finca?.zonas) ? finca.zonas : [];
+    const normalizarNombre = (nombre) => this._normalizarClaveZona(nombre);
+    const zonasPorNombre = new Map();
+    for (const zona of zonas) {
+      const clave = normalizarNombre(zona?.nombre);
+      if (!clave) continue;
+      if (!zonasPorNombre.has(clave)) zonasPorNombre.set(clave, []);
+      zonasPorNombre.get(clave).push(zona);
+    }
+    const idsPorNombre = new Map();
+    const nombresPorId = new Map();
+    const idsOcupados = new Set(zonas.map((zona) => Number(zona?.id)).filter((id) => Number.isInteger(id) && id > 0));
+    for (const rebano of rebanos || []) {
+      if (rebano?.zonaId == null || rebano.zonaId === '') continue;
+      const id = Number(rebano.zonaId);
+      const nombre = normalizarNombre(rebano.zonaActual);
+      if (!Number.isInteger(id) || id < 1 || !nombre || idsOcupados.has(id)) continue;
+      if (!idsPorNombre.has(nombre)) idsPorNombre.set(nombre, new Set());
+      idsPorNombre.get(nombre).add(id);
+      if (!nombresPorId.has(id)) nombresPorId.set(id, new Set());
+      nombresPorId.get(id).add(nombre);
+    }
+    for (const [nombre, zonasConNombre] of zonasPorNombre) {
+      const zona = zonasConNombre.find((item) => item.id == null || item.id === '');
+      if (!zona) continue;
+      const candidatos = [...(idsPorNombre.get(nombre) || [])];
+      if (!candidatos.length) continue;
+      if (zonasConNombre.length !== 1 || candidatos.length !== 1 || nombresPorId.get(candidatos[0])?.size !== 1) {
+        throw new Error(`No se pueden resolver automáticamente las relaciones heredadas de «${zona.nombre}»; revisa la zona y los rebaños.`);
+      }
+      zona.id = candidatos[0];
+      idsOcupados.add(candidatos[0]);
+    }
+    return zonas;
+  },
+
+  _buscarCoincidenciasZona(zonas, datos = {}) {
+    const activas = (Array.isArray(zonas) ? zonas : [])
+      .map((zona, index) => ({ zona, index }))
+      .filter(({ zona }) => zona && !zona.anulada);
+    const referencia = this._normalizarClaveZona(datos.refCatastral);
+    const codigoPac = this._normalizarClaveZona(datos.codigo_pac || datos.codigoPAC);
+    const nombre = this._normalizarClaveZona(datos.nombre);
+
+    const coincidencias = [];
+    if (referencia) {
+      coincidencias.push(...activas
+        .filter(({ zona }) => this._normalizarClaveZona(zona.refCatastral) === referencia)
+        .map((item) => ({ ...item, coincidencia: 'referencia catastral' })));
+    }
+    if (codigoPac) {
+      coincidencias.push(...activas
+        .filter(({ zona }) => this._normalizarClaveZona(zona.codigo_pac) === codigoPac)
+        .map((item) => ({ ...item, coincidencia: 'código PAC' })));
+    }
+    const clavesParcela = new Set();
+    const municipio = this._normalizarClaveZona(datos.municipio);
+    const provincia = this._normalizarClaveZona(datos.provincia);
+    if (municipio && provincia && datos.poligono != null && datos.parcela != null) {
+      clavesParcela.add(`${provincia}|${municipio}|${this._normalizarClaveZona(datos.poligono)}|${this._normalizarClaveZona(datos.parcela)}`);
+    }
+    for (const { zona, index } of activas) {
+      const municipioZona = this._normalizarClaveZona(zona.municipio);
+      const provinciaZona = this._normalizarClaveZona(zona.provincia);
+      if (!municipioZona || !provinciaZona || zona.poligono == null || zona.parcela == null) continue;
+      const claveZona = `${provinciaZona}|${municipioZona}|${this._normalizarClaveZona(zona.poligono)}|${this._normalizarClaveZona(zona.parcela)}`;
+      if (clavesParcela.has(claveZona)) coincidencias.push({ zona, index, coincidencia: 'municipio, polígono y parcela' });
+    }
+    if (coincidencias.length) {
+      return coincidencias.filter((item, index, lista) =>
+        lista.findIndex((otro) => item.zona.id != null && otro.zona.id != null
+          ? Number(otro.zona.id) === Number(item.zona.id)
+          : otro.index === item.index) === index
+      );
+    }
+    if (nombre) {
+      return activas
+        .filter(({ zona }) => this._normalizarClaveZona(zona.nombre) === nombre)
+        .map((item) => ({ ...item, coincidencia: 'nombre (revisar)' }));
+    }
+    return [];
+  },
+
+  _aplicarDatosCatastro(zonaExistente, datos, opciones = {}) {
+    const zona = zonaExistente ? { ...zonaExistente } : {};
+    const ahora = new Date().toISOString();
+    const superficieHa = datos.superficie != null && Number.isFinite(Number(datos.superficie))
+      ? Number(datos.superficie)
+      : (datos.superficieGrafica != null && Number.isFinite(Number(datos.superficieGrafica))
+        ? Number(datos.superficieGrafica) / 10000
+        : null);
+    const idExistente = zona.id;
+    if (zonaExistente && (idExistente === null || idExistente === undefined || idExistente === '')) {
+      throw new Error('La zona existente no tiene ID estable; no se actualizará automáticamente.');
+    }
+    if (zonaExistente && (!Number.isInteger(Number(idExistente)) || Number(idExistente) < 1)) {
+      throw new Error('La zona existente tiene un ID no válido; no se actualizará automáticamente.');
+    }
+    if (zonaExistente) zona.id = Number(idExistente);
+    else if (opciones.id != null) zona.id = opciones.id;
+    if (opciones.id != null && zona.id !== opciones.id) {
+      throw new Error('La actualización intentó cambiar el ID estable de una zona existente.');
+    }
+    if (zonaExistente && zona.id == null) throw new Error('No se pudo asignar un ID estable a la zona existente.');
+
+    // Solo se reemplazan campos que el parser obtuvo. Un dato ausente en un PDF
+    // no debe borrar un dato catastral previamente comprobado.
+    const camposCatastro = {
+      refCatastral: datos.refCatastral,
+      poligono: datos.poligono,
+      parcela: datos.parcela,
+      paraje: datos.paraje,
+      municipio: datos.municipio,
+      provincia: datos.provincia,
+      clase: datos.clase,
+      superficieGrafica: datos.superficieGrafica,
+      superficieCatastroHa: superficieHa,
+      superficieConstruida: datos.superficieConstruida,
+      anoConstruccion: datos.anoConstruccion,
+      localizacionCatastro: datos.localizacion,
+      usoPrincipalCatastro: datos.usoPrincipal
+    };
+    for (const [campo, valor] of Object.entries(camposCatastro)) {
+      if (valor !== undefined && valor !== null && valor !== '') zona[campo] = valor;
+    }
+    if (Array.isArray(datos.cultivos) && (datos.cultivos.length || !zonaExistente)) zona.cultivos = datos.cultivos;
+    if (Array.isArray(datos.construcciones) && (datos.construcciones.length || !zonaExistente)) zona.construcciones = datos.construcciones;
+    zona.actualizadaEn = ahora;
+
+    if (!zonaExistente && opciones.nombre) zona.nombre = opciones.nombre;
+    if (!zonaExistente || !zona.usoPrincipal || zona.usoPrincipalOrigen === 'catastro') {
+      zona.usoPrincipal = datos.usoPrincipal || zona.usoPrincipal || '';
+      zona.usoPrincipalOrigen = zona.usoPrincipal ? 'catastro' : (zona.usoPrincipalOrigen || 'manual');
+    }
+    if (superficieHa != null && (!zonaExistente || zona.superficieOrigen === 'catastro')) {
+      zona.superficie = superficieHa;
+      zona.superficieOrigen = 'catastro';
+    } else if (superficieHa != null && zonaExistente && zona.superficieOrigen !== 'manual' && zona.superficie != null) {
+      // Las zonas antiguas no guardaban el origen. Una superficie ya existente
+      // se trata como manual y no se sobrescribe por una importación catastral.
+      zona.superficieOrigen = 'manual';
+    }
+    if (opciones.croquisId != null) {
+      const historial = Array.isArray(zona.croquisHistorialIds) ? [...zona.croquisHistorialIds] : [];
+      if (zona.croquisId != null && zona.croquisId !== opciones.croquisId && !historial.includes(zona.croquisId)) {
+        historial.push(zona.croquisId);
+      }
+      zona.croquisHistorialIds = historial;
+      zona.croquisId = opciones.croquisId;
+    }
+    if (opciones.nombre && !zonaExistente) zona.nombre = opciones.nombre;
+    if (!zonaExistente) zona.creadaEn = ahora;
+    return zona;
+  },
+
+  _elegirCoincidenciaManual(coincidencias, permitirCrear) {
+    return new Promise((resolve) => {
+      const modalId = `elegir-zona-duplicada-${Date.now()}`;
+      const opciones = coincidencias.map(({ zona, index, coincidencia }, i) => `
+        <label class="flex items-center gap-3 p-3 border-bottom-222 cursor-pointer">
+          <input type="radio" name="zona-duplicada-opcion" value="${i}">
+          <span>${zona.nombre || 'Zona sin nombre'} · ${coincidencia} · ID ${zona.id}</span>
+        </label>
+      `).join('');
+      const html = `
+        <div class="error-dialog">
+          <div class="error-dialog-title">Posible zona duplicada</div>
+          <div class="error-dialog-msg">Se encontraron una o varias coincidencias. Si actualizas, se conservarán su ID, nombre operativo, relaciones e historial.</div>
+          <div class="max-h-60 overflow-auto">${opciones}</div>
+          <div class="error-dialog-actions mt-10">
+            ${permitirCrear ? '<button type="button" class="error-dialog-btn secondary" data-accion="crear">Crear zona nueva</button>' : ''}
+            <button type="button" id="${modalId}-cancel" class="error-dialog-btn secondary" data-accion="cancelar">Cancelar</button>
+            <button type="button" class="error-dialog-btn primary" data-accion="actualizar" disabled>Actualizar elegida</button>
+          </div>
+        </div>
+      `;
+      const overlay = ModalManager.show(modalId, html, { closeOnOverlayClick: false });
+      let resuelta = false;
+      const escapeHandler = (event) => {
+        if (event.key === 'Escape' && !resuelta) cerrar({ accion: 'cancelar' });
+      };
+      const cerrar = (resultado) => {
+        if (resuelta) return;
+        resuelta = true;
+        document.removeEventListener('keydown', escapeHandler);
+        ModalManager.close(modalId);
+        resolve(resultado);
+      };
+      const botonActualizar = overlay?.querySelector('[data-accion="actualizar"]');
+      overlay?.querySelectorAll('input[name="zona-duplicada-opcion"]').forEach((radio) => {
+        radio.addEventListener('change', () => { if (botonActualizar) botonActualizar.disabled = false; });
+      });
+      overlay?.querySelector('[data-accion="crear"]')?.addEventListener('click', () => cerrar({ accion: 'crear' }));
+      overlay?.querySelector('[data-accion="cancelar"]')?.addEventListener('click', () => cerrar({ accion: 'cancelar' }));
+      botonActualizar?.addEventListener('click', () => {
+        const seleccion = overlay.querySelector('input[name="zona-duplicada-opcion"]:checked');
+        if (seleccion) cerrar({ accion: 'actualizar', index: Number(seleccion.value) });
+      });
+      document.addEventListener('keydown', escapeHandler);
+      if (overlay) {
+        const observer = new MutationObserver(() => {
+          if (!overlay.isConnected) {
+            observer.disconnect();
+            cerrar({ accion: 'cancelar' });
+          }
+        });
+        if (overlay.parentNode) observer.observe(overlay.parentNode, { childList: true });
+      }
+    });
+  },
+
+  async _registrarEventosZonas(fincaId, eventos, transaction = null) {
+    if (!Array.isArray(eventos) || eventos.length === 0) return;
+    const registros = eventos.map(({ zona, tipo, descripcion, observaciones = '' }) => ({
+      fincaId,
+      entidad_id: zona?.id ?? null,
+      tipo_entidad: 'zona',
+      tipo: 'auditoria',
+      motivo_tarea: tipo,
+      fecha: new Date().toISOString().split('T')[0],
+      descripcion,
+      observaciones,
+      creadoEn: new Date().toISOString()
+    }));
+    if (transaction) {
+      // Encolar las solicitudes mientras la transacción IndexedDB sigue activa.
+      await Promise.all(registros.map((registro) => transaction.objectStore('registro_eventos').add(registro)));
+      return;
+    }
+    const db = await window.dbPromise;
+    if (typeof db.transaction !== 'function') throw new Error('La base de datos no permite guardar la trazabilidad de forma segura.');
+    const tx = db.transaction('registro_eventos', 'readwrite');
+    await Promise.all(registros.map((registro) => tx.store.add(registro)));
+    await tx.done;
+  },
+
+  async _registrarEventoZona(zona, fincaId, motivo, descripcion, observaciones = '') {
+    try {
+      await this._registrarEventosZonas(fincaId, [{ zona, tipo: motivo, descripcion, observaciones }]);
+    } catch (e) {
+      console.error('[ZonasView] No se pudo registrar el evento de zona:', e);
+      throw new Error(`No se pudo registrar la trazabilidad de la zona: ${e.message}`);
+    }
+  },
+
+  async _guardarFincaYEventoZona(finca, zona, motivo, descripcion, observaciones = '', rebanosActualizados = []) {
+    const db = await window.dbPromise;
+    if (typeof db.transaction !== 'function') {
+      throw new Error('No se puede guardar la zona sin una transacción de trazabilidad segura.');
+    }
+    const fincaOriginal = await db.get('fincas', finca.id);
+    const rebanosOriginales = db.constructor?.name === 'InMemoryMockDB'
+      ? await db.getAllFromIndex('rebanos', 'fincaId', finca.id)
+      : [];
+    const eventosOriginalesIds = db.constructor?.name === 'InMemoryMockDB'
+      ? new Set((await db.getAllFromIndex('registro_eventos', 'fincaId', finca.id)).map((evento) => evento.id))
+      : new Set();
+    const tx = db.transaction(['fincas', 'rebanos', 'registro_eventos'], 'readwrite');
+    try {
+      const escrituras = [
+        Fincas.save(finca, { transaction: tx }),
+        this._registrarEventosZonas(finca.id, [{ zona, tipo: motivo, descripcion, observaciones }], tx),
+        ...rebanosActualizados.map((rebano) => tx.objectStore('rebanos').put(rebano))
+      ];
+      await Promise.all(escrituras);
+      await tx.done;
+    } catch (error) {
+      try { tx.abort(); } catch (_) { /* el mock puede no implementar abort */ }
+      try { await tx.done; } catch (_) { /* esperar al rollback IndexedDB */ }
+      if (db.constructor?.name === 'InMemoryMockDB') {
+        if (fincaOriginal) await db.put('fincas', fincaOriginal);
+        for (const rebano of rebanosOriginales) await db.put('rebanos', rebano);
+        const eventosTrasFallo = await db.getAllFromIndex('registro_eventos', 'fincaId', finca.id);
+        for (const evento of eventosTrasFallo) {
+          if (!eventosOriginalesIds.has(evento.id)) await db.delete('registro_eventos', evento.id);
+        }
+      }
+      throw error;
+    }
+  },
+
   /** Alterna entre las fichas de zona (con barra de carga) y la tabla densa ERP. */
   _setVistaModo(modo, guardar = true) {
     this._vistaModo = modo;
-    if (guardar) {
-      try { localStorage.setItem('zonas_view_mode', modo); } catch (_) {}
-    }
 
-    const btnCards = document.getElementById('btn-zonas-vista-cards');
-    const btnTabla = document.getElementById('btn-zonas-vista-tabla');
     const contenedorCards = document.getElementById('zonas-lista');
     const contenedorTabla = document.getElementById('zonas-erp-table-container');
 
-    if (btnCards && btnTabla) {
-      btnCards.style.background = modo === 'cards' ? 'var(--brand, #1F5FA8)' : 'transparent';
-      btnTabla.style.background = modo === 'tabla' ? 'var(--brand, #1F5FA8)' : 'transparent';
-    }
 
     if (modo === 'tabla') {
       if (contenedorCards) contenedorCards.style.display = 'none';
@@ -85,9 +482,14 @@ const ZonasView = {
   async render() {
     // Color de pantalla: lo fija GanaderiaView (color fijo de GeGan), esta vista siempre va embebida en su carrusel.
     const main = document.getElementById("ganaderia-tab-content") || document.getElementById("app-content");
-    const finca = await Fincas.getActive();
+    let finca = await Fincas.getActive();
+    if (!finca) return App.toastError('No hay finca activa');
+    const migracionRelaciones = await this._asegurarIdsZonasYRelaciones(finca);
+    if (migracionRelaciones.cambiosIds || migracionRelaciones.rebanosActualizados.length) {
+      finca = await Fincas.getActive();
+    }
     const rebanos = await Rebanos.list();
-
+    const db = await window.dbPromise;
     // Auto-inicialización inteligente en caliente de la parcela intensiva para pruebas en la demo CHAMORRO
     if (finca && (finca.demo || (finca.nombre && finca.nombre.includes('CHAMORRO')))) {
       finca.zonas = finca.zonas || [];
@@ -108,12 +510,17 @@ const ZonasView = {
         });
 
         // Guardar la finca para persistir la nueva zona
-        await window.db.put('fincas', finca).catch(() => {});
+        const idsOcupados = [...finca.zonas.map((zona) => Number(zona?.id) || 0), ...rebanos.map((rebano) => Number(rebano?.zonaId) || 0)];
+        const idZonaNueva = Math.max(0, ...idsOcupados) + 1;
+        const zonaDemo = finca.zonas[finca.zonas.length - 1];
+        zonaDemo.id = idZonaNueva;
+        await db.put('fincas', finca);
 
         // Reasignar el rebaño de Terneros Cebo a la nueva parcela pequeña para disparar el sobrepastoreo (2.0 UGM/ha)
         const rCebo = rebanos.find(r => r.nombre === 'Terneros Cebo');
         if (rCebo && rCebo.zonaActual !== 'Cercado de Cebo 1ha') {
           rCebo.zonaActual = 'Cercado de Cebo 1ha';
+          rCebo.zonaId = idZonaNueva;
           await Rebanos.save(rCebo).catch(() => {});
         }
 
@@ -140,7 +547,9 @@ const ZonasView = {
       for (const item of zonasConIndice) {
         const z = item.zona;
         let censoTotal = 0;
-        const rebsEnZona = rebanos.filter((r) => r.zonaId === z.id);
+        const rebsEnZona = rebanos.filter((r) => z.id != null
+          ? Number(r.zonaId) === Number(z.id) || (r.zonaId == null && r.zonaActual === z.nombre)
+          : r.zonaActual === z.nombre);
         const especiesEnZona = new Set();
 
         let rebanosHtml = "";
@@ -163,7 +572,13 @@ const ZonasView = {
         }
 
         const aforo = z.aforoMax || z.aforo_maximo || 50;
-        const superficie = z.superficie || z.superficieGrafica || 0;
+        const superficieDeclarada = Number(z.superficie);
+        const superficieGrafica = Number(z.superficieGrafica);
+        const superficie = Number.isFinite(superficieDeclarada) && superficieDeclarada > 0
+          ? superficieDeclarada
+          : (z.refCatastral && Number.isFinite(superficieGrafica)
+            ? (Number.isFinite(Number(z.superficieCatastroHa)) ? Number(z.superficieCatastroHa) : superficieGrafica / 10000)
+            : (superficieGrafica || 0));
         totalAforo += aforo;
         totalOcupacion += censoTotal;
         const pct = aforo > 0 ? Math.round((censoTotal / aforo) * 100) : 0;
@@ -322,10 +737,6 @@ const ZonasView = {
               <div class="text-[0.6rem] text-gray uppercase font-900">Total Zonas: <strong class="text-white">${zonasConIndice.length}</strong></div>
               <div class="text-[0.6rem] text-gray uppercase font-900">Ocupación: <strong class="text-success">${totalOcupacion} cab.</strong></div>
             </div>
-            <div class="flex gap-6 mt-10 justify-end">
-              <button class="btn-erp-secondary btn-sm" id="btn-zonas-vista-cards" onclick="ZonasView._setVistaModo('cards')">Tarjetas</button>
-              <button class="btn-erp-secondary btn-sm" id="btn-zonas-vista-tabla" onclick="ZonasView._setVistaModo('tabla')">Tabla ERP</button>
-            </div>
           </div>
         </div>
 
@@ -370,7 +781,7 @@ const ZonasView = {
     main.innerHTML = html;
 
     if (this._cache.length > 0) {
-      const modoGuardado = localStorage.getItem('zonas_view_mode') || 'tabla';
+      const modoGuardado = VistaRegistros.get();
       this._setVistaModo(modoGuardado, false);
     }
     // FAB Guía interactiva
@@ -381,7 +792,17 @@ const ZonasView = {
 
   async renderDetalle(params) {
     const index = params.get("index");
-    const finca = await Fincas.getActive();
+    const fincaActiva = await Fincas.getActive();
+    if (!fincaActiva) {
+      App.toastError('No hay finca activa');
+      location.hash = '#/zonas';
+      return;
+    }
+    const finca = { ...fincaActiva, zonas: (fincaActiva.zonas || []).map((zona) => zona ? { ...zona } : zona) };
+    const db = await window.dbPromise;
+    const rebanosFinca = finca.id != null ? await db.getAllFromIndex('rebanos', 'fincaId', finca.id).catch(() => []) : [];
+    this._resolverRelacionesLegacyZonas(finca, rebanosFinca);
+    this._asegurarIdsZonas(finca, rebanosFinca.map((rebano) => rebano.zonaId));
     const zona = finca.zonas[parseInt(index)];
     if (!zona || zona.anulada) {
       App.toastError("Zona no disponible");
@@ -393,13 +814,32 @@ const ZonasView = {
     const ugmFactor = { 'Vacas': 1.0, 'Ovejas': 0.15, 'Cabras': 0.15, 'Cerdos': 0.3, 'Caballos': 1.1, 'Equino': 1.1 };
     const rebanos = await Rebanos.list();
     let ugmTotal = 0;
-    const superficie = zona.superficie || zona.superficieGrafica || 0;
-    for (let r of rebanos.filter(rb => rb.zonaActual === zona.nombre)) {
+    const superficie = zona.superficie ?? (zona.refCatastral
+      ? (zona.superficieCatastroHa ?? Number(zona.superficieGrafica) / 10000)
+      : zona.superficieGrafica) ?? 0;
+    for (let r of rebanos.filter(rb => zona.id != null
+      ? Number(rb.zonaId) === Number(zona.id)
+      : rb.zonaActual === zona.nombre)) {
       const factor = ugmFactor[r.especie] || 0.2;
       const ans = await Animales.list(r.id);
       ugmTotal += ans.length * factor;
     }
     const cargaGanadera = (superficie > 0 ? ugmTotal / superficie : 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const superficieEditableHa = zona.superficie != null
+      ? zona.superficie
+      : (zona.refCatastral
+        ? (zona.superficieCatastroHa ?? Number(zona.superficieGrafica) / 10000)
+        : zona.superficieGrafica || 0);
+    const croquisIds = [...new Set([zona.croquisId, ...(zona.croquisHistorialIds || [])].filter((id) => id != null))];
+    const croquisRegistros = await Promise.all(croquisIds.map(async (id) => ({
+      id,
+      registro: await db.get('croquis_parcelas', id).catch(() => null)
+    })));
+    const croquisHtml = croquisRegistros.filter(({ registro }) => registro?.blob).map(({ id, registro }) => `
+      <button type="button" class="btn btn-secondary btn-sm" onclick="ZonasView._verCroquis(${Number(id)}, ${parseInt(index)})">
+        Ver croquis ${id === zona.croquisId ? '(vigente)' : '(histórico)'} · ${new Date(registro.creadoEn || '').toLocaleDateString('es-ES')}
+      </button>
+    `).join('');
 
     ZonasView._zonaGuardada = false;
     App.setExitGuard(() => ZonasView._confirmSalirEdicion());
@@ -418,7 +858,7 @@ const ZonasView = {
             <div><label class="form-label" for="z-edit-aforo">Aforo Máximo</label>
             <input type="number" id="z-edit-aforo" value="${zona.aforoMax || ""}" class="premium-input"></div>
             <div><label class="form-label" for="z-edit-superficie">Superficie (ha)</label>
-            <input type="number" id="z-edit-superficie" value="${zona.superficieGrafica || ""}" step="0.01" class="premium-input"></div>
+            <input type="number" id="z-edit-superficie" value="${superficieEditableHa || ""}" step="0.0001" class="premium-input"></div>
           </div>
           <div><label class="form-label" for="z-edit-pac">Código PAC (Parcela Agraria)</label>
           <input type="text" id="z-edit-pac" value="${zona.codigo_pac || ""}" placeholder="Ej: ES01A123456789" class="premium-input"></div>
@@ -432,6 +872,19 @@ const ZonasView = {
           </div>
           <div><label class="form-label" for="z-edit-localizacion">Localización</label>
           <textarea id="z-edit-localizacion" class="premium-input min-h-60 resize-none">${zona.localizacion || ""}</textarea></div>
+          ${zona.refCatastral ? `
+            <div class="card p-12 mt-10">
+              <strong class="text-white">Datos importados del Catastro</strong>
+              <div class="text-gray text-xs mt-6">Ref. ${zona.refCatastral} · Polígono ${zona.poligono ?? '—'} · Parcela ${zona.parcela ?? '—'}</div>
+              <div class="text-gray text-xs mt-4">${zona.paraje || ''}${zona.municipio ? ` · ${zona.municipio}` : ''}${zona.provincia ? ` · ${zona.provincia}` : ''}</div>
+              <div class="text-gray text-xs mt-4">${zona.clase || ''}${zona.usoPrincipalCatastro ? ` · ${zona.usoPrincipalCatastro}` : ''}${zona.superficieGrafica ? ` · ${Number(zona.superficieGrafica).toLocaleString('es-ES')} m² (${Number(zona.superficieCatastroHa ?? Number(zona.superficieGrafica) / 10000).toLocaleString('es-ES')} ha catastrales)` : ''}</div>
+              ${zona.localizacionCatastro ? `<div class="text-gray text-xs mt-4">Localización catastral: ${zona.localizacionCatastro}</div>` : ''}
+              ${zona.superficieConstruida ? `<div class="text-gray text-xs mt-4">Superficie construida: ${Number(zona.superficieConstruida).toLocaleString('es-ES')} m²${zona.anoConstruccion ? ` · Año ${zona.anoConstruccion}` : ''}</div>` : ''}
+              ${zona.cultivos?.length ? `<div class="text-gray text-xs mt-4">Cultivos SIGPAC: ${zona.cultivos.map((c) => `${c.letra || ''} ${c.aprovechamiento || c.cultivo || ''}${c.intensidad ? ` (${c.intensidad})` : ''}${c.superficie != null ? ` · ${Number(c.superficie).toLocaleString('es-ES')} m²` : ''}`).join(' · ')}</div>` : ''}
+              ${zona.construcciones?.length ? `<div class="text-gray text-xs mt-4">Construcciones: ${zona.construcciones.map((c) => `${c.uso || ''}${c.superficie != null ? ` (${Number(c.superficie).toLocaleString('es-ES')} m²)` : ''}`).join(' · ')}</div>` : ''}
+              ${croquisHtml ? `<div class="flex flex-wrap gap-6 mt-8">${croquisHtml}</div>` : ''}
+            </div>
+          ` : ''}
         </div>
       </div>
         <div class="wizard-footer-fixed border-top-222">
@@ -445,14 +898,22 @@ const ZonasView = {
   },
   async _guardarZona(index) {
     try {
-      const finca = await Fincas.getActive();
+      const fincaActiva = await Fincas.getActive();
+      if (!fincaActiva) return App.toastError('No hay finca activa');
+      const finca = { ...fincaActiva, zonas: (fincaActiva.zonas || []).map((item) => item ? { ...item } : item) };
+      const db = await window.dbPromise;
+      const rebanosFinca = finca.id != null ? await db.getAllFromIndex('rebanos', 'fincaId', finca.id).catch(() => []) : [];
+      this._resolverRelacionesLegacyZonas(finca, rebanosFinca);
+      this._asegurarIdsZonas(finca, rebanosFinca.map((rebano) => rebano.zonaId));
+      const migracionRelaciones = {
+        rebanosActualizados: rebanosFinca.filter((rebano) => rebano && (rebano.zonaId == null || rebano.zonaId === ''))
+          .map((rebano) => {
+            const matches = finca.zonas.filter((item) => this._normalizarClaveZona(item?.nombre) === this._normalizarClaveZona(rebano.zonaActual));
+            return matches.length === 1 && !matches[0].anulada ? { ...rebano, zonaId: Number(matches[0].id) } : null;
+          }).filter(Boolean)
+      };
       const zona = finca.zonas[index];
-
-      // Ensure zona has an ID (for backward compatibility with older zonas)
-      if (!zona.id) {
-        const maxId = finca.zonas.reduce((max, z) => Math.max(max, z.id || 0), 0);
-        zona.id = maxId + 1;
-      }
+      if (!zona || zona.anulada) return App.toastError('Zona no disponible');
 
       zona.nombre = document.getElementById("z-edit-nombre").value.trim();
 
@@ -461,19 +922,31 @@ const ZonasView = {
       zona.aforo_maximo = aforo;
 
       const sup = parseFloat(document.getElementById("z-edit-superficie").value) || 0;
-      zona.superficieGrafica = sup;
       zona.superficie = sup;
+      zona.superficieOrigen = 'manual';
+      if (!zona.refCatastral) {
+        zona.superficieGrafica = sup;
+      } else {
+        zona.superficieGrafica = Number(zona.superficieGrafica) || Math.round(sup * 10000);
+      }
 
       zona.codigo_pac = document.getElementById("z-edit-pac").value.trim();
 
       const uso = document.getElementById("z-edit-uso").value.trim();
       zona.usoPrincipal = uso;
+      zona.usoPrincipalOrigen = 'manual';
       zona.uso = uso;
 
       zona.distancia_agua_m = parseInt(document.getElementById("z-edit-agua").value) || 0;
       zona.localizacion = document.getElementById("z-edit-localizacion").value.trim();
       if (!zona.nombre) return App.toastError("Nombre requerido");
-      await Fincas.save(finca);
+      zona.actualizadaEn = new Date().toISOString();
+      await ZonasView._guardarFincaYEventoZona(
+        finca, zona, 'actualizacion_manual_zona',
+        `Actualización manual de zona ${zona.nombre}`,
+        'Datos operativos de la zona actualizados desde su ficha; se conservaron el ID y las relaciones existentes.',
+        migracionRelaciones.rebanosActualizados
+      );
       ZonasView._zonaGuardada = true;
       App.toast("Zona actualizada", "success");
       location.hash = "#/zonas";
@@ -560,27 +1033,122 @@ const ZonasView = {
       steps: wizardSteps,
       onComplete: async (finalData) => {
         try {
-          const finca = await Fincas.getActive();
-          // Initialize zonas array if it doesn't exist
+          const fincaActiva = await Fincas.getActive();
+          if (!fincaActiva) {
+            App.toastError('No hay finca activa');
+            return;
+          }
+          const finca = {
+            ...fincaActiva,
+            zonas: (fincaActiva.zonas || []).map((zona) => zona ? { ...zona } : zona)
+          };
           if (!Array.isArray(finca.zonas)) finca.zonas = [];
-          // Generate unique ID for the new zona
-          const maxId = finca.zonas.reduce((max, zona) => Math.max(max, zona.id || 0), 0);
-          const newId = maxId + 1;
 
-          finca.zonas.push({
+          // La coincidencia por nombre es orientativa; las claves de parcela/PAC
+          // son fuertes y no permiten crear un segundo registro duplicado.
+          const db = await window.dbPromise;
+          const rebanosFinca = finca.id != null
+            ? await db.getAllFromIndex('rebanos', 'fincaId', finca.id).catch(() => [])
+            : [];
+          this._resolverRelacionesLegacyZonas(finca, rebanosFinca);
+          this._asegurarIdsZonas(finca, rebanosFinca.map((rebano) => rebano.zonaId));
+          const migracionRelaciones = {
+            rebanosActualizados: rebanosFinca.filter((rebano) => rebano && (rebano.zonaId == null || rebano.zonaId === ''))
+              .map((rebano) => {
+                const matches = finca.zonas.filter((zona) => this._normalizarClaveZona(zona?.nombre) === this._normalizarClaveZona(rebano.zonaActual));
+                return matches.length === 1 && !matches[0].anulada ? { ...rebano, zonaId: Number(matches[0].id) } : null;
+              }).filter(Boolean)
+          };
+          const coincidencias = this._buscarCoincidenciasZona(finca.zonas, {
+            nombre: finalData.nombre,
+            codigo_pac: finalData.codigo_pac
+          });
+          const coincidenciaCatastralFuerte = this._buscarCoincidenciasZona(finca.zonas, {
+            codigo_pac: finalData.codigo_pac
+          }).some((item) => item.coincidencia !== 'nombre (revisar)');
+          if (coincidencias.length) {
+            const soloNombre = coincidencias.every((item) => item.coincidencia === 'nombre (revisar)') && !coincidenciaCatastralFuerte;
+            const decision = await this._elegirCoincidenciaManual(coincidencias, soloNombre);
+            if (!decision || decision.accion === 'cancelar') return;
+            if (decision.accion === 'actualizar') {
+              const coincidenciaElegida = coincidencias[decision.index];
+              if (!coincidenciaElegida || coincidenciaCatastralFuerte && coincidenciaElegida.coincidencia === 'nombre (revisar)') {
+                App.toastError('Debes elegir la zona que coincide por código PAC; no se permite crear ni actualizar otra zona por nombre.');
+                return;
+              }
+              const zonaExistente = coincidenciaElegida?.zona?.id != null
+                ? finca.zonas.find((zona) => Number(zona?.id) === Number(coincidenciaElegida.zona.id))
+                : finca.zonas[coincidenciaElegida?.index];
+              const coincidenciasActuales = this._buscarCoincidenciasZona(finca.zonas, {
+                nombre: finalData.nombre,
+                codigo_pac: finalData.codigo_pac
+              });
+              if (!zonaExistente || zonaExistente.anulada || !coincidenciasActuales.some((item) =>
+                item.index === finca.zonas.indexOf(zonaExistente) && item.coincidencia === coincidenciaElegida.coincidencia)) {
+                App.toastError('La zona elegida ya no está disponible.');
+                return;
+              }
+              const superficieGrafica = Number(zonaExistente.superficieGrafica) || 0;
+              const indiceExistente = finca.zonas.findIndex((zona) => Number(zona?.id) === Number(zonaExistente.id));
+              const superficieManual = finca.zonas[indiceExistente].superficie;
+              finca.zonas[indiceExistente] = {
+                ...zonaExistente,
+                aforoMax: finalData.aforoMax,
+                aforo_maximo: finalData.aforoMax,
+                superficie: zonaExistente.refCatastral ? superficieManual : finalData.superficie,
+                superficieGrafica: zonaExistente.refCatastral ? superficieGrafica : finalData.superficie,
+                superficieOrigen: zonaExistente.refCatastral ? (zonaExistente.superficieOrigen || 'manual') : 'manual',
+                usoPrincipal: finalData.usoPrincipal,
+                usoPrincipalOrigen: 'manual',
+                uso: finalData.usoPrincipal,
+                codigo_pac: zonaExistente.refCatastral ? (zonaExistente.codigo_pac || '') : (finalData.codigo_pac || zonaExistente.codigo_pac || ''),
+                distancia_agua_m: finalData.distancia_agua_m,
+                actualizadaEn: new Date().toISOString()
+              };
+              await this._guardarFincaYEventoZona(
+                finca, finca.zonas[indiceExistente], 'actualizacion_manual_zona',
+                `Actualización manual de zona ${zonaExistente.nombre}`,
+                'Actualización confirmada desde el asistente de nueva zona; se conservaron el ID y las relaciones existentes.',
+                migracionRelaciones.rebanosActualizados
+              );
+              App.toast('Zona existente actualizada; sus relaciones se conservaron', 'success');
+              location.hash = '#/zonas';
+              return;
+            }
+            if (decision.accion !== 'crear') return;
+            if (coincidenciaCatastralFuerte) {
+              App.toastError('El código PAC ya pertenece a una zona; no se puede crear otra con ese identificador.');
+              return;
+            }
+          }
+
+          const idsOcupados = [
+            ...finca.zonas.map((zona) => Number(zona?.id) || 0),
+            ...rebanosFinca.map((rebano) => Number(rebano?.zonaId) || 0)
+          ];
+          const newId = Math.max(0, ...idsOcupados) + 1;
+
+          const zonaNueva = {
             id: newId,
             nombre: finalData.nombre,
             aforoMax: finalData.aforoMax,
             aforo_maximo: finalData.aforoMax,
-            superficieGrafica: finalData.superficie,
             superficie: finalData.superficie,
+            superficieOrigen: 'manual',
             usoPrincipal: finalData.usoPrincipal,
+            usoPrincipalOrigen: 'manual',
             uso: finalData.usoPrincipal,
             codigo_pac: finalData.codigo_pac,
             distancia_agua_m: finalData.distancia_agua_m,
             creadoEn: Date.now(),
-          });
-          await Fincas.save(finca);
+          };
+          finca.zonas.push(zonaNueva);
+          await this._guardarFincaYEventoZona(
+            finca, zonaNueva, 'alta_manual_zona',
+            `Alta manual de zona ${finalData.nombre}`,
+            'Zona creada desde el asistente manual.',
+            migracionRelaciones.rebanosActualizados
+          );
           App.toast("Zona creada", "success");
           App.route();
         } catch (e) {
@@ -598,8 +1166,24 @@ const ZonasView = {
     }
     if (!await Confirm.confirm("Anular Zona", "¿Anular zona? Se conservará histórico para auditoría.", true)) return;
     try {
-      const finca = await Fincas.getActive();
-      const zona = finca?.zonas?.[index];
+      const fincaActiva = await Fincas.getActive();
+      if (!fincaActiva) throw new Error('No hay finca activa');
+      const finca = {
+        ...fincaActiva,
+        zonas: Array.isArray(fincaActiva.zonas) ? fincaActiva.zonas.map((item) => item ? { ...item } : item) : []
+      };
+      const db = await window.dbPromise;
+      const rebanosFinca = finca.id != null ? await db.getAllFromIndex('rebanos', 'fincaId', finca.id).catch(() => []) : [];
+      this._resolverRelacionesLegacyZonas(finca, rebanosFinca);
+      this._asegurarIdsZonas(finca, rebanosFinca.map((rebano) => rebano.zonaId));
+      const migracionRelaciones = {
+        rebanosActualizados: rebanosFinca.filter((rebano) => rebano && (rebano.zonaId == null || rebano.zonaId === ''))
+          .map((rebano) => {
+            const matches = finca.zonas.filter((item) => this._normalizarClaveZona(item?.nombre) === this._normalizarClaveZona(rebano.zonaActual));
+            return matches.length === 1 && !matches[0].anulada ? { ...rebano, zonaId: Number(matches[0].id) } : null;
+          }).filter(Boolean)
+      };
+      const zona = finca.zonas[index];
       if (!zona) {
         App.toastError("Zona no encontrada.");
         return;
@@ -608,18 +1192,12 @@ const ZonasView = {
       zona.anuladaEn = new Date().toISOString();
       zona.anuladoMotivo = motivo.trim();
       zona.actualizadoEn = new Date().toISOString();
-      await Fincas.save(finca);
-      await window.db.add("registro_eventos", {
-        fincaId: finca.id || await Fincas.getActiveId().catch(() => null),
-        tipo: "auditoria",
-        tipo_entidad: "zona",
-        entidad_id: index,
-        fecha: new Date().toISOString().split("T")[0],
-        motivo_tarea: "anulacion_zona",
-        descripcion: `Anulación de zona ${zona.nombre || "#" + index}`,
-        observaciones: motivo.trim(),
-        creadoEn: new Date().toISOString(),
-      }).catch(() => {});
+      await this._guardarFincaYEventoZona(
+        finca, zona, 'anulacion_zona',
+        `Anulación de zona ${zona.nombre || "#" + index}`,
+        motivo.trim(),
+        migracionRelaciones.rebanosActualizados
+      );
       App.toast("Zona anulada", "success");
       location.hash = "#/zonas";
     } catch (e) {
@@ -630,8 +1208,12 @@ const ZonasView = {
   async _abrirRotacion(zonaOrigenNombre) {
     try {
       const finca = await Fincas.getActive();
+      await this._asegurarIdsZonasYRelaciones(finca);
       const rebanos = await Rebanos.list();
-      const rebanosEnZona = rebanos.filter(r => r.zonaActual === zonaOrigenNombre);
+      const zonaOrigen = (finca?.zonas || []).find((zona) => zona.nombre === zonaOrigenNombre);
+      const rebanosEnZona = rebanos.filter((r) => zonaOrigen?.id != null
+        ? Number(r.zonaId) === Number(zonaOrigen.id)
+        : r.zonaActual === zonaOrigenNombre);
       
       if (rebanosEnZona.length === 0) {
         App.toast("No hay rebaños activos en esta zona para rotar.", "warning");
@@ -731,9 +1313,10 @@ const ZonasView = {
       // Resolver el ID de la parcela destino: el censo por zona filtra por zonaId,
       // así que debemos actualizar zonaId (fuente de verdad) además de zonaActual.
       const fincaObj = await Fincas.get(fincaId);
-      const zonaDestino = (fincaObj?.zonas || []).find(z => z.nombre === nuevaZonaNombre);
+      const zonaDestino = (fincaObj?.zonas || []).find((z) => z.nombre === nuevaZonaNombre);
+      if (!zonaDestino?.id) throw new Error('La zona destino no tiene un ID estable.');
       rebano.zonaActual = nuevaZonaNombre;
-      rebano.zonaId = zonaDestino?.id ?? null;
+      rebano.zonaId = Number(zonaDestino.id);
       await Rebanos.save(rebano);
       
       // Registrar evento de traslado para auditoría
@@ -789,6 +1372,29 @@ const ZonasView = {
       }
     }
     return { bloqueado: false };
+  },
+
+  async _verCroquis(croquisId, zonaIndex) {
+    try {
+      const db = await window.dbPromise;
+      const croquis = await db.get('croquis_parcelas', croquisId);
+      if (!croquis?.blob) {
+        App.toastError('El croquis ya no está disponible');
+        return;
+      }
+      const url = URL.createObjectURL(croquis.blob);
+      const id = `croquis-zona-${croquisId}-${Date.now()}`;
+      const zona = (await Fincas.getActive())?.zonas?.[zonaIndex];
+      DocumentViewer.show({
+        id,
+        title: `Croquis catastral · ${zona?.nombre || 'Zona'}`,
+        filename: `croquis-zona-${zona?.id || zonaIndex}`,
+        html: `<div style="display:flex;align-items:center;justify-content:center;min-height:70vh;background:#fff;"><img src="${url}" alt="Croquis catastral de ${zona?.nombre || 'la zona'}" style="max-width:100%;max-height:75vh;object-fit:contain;"></div>`,
+        onClose: () => URL.revokeObjectURL(url)
+      });
+    } catch (e) {
+      App.toastError(`No se pudo abrir el croquis: ${e.message}`);
+    }
   },
 
   async _importarDesdePDF() {

@@ -707,6 +707,17 @@ img { max-width: 100%; height: auto; display: block; }
   }
 }
 
+/* Capturas apaisadas (web/escritorio): el recorte portrait 195/422 con
+   object-fit: cover las_zoomea hasta perder el contexto. Sin ratio fijo,
+   imagen completa y ancho mayor; los spans de placeholder no aportan aquí. */
+.screenshot-placeholder.apaisada { aspect-ratio: auto; }
+.screenshot-placeholder.apaisada::before { display: none; }
+.screenshot-placeholder.apaisada img { height: auto; object-fit: contain; }
+.screenshot-placeholder.apaisada span { display: none; }
+@media (min-width: 768px) {
+  .screenshot-placeholder.apaisada { max-width: 760px; }
+}
+
 /* TABLET / MOBILE */
 
 @media (max-width: 768px) {
