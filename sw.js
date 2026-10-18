@@ -1,4 +1,4 @@
-const CACHE_NAME = 'corcho-v6.86';
+const CACHE_NAME = 'corcho-v6.89';
 const ASSETS = [
   './',
   './index.html',
@@ -27,6 +27,7 @@ const ASSETS = [
   './js/snapshot-service.js',
   './js/wizard-manager.js',
   './js/modal-manager.js',
+  './js/zonas.js',
   './js/reproduccion.js',
   './js/services/event-bus.js',
   './js/services/cache-service.js',
@@ -77,6 +78,8 @@ const ASSETS = [
   './js/qa-premium.js',
   './js/idb-local.js',
   './manual/index.html',
+  './manual/manual-zonas.html',
+  './manual/css/estilo-manual.css',
   './manual/estilo-manuales.css',
   './manual/ejemplo-ovino-carne.html',
   './manual/ejemplo-ovino-leche.html',
@@ -98,8 +101,11 @@ const ASSETS = [
   './manual/manual-gestion-documental.html',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/icon-placeholder.svg',
+  './icons/logo-header.png',
   './icons/Logo aplicación.png',
   './icons/Logo%20aplicaci%C3%B3n.png',
+  './icons/app-icon.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap',
   'https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@700;900&family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;600;700;800;900&display=swap',
   'js/vendor/html2pdf.bundle.min.js',

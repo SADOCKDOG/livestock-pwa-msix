@@ -513,7 +513,25 @@ const ExportService = {
       console.warn(`[ExportService] Capacitor falló:`, e?.message || e);
     }
 
-    // 2️⃣ Fallback: blob download (funciona en navegador)
+    // 2️⃣ File System Access API — selector de directorio en navegadores modernos
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{
+          description: 'Archivo de exportación',
+          accept: { 'text/csv': ['.csv'], 'application/xml': ['.xml'] }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      App.toast(`${filename} guardado`, 'success');
+      return;
+    } catch (e) {
+      if (e.name !== 'AbortError') console.warn('[ExportService] showSaveFilePicker falló:', e?.message || e);
+    }
+
+    // 3️⃣ Fallback: blob download (funciona en navegador)
     const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

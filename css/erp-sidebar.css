@@ -89,7 +89,10 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.58rem;
-  opacity: 0.65;
+  /* Texto secundario: color legible (AA) en lugar de bajar opacidad, que hundia
+     el contraste por debajo de 4.5:1 sobre --surface. */
+  color: var(--text-s, #B1B1B1);
+  opacity: 1;
   white-space: nowrap;
 }
 .sidebar-status .ss-value {

@@ -340,7 +340,9 @@ body[data-modo="claro"] .erp-data-table tbody tr:nth-child(even) {
    --------------------------------------------------------------------------- */
 .btn-erp-secondary.erp-btn-csv,
 .btn-erp-secondary.btn-sm.erp-btn-csv {
-  color: var(--c-info, #4FADF5);
+  /* Azul aclarado para que el texto del boton supere 4.5:1 sobre el fondo
+     tintado de la barra de la tabla (--c-info #3b82f6 se quedaba en 3.29). */
+  color: #7DB2F7;
   border: 1px solid var(--c-info, #4FADF5);
   background: rgba(79, 173, 245, 0.10);
   font-weight: 700;

@@ -388,7 +388,7 @@ const DashboardView = {
                   </div>
                   ${a.diasRestantes != null ? `<div style="text-align: right;">
                     <div style="color: var(--c-danger); font-weight: 900; font-size: var(--fs-h2);">${a.diasRestantes}D</div>
-                    <div style="color: #64748B; font-size: var(--fs-tiny); text-transform: uppercase; font-weight: 900; letter-spacing: 1px;">Restantes</div>
+                    <div style="color: #94A3B8; font-size: var(--fs-tiny); text-transform: uppercase; font-weight: 900; letter-spacing: 1px;">Restantes</div>
                   </div>` : `<div style="color:${a.urgencia === 'rojo' ? 'var(--c-danger)' : 'var(--c-warning)'}; font-size: var(--fs-h1);">${a.urgencia === 'rojo' ? Icons.alerta() : Icons.calendar()}</div>`}
                 </div>
               </div>`;
@@ -508,22 +508,22 @@ const DashboardView = {
     return `
       <div class="bento-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; animation: fadeInUp 0.4s ease;">
         <div class="card" style="grid-column: span 12; margin-bottom: 0; padding: 24px; text-align: center;">
-          <h3 style="color: var(--text-s); font-size: var(--fs-sm); text-transform: uppercase; margin-bottom: 20px; font-weight: 900; letter-spacing: 0.1em; border-bottom: none; padding-bottom: 0;"><span style="color: var(--header-neon-color, var(--c-success)); margin-right: 4px;">|</span> INDICADORES LÁCTEOS <span style="font-size: var(--fs-tiny); color: #64748B; text-transform: none;">(últimos 12 meses)</span></h3>
+          <h3 style="color: var(--text-s); font-size: var(--fs-sm); text-transform: uppercase; margin-bottom: 20px; font-weight: 900; letter-spacing: 0.1em; border-bottom: none; padding-bottom: 0;"><span style="color: var(--header-neon-color, var(--c-success)); margin-right: 4px;">|</span> INDICADORES LÁCTEOS <span style="font-size: var(--fs-tiny); color: #94A3B8; text-transform: none;">(últimos 12 meses)</span></h3>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; border-top: 1px solid #2a2a2a; padding-top: 20px;">
             <div>
               <div class="text-grey" style="font-size: var(--fs-label); font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;">MOFA</div>
               <div style="font-weight: 800; border: 1px solid ${mofaRatio >= 20 ? 'var(--c-success)' : 'var(--c-warning)'}; color: ${mofaRatio >= 20 ? 'var(--c-success)' : 'var(--c-warning)'}; background: ${mofaRatio >= 20 ? 'rgba(204, 255, 0, 0.1)' : 'rgba(255, 215, 0, 0.1)'}; padding: 6px 12px; border-radius: 8px; display: inline-block;">${UI.formatCurrency(Math.round(mofaTotal / meses))}</div>
-              <div style="font-size: var(--fs-tiny); color: #64748B; margin-top: 4px;">${mofaRatio.toFixed(1)}%</div>
+              <div style="font-size: var(--fs-tiny); color: #94A3B8; margin-top: 4px;">${mofaRatio.toFixed(1)}%</div>
             </div>
             <div>
               <div class="text-grey" style="font-size: var(--fs-label); font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;">PRECIO</div>
-              <div style="font-weight: 800; border: 1px solid var(--c-info); color: var(--c-info); background: rgba(79, 172, 254, 0.1); padding: 6px 12px; border-radius: 8px; display: inline-block;">${UI.formatNumber(precioFinalMedio, 3)}</div>
-              <div style="font-size: var(--fs-tiny); color: #64748B; margin-top: 4px;">€/L</div>
+              <div style="font-weight: 800; border: 1px solid var(--c-info-txt); color: var(--c-info-txt); background: rgba(79, 172, 254, 0.1); padding: 6px 12px; border-radius: 8px; display: inline-block;">${UI.formatNumber(precioFinalMedio, 3)}</div>
+              <div style="font-size: var(--fs-tiny); color: #94A3B8; margin-top: 4px;">€/L</div>
             </div>
             <div>
               <div class="text-grey" style="font-size: var(--fs-label); font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;">EXT. SECO</div>
-              <div style="font-weight: 800; border: 1px solid var(--c-purple); color: var(--c-purple); background: rgba(192, 132, 252, 0.1); padding: 6px 12px; border-radius: 8px; display: inline-block;">${esMedia.toFixed(2)}%</div>
-              <div style="font-size: var(--fs-tiny); color: #64748B; margin-top: 4px;">${conLab.length} anal.</div>
+              <div style="font-weight: 800; border: 1px solid var(--c-purple-txt); color: var(--c-purple-txt); background: rgba(192, 132, 252, 0.1); padding: 6px 12px; border-radius: 8px; display: inline-block;">${esMedia.toFixed(2)}%</div>
+              <div style="font-size: var(--fs-tiny); color: #94A3B8; margin-top: 4px;">${conLab.length} anal.</div>
             </div>
           </div>
           <div class="text-center" style="border-top: 1px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
@@ -622,29 +622,29 @@ const DashboardView = {
 
     const { litrosPorOveja, eficienciaPienso, pctBajas, totalHembras, litros7d, tratamientosMamitis } = kpis;
 
-    const kpiColorHex = litrosPorOveja != null ? (litrosPorOveja >= 1.0 ? 'var(--c-success)' : litrosPorOveja >= 0.5 ? 'var(--c-warning)' : 'var(--c-danger)') : 'var(--text-s)';
-    const piensoColorHex = eficienciaPienso != null ? (eficienciaPienso <= 600 ? 'var(--c-success)' : eficienciaPienso <= 900 ? 'var(--c-warning)' : 'var(--c-danger)') : 'var(--text-s)';
-    const bajasColorHex = pctBajas != null ? (pctBajas <= 3 ? 'var(--c-success)' : pctBajas <= 8 ? 'var(--c-warning)' : 'var(--c-danger)') : 'var(--text-s)';
+    const kpiColorHex = litrosPorOveja != null ? (litrosPorOveja >= 1.0 ? 'var(--c-success)' : litrosPorOveja >= 0.5 ? 'var(--c-warning)' : 'var(--c-danger-txt)') : 'var(--text-s)';
+    const piensoColorHex = eficienciaPienso != null ? (eficienciaPienso <= 600 ? 'var(--c-success)' : eficienciaPienso <= 900 ? 'var(--c-warning)' : 'var(--c-danger-txt)') : 'var(--text-s)';
+    const bajasColorHex = pctBajas != null ? (pctBajas <= 3 ? 'var(--c-success)' : pctBajas <= 8 ? 'var(--c-warning)' : 'var(--c-danger-txt)') : 'var(--text-s)';
 
     return `
       <div class="bento-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-bottom: 24px; animation: fadeInUp 0.4s ease;">
         <div class="card" style="grid-column: span 12; margin-bottom: 0; padding: 24px; text-align: center;">
-          <h3 style="color: var(--text-s); font-size: var(--fs-sm); text-transform: uppercase; margin-bottom: 20px; font-weight: 900; letter-spacing: 0.1em; border-bottom: none; padding-bottom: 0;"><span style="color: var(--header-neon-color, var(--c-success)); margin-right: 4px;">|</span> KPIS DIARIOS <span style="font-size: var(--fs-tiny); color: #64748B; text-transform: none;">(7-30 días)</span></h3>
+          <h3 style="color: var(--text-s); font-size: var(--fs-sm); text-transform: uppercase; margin-bottom: 20px; font-weight: 900; letter-spacing: 0.1em; border-bottom: none; padding-bottom: 0;"><span style="color: var(--header-neon-color, var(--c-success)); margin-right: 4px;">|</span> KPIS DIARIOS <span style="font-size: var(--fs-tiny); color: #94A3B8; text-transform: none;">(7-30 días)</span></h3>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; border-top: 1px solid #2a2a2a; padding-top: 20px;">
             <div>
               <div class="text-grey" style="font-size: var(--fs-label); font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;">L/DÍA</div>
               <div style="font-weight: 800; border: 1px solid ${kpiColorHex}; color: ${kpiColorHex}; background: color-mix(in srgb, ${kpiColorHex} 10%, transparent); padding: 6px 12px; border-radius: 8px; display: inline-block;">${litrosPorOveja != null ? litrosPorOveja.toFixed(2) : '—'}</div>
-              <div style="font-size: var(--fs-tiny); color: #64748B; margin-top: 4px;">${totalHembras} ♀</div>
+              <div style="font-size: var(--fs-tiny); color: #94A3B8; margin-top: 4px;">${totalHembras} ♀</div>
             </div>
               <div>
                 <div class="text-grey" style="font-size: var(--fs-label); font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;">PIENSO (g/L)</div>
                 <div style="font-weight: 800; border: 1px solid ${piensoColorHex}; color: ${piensoColorHex}; background: color-mix(in srgb, ${piensoColorHex} 10%, transparent); padding: 6px 12px; border-radius: 8px; display: inline-block;">${eficienciaPienso != null ? UI.formatNumber(eficienciaPienso) : '—'}</div>
-                <div style="font-size: var(--fs-tiny); color: #64748B; margin-top: 4px;">Eficiencia</div>
+                <div style="font-size: var(--fs-tiny); color: #94A3B8; margin-top: 4px;">Eficiencia</div>
               </div>
             <div>
               <div class="text-grey" style="font-size: var(--fs-label); font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;">BAJAS</div>
               <div style="font-weight: 800; border: 1px solid ${bajasColorHex}; color: ${bajasColorHex}; background: color-mix(in srgb, ${bajasColorHex} 10%, transparent); padding: 6px 12px; border-radius: 8px; display: inline-block;">${pctBajas != null ? pctBajas + '%' : '—'}</div>
-              <div style="font-size: var(--fs-tiny); color: #64748B; margin-top: 4px;">Mamitis</div>
+              <div style="font-size: var(--fs-tiny); color: #94A3B8; margin-top: 4px;">Mamitis</div>
             </div>
           </div>
         </div>

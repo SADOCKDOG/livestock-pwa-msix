@@ -126,7 +126,7 @@ const Fincas = {
         }
     },
 
-    async save(data) {
+    async save(data, options = {}) {
         const esNueva = !(data && data.id !== undefined && data.id !== null && data.id !== '');
         if (esNueva) await this._assertPuedeCrearFinca(data);
 
@@ -178,23 +178,40 @@ const Fincas = {
 
         const esEdicion = !esNueva;
 
-        // Process zonas to ensure they have unique IDs (for both new and updated fincas)
+        // Process zonas to ensure IDs do not collide with live IDs or orphaned
+        // zonaId references in rebanos. The zonaId on a rebano is authoritative;
+        // allocating a legacy zone onto one of those IDs would silently relink it.
         if (data.zonas && Array.isArray(data.zonas)) {
-            // Find the maximum existing ID to avoid conflicts
-            const maxExistingId = data.zonas.reduce((max, zona) => {
-                return zona.id && typeof zona.id === 'number' ? Math.max(max, zona.id) : max;
-            }, 0);
-            let nextId = Math.max(maxExistingId + 1, 1); // Start at 1
-
-            // Ensure all zonas have IDs
-            data.zonas = data.zonas.map(zona => {
-                // If zona already has a valid numeric ID, keep it
-                if (zona.id && typeof zona.id === 'number' && zona.id > 0) {
-                    return zona;
-                }
-                // Otherwise assign a new sequential ID
-                return {...zona, id: nextId++};
-            });
+            const zonasConId = data.zonas.filter((zona) => zona && zona.id !== undefined && zona.id !== null && zona.id !== '');
+            const ids = zonasConId.map((zona) => Number(zona.id));
+            if (ids.some((id) => !Number.isInteger(id) || id < 1)) {
+                throw new Error('Una zona tiene un ID no válido; no se reasignará automáticamente.');
+            }
+            if (new Set(ids).size !== ids.length) {
+                throw new Error('Hay IDs de zona duplicados; no se guardará para proteger las relaciones de rebaños.');
+            }
+            const zonasSinId = data.zonas.some((zona) => zona && (zona.id === undefined || zona.id === null || zona.id === ''));
+            if (zonasSinId && options.transaction) {
+                throw new Error('Asigna IDs estables a las zonas antes de abrir la transacción.');
+            }
+            if (zonasSinId) {
+                const rebanos = data.id != null
+                    ? await window.db.getAllFromIndex('rebanos', 'fincaId', data.id).catch(() => [])
+                    : [];
+                const idsReferenciados = new Set(rebanos
+                    .map((rebano) => Number(rebano?.zonaId))
+                    .filter((id) => Number.isInteger(id) && id > 0));
+                let nextId = Math.max(0, ...ids, ...idsReferenciados) + 1;
+                data.zonas = data.zonas.map((zona) => {
+                    if (!zona || zona.id !== undefined && zona.id !== null && zona.id !== '') return zona;
+                    while (idsReferenciados.has(nextId) || ids.includes(nextId)) nextId++;
+                    const zonaConId = { ...zona, id: nextId++ };
+                    ids.push(zonaConId.id);
+                    return zonaConId;
+                });
+            } else {
+                data.zonas = data.zonas.map((zona) => zona ? { ...zona, id: Number(zona.id) } : zona);
+            }
         }
 
         // Instalaciones de la finca (gap "Estructura" del mapa ADSG WEB, ver
@@ -249,12 +266,24 @@ const Fincas = {
 
         if (esEdicion) {
             data.id = Number(data.id);
-            await window.db.put('fincas', data);
+            if (data.zonas && Array.isArray(data.zonas)) {
+                const ids = data.zonas.filter((zona) => zona && zona.id != null && zona.id !== '').map((zona) => Number(zona.id));
+                if (ids.some((id) => !Number.isInteger(id) || id < 1) || new Set(ids).size !== ids.length ||
+                    data.zonas.some((zona) => zona && (zona.id == null || zona.id === ''))) {
+                    throw new Error('No se guardará la finca con IDs de zona incompletos o duplicados.');
+                }
+            }
+            if (options.transaction) {
+                await options.transaction.objectStore('fincas').put(data);
+            } else {
+                await window.db.put('fincas', data);
+            }
             if (flagsExplotacion && window.ModoContextoHelper) {
                 window.ModoContextoHelper.setFlags(flagsExplotacion, data.id);
             }
             return data.id;
         } else {
+            if (options.transaction) throw new Error('La creación de una finca no se admite dentro de una transacción de actualización.');
             delete data.id;
             const newId = await window.db.add('fincas', {
                 ...data,

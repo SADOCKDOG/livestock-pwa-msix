@@ -103,6 +103,7 @@ const AnimalesView = {
                oninput="AnimalesView._filtrar(this.value)"
                class="form-input search-input">
         <select id="animales-filtro-especie" class="form-select"
+                aria-label="Filtrar por especie"
                 onchange="AnimalesView._setFiltro('especie', this.value)">
           <option value="" ${this._filtroActivo.especie === '' ? 'selected' : ''}>Todas</option>
           <option value="Vacas" ${this._filtroActivo.especie === 'Vacas' ? 'selected' : ''}>Vacas</option>
@@ -111,14 +112,7 @@ const AnimalesView = {
           <option value="Cerdos" ${this._filtroActivo.especie === 'Cerdos' ? 'selected' : ''}>Cerdos</option>
         </select>
       </div>
-      <div id="animales-lista" class="grid gap-12">`;
-    filtrados.forEach(a => {
-      const rebano = rebanoMap[a.rebanoId];
-      const supresionInfo = window.Trazabilidad?.calcularSupresionRapida(a.id, a.rebanoId, sanitariosAll);
-      const props = App._getAnimalCardProps(a, rebano, supresionInfo);
-      html += App._cardRegistro(props);
-    });
-    html += `</div>
+      <div id="animales-lista" class="anim-in"></div>
       <div id="animales-erp-table-container" class="mt-12" style="display:none;"></div>
       <div id="animales-empty-search" class="card mt-10 p-12 text-center d-none" style="background: rgba(255,255,255,0.01);">
         <div class="text-2xl mb-8" style="color:#555;">${Icons.buscar()}</div>
@@ -129,6 +123,9 @@ const AnimalesView = {
     main.innerHTML = html;
     AnimalesView._cache = { animales, rebanoMap, sanitariosAll };
 
+    // Inicializar el scroller virtual para la lista de tarjetas
+    AnimalesView._initVirtualScroller();
+
     // Inicializar o restaurar modo de vista (por defecto "tabla" en escritorio ≥ 1024px)
     const modoGuardado = VistaRegistros.get();
     AnimalesView._setVistaModo(modoGuardado, false);
@@ -137,6 +134,32 @@ const AnimalesView = {
     if (window.App && typeof App.renderGuideFab === 'function') {
       App.renderGuideFab('/ganaderia', 'animales');
     }
+  },
+
+  _initVirtualScroller() {
+    const cache = AnimalesView._cache;
+    const contenedor = document.getElementById('animales-lista');
+    if (!cache || !contenedor || !window.UI?.VirtualScroller) return;
+
+    if (AnimalesView._animalesVirtualScroller) {
+      AnimalesView._animalesVirtualScroller.destroy();
+      AnimalesView._animalesVirtualScroller = null;
+    }
+
+    AnimalesView._animalesVirtualScroller = new window.UI.VirtualScroller(contenedor, 130, {
+      buffer: 5,
+      height: 'calc(100vh - 220px)',
+      renderItem: (a) => {
+        const r = cache.rebanoMap[a.rebanoId];
+        const supresionInfo = window.Trazabilidad?.calcularSupresionRapida(a.id, a.rebanoId, cache.sanitariosAll);
+        const props = App._getAnimalCardProps(a, r, supresionInfo);
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = App._cardRegistro(props);
+        return wrapper.firstElementChild;
+      }
+    });
+
+    AnimalesView._animalesVirtualScroller.setItems(this._aplicarFiltros(cache.animales, cache.rebanoMap));
   },
 
   _aplicarFiltros(animales, rebanoMap) {
@@ -169,45 +192,27 @@ const AnimalesView = {
     texto = texto.trim().toLowerCase();
     const cache = AnimalesView._cache;
     if (!cache) return;
-    const contenedor = document.getElementById("animales-lista");
     const emptyMsg = document.getElementById("animales-empty-search");
-    if (!contenedor) return;
 
     let base = this._aplicarFiltros(cache.animales, cache.rebanoMap);
 
-    if (!texto) {
-      contenedor.style.display = 'grid';
-      if (emptyMsg) emptyMsg.style.display = 'none';
-      contenedor.innerHTML = base.map(a => {
-        const r = cache.rebanoMap[a.rebanoId];
-        const supresionInfo = window.Trazabilidad?.calcularSupresionRapida(a.id, a.rebanoId, cache.sanitariosAll);
-        const props = App._getAnimalCardProps(a, r, supresionInfo);
-        return App._cardRegistro(props);
-      }).join('');
-      return;
+    let filtrados = base;
+    if (texto) {
+      filtrados = base.filter(a => {
+        const rebano = cache.rebanoMap[a.rebanoId];
+        const nombreReb = rebano ? rebano.nombre.toLowerCase() : '';
+        return (a.numero_identificacion || '').toLowerCase().includes(texto) ||
+               (a.raza || '').toLowerCase().includes(texto) ||
+               nombreReb.includes(texto);
+      });
     }
 
-    const filtrados = base.filter(a => {
-      const rebano = cache.rebanoMap[a.rebanoId];
-      const nombreReb = rebano ? rebano.nombre.toLowerCase() : '';
-      return (a.numero_identificacion || '').toLowerCase().includes(texto) ||
-             (a.raza || '').toLowerCase().includes(texto) ||
-             nombreReb.includes(texto);
-    });
-
-    if (filtrados.length === 0) {
-      contenedor.style.display = 'none';
-      if (emptyMsg) emptyMsg.style.display = 'block';
-    } else {
-      contenedor.style.display = 'grid';
-      if (emptyMsg) emptyMsg.style.display = 'none';
-      contenedor.innerHTML = filtrados.map(a => {
-        const r = cache.rebanoMap[a.rebanoId];
-        const supresionInfo = window.Trazabilidad?.calcularSupresionRapida(a.id, a.rebanoId, cache.sanitariosAll);
-        const props = App._getAnimalCardProps(a, r, supresionInfo);
-        return App._cardRegistro(props);
-      }).join('');
+    const scroller = AnimalesView._animalesVirtualScroller;
+    if (scroller) {
+      scroller.setItems(filtrados);
     }
+
+    if (emptyMsg) emptyMsg.style.display = filtrados.length === 0 ? 'block' : 'none';
   },
 
   _setVistaModo(modo, guardar = true) {
@@ -224,7 +229,7 @@ const AnimalesView = {
       }
     } else {
       if (contenedorTabla) contenedorTabla.style.display = 'none';
-      if (contenedorCards) contenedorCards.style.display = 'grid';
+      if (contenedorCards) contenedorCards.style.display = 'block';
     }
   },
 

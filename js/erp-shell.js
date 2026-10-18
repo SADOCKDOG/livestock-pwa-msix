@@ -321,6 +321,10 @@
         <div class="ss-row"><span class="ss-label">Plan</span><span class="ss-value ${planClass}">${plan}</span></div>
         <div class="ss-row"><span class="ss-label">Fecha</span><span class="ss-value">${fecha}</span></div>
         <div class="ss-row"><span class="ss-label">Finca</span><span class="ss-value">${fincaNombre}</span></div>`;
+      // El pie lo genera SoportePanel (bloque «Soporte» con licencia y
+      // contador). Al repintarse innerHTML se pierde, así que se vuelve a
+      // montar aquí; si el módulo aún no ha cargado lo hace bajo demanda.
+      if (window.SoportePanel) window.SoportePanel.montarPie();
     },
 
     _updateSidebarNavigation(path, query) {

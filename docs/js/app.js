@@ -100,6 +100,8 @@ const App = {
     "/importar-rfid": "renderImportadorRFID",
     "/importar-zonas": "renderImportarZonas",
     "/agenda": "renderAgenda",
+    "/soporte": "renderSoporte",
+    "/mis-incidencias": "renderMisIncidencias",
   },
 
   async init() {
@@ -113,6 +115,12 @@ const App = {
       if (window.CacheService) window.CacheService.init();
       if (window.NotificacionesService) {
         window.NotificacionesService.init().catch(e => console.warn('[App] Error init notificaciones:', e));
+      }
+      // Avisa de las respuestas del soporte. No bloquea el arranque: si no hay
+      // red o no hay licencia, se calla y lo reintenta al volver al primer plano.
+      if (window.AvisosSoporteService) {
+        try { window.AvisosSoporteService.init(); }
+        catch (e) { console.warn('[App] Error init avisos de soporte:', e); }
       }
 
       this._setupOfflineIndicator();
@@ -348,6 +356,8 @@ const App = {
     '/informes': 'Informes',
     '/alertas': 'Alertas',
     '/ajustes': 'Ajustes',
+    '/soporte': 'Soporte',
+    '/mis-incidencias': 'Mis incidencias',
     '/compradores': 'Compradores',
     '/comprador': 'Ficha Comprador',
     '/proveedores': 'Proveedores',
@@ -1181,7 +1191,15 @@ const App = {
     if (!fincaId && path !== "/ajustes")
       return await AsistenteConfiguracion.mostrarAsistente();
 
-    main.innerHTML = '<div class="loader">Cargando...</div>';
+    // Show detailed progress indicator instead of simple loader
+    main.innerHTML = '<div id="progress-container"></div>';
+    const progressContainer = document.getElementById('progress-container');
+    App._currentProgress = new UI.Progress(progressContainer, {
+      showPercentage: true,
+      showTime: true,
+      showETA: true
+    });
+    App._currentProgress.start('Cargando aplicación...', 'Preparando la interfaz de usuario');
     App.clearExitGuard(); // La vista que se va a renderizar registrará su propia guarda si la necesita
 
     // El FAB "Guía" y el tour cuelgan de <body>, no de #app-content, así que no se
@@ -1204,6 +1222,16 @@ const App = {
       // forma de que el usuario supiera que algo habia fallado ni de reintentarlo.
       const gruposOk = await App._ensureRouteScripts(path);
       if (!gruposOk) {
+        // Complete progress indicator with error state
+        if (App._currentProgress) {
+          App._currentProgress.complete('Error al cargar');
+          setTimeout(() => {
+            if (App._currentProgress) {
+              App._currentProgress.destroy();
+              App._currentProgress = null;
+            }
+          }, 800);
+        }
         main.innerHTML = `
           <div class="card error-card">
             <h2>No se pudo cargar esta sección</h2>
@@ -1215,6 +1243,17 @@ const App = {
       const methodName = App.routes[path];
       if (methodName && typeof App[methodName] === "function") {
         await App[methodName](params);
+
+        // Complete progress indicator
+        if (App._currentProgress) {
+          App._currentProgress.complete('Carga completada');
+          setTimeout(() => {
+            if (App._currentProgress) {
+              App._currentProgress.destroy();
+              App._currentProgress = null;
+            }
+          }, 800);
+        }
 
         // Auto-start guide for this view/tab (if enabled and first visit)
         try {
@@ -1243,6 +1282,16 @@ const App = {
       }
     } catch (error) {
       console.error(error);
+      // Complete progress indicator with error state
+      if (App._currentProgress) {
+        App._currentProgress.complete('Error en la carga');
+        setTimeout(() => {
+          if (App._currentProgress) {
+            App._currentProgress.destroy();
+            App._currentProgress = null;
+          }
+        }, 800);
+      }
       main.innerHTML = `<div class="card error-card"><h2>Error</h2><p>${error.message}</p></div>`;
       main.classList.add('route-enter');
       main.addEventListener('animationend', () => main.classList.remove('route-enter'), { once: true });
@@ -2012,7 +2061,7 @@ const App = {
     if (!App._viewGroupLoadPromises[groupName]) {
       App._viewGroupLoadPromises[groupName] = Promise.all(files.map(src => new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = src + '?v=6.74.0';
+        s.src = src + '?v=6.85';  // mismo token que index.html, si no el navegador sirve la copia cacheada
         s.async = false;
         s.onload = resolve;
         s.onerror = reject;
@@ -2868,6 +2917,18 @@ const App = {
     if (window.AgendaView) { await AgendaView.render(params); }
   },
 
+  // Soporte: modulo de pago, requiere internet. La app sigue siendo gratuita
+  // y offline-first; esto es lo unico que necesita conexion y licencia.
+  async renderSoporte(params) {
+    if (window.SoporteView) { await SoporteView.render(params); }
+    else document.getElementById("app-content").innerHTML = '<div class="loader">Cargando soporte...</div>';
+  },
+
+  async renderMisIncidencias(params) {
+    if (window.MisIncidenciasView) { await MisIncidenciasView.render(params); }
+    else document.getElementById("app-content").innerHTML = '<div class="loader">Cargando incidencias...</div>';
+  },
+
   async renderSilos() {
     if (window.ExplotacionView) {
       ExplotacionView._activeSubModule = 'silos';
@@ -2887,12 +2948,25 @@ const App = {
   // ==========================================
   async renderInformes(params) {
     try {
-      // Soporte de deep-link: #/informes?tab=alertas (o cualquier sub-tab válido)
-      const tab = params?.get ? params.get('tab') : null;
-      if (tab && window.InformesView) {
-        const esValido = Object.values(InformesView._categories || {})
-          .some(cat => Object.prototype.hasOwnProperty.call(cat.tabs || {}, tab));
-        if (esValido) InformesView._currentTab = tab;
+      // Deep-link: #/informes?cat=general&tab=alertas (cualquier categoría/sub-tab válido).
+      if (params?.get && window.InformesView) {
+        const cats = InformesView._categories || {};
+        const cat = params.get('cat');
+        const tab = params.get('tab');
+        if (cat && Object.prototype.hasOwnProperty.call(cats, cat)) {
+          InformesView._currentCategory = cat;
+        }
+        const catActual = InformesView._currentCategory;
+        const tabsCat = (cats[catActual] || {}).tabs || {};
+        const tabValido = (t) => Object.prototype.hasOwnProperty.call(tabsCat, t);
+        if (tab && tabValido(tab)) {
+          InformesView._currentTab = tab;
+        } else if (!tabValido(InformesView._currentTab)) {
+          // El tab activo no pertenece a la categoría (p.ej. cambio de cat sin tab):
+          // caer al primer sub-tab válido de la categoría actual.
+          const primero = Object.keys(tabsCat).find(t => InformesView._esTabPermitida(t));
+          if (primero) InformesView._currentTab = primero;
+        }
       }
       await InformesView.render();
     } catch (e) {

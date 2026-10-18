@@ -2,6 +2,17 @@
  * Livestock Manager - ExplotacionView v1.8.0
  * Vista unificada del Módulo ExPro (Explotación y Producción)
  */
+// Claves de las sub-pestanas de Tramites. Fuente unica de verdad: la usan el
+// hub de gestion, la fila de botones (movil) y el sub-parametro de la ruta.
+const TRAMITE_SUB_TABS = [
+  { key: 'guias', label: 'Guías DIMOE', color: 'var(--c-info)', icon: Icons.documento() },
+  { key: 'censo', label: 'Censo Anual', color: 'var(--c-warning)', icon: Icons.animales() },
+  { key: 'crotales', label: 'Crotales', color: 'var(--c-success)', icon: Icons.paquete() },
+  { key: 'traslado', label: 'Traslados', color: 'var(--c-purple)', icon: Icons.trazabilidad() },
+  { key: 'infolac', label: 'Infolac', color: 'var(--c-info)', icon: Icons.leche() },
+  { key: 'archivo', label: 'Archivo', color: 'var(--c-orange)', icon: Icons.cuaderno() },
+];
+
 const ExplotacionView = {
   _activeSubModule: 'explotacion',
   _cachedData: null,
@@ -26,6 +37,19 @@ const ExplotacionView = {
   _cambiarTramiteSubTab(subTab) {
     this._tramiteSubTab = subTab;
     this.render();
+  },
+
+  // Resuelve el sub-parametro de la ruta contra las claves reales de Tramites.
+  // Las claves viven en TRAMITE_SUB_TABS, asi que no se mantiene una segunda
+  // lista que se quedaria desincronizada. Si el parametro no existe o no
+  // coincide con ninguna clave se conserva el valor actual: en movil la
+  // navegacion interna usa los botones, que no pasan por la ruta.
+  _aplicarTramiteSubDesdeRuta(sub) {
+    if (!sub || typeof sub !== 'string') return false;
+    if (!TRAMITE_SUB_TABS.some(t => t.key === sub)) return false;
+    if (this._tramiteSubTab === sub) return false;
+    this._tramiteSubTab = sub;
+    return true;
   },
 
   async _renderLacteoView(container) {
@@ -266,7 +290,7 @@ const ExplotacionView = {
         if (window.FitosanitariosView) await FitosanitariosView.render();
         break;
       case 'gastos':
-        if (window.GastosView) await GastosView.render();
+        if (window.GastosView) await GastosView.render(options);
         break;
       case 'proveedores':
         if (window.ProveedoresView) await ProveedoresView.render();
@@ -656,14 +680,7 @@ const ExplotacionView = {
     if (!container) return;
     container.innerHTML = `<div class="p-16 text-center text-gray text-xs uppercase font-800">Cargando trámites…</div>`;
 
-    const subTabs = [
-      { key: 'guias', label: 'Guías DIMOE', color: 'var(--c-info)', icon: Icons.documento() },
-      { key: 'censo', label: 'Censo Anual', color: 'var(--c-warning)', icon: Icons.animales() },
-      { key: 'crotales', label: 'Crotales', color: 'var(--c-success)', icon: Icons.paquete() },
-      { key: 'traslado', label: 'Traslados', color: 'var(--c-purple)', icon: Icons.trazabilidad() },
-      { key: 'infolac', label: 'Infolac', color: 'var(--c-info)', icon: Icons.leche() },
-      { key: 'archivo', label: 'Archivo', color: 'var(--c-orange)', icon: Icons.cuaderno() },
-    ];
+    const subTabs = TRAMITE_SUB_TABS;
 
     const [docs, pedidos, entregas, animales, movimientos] = await Promise.all([
       window.db?.getAll('documentos_legales').catch(() => []),
@@ -731,7 +748,7 @@ const ExplotacionView = {
             <button class="btn btn-create btn-lg w-full" onclick="App._abrirWizardCenso()">Generar Declaración Censal</button>
             <div class="grid grid-cols-2 gap-8">
               <button class="btn btn-dark py-12" onclick="App.route('/cuaderno')">${Icons.cuaderno()} Libro Registro</button>
-              <button class="btn btn-dark py-12" onclick="InformesView.renderCategoria('gegan')">${Icons.informes()} Informe REGA</button>
+              <button class="btn btn-dark py-12" onclick="App.route('/informes?cat=gegan')">${Icons.informes()} Informe REGA</button>
             </div>
 
             <div class="inf-section-title mt-8 mb-6 flex items-center gap-8 uppercase font-900 tracking-wider text-[0.7rem] text-gray">
@@ -840,7 +857,7 @@ const ExplotacionView = {
               color: 'var(--c-warning)',
               desc: 'Resumen anual de producción y movimientos',
               data: 'Balances de entrada, salida y existencias',
-              action: "InformesView.renderCategoria('produccion')",
+              action: "App.route('/informes?cat=expro&tab=produccion')",
               actionLabel: 'Balances Anuales'
             })}
           </div>`;
@@ -853,7 +870,7 @@ const ExplotacionView = {
           <span style="color: var(--c-info); margin-right: 4px;">|</span> HUB DE GESTIÓN ADMINISTRATIVA
         </div>
 
-        <div class="flex gap-8 px-12 pt-4 mb-14 overflow-x-auto no-scrollbar">
+        <div class="flex gap-8 px-12 pt-4 mb-14 overflow-x-auto no-scrollbar erp-solo-movil">
           ${subTabs.map(t => `
             <button class="text-[0.6rem] font-900 uppercase px-12 py-6 rounded-sm whitespace-nowrap"
                     style="background:${this._tramiteSubTab === t.key ? t.color : 'var(--c-222)'};
