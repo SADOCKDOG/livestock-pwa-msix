@@ -14,3 +14,7 @@ screenshots/
 
 # Manifiesto MSIX: se genera con la identidad real de la Store, no se versiona
 AppxManifest.xml
+
+# IDEs — configuracion personal del editor (coincide con el .gitignore del maestro)
+.idea/
+.vscode/
