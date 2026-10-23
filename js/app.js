@@ -2830,7 +2830,10 @@ const App = {
       if (tab) {
         ExplotacionView._activeSubModule = tab;
       }
-      await ExplotacionView.render();
+      // Se pasan los params: el sub-módulo de Láctea (?sub=) y la categoría de
+      // Finanzas (?cat=) los lee la vista en render(options). Sin esto cada
+      // entrada de submenú pintaba siempre el sub-tab por defecto.
+      await ExplotacionView.render(params);
     }
   },
 
