@@ -33,7 +33,9 @@ const ImportarZonasView = {
                   El flujo habitual: SIGPAC → Catastro → Imprimir datos → Guardar como PDF.
                 </p>
                 <div class="text-center" style="margin-top:1rem;">
-                  <button class="btn btn-secondary" style="border-left:3px solid #c9851f;" onclick="window.open('manual/manual-zonas.html', '_blank')">
+                  <!-- En Tauri window.open no abre nada (no hay plugin opener): se usa el
+                       visor de ManualesView (overlay en Android/PWA, embebido en escritorio). -->
+                  <button class="btn btn-secondary" style="border-left:3px solid #c9851f;" onclick="App._ensureViewGroup('manuales').then(function () { if (window.ManualesView) ManualesView._abrirManual('manual/manual-zonas.html', 'Manual Exportación PDF SIGPAC'); })">
                     <span class="flex flex-col items-center gap-1">${Icons.libro()} Manual Exportación PDF SIGPAC</span>
                   </button>
                 </div>

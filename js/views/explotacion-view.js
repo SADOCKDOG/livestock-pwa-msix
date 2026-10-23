@@ -238,6 +238,17 @@ const ExplotacionView = {
       this._activeSubModule = 'explotacion';
     }
 
+    // El sidebar de escritorio enlaza cada entrada de Láctea con
+    // /explotacion?tab=lacteo&sub=<clave>. Sin leerlo, todas las entradas del
+    // submenú pintaban el sub-tab que ya estuviera activo (dashboard por
+    // defecto): la vista ignoraba el parámetro y el usuario veía siempre lo
+    // mismo. Se valida contra las claves reales de _renderLacteoView.
+    const subLacteo = options?.get ? options.get('sub') : null;
+    if (this._activeSubModule === 'lacteo' && subLacteo &&
+        ['dashboard', 'tanques', 'control', 'balance', 'graficos'].includes(subLacteo)) {
+      this._lacteoSubTab = subLacteo;
+    }
+
     // Datos + KPI/acción principal solo tienen sentido en la pestaña "explotacion"
     // (balance leche/carne + FAB adaptativo ya existentes); se cargan aquí para
     // poder pintarlos en la cabecera antes de la barra de pestañas.
