@@ -44,7 +44,7 @@ Si en el futuro Microsoft/PWABuilder habilitan la Digital Goods API para PWAs em
 Desde PR #38 (`d436ce3`, ago 2026), la adaptación a escritorio de `AUDITORIA-DESKTOP-UI-UX.md`
 (sidebar propia `#desktopSidebar`, bottom-nav oculto en `>=1024px`) quedó **superada** por
 la "piel ERP": un sidebar de navegación (`#erpSidebar`, 240px) y tablas de datos
-(`erp-data-table.js`) que se originan en `LIVESTOCK-MANAGER` (rama `desktop-mvp`) y se
+(`erp-data-table.js`) que se originan en `LIVESTOCK-MANAGER` (rama `master`; absorbida antes desde la rama `desktop-mvp`) y se
 sincronizan aquí vía `scripts/sync-from-source.ps1`. Ficheros clave: `js/erp-shell.js`,
 `js/erp-data-table.js`, `css/erp-tokens.css`, `css/erp-sidebar.css`, `css/erp-data-table.css`.
 Se activan solo en `min-width: 1024px` (`matchMedia` en `erp-shell.js`, evaluado una vez en
@@ -73,7 +73,7 @@ en `livestock-desktop`), sospechar primero de `css/desktop.css` antes de tocar l
 tokens de color.
 
 **Importante — recordar en cada `sync-from-source.ps1`**: el módulo de Soporte (chat con IA)
-sigue parado a propósito en `feature/soporte-ia` del maestro hasta cerrar decisiones pendientes
+sigue parado a propósito en `master` (el código llegó desde `feature/soporte-ia`, ya absorbida) hasta cerrar decisiones pendientes
 (add-on en tiendas, precio, pago web, URL del Worker). Si el sync trae `js/views/soporte-view.js`
 o `js/views/mis-incidencias-view.js`, son ficheros muertos que dependen de un `window.SupportAPI`
 inexistente aquí — descartarlos del commit (ver `4e1da54`).
