@@ -8,7 +8,7 @@ La fuente documental canónica del diseño de autorización de integración y de
 
 Estas referencias describen el modelo de identidades Owner (FIDO) → App Exec → GitHub merge y el canal DOI previsto para operaciones de desarrollo. Esta PWA/MSIX es un producto separado; esta sección es documentación únicamente y no afirma que DOI, App Dev o App Exec estén operativos ni concede autorización de integración.
 
-**Estado explícito:** diseño documentado; integración del desarrollo pendiente de revisión; validación operativa pendiente. En la base revisada de Console (`c67d62ab12103752071f9fbfa2b317ae3d470062`), la aprobación local puede marcar una tarea `DONE` y la promoción contempla merge y sincronización/limpieza sin estar protegidos por el flujo FIDO/DOI documentado. Esta PR es solo documental: no implementa ni corrige ese gap ni valida la seguridad de Console.
+**Estado:** Owner Authorization/DOI es diseño documentado; integración del desarrollo pendiente de revisión; validación operativa pendiente. Esta PR es solo documental: no implementa ni corrige capacidades ni valida la seguridad de Console. El gap de comportamiento específico está documentado en [Console #1](https://github.com/SADOCKDOG/Console-AI-Dev-Infrastructure/pull/1).
 
 ## Qué se copió y qué se ajustó
 
