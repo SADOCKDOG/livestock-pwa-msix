@@ -2,6 +2,14 @@
 
 Proyecto **independiente** del repo `LIVESTOCK-MANAGER` (Android/Google Play). No comparte historial git, no toca `capacitor.config.ts`, `android/`, ni ningún script `build:*`/`cap:*` del proyecto original. Solo reutiliza como snapshot el HTML/CSS/JS raíz de esa app, que ya es una PWA autocontenida (manifest + service worker propios, sin dependencia real de Capacitor en el código fuente).
 
+## Gobernanza con la Factoría y autorización de propietario
+
+La fuente documental canónica del diseño de autorización de integración y del Dev Operations Intermediary (DOI) es el repositorio Factory: [Owner Authorization](https://github.com/SADOCKDOG/Autonomous-AI-Dev-Infrastructure/blob/main/docs/OWNER_AUTHORIZATION.md), [Dev Operations Intermediary](https://github.com/SADOCKDOG/Autonomous-AI-Dev-Infrastructure/blob/main/docs/security/DEV_OPERATIONS_INTERMEDIARY.md) y [especificaciones DOI](https://github.com/SADOCKDOG/Autonomous-AI-Dev-Infrastructure/tree/main/docs/specifications/doi/).
+
+Estas referencias describen el modelo de identidades Owner (FIDO) → App Exec → GitHub merge y el canal DOI previsto para operaciones de desarrollo. Esta PWA/MSIX es un producto separado; esta sección es documentación únicamente y no afirma que DOI, App Dev o App Exec estén operativos ni concede autorización de integración.
+
+**Estado:** Owner Authorization/DOI es diseño documentado; integración del desarrollo pendiente de revisión; validación operativa pendiente. Esta PR es solo documental: no implementa ni corrige capacidades ni valida la seguridad de Console. El gap de comportamiento específico está documentado en [Console #1](https://github.com/SADOCKDOG/Console-AI-Dev-Infrastructure/pull/1).
+
 ## Qué se copió y qué se ajustó
 
 - `index.html`, `sw.js`, `css/`, `js/`, `icons/`, `manual/`: copia directa desde la raíz de `LIVESTOCK-MANAGER`.
